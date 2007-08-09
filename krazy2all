@@ -25,7 +25,7 @@ use Getopt::Long;
 
 my($Prog) = 'krazyall';
 my
-$VERSION = '1.2'; #split line so MakeMaker can find the version here
+$VERSION = '2.0'; #split line so MakeMaker can find the version here
 
 my($help) = '';
 my($version) = '';
@@ -65,7 +65,7 @@ $opts .= "--export=$export " if ($export);
 $opts .= "--cms=$cms " if ($cms);
 $opts .= "--explain" if ($export ne "textlist");
 
-system("find . -name '*.cpp' -o -name '*.cc' -o -name '*.c' -o -name '*.h' -o -name '*.cxx' -o -name '*.hxx' | xargs krazy2 $opts");
+system("find . -name '*.cpp' -o -name '*.cc' -o -name '*.c' -o -name '*.h' -o -name '*.cxx' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' | xargs krazy2 $opts");
 
 # Help function: print help message and exit.
 sub Help {
