@@ -1,6 +1,6 @@
 # krazy non-binary plugins Makefile
 #
-# Copyright (C) 2005-2007 by Allen Winter <winter@kde.org>
+# Copyright (C) 2007 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,28 +18,6 @@
 
 # list of all plugins to install
 PLUGINS = "\
-captruefalse \
-constref \
-copyright \
-cpp \
-doublequote_chars \
-doxytags \
-dpointer \
-emptystrcompare \
-explicit \
-includes \
-inline \
-license \
-nullstrassign \
-nullstrcompare \
-qclasses \
-qminmax \
-qobject \
-sigsandslots \
-"
-
-# links to general purpose plugins
-PLUGINLNS = "\
 contractions \
 endswithnewline \
 i18ncheckarg \
@@ -48,7 +26,7 @@ spelling \
 
 #default installation location
 PREFIX=/usr/local
-INSTALLSCRIPT=$(PREFIX)/libexec/krazy-plugins/c++
+INSTALLSCRIPT=$(PREFIX)/libexec/krazy-plugins/general
 PERM=775
 
 all:
@@ -67,14 +45,10 @@ install::
 		cp -f $$plugin $(INSTALLSCRIPT)/$$plugin; \
 		chmod $(PERM) $(INSTALLSCRIPT)/$$plugin; \
 	done
-	list=$(PLUGINLNS); for plugin in $$list; do \
-		echo "Installing plugin link $$plugin"; \
-		( cd $(INSTALLSCRIPT) && ln -s ../general/$$plugin $$plugin ); \
-	done
 
 # remove old plugins that are no longer used
-install::
-	rm -f $(INSTALLSCRIPT)/doxytags.0
+#install::
+#	rm -f $(INSTALLSCRIPT)/doxytags.0
 
 clean:
 	@echo "Nothing to clean"

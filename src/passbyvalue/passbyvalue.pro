@@ -11,6 +11,6 @@ INCLUDEPATH += .
 SOURCES += passbyvalue.cpp
 
 # install
-target.path = $$[INSTALL_ROOT]/libexec/krazy-plugins
-sources.path = $$[INSTALL_ROOT]/libexec/krazy-plugins/passbyvalue
+target.path = $$[INSTALL_ROOT]/libexec/krazy-plugins/c++
+sources.path = $$[INSTALL_ROOT]/libexec/krazy-plugins/c++/passbyvalue
 INSTALLS += target sources
