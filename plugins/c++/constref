@@ -197,7 +197,7 @@ sub searchBack {
 }
 
 sub Help {
-  print "Check for methods that return 'const' references in public classes\n";
+  print "Check for methods that return 'const' refs in public classes\n";
   exit 0 if $help;
 }
 

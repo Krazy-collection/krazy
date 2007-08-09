@@ -180,7 +180,7 @@ if (!$cnt && !$scnt) {
 }
 
 sub Help {
-  print "Checks for QString containing a single char is better as a QChar\n";
+  print "Check for single char QStrings better written as a QChar\n";
   exit 0 if $help;
 }
 

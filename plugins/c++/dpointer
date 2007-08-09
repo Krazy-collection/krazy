@@ -451,7 +451,7 @@ sub searchBackWithStop {
 }
 
 sub Help {
-  print "Check for public classes with private members or d-pointer problems\n";
+  print "Check public classes with private members or d-pointer issues\n";
   exit 0 if $help;
 }
 
