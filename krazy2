@@ -181,11 +181,11 @@ my($absf, $dirf);
 foreach $type (keys %Checkers) {
   for $p (sort @{$Checkers{$type}}) {
     my($bp)=&basename($p);
-    print STDERR "=>$bp test in-progress." unless ($quiet);
     $result{$p} = "";
     my($nf) = 0;
     for $f (@ARGV) {
       next unless (&fileType($f) eq $type);
+      print STDERR "=>$bp test in-progress." unless ($quiet);
 
       $nf++;
       # skip the following files because they are auto-generated but do not
@@ -223,11 +223,13 @@ foreach $type (keys %Checkers) {
       close(SANE);
       $status{$p} += $?>>8;
       print STDERR "." unless ($nf%10 || $quiet);
+    } # foreach file to process
+    if ($nf > 0) {
+      $overall_status += $status{$p} if (defined($status{$p}));
+      print STDERR "done\n" unless ($quiet);
     }
-    $overall_status += $status{$p} if (defined($status{$p}));
-    print STDERR "done\n" unless ($quiet);
-  }
-}
+  } # foreach Checker of this type
+} # foreach type of file
 
 ###############################
 # This section prints results #
@@ -316,6 +318,7 @@ sub initCheckers {
 	       'c++'       => [],
 	       'desktop'   => [],
 	       'designer'  => [],
+	       'po'        => [],
 	      );
 }
 
@@ -324,7 +327,7 @@ sub List {
   my($prog, $use, $type);
   print "Available KDE source code sanitizer checks:\n";
   foreach $type (keys %Checkers) {
-    print "== For $type file types ==\n";
+    print "\nFor $type file types ==\n";
     if ($#{$Checkers{$type}} >= 0) {
       for $prog (sort @{$Checkers{$type}}) {
 	$use = `$prog --help`;
@@ -338,13 +341,13 @@ sub List {
 	  $use = "=>" . $use;
 	  print wrap("                  ",
 		     "                    ",
-		     $use); print "\n\n";
+		     $use); print "\n";
 	}
       }
     } else {
       printf("%18.18s\n", "(none)");
     }
-    print "\n" if (! $explain);
+#    print "\n" if (! $explain);
   }
   exit 0 if $list;
 }
@@ -362,6 +365,8 @@ sub fileType {
     return "desktop";
   } elsif ($f =~ m/\.ui$/) {
     return "designer";
+  } elsif ($f =~ m/\.po$/) {
+    return "po";
   }
   return "";
 }
