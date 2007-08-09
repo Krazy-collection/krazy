@@ -22,7 +22,6 @@ general \
 c++ \
 designer \
 desktop \
-po \
 "
 
 #default installation location
