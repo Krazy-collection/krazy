@@ -1,0 +1,152 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2007 by Thorsten Roeder <thorsten.roeder@weihenstephan.org>   #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for classes that should use the Q_OBJECT macro if derived
+# from QObject
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --explain:       print an explanation with solving instructions, then exit
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Getopt::Long;
+
+my($Prog) = "qobject";
+my($Version) = "1.0";
+
+my($help) = '';
+my($version) = '';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+
+exit 1
+if (!GetOptions('help' => \$help, 'version' => \$version,
+          'explain' => \$explain, 'installed' => \$installed,
+          'verbose' => \$verbose, 'quiet' => \$quiet));
+
+&Help() if $help;
+&Version() if $version;
+&Explain() if $explain;
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+# Check Condition
+my($f) = $ARGV[0];
+
+if ($f =~ m/\.h$/ || $f =~ m/\.hxx$/) {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!$quiet);
+  exit 0;
+}
+
+# slurp it in
+my(@data_lines) = <F>;
+close(F);
+
+#get all the c-style comments from the file
+my($data)="@data_lines";
+my(@comments) = ($data =~ /\/\*.*?\*\//gs);
+
+#for each comment, remove everything but the linebreaks, so
+#our line numbering report does not get screwed up.
+foreach my $comment ( @comments ) {
+        my($fixed_comment) = $comment;
+        $fixed_comment =~ s/[^\n]//gs;
+        $fixed_comment =~ s/\n/\n/gs;
+        $data =~ s/\Q$comment/$fixed_comment/s;
+}
+
+#put it back into an array so we can iterate over it
+my(@lines) = split(/\n/, $data);
+
+my($cnt) = 0;
+my($classcnt) = 0;
+my(%classline);
+my($linecnt) = 0;
+my($line);
+my($lstr) = "";
+
+# TODO: line numbering maybe incorrect if a macro is missing inside nested classes (rare case)
+my($lastl)=""; #lastline
+while ($linecnt < $#lines) {
+    $lastl = $line;
+    $line = $lines[$linecnt++];
+    if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+	$line =~ m+//.*[Kk]razy:skip+) {
+         $cnt = 0;
+         last;
+    }
+
+    if ($line =~ m/[[:space:]]*class[[:space:]]+[[:alnum:]]+[[:space:]]*:[[:space:]]*[[:alnum:]]+[[:space:]]+QObject/) {
+        next if ($lastl =~ m/template/ || $lastl =~ m/#define[[:space:]]/);
+        $classcnt++;
+        $classline{$classcnt}= $linecnt;
+    } elsif ($line =~ m/Q_OBJECT/) {
+        delete $classline{$classcnt} if exists $classline{$classcnt};
+        $classcnt--;
+    }
+}
+
+my (@classlinekeys) = sort keys(%classline);
+foreach(@classlinekeys) {
+    $cnt++;
+    if ($cnt == 1) {
+      $lstr = "line\#" . $classline{$_};
+    } else {
+      $lstr = $lstr . "," . $classline{$_};
+    }
+#    print "=> $lines[$classline{$_}]" if ($verbose);
+}
+
+if (!$cnt) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+} else {
+  print "$lstr ($cnt)\n" if (!$quiet);
+  exit $cnt;
+}
+
+sub Help {
+  print "Check for classes that should use the \'Q_OBJECT\' macro\n";
+  exit 0 if $help;
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if $version;
+}
+
+sub Explain {
+  print "QObject derived classes should use the Q_OBJECT macro.\nclass A : public QObject {...} becomes class A : public QObject { Q_OBJECT ... }\n";
+  exit 0 if $explain;
+}

@@ -1,0 +1,72 @@
++ Plugins
+  : contractions -- currently sucks
+     <D: C++ style comments> should extract simple comments
+     needs to consider "aldfa" concatenated lines within i18n().
+  : Convert Ben Meyer's testscripts
+    (from Reinhold)
+    - <D> Comparison with empty string vs. isEmpty
+    - check for old-style Qt constructor (with a const char*name argument)
+    - using this->
+    - .desktop file has errors
+    - possible double inclusion
+    - But please don't include the "Incorrect Copyright Year" check!
+      Since we are porting, every file will be changed, but most of the
+      changes are not  copyrightable, so the copyright should NOT be updated.
+    - and the check for kconfigXT validity
+  : License
+    - <D> handle reference to a license
+    - <D> don't check very short files (<5 lines?)
+  : <D> Spelling
+  : A null pointer is 0, not 0l, 0L or NULL (C++ only)
+  : QString::null
+    - hardly ever use it.
+    - <D> continue to permit QString::null in constructors
+    - <D> for setting something to a null use clear()
+        i.e. str = QString::null becomes str.clear()
+    - for doing something to a null, use QString ctor
+        i.e. do_something(QString::null) becomes do_something(QString());
+    - <D> for comparisons, use isNull()
+        i.e. if(str == QString::null) becomes if(str.isNull())
+    - Check for compares to QString()  i.e. no if(str == QString())
+  : Doxygen
+    - <D> For KDE 4.0 release only, remove @since tags
+    - <D> For KDE 4.0 release only, remove @deprecated tags?
+  : http://public.kitware.com/KWStyle/features.htm
+    - line length cannot exceed N (but what is N?)
+    -  Semicolons should be unique and
+       no space between the semicolon and the end of the phrase
+    - one and only one new line at the end of the file
+    - no extra spaces at the end of a line
+    - the name of the class should match the name of the file plus/minus
+      some characters (??)
+    - Check if there are spaces for operators: i.e a=b v.s. a = b (??)
+    - no slurs (black list of words) allowed (censorship??)
+
+KDE_EXPORT
+==========
+On Tuesday 01 March 2005 18:08, Allen Winter wrote:
+> So, in summary, we should have LIBxxx_EXPORT on all public classes in all
+> our libraries?
+Yes. Shared libraries to be precise (see below).
+
+> For example,  in libemailfunctions we should have LIBEMAILFUNCTIONS_EXPORT,
+Errr bad example..... libemailfunctions isn't a real shared lib, it's just
+a convenience library (see the Makefile.am howto for the distinction).
+So there's no problem for that one, unless there are apps which use those
+functions *via* libkdepim, without linking to libemailfunctions directly...
+but I doubt it.
+
+> where #define LIBEMAILFUNCTIONS_EXPORT KDE_EXPORT??
+Yes (by default - set those#defines in a central place, like a kdepim_export.h,
+for consistency with kdelibs_export.h and koffice_export.h)
+
+
+Common Programming Mistakes
+===========================
+http://developer.kde.org/documentation/other/mistakes.html
+
+
+Other
+=====
++ Check Ben Meyer's tests
+

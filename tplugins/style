@@ -1,0 +1,809 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2006-2007 by Allen Winter <winter@kde.org>                    #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for adherence to a coding style
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --explain:       print an explanation with solving instructions, then exit
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Getopt::Long;
+use Cwd 'abs_path';
+use Tie::IxHash;
+
+my($Prog) = "style";
+my($Version) = "1.0";
+
+my($help) = '';
+my($version) = '';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+
+exit 1
+if (!GetOptions('help' => \$help, 'version' => \$version,
+		'explain' => \$explain, 'installed' => \$installed,
+		'verbose' => \$verbose, 'quiet' => \$quiet));
+
+&Help() if $help;
+&Version() if $version;
+&Explain() if $explain;
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+
+# has of all issues we need to keep track of
+tie my(%Issues), "Tie::IxHash";
+
+# Check Condition
+my($f) = $ARGV[0];
+
+if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/ ||
+    $f =~ m/\.h$/ || $f =~ m/\.hxx$/ ) {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!$quiet);
+  exit 0;
+}
+
+my($MAXLEN)=100; #default max line length
+my($OFFSET)=4; #default indent offset
+my($absf) = abs_path($f);
+if ($absf =~ m/kdepim/) {
+  $OFFSET=2;
+}
+
+#open file and slurp it in
+open(F, "$f") || die "Couldn't open $f";
+my(@data_lines) = <F>;
+close(F);
+
+#get all the c-style comments from the file
+my($data)="@data_lines";
+my(@comments) = ($data =~ /\/\*.*?\*\//gs);
+
+#for each comment, remove everything but the linebreaks, so
+#our line numbering report does not get screwed up.
+foreach my $comment ( @comments ) {
+        my($fixed_comment) = $comment;
+        $fixed_comment =~ s/[^\n]//gs;
+        $fixed_comment =~ s/\n/\n/gs;
+        $data =~ s/\Q$comment/$fixed_comment/s;
+}
+
+#put it back into an array so we can iterate over it
+my(@lines) = split(/\n/, $data);
+
+my($cnt) = 0;
+my($linecnt) = 0;
+my($line);
+my($tline);
+my($pline);
+my($lstr) = "";
+my($lline) = "";
+my($indent,$lindent) = (0,0);
+&initIssues();
+foreach $line (@lines) {
+  chomp($line);
+  $line =~ s/^\ //;   #the comment stripper leaves a leading space
+  $linecnt++;
+
+  #skip preprocessor directives
+  next if ($line =~ m/#[[:space:]]*if/);
+  next if ($line =~ m/#[[:space:]]*else/);
+  next if ($line =~ m/#[[:space:]]*elif/);
+  next if ($line =~ m/#[[:space:]]*endif/);
+  next if ($line =~ m/#[[:space:]]*include/);
+  next if ($line =~ m/#[[:space:]]*define/);
+  next if ($line =~ m/#[[:space:]]*undef/);
+  next if ($line =~ m/#[[:space:]]*warning/);
+
+  $tline = $line;
+  if ($line =~ m+//+) {
+    $line =~ s+//.*++;  #strip C++ comments
+    $line =~ s/\s+$//;  #strip trailing whitespace
+  }
+
+  $line =~ s+\\\s*$++; #strip continuation
+  $line =~ s/\s+$//;  #strip trailing whitespace
+
+  $pline = $line;
+  $pline =~ s/".*"/""/g;
+  $pline =~ s/'.'/''/g;
+  $pline =~ s/SIGNAL\(.*\(.*\).*\)/SIGNAL\(\)/g;
+  $pline =~ s/SLOT\(.*\(.*\).*\)/SLOT\(\)/g;
+  $pline =~ s/\(\*[[:alnum:]_>-]*\)//g;
+  $pline =~ s/\([[:alnum:]_>-]*\)//g;
+  $pline =~ s/\([[:digit:]]*\)//g;
+  $pline =~ s/\(unsigned\)//g;
+  $pline =~ s/\(unsigned int\)//g;
+  $pline =~ s/\(int\)//g;
+  $pline =~ s/\(uint\)//g;
+  $pline =~ s/\(float\)//g;
+  $pline =~ s/\([[:alnum:]]*\s*\*\)//g;
+
+  if ($pline =~ m/\(/ && $pline =~ m/\([[:alnum:]"'\(]/ || $line =~ m/\( {2,}/) {
+    $Issues{'PARENSPACE'}{'count'}++;
+    if ($Issues{'PARENSPACE'}{'count'} == 1) {
+      $Issues{'PARENSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'PARENSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (no space after '\(') => $line\n" if ($verbose);
+  }
+
+  if ($pline =~ m/\)/ && $pline =~ m/[[:alnum:]"'\)]\)/ || $line =~ m/ {2,}\)/) {
+    $Issues{'SPACEPAREN'}{'count'}++;
+    if ($Issues{'SPACEPAREN'}{'count'} == 1) {
+      $Issues{'SPACEPAREN'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'SPACEPAREN'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (no space before '\)') => $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/\)const/ || $line =~ m/\) {2,}const/) {
+    $Issues{'SPACECONST'}{'count'}++;
+    if ($Issues{'SPACECONST'}{'count'} == 1) {
+      $Issues{'SPACECONST'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'SPACECONST'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (1 space before 'const') => $line\n" if ($verbose);
+  }
+
+  if ($pline =~ m/,[[:alnum:]]/ || $line =~ m/, {2,}/) {
+    if ($line !~ m/,[[:space:]]*$/ && $line !~ m/<.*,.*>/) {
+      $Issues{'COMMASPACE'}{'count'}++;
+      if ($Issues{'COMMASPACE'}{'count'} == 1) {
+	$Issues{'COMMASPACE'}{'lines'} = "line\#" . $linecnt;
+      } else {
+	$Issues{'COMMASPACE'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (no space after ',') => $line\n" if ($verbose);
+    }
+  }
+
+  if ($line =~ m/[[:space:]],/) {
+    $Issues{'SPACECOMMA'}{'count'}++;
+    if ($Issues{'SPACECOMMA'}{'count'} == 1) {
+      $Issues{'SPACECOMMA'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'SPACECOMMA'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (no space before ',') => $line\n" if ($verbose);
+  }
+
+  if ($pline =~ m/[[:alnum:]]\*/ || $pline =~ m/[[:alnum:]]&/) {
+    if ($pline !~ m/\*>/) {
+      $Issues{'STARSPACE'}{'count'}++;
+      if ($Issues{'STARSPACE'}{'count'} == 1) {
+	$Issues{'STARSPACE'}{'lines'} = "line\#" . $linecnt;
+      } else {
+	$Issues{'STARSPACE'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (space after '*' or '&') => $line\n" if ($verbose);
+    }
+  }
+
+  if ($pline =~ m/\(/ && $line =~ m/[[:space:]]*if[[:space:]]\(/ && $line !~ m/\{$/ && $line !~ m/\(\s*$/ && $line !~ m/,\s*$/ && $line !~ m/\.\s*$/ && !&isOKCond($line)) {
+    $Issues{'IFBRACE'}{'count'}++;
+    if ($Issues{'IFBRACE'}{'count'} == 1) {
+      $Issues{'IFBRACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'IFBRACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (missing if '{')=> $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/[[:space:]]*else[[:space:]]*/  && $line !~ m/else if/ && $line !~ m/} else {/) {
+    $Issues{'ELSEBRACE'}{'count'}++;
+    if ($Issues{'ELSEBRACE'}{'count'} == 1) {
+      $Issues{'ELSEBRACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'ELSEBRACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt ('}' else '{')=> $line\n" if ($verbose);
+  }
+
+  if (($line =~ m/[[:space:]]*for[[:space:]]\(/ || $line =~ m/[[:space:]]*foreach[[:space:]]\(/) && $line !~ m/\{$/ && $line !~ m/\;$/) {
+    $Issues{'FORBRACE'}{'count'}++;
+    if ($Issues{'FORBRACE'}{'count'} == 1) {
+      $Issues{'FORBRACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'FORBRACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (missing for '{')=> $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/[[:space:]]*while[[:space:]]\(/ && $line !~ m/\{$/ && !&isOKCond($line) && $line !~ m/\;$/) {
+    if ($line !~ m/\}[[:space:]]*while/) { # exclude the do-while
+      $Issues{'WHILEBRACE'}{'count'}++;
+      if ($Issues{'WHILEBRACE'}{'count'} == 1) {
+	$Issues{'WHILEBRACE'}{'lines'} = "line\#" . $linecnt;
+      } else {
+	$Issues{'WHILEBRACE'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (missing while '{')=> $line\n" if ($verbose);
+    }
+  }
+
+  if ($line =~ m/[[:space:]]*switch[[:space:]]\(/ && $line !~ m/\{$/) {
+    $Issues{'SWITCHBRACE'}{'count'}++;
+    if ($Issues{'SWITCHBRACE'}{'count'} == 1) {
+      $Issues{'SWITCHBRACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'SWITCHBRACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (missing switch '{')=> $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/[[:space:]]*enum[[:space:]]/ && $line !~ m/\{$/) {
+    $Issues{'ENUMBRACE'}{'count'}++;
+    if ($Issues{'ENUMBRACE'}{'count'} == 1) {
+      $Issues{'ENUMBRACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'ENUMBRACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (missing enum '{')=> $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/[[:space:]]*case[[:space:]].*:/ && $line =~ m/\{$/) {
+    $Issues{'CASEBRACE'}{'count'}++;
+    if ($Issues{'CASEBRACE'}{'count'} == 1) {
+      $Issues{'CASEBRACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'CASEBRACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (put {' on line after case:)=> $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/[[:space:]]*default[[:space:]].*:/ && $line =~ m/\{$/) {
+    $Issues{'CASEBRACE'}{'count'}++;
+    if ($Issues{'CASEBRACE'}{'count'} == 1) {
+      $Issues{'CASEBRACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'CASEBRACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (put {' on line after default:)=> $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/[[:alnum:]]::[[:alnum:]].*\(.*{/) {
+    if ($line !~ m/,/ && $line !~ m/\(\)->/ && !&isCond($line) && !&isCond($lline) && !&isLoop($line) && !&isLoop($lline)) {
+      $Issues{'FUNCBRACE'}{'count'}++;
+      if ($Issues{'FUNCBRACE'}{'count'} == 1) {
+	$Issues{'FUNCBRACE'}{'lines'} = "line\#" . $linecnt;
+      } else {
+	$Issues{'FUNCBRACE'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (put '{' on line after the 'class' or function)=> $line\n" if ($verbose);
+    }
+  }
+
+  if ($line =~ m/^[[:space:]]if\(/ || $line =~ m/^[[:space:]]*for\(/ || $line =~ m/^[[:space:]]*while\(/ || $line =~ m/^[[:space:]]*foreach\(/) {
+    $Issues{'CONDSPACE'}{'count'}++;
+    if ($Issues{'CONDSPACE'}{'count'} == 1) {
+      $Issues{'CONDSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'CONDSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (space before '(')=> $line\n" if ($verbose);
+  }
+
+  if ($pline =~ m/==/ && $line =~ m/==/ && $line !~ m/[[:space:]]{1}==[[:space:]]{1}/ && $line !~ m/==[[:space:]]*\(/) {
+    $Issues{'EQUALSPACE'}{'count'}++;
+    if ($Issues{'EQUALSPACE'}{'count'} == 1) {
+      $Issues{'EQUALSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'EQUALSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (spaces around '==') => $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/!=/ && $line !~ m/[[:space:]]{1}!=[[:space:]]{1}/ && $line !~ m/!=[[:space:]]*\(/) {
+    $Issues{'EQUALSPACE'}{'count'}++;
+    if ($Issues{'EQUALSPACE'}{'count'} == 1) {
+      $Issues{'EQUALSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'EQUALSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (spaces around '!=') => $line\n" if ($verbose);
+  }
+
+  if ($pline =~ m/\+/ && $line =~ m/\+/ && $line !~ m/[[:space:]]{1}\+[[:space:]]{1}/ && $line !~ m/\+=/ && $line !~ m/\+\+/ && $line !~ m/\+[[:digit:]]/ && $line !~ m/^[[:space:]]*\+/ && $line !~ m/\([[:space:]]*\+/ && $line !~ m/\+$/ && $line !~ m/operator\+/) {
+    $Issues{'OPERSPACE'}{'count'}++;
+    if ($Issues{'OPERSPACE'}{'count'} == 1) {
+      $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'OPERSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (spaces around '+') => $line\n" if ($verbose);
+  }
+
+  if ($pline =~ m/-/ && $line =~ m/-/ && $line !~ m/[[:space:]]{1}-[[:space:]]{1}/ && $line !~ m/-=/ && $line !~ m/\->/ && $line !~ m/--/ && $line !~ m/-[[:digit:]]/ && $line !~ m/=[[:space:]]{1}-/ && $line !~ m/^[[:space:]]*-/ && $line !~ m/\([[:space:]]*-/ && $line !~ m/-$/ && $line !~ m/operator-/) {
+    $Issues{'OPERSPACE'}{'count'}++;
+    if ($Issues{'OPERSPACE'}{'count'} == 1) {
+      $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'OPERSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (spaces around '-') => $line\n" if ($verbose);
+  }
+#Too hard
+#  if ($line =~ m/\*/ && $line !~ m/[[:space:]]{1}\*[[:space:]]{1}/) {
+#    $Issues{'OPERSPACE'}{'count'}++;
+#    if ($Issues{'OPERSPACE'}{'count'} == 1) {
+#      $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
+#    } else {
+#      $Issues{'OPERSPACE'}{'lines'} .= "," . $linecnt;
+#    }
+#    print "$linecnt (spaces around *) => $line\n" if ($verbose);
+#  }
+
+  if ($pline =~ m+/+ && $line =~ m+/+ && $line !~ m+[[:space:]]{1}/[[:space:]]{1}+ && $line !~ m+/=+ && $line !~ m/include/) {
+    $Issues{'OPERSPACE'}{'count'}++;
+    if ($Issues{'OPERSPACE'}{'count'} == 1) {
+      $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'OPERSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (spaces around '/') => $line\n" if ($verbose);
+  }
+
+  if ($pline =~ m/=/ && $line !~ m/[[:space:]]{1}=[[:space:]]{1}/ && $line !~ m/[=\!><%\+-|&]=/ && $line !~ m/=$/) {
+    $Issues{'ASSIGNSPACE'}{'count'}++;
+    if ($Issues{'ASSIGNSPACE'}{'count'} == 1) {
+      $Issues{'ASSIGNSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'ASSIGNSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (spaces around '=') => $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/};/ && $line =~ m/[[:space:]]{/ && $line !~ m/=\s*{/ && $line !~ m/{[[:space:]]*};/) {
+    $Issues{'BRACESEMI'}{'count'}++;
+    if ($Issues{'BRACESEMI'}{'count'} == 1) {
+      $Issues{'BRACESEMI'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'BRACESEMI'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (bad brace-semi encountered) => $line\n" if ($verbose);
+  }
+
+  if ($pline =~ m/return[[:space:]]*\(/ && $line !~ m/\?/ && $line !~ m/\($/ && $line !~ m/&\)/) {
+    $Issues{'RETURNPAREN'}{'count'}++;
+    if ($Issues{'RETURNPAREN'}{'count'} == 1) {
+      $Issues{'RETURNPAREN'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'RETURNPAREN'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (no return values in parens) => $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/{};/) {
+    $Issues{'BADSEMI'}{'count'}++;
+    if ($Issues{'BADSEMI'}{'count'} == 1) {
+      $Issues{'BADSEMI'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'BADSEMI'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (bad brace-brace-semi encountered) => $line\n" if ($verbose);
+  }
+
+# allow semi on line by itself
+#  if ($line =~ m/^\s*;\s*$/) {
+#    $Issues{'BADSEMI'}{'count'}++;
+#    if ($Issues{'BADSEMI'}{'count'} == 1) {
+#      $Issues{'BADSEMI'}{'lines'} = "line\#" . $linecnt;
+#    } else {
+#      $Issues{'BADSEMI'}{'lines'} .= "," . $linecnt;
+#    }
+#    print "$linecnt (semicolon on a line by itself) => $line\n" if ($verbose);
+#  }
+
+  if ($line =~ m/\s;/ && $line !~ m/for\s*\(\s*;/ && $line !~ m/while\s*\(\s*;/) {
+    if ($line !~ m/\s;$/) { # allow semi on line by itself
+      $Issues{'SPACESEMI'}{'count'}++;
+      if ($Issues{'SPACESEMI'}{'count'} == 1) {
+	$Issues{'SPACESEMI'}{'lines'} = "line\#" . $linecnt;
+      } else {
+	$Issues{'SPACESEMI'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (whitespace preceeding semicolon) => $line\n" if ($verbose);
+    }
+  }
+
+  if ($pline =~ m/;.*;/ && $line !~ m/\sfor\s*\(\s*/ && $line !~ m/\swhile\s*\(\s*/) {
+    $Issues{'MULTISTATE'}{'count'}++;
+    if ($Issues{'MULTISTATE'}{'count'} == 1) {
+      $Issues{'MULTISTATE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'MULTISTATE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (only 1 statement permitted per line) => $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/\t/) {
+    $Issues{'TAB'}{'count'}++;
+    if ($Issues{'TAB'}{'count'} == 1) {
+      $Issues{'TAB'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'TAB'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (tab encountered) => $line\n" if ($verbose);
+  }
+
+  # do this test last please
+  $line =~ s/\s+$//;
+  $tline = $line;
+  $tline =~ s/^\s+//;
+  $indent = length($line) - length($tline);
+  if ($indent % $OFFSET) {
+    if (!&isOKEnd($lline)) {
+      $Issues{'BADINDENTOFF'}{'count'}++;
+      if ($Issues{'BADINDENTOFF'}{'count'} == 1) {
+	$Issues{'BADINDENTOFF'}{'lines'} = "line\#" . $linecnt;
+      } else {
+	$Issues{'BADINDENTOFF'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (bad indent offset) => $tline\n" if ($verbose);
+    }
+  }
+  if ($indent != $lindent) {
+    if (($indent-$OFFSET) != $lindent && ($indent+$OFFSET) != $lindent) {
+      if ($line !~ m/^{/ && $line !~ m/};$/ && $line !~ m/^\s*<</ && !&isClVi($line) && $line !~ m/^\s*$/ && !&isOKEnd($lline) && $lline !~ /break;$/ && $lline !~ /return;$/) {
+	$Issues{'BADINDENTOFF'}{'count'}++;
+	if ($Issues{'BADINDENTOFF'}{'count'} == 1) {
+	  $Issues{'BADINDENTOFF'}{'lines'} = "line\#" . $linecnt;
+	} else {
+	  $Issues{'BADINDENTOFF'}{'lines'} .= "," . $linecnt;
+	}
+	print "$linecnt (bad indent offset too much) => $tline\n" if ($verbose);
+      }
+    }
+  }
+  if (($indent > 0) && ($indent < $lindent)) {
+    if ($line !~ m/^\s*}/ && $line !~ m/^\s*case/ && !&isClVi($line) && $lline !~ m/{\s*}$/ && !&isOKEnd($lline) && $lline !~ m/break/) { # legit reduce indent conditions
+      if(! ($lline =~ m/{$/ && $lline !~ m/^[[:space:]]for/ && $lline !~ m/^[[:space:]]while/ && $lline !~ m/^[[:space:]]if/)) { # last is continue if,while,for
+	$Issues{'BADINDENT'}{'count'}++;
+	if ($Issues{'BADINDENT'}{'count'} == 1) {
+	  $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
+	} else {
+	  $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
+	}
+	print "$linecnt (bad indent) => $tline\n" if ($verbose);
+      }
+    }
+  }
+  if ($indent > $lindent) {
+    if (!&isOKStart($line) && $lline !~ m/{$/ && $lline !~ m/,$/ && $lline !~ m/\($/ && $lline !~ m/:$/ && $lline !~ m/=$/ && $lline !~ m+\\$+ && $line !~ m+\\$+ && $lline !~ m/^\s*return/ && !&isOKCond($lline) && !&isLoop($lline) && !&isOper($lline)) {
+	$Issues{'BADINDENT'}{'count'}++;
+	if ($Issues{'BADINDENT'}{'count'} == 1) {
+	  $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
+	} else {
+	  $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
+	}
+      }
+  }
+  if (length($line)) {
+    if ($lline !~ m/,$/ && $lline !~ m/&&$/ && $lline !~ m/\|\|$/) {
+      #do not change indent level if line to be continued
+      $lindent = $indent
+    }
+    $lline = $line;
+  }
+}
+
+$linecnt=0;
+$lline = '';
+foreach $line (@data_lines) {
+  $linecnt++;
+  chomp($line);
+  if ($line =~ m/[[:space:]]$/) {
+    $Issues{'TRAILWHITE'}{'count'}++;
+    if ($Issues{'TRAILWHITE'}{'count'} == 1) {
+      $Issues{'TRAILWHITE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'TRAILWHITE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (tailing whitespace) => $line\n" if ($verbose);
+  }
+
+  if (length($line) > $MAXLEN) {
+    $Issues{'LINELEN'}{'count'}++;
+    if ($Issues{'LINELEN'}{'count'} == 1) {
+      $Issues{'LINELEN'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'LINELEN'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (line too long) => $line\n" if ($verbose);
+  }
+
+  if ($line =~ m/^[[:space:]]*$/ && $lline =~ m/^[[:space:]]*$/) {
+     $Issues{'BLANKS'}{'count'}++;
+     if ($Issues{'BLANKS'}{'count'} == 1) {
+       $Issues{'BLANKS'}{'lines'} = "line\#" . $linecnt;
+     } else {
+       $Issues{'BLANKS'}{'lines'} .= "," . $linecnt;
+     }
+     print "$linecnt (extra blank lines) => $tline\n" if ($verbose);
+   }
+
+  $lline = $line;
+}
+
+$cnt = &printResults();
+if (!$cnt) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+} else {
+  exit $cnt;
+}
+
+sub Help {
+  print "[TEST] Check for adherence to a coding style\n";
+  exit 0 if $help;
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if $version;
+}
+
+sub Explain {
+  print "Please follow the coding style guidelines at <http://korganizer.kde.org/develop/hacking.html>\n";
+  exit 0 if $explain;
+}
+
+sub initIssues() {
+
+  $Issues{'SPACEPAREN'}{'issue'} = 'Put 1 space before a closing paren';
+  $Issues{'SPACEPAREN'}{'count'} = 0;
+  $Issues{'SPACEPAREN'}{'lines'} = '';
+
+  $Issues{'PARENSPACE'}{'issue'} = 'Put 1 space after an opening paren';
+  $Issues{'PARENSPACE'}{'count'} = 0;
+  $Issues{'PARENSPACE'}{'lines'} = '';
+
+  $Issues{'COMMASPACE'}{'issue'} = 'Bad spacing after a comma';
+  $Issues{'COMMASPACE'}{'count'} = 0;
+  $Issues{'COMMASPACE'}{'lines'} = '';
+
+  $Issues{'SPACECOMMA'}{'issue'} = 'Bad spacing before a comma';
+  $Issues{'SPACECOMMA'}{'count'} = 0;
+  $Issues{'SPACECOMMA'}{'lines'} = '';
+
+  $Issues{'CONDSPACE'}{'issue'} = 'Put 1 space before the opening paren';
+  $Issues{'CONDSPACE'}{'count'} = 0;
+  $Issues{'CONDSPACE'}{'lines'} = '';
+
+  $Issues{'STARSPACE'}{'issue'} = 'Put 1 space before an asterisk or ampersand';
+  $Issues{'STARSPACE'}{'count'} = 0;
+  $Issues{'STARSPACE'}{'lines'} = '';
+
+  $Issues{'IFBRACE'}{'issue'} = 'Put a brace on the line with the \'if\'';
+  $Issues{'IFBRACE'}{'count'} = 0;
+  $Issues{'IFBRACE'}{'lines'} = '';
+
+  $Issues{'ELSEBRACE'}{'issue'} = 'Put a brace on the line with the \'else\'';
+  $Issues{'ELSEBRACE'}{'count'} = 0;
+  $Issues{'ELSEBRACE'}{'lines'} = '';
+
+  $Issues{'FORBRACE'}{'issue'} = 'Put a brace on the line with the \'for\'';
+  $Issues{'FORBRACE'}{'count'} = 0;
+  $Issues{'FORBRACE'}{'lines'} = '';
+
+  $Issues{'WHILEBRACE'}{'issue'} = 'Put a brace on the line with the \'while\'';
+  $Issues{'WHILEBRACE'}{'count'} = 0;
+  $Issues{'WHILEBRACE'}{'lines'} = '';
+
+  $Issues{'SWITCHBRACE'}{'issue'} = 'Put a brace on the line with the \'switch\'';
+  $Issues{'SWITCHBRACE'}{'count'} = 0;
+  $Issues{'SWITCHBRACE'}{'lines'} = '';
+
+  $Issues{'CASEBRACE'}{'issue'} = 'No brace on the line with the \'case\'';
+  $Issues{'CASEBRACE'}{'count'} = 0;
+  $Issues{'CASEBRACE'}{'lines'} = '';
+
+  $Issues{'FUNCBRACE'}{'issue'} = 'No brace on the line with the \'class\' or function';
+  $Issues{'FUNCBRACE'}{'count'} = 0;
+  $Issues{'FUNCBRACE'}{'lines'} = '';
+
+  $Issues{'ENUMBRACE'}{'issue'} = 'Put a brace on the line with the \'enum\'';
+  $Issues{'ENUMBRACE'}{'count'} = 0;
+  $Issues{'ENUMBRACE'}{'lines'} = '';
+
+  $Issues{'EQUALSPACE'}{'issue'} = 'Put spaces around \'==\' and \'!=\'';
+  $Issues{'EQUALSPACE'}{'count'} = 0;
+  $Issues{'EQUALSPACE'}{'lines'} = '';
+
+  $Issues{'OPERSPACE'}{'issue'} = 'Put spaces around \'+\', \'-\', \'*\', \'/\'';
+  $Issues{'OPERSPACE'}{'count'} = 0;
+  $Issues{'OPERSPACE'}{'lines'} = '';
+
+  $Issues{'ASSIGNSPACE'}{'issue'} = 'Put spaces around \'=\' assignment';
+  $Issues{'ASSIGNSPACE'}{'count'} = 0;
+  $Issues{'ASSIGNSPACE'}{'lines'} = '';
+
+  $Issues{'SPACECONST'}{'issue'} = 'Put 1 space between closing paren and const';
+  $Issues{'SPACECONST'}{'count'} = 0;
+  $Issues{'SPACECONST'}{'lines'} = '';
+
+  $Issues{'BRACESEMI'}{'issue'} = 'Invalid semicolon after closing brace';
+  $Issues{'BRACESEMI'}{'count'} = 0;
+  $Issues{'BRACESEMI'}{'lines'} = '';
+
+  $Issues{'SPACESEMI'}{'issue'} = 'No whitespace before semicolon';
+  $Issues{'SPACESEMI'}{'count'} = 0;
+  $Issues{'SPACESEMI'}{'lines'} = '';
+
+  $Issues{'RETURNPAREN'}{'issue'} = 'Do not put return values in parens';
+  $Issues{'RETURNPAREN'}{'count'} = 0;
+  $Issues{'RETURNPAREN'}{'lines'} = '';
+
+  $Issues{'BADSEMI'}{'issue'} = 'Invalid semicolon';
+  $Issues{'BADSEMI'}{'count'} = 0;
+  $Issues{'BADSEMI'}{'lines'} = '';
+
+  $Issues{'MULTISTATE'}{'issue'} = 'Multiple statements on 1 line';
+  $Issues{'MULTISTATE'}{'count'} = 0;
+  $Issues{'MULTISTATE'}{'lines'} = '';
+
+  $Issues{'TAB'}{'issue'} = 'Do not use tabs';
+  $Issues{'TAB'}{'count'} = 0;
+  $Issues{'TAB'}{'lines'} = '';
+
+  $Issues{'LINELEN'}{'issue'} = "Line longer than $MAXLEN characters";
+  $Issues{'LINELEN'}{'count'} = 0;
+  $Issues{'LINELEN'}{'lines'} = '';
+
+  $Issues{'BADINDENT'}{'issue'} = "Bad indentation";
+  $Issues{'BADINDENT'}{'count'} = 0;
+  $Issues{'BADINDENT'}{'lines'} = '';
+
+  $Issues{'BADINDENTOFF'}{'issue'} = "Bad ident offset";
+  $Issues{'BADINDENTOFF'}{'count'} = 0;
+  $Issues{'BADINDENTOFF'}{'lines'} = '';
+
+  $Issues{'TRAILWHITE'}{'issue'} = "Trailing whitespace";
+  $Issues{'TRAILWHITE'}{'count'} = 0;
+  $Issues{'TRAILWHITE'}{'lines'} = '';
+
+  $Issues{'BLANKS'}{'issue'} = "Extra blank lines";
+  $Issues{'BLANKS'}{'count'} = 0;
+  $Issues{'BLANKS'}{'lines'} = '';
+}
+
+sub printResults() {
+  my($guy);
+  my($check_num)=0;
+  my($tot)=0;
+  my($cline,$rline);
+  my($fred);
+  foreach $guy (keys %Issues) {
+    $cline = "$Issues{$guy}{'issue'}:";
+
+    if ($Issues{$guy}{'count'}) {
+      $tot += $Issues{$guy}{'count'};
+      print "$cline $Issues{$guy}{'lines'}\n";
+    }
+  }
+  return $tot;
+}
+
+# printCheck function: print the "check" and "result" strings
+sub printCheck(){
+  my($check,$result) = @_;
+  print "$check $result\n";
+}
+
+# isClVi function: return 1 if the string contains a class visibity
+sub isClVi() {
+  my($l) = @_;
+  return 1
+    if ($l =~ m/^\s*public:/ ||
+	$l =~ m/^\s*private:/ ||
+	$l =~ m/^\s*public slots:/ ||
+	$l =~ m/^\s*protected:/ ||
+	$l =~ m/^\s*signals:/ ||
+	$l =~ m/^\s*slots:/ ||
+	$l =~ m/^\s*Q_SIGNALS:/ ||
+	$l =~ m/^\s*public Q_SIGNALS:/ ||
+	$l =~ m/^\s*Q_SLOTS:/ ||
+	$l =~ m/^\s*public Q_SLOTS:/);
+  return 0;
+}
+
+# isOKStart function: return 1 if the string starts with ok stuff
+sub isOKStart() {
+  my($l) = @_;
+  return 1
+    if ($l =~ m/^\s*<</ ||
+	$l =~ m/^\s*>>/ ||
+	$l =~ m/^\s*\"/ ||
+	$l =~ m/^\s*:/);
+  return 0;
+}
+
+# isOKEnd function: return 1 if the string ends with ok stuff
+sub isOKEnd() {
+  my($l) = @_;
+  return 1
+    if ($l =~ m/,\s*$/ ||
+	$l =~ m/\"\s*$/ ||
+	&isOKCond($l));
+  return 1;
+}
+
+# isOKCond function: return 1 if the string ends with a conditional op
+sub isOKCond() {
+  my($l) = @_;
+  return 1
+    if ($l =~ m/&&\s*$/ ||
+	$l =~ m/&\s*$/ ||
+	$l =~ m/\|\|\s*$/ ||
+	$l =~ m/\|\s*$/ ||
+        $l =~ m/<\s*$/ ||
+        $l =~ m/>\s*$/ ||
+        $l =~ m/==\s*$/ ||
+	$l =~ m/\?\s*$/);
+  return 0;
+}
+
+# isCond function: return 1 if the string starts a conditional
+sub isCond() {
+  my($l) = @_;
+  return 1
+    if ($l =~ m/^\s*if\s*\(/ ||
+	$l =~ m/^\s*}\s*else\sif\s*\(/);
+  return 0;
+}
+
+# isLoop function: return 1 if the string starts a loop
+sub isLoop() {
+  my($l) = @_;
+  return 1
+    if ($l =~ m/^\s*for\s*\(/ ||
+	$l =~ m/^\s*while\s*\(/);
+  return 0;
+}
+
+# isOper function: return 1 if the string ends with an operator
+sub isOper() {
+  my($l) = @_;
+  return 1
+    if ($l =~ m/\+\s*$/ ||
+	$l =~ m/\.\s*$/ ||
+	$l =~ m/-\s*$/);
+  return 0;
+}
+

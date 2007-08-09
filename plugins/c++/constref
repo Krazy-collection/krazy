@@ -1,0 +1,212 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2007 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program; if not, write to the Free Software                 #
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for methods in public, exported classes that return
+# const references.
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --explain:       print an explanation with solving instructions, then exit
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Getopt::Long;
+
+my($Prog) = "constref";
+my($Version) = "1.0";
+
+my($help) = '';
+my($version) = '';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+
+exit 1
+if (!GetOptions('help' => \$help, 'version' => \$version,
+                'explain' => \$explain, 'installed' => \$installed,
+                'verbose' => \$verbose, 'quiet' => \$quiet));
+
+&Help() if $help;
+&Version() if $version;
+&Explain() if $explain;
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+# Check Condition
+my($f) = $ARGV[0];
+
+if ($installed && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!$quiet);
+  exit 0;
+}
+
+#open file and slurp it in
+my(@data_lines) = <F>;
+close(F);
+
+#get all the c-style comments from the file
+my($data)="@data_lines";
+my(@comments) = ($data =~ /\/\*.*?\*\//gs);
+
+#for each comment, remove everything but the linebreaks, so
+#our line numbering report does not get screwed up.
+foreach my $comment ( @comments ) {
+        my($fixed_comment) = $comment;
+        $fixed_comment =~ s/[^\n]//gs;
+        $fixed_comment =~ s/\n/\n/gs;
+        $data =~ s/\Q$comment/$fixed_comment/s;
+}
+
+#put it back into an array so we can iterate over it
+my(@lines) = split(/\n/, $data);
+
+my($cnt) = 0;
+my($linecnt) = 0;
+my($lstr) = "";
+my($cname) = "";
+my($cref) = "";
+my($line);
+while ($linecnt < $#lines) {
+  $linecnt++;
+  $line = $lines[$linecnt];
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $cnt = 0;
+    last;
+  }
+
+  $cname = &Cname($line,$lines[$linecnt-1]);
+  if ($cname ne "") {
+    #found a public, exported class
+    $cref = "";
+
+    while ($linecnt < $#lines) {
+      # search for a methods returning const references
+      $linecnt++;
+      $line = $lines[$linecnt];
+      if (&Cname($line,$lines[$linecnt-1])) { $linecnt--; last; }
+      last if (&endClass($line,$linecnt));
+      next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+      if ($line =~ m/^[[:space:]]*const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/ ||
+          $line =~ m/^[[:space:]]*static[[:space:]]const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/) {
+        # we found a possible problem method
+        $cref = $line;
+        $linecnt++;
+
+        #look for such a method (that isn't private)
+        if (&ConstRef($cref) &&
+            !&searchBack("private:", $linecnt-1, 100)) {
+          # found one
+          $cnt++;
+          if ($cnt == 1) {
+            $lstr = "line\#" . $linecnt;
+          } else {
+            $lstr = $lstr . "," . $linecnt;
+          }
+          print "($linecnt) => $line\n" if ($verbose);
+        }
+      }
+    }
+  }
+}
+
+if (!$cnt) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+} else {
+  print "$lstr ($cnt)\n" if (!$quiet);
+  exit $cnt;
+}
+
+# determine if the current line $l has a class, checking the previous line $l1
+# for classes to ignore (like "template").  Must be a FOO_EXPORTed class.
+# return the class name, or empty if no class is found
+sub Cname {
+  my($l,$l1) = @_;
+  my($cname)="";
+  $l =~ s+//.*++; #strip trailing C++ comment
+  return 0 if ($l =~ m/_EXPORT_DEPRECATED/);
+  if ($l =~ m+^[[:space:]]*class[[:space:]].*+ && $l =~ m/_EXPORT/ && $l !~ m/;\s*$/ && $l !~ m/\\\s*$/) {
+    if ($l1 !~ m/template/ && $l1 !~ m/#define[[:space:]]/) {
+      $cname = $l;
+      $cname =~ s/:.*$//;
+      $cname =~ s/{.*$//;
+      $cname =~ s/[[:space:]]*class[[:space:]].*EXPORT[[:space:]]//;
+      $cname =~ s/[[:space:]]*class[[:space:]]//;
+      $cname =~ s/\s+$//;
+    }
+  }
+  return $cname;
+}
+
+# determine if the current line marks the end of a class
+sub endClass {
+  my($l,$lc) = @_;
+  return 0 if ($l !~ m/^[[:space:]]*}[[:space:]]*;/);
+  return 0 if (&searchBack('enum',$lc,5));
+  return 1;
+}
+
+# determine if the current line $l has a method that returns a const reference
+sub ConstRef {
+  my($l) = @_;
+  #return 0 for conditions where const ref returns are ok
+  return 1;
+}
+
+# search the previous $n lines for a pattern $p
+sub searchBack {
+  my($p,$l,$n) = @_;
+  my($i);
+  $n = $#lines if ($#lines < $n);
+  for($i=1; $i<=$n; $i++) {
+    if ($lines[$l-$i] =~ $p) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+sub Help {
+  print "Check for methods that return 'const' references in public classes\n";
+  exit 0 if $help;
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if $version;
+}
+
+sub Explain {
+  print "For binary compatibility reasons avoid const references for return types. For example, \"const QList<int> &someProperty() const\" should be rewritten to return a value instead, eg \"QList<int> someProperty() const\". See <http://techbase.kde.org/Policies/Library_Code_Policy#Const_References> for more details.\n";
+  exit 0 if $explain;
+}

@@ -1,0 +1,2 @@
+=pod
+place to describe how .krazy files work

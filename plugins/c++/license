@@ -1,0 +1,226 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2005-2007 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+#  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.              #
+#                                                                             #
+# This program borrows a lot of code from the KDE 'licensecheck' which can be #
+# found in the kdesdk module under the scripts directory.                     #
+###############################################################################
+
+# Tests KDE source for an acceptable license
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --explain:       print an explanation with solving instructions, then exit
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Getopt::Long;
+use Cwd 'abs_path';
+
+my($Prog) = "license";
+my($Version) = "1.3";
+
+my($help) = '';
+my($version) = '';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+
+exit 1
+if (!GetOptions('help' => \$help, 'version' => \$version,
+                'explain' => \$explain, 'installed' => \$installed,
+                'verbose' => \$verbose, 'quiet' => \$quiet));
+
+&Help() if $help;
+&Version() if $version;
+&Explain() if $explain;
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+
+my($absf) = abs_path($f);
+my($LibPath) = ($absf =~ m+/kde.*libs/+ ||
+                $absf =~ m+/koffice/libs/+ ||
+                $absf =~ m+/kdebase/libkonq/+ ||
+                $absf =~ m+/kdesupport/+) ? 1 : 0;
+
+#some stuff in libraries isn't library code, so we need to exempt them
+#from the stricter license check
+$LibPath = 0
+if ($absf =~ m+/kdelibs/solid/kcm/+ ||
+    $absf =~ m+/kdelibs/phonon/kcm/+ ||
+    $absf =~ m+/kdelibs/phonon/examples/+ ||
+    $absf =~ m+/kdelibs/knotify/daemon/+ ||
+    $absf =~ m+/kdelibs/kioslave/+ ||
+    $absf =~ m+/kdelibs/kio/misc/kwalletd/+ ||
+    $absf =~ m+/kdelibs/kio/misc/kssld/+ ||
+    $absf =~ m+/kdelibs/kio/misc/ksendbugmail/+ ||
+    $absf =~ m+/kdelibs/kinit/+ ||
+    $absf =~ m+/kdelibs/kjsembed/examples/+ ||
+    $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+);
+
+open(F, "<$f") || die "Couldn't open $f";
+my(@c) = <F>;
+my($htxt) = join '', @c[0.. ($#c > 29 ? 29 : $#c)];
+if ($htxt =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+    $htxt =~ m+//.*[Kk]razy:skip+) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+}
+my($license) = &checkLicense($htxt);
+$license =~ s/ $//;
+close(F);
+
+print "$license\n" if ($verbose);
+
+if ($license =~ m/(wrong address)/){
+  print "$license\n" if (!$quiet);
+  exit 1;
+}
+
+if ($license eq "Unknown license") {
+  print "$license\n" if (!$quiet);
+  exit 1;
+}
+
+if ($license eq "UNKNOWN") {
+  print "missing license\n" if (!$quiet);
+  exit 1;
+}
+
+if ($LibPath &&
+    ($license !~ m/^LGPL/ && $license !~ m/^X11/ && $license !~ m/^BSD/ &&
+     $license !~ m/^Public/ && $license !~ m/^GENERATED/ &&
+     $license !~ m/^Trivial/)) {
+  print "unacceptable license ($license) for library code\n" if (!$quiet);
+  exit 1;
+}
+
+print "okay\n" if (!$quiet);
+exit 0;
+
+sub checkLicense($)
+{
+   my($text) = @_;
+   $text =~ s/^\#//g;
+   $text =~ y/\t\n\r/   /;
+   $text =~ y/ A-Za-z.,@0-9\(\)//cd;
+   $text =~ s/\s+/ /g;
+
+   my($gl) = "";
+   my($qte) = "";
+   my($license) = "";
+   my($wrong) = "";
+
+   if ( $verbose ) {
+      $gl = " (v2)" if ($text =~ /version 2 as published by the Free Software Foundation/);
+      $gl = " (v2+)" if ($text =~ /either version 2 of the License, or .at your option. any later version/);
+      $gl = " (v2.1)" if ($text =~ /version 2\.1 as published by the Free Software Foundation/);
+      $gl = " (v2.1)" if ($text =~ /2\.1, available at: http:\/\/www.fsf.org\/copyleft\/lesser.html/);
+      $gl = " (v2.1+)" if ($text =~ /either version 2\.1 of the License, or .at your option. any later version/);
+      $qte = " (+Qt exception)" if ($text =~ /([Pp]ermission is given|[pP]ermission is also granted|[pP]ermission) to link (the code of )?this program with (any edition of )?(Qt|the Qt library)/);
+   }
+
+   # Check for an old FSF address
+   # MIT licenses will trigger the check too, as "675 Mass Ave" is MIT's address
+   $wrong = " (wrong address)" if ($text =~ /(?:675 Mass Ave|59 Temple Place|Suite 330|51 Franklin Steet|02139|02111-1307)/i); # "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301" is the right FSF address
+
+   # LGPL or GPL
+   $license = "LGPL$gl$wrong $license" if ($text =~ /under (the (terms|conditions) of )?the GNU (Library|Lesser) General Public License/);
+   $license = "LGPL$gl$wrong $license" if ($text =~ /under (the (terms|conditions) of )?the (Library|Lesser) GNU General Public License/);
+   $license = "LGPL$gl$wrong $license" if ($text =~ /under (the (terms|conditions) of )?the (GNU )?LGPL/);
+   $license="LGPL$gl$wrong $license" if ($text =~ /[Tt]he LGPL as published by the Free Software Foundation/);
+   $license="LGPL$gl$wrong $license" if ($text =~ /LGPL with the following explicit clarification/);
+   $license = "GPL$gl$qte$wrong $license" if ($text =~ /under (the terms of )?(version 2 of )?the GNU (General Public License|GENERAL PUBLIC LICENSE)/);
+   if ( $license && !$verbose ) { return "$license"; }
+
+   # QPL
+   $license = "QPL (part of Qt) $license" if ($text =~ /This file is part of the .*Qt (GUI )?Toolkit./);
+   $license = "QPL $license" if ($text =~ /may be distributed under the terms of the Q Public License as defined by Trolltech AS/);
+   if ( $license && !$verbose ) { return "$license"; }
+
+   # X11, BSD-like
+   $license = "X11 (BSD like) $license" if ($text =~ /Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files/);
+   if ( $license && !$verbose ) { return "$license"; }
+
+   # MIT license
+   $license = "MIT $license" if ($text =~ /Permission to use, copy, modify, (and )?distribute(, and sell)? this software and its documentation for any purpose/);
+   if ( $license && !$verbose ) { return "$license"; }
+
+   # BSD
+   $license="BSD $license" if ($text =~ /MERCHANTABILITY( AND|,| or) FITNESS FOR A PARTICULAR PURPOSE/);
+   if ( $license && !$verbose ) { return "$license"; }
+
+   # MPL
+   $license = "MPL 1.1 $license" if ($text =~ /subject to the Mozilla Public License Version 1.1/);
+   $license="MPL 1.0 $license" if ($text =~ /Mozilla Public License Version 1\.0/);
+   if ( $license && !$verbose ) { return "$license"; }
+
+   # Artistic license
+   $license = "Artistic $license" if ($text =~ /under the Artistic License/);
+   if ( $license && !$verbose ) { return "$license"; }
+
+   # Public domain
+   $license = "Public Domain $license" if ($text =~ /Public Domain/i);
+   $license = "Public Domain $license" if ($text =~ / disclaims [Cc]opyright/);
+   if ( $license && !$verbose ) { return "$license"; }
+
+   # Auto-generated
+   $license = "GENERATED FILE" if ($text =~ /(All changes made in this file will be lost|This file is automatically generated|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by|uicgenerated|produced by gperf)/);
+
+   # Don't bother with trivial files.
+   if ( !$license && length($text) < 128 ) {
+      $license = "Trivial file.";
+   }
+
+   if ( !$license ) {
+      #About every license has this clause; but we've failed to detect which type it is.
+      $license = "Unknown license" if ($text =~ /This (software|package)( is free software and)? is provided /i);
+   }
+
+   # Either a missing or an unsupported license
+   $license = "UNKNOWN" if (!length($license));
+
+   return "$license";
+}
+
+sub Help {
+  print "Check for an acceptable license\n";
+  exit 0 if $help;
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if $version;
+}
+
+sub Explain {
+  print "Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed.  For details regarding KDE's licensing policy please visit <http://techbase.kde.org/Policies/Licensing_Policy>.\n";
+  exit 0 if $explain;
+}

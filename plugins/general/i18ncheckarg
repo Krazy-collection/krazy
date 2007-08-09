@@ -1,0 +1,1391 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright 2007 by Chusslove Illich <caslav.ilic@gmx.net>                    #
+# Copyright 2007 by Allen Winter <winter@kde.org>                             #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for i18n problems
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --explain:       print an explanation with solving instructions, then exit
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+#   --allsources:    check all the sources given on the command line;
+#                    both particluar files and directory paths can be given;
+#                    if no arguments given, current dir is taken as path
+#   --ctxmark:       report missing KUIT context markers,
+#                    regardless of whether threshold is reached
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered, unless --allsources
+# has been given, when it exits with status=1.
+
+
+#TODO:
+# implement verbose
+# implment exclude, skip, excludeall
+
+use warnings;
+use strict;
+use Getopt::Long;
+use XML::LibXML;
+use POSIX qw{floor ceil};
+
+my($Prog) = "i18ncheckarg";
+my($Version) = "1.1";
+
+my($help) = '';
+my($version) = '';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+my($allsources) = '';
+my($ctxmark) = '';
+
+exit 1
+if (!GetOptions('help' => \$help, 'version' => \$version,
+                'explain' => \$explain, 'installed' => \$installed,
+                'verbose' => \$verbose, 'quiet' => \$quiet,
+                'allsources' => \$allsources, 'ctxmark' => \$ctxmark));
+
+&Help() if $help;
+&Version() if $version;
+&Explain() if $explain;
+if ($#ARGV != 0 and not $allsources) { &Help(); exit 0; }
+
+
+# ------------------------------------------------------------------------------
+# Globals.
+
+# Maximum number of substitution arguments in template calls.
+my $maxnarg = 9;
+
+# Threshold of positively-KUIT messages, as part of total number of messages,
+# to consider them all as should-be KUIT.
+my $kuit_th = 0.25;
+
+# Problems containing this string will not be reported if KUIT threshold
+# is not reached.
+my $OTH = "~OTH~"; 
+
+# Some global state variables:
+# those with g_ are global per file, reset on each new file;
+# those wiht gg_ are global over all files, initialized only here.
+my ($g_lineno, $g_fname);
+my ($g_nmsg, $g_nmsgkuit);
+my ($gg_nwgaps, $gg_ncount, $gg_nqnumber, $gg_nkfmtnum, $gg_novermax,
+    $gg_nlegplu, $gg_nkuit, $gg_nambi) = (0,0,0,0,0,0,0,0);
+
+# ------------------------------------------------------------------------------
+# Functions.
+
+$0 =~ s/.*\///;
+sub error {
+    die "$0: *** @_\n";
+}
+sub warning {
+    print STDERR "$0: * @_\n";
+}
+
+my %g_errcnt;
+sub report {
+    my ($fn, $ln, $ptype, $msg) = @_;
+#    my $msgf = "(i18n $ptype) $msg";
+    my $msgf = "$msg";
+    push @{$g_errcnt{$msgf}}, $ln;
+}
+
+sub cfill {
+    my ($str) = @_;
+    $str =~ s/./ /gs;
+    return $str;
+}
+
+sub jump_to {
+    my ($str, $i, $end) = @_;
+    my $endl = length($end);
+    $i++ while not substr($str, $i, $endl) eq $end;
+    return $i;
+}
+
+sub normalize {
+    my ($str) = @_;
+    my $strn;
+
+    my $mwrn = "#warning";
+    my $merr = "#error";
+    my $sym = "S";
+
+    my $i = 0;
+    while ($i < length($str)) {
+        # Put symbols instead of string literals.
+        if (substr($str, $i, 1) eq '"' or substr($str, $i, 1) eq "'") {
+            my $comm = substr($str, $i, 1);
+            $strn .= "S";
+            $i++;
+            while (not substr($str, $i, 1) eq $comm) {
+                if (substr($str, $i, 1) eq "\\") {
+                    $strn .= $sym;
+                    $i++;
+                }
+                $strn .= $sym;
+                $i++;
+            }
+            $strn .= $sym;
+            $i++;
+        }
+        # Put spaces instead of // comments.
+        elsif (substr($str, $i, 2) eq "//") {
+            my $ji = jump_to($str, $i, "\n");
+            $strn .= " " x ($ji - $i);
+            $i = $ji;
+        }
+        # Put spaces instead of /**/ comments.
+        elsif(substr($str, $i, 2) eq "/*") {
+            my $ji = jump_to($str, $i + 2, "*/");
+            $strn .= " " x ($ji - $i);
+            $strn .= "  "; # instead of */
+            $i = $ji + 2; # +2 for */
+        }
+        # Put spaces instead of line wraps.
+        elsif(substr($str, $i, 2) eq "\\\n") {
+            $strn .= " \n";
+            $i += 2;
+        }
+        # Put spaces instead of #warning macros.
+        elsif (substr($str, $i, length($mwrn)) eq $mwrn) {
+            my $ji = jump_to($str, $i, "\n");
+            $strn .= " " x ($ji - $i);
+            $i = $ji;
+        }
+        # Put spaces instead of #error macros.
+        elsif (substr($str, $i, length($merr)) eq $merr) {
+            my $ji = jump_to($str, $i, "\n");
+            $strn .= " " x ($ji - $i);
+            $i = $ji;
+        }
+        # Put original.
+        else {
+            $strn .= substr($str, $i, 1);
+            $i++;
+        }
+    }
+
+    return $strn;
+}
+
+sub next_substr {
+    my ($str, $strn, @subs) = @_;
+
+    my $reg = join "|", @subs;
+    my ($match) = ($strn =~ /($reg)/s);
+    if ($match) {
+        my $i = length($`);
+        $match = substr($str, $i, length($match));
+        my $pre = substr($str, 0, $i);
+        map {++$g_lineno} ($pre.$match) =~ /(\n)/sg;
+        return ($pre, $match, substr($str, $i + length($match)), substr($strn, $i + length($match)));
+    }
+    else {
+        map {++$g_lineno} $str =~ /(\n)/sg;
+        return ($str, "", "", "");
+    }
+}
+
+sub next_argument {
+    my ($str, $strn) = @_;
+
+    my ($arg, $done);
+    my $balance = 0;
+    while ($str and not $done) {
+        my ($pre, $mch, $res, $resn) = next_substr($str, $strn, ',', '\(', '\)');
+        $balance++ if $mch eq '(';
+        $balance-- if $mch eq ')';
+
+        $arg .= $pre . $mch;
+        $str = $res;
+        $strn = $resn;
+
+        $done = ($balance < 0 or ($balance == 0 and $mch eq ','));
+    }
+
+    return ($arg, $str, $strn);
+}
+
+sub all_arguments {
+    my ($str, $strn) = @_;
+
+    my $narg = 0;
+    my $arg = "";
+    my ($args, $rest, $restn, @arglist);
+    while (not ($arg =~ /\)$/s)) {
+        ($arg, $rest, $restn) = next_argument($str, $strn);
+        $args .= $arg;
+        $str = $rest;
+        $strn = $restn;
+        push @arglist, substr($arg, 0, length($arg) - 1);
+        last if $arg =~ /^\s*\)$/s;
+        $narg++;
+    }
+
+    return ($narg, $args, $str, $strn, @arglist);
+}
+
+# Returns sorted list of unique placeholders in message string.
+sub uniqpl {
+    my ($str) = @_;
+    $str =~ s/%%//sg; # remove possible % escapes
+    my %plh;
+    map { ++$plh{$_} } ($str =~ /%([1-9]\d*)/sg);
+    return sort {$a <=> $b} keys %plh;
+}
+
+# Unquote string literall and report success, or set empty and report failure.
+sub unquote_string {
+    my ($str) = @_;
+
+    my $ustr;
+    my $len = length($str);
+    my $inquot = 0;
+    my $pp = 0;
+    my $p = 0;
+    while ($p < $len) {
+        my $c = substr($str, $p, 1);
+        if ($inquot) { # inside quotes
+            if ($c eq '\\') { # escape sequence
+                # add second character to unquoted, or resolve escape sequence
+                my $c2 = substr($str, $p, 2);
+                if ($c2 eq '\n') { $ustr .= "\n" }
+                elsif ($c2 eq '\t') { $ustr .= "\t" }
+                else { $c2 =~ s/\\//; $ustr .= $c2 }
+                $p += 2;
+            }
+            elsif ($c eq '"') { # closing quote
+                $inquot = 0; # out of quotes
+                $p += 1;
+            }
+            else {
+                $ustr .= $c; # add this character to unquoted
+                $p += 1;
+            }
+        }
+        else { # outside quotes
+            if ($c eq '"') { # opening quote
+                $inquot = 1; # inside quotes
+                $p += 1;
+            }
+            elsif ($c !~ /\s/) { # non-whitespace outside of quotes
+                # not a literal string
+                return ("", 0);
+            }
+            else {
+                $p += 1;
+            }
+        }
+    }
+    not $inquot or return ("", 0);
+    return ($ustr, 1);
+}
+
+# ------------------------------------------------------------------------------
+# KUIT setup.
+
+# All tag names.
+my $T_TOPLONG = 'kuit';
+my $T_TOPSHORT = 'kuil';
+
+my $T_TITLE = 'title';
+my $T_SUBTITLE = 'subtitle';
+my $T_PARA = 'para';
+my $T_LIST = 'list';
+my $T_ITEM = 'item';
+
+my $T_NOTE = 'note';
+my $T_WARNING = 'warning';
+my $T_FILENAME = 'filename';
+my $T_LINK = 'link';
+my $T_APPLICATION = 'application';
+my $T_COMMAND = 'command';
+my $T_RESOURCE = 'resource';
+my $T_ICODE = 'icode';
+my $T_BCODE = 'bcode';
+my $T_SHORTCUT = 'shortcut';
+my $T_INTERFACE = 'interface';
+my $T_EMPHASIS = 'emphasis';
+my $T_PLACEHOLDER = 'placeholder';
+my $T_EMAIL = 'email';
+my $T_ENVAR = 'envar';
+my $T_MESSAGE = 'message';
+my $T_NUMID = 'numid';
+
+my $T_NOTEXT = 'notext'; # internal, to mark no-text-content nodes
+
+# All attribute names.
+my $A_CTX = 'ctx';
+my $A_URL = 'url';
+my $A_ADDRESS = 'address';
+my $A_SECTION = 'section';
+my $A_LABEL = 'label';
+
+# All role names.
+my $R_ACTION = 'action';
+my $R_TITLE = 'title';
+my $R_LABEL = 'label';
+my $R_OPTION = 'option';
+my $R_ITEM = 'item';
+my $R_INFO = 'info';
+
+# All subcue names.
+my $C_BUTTON = 'button';
+my $C_INMENU = 'inmenu';
+my $C_INTOOLBAR = 'intoolbar';
+my $C_WINDOW = 'window';
+my $C_MENU = 'menu';
+my $C_TAB = 'tab';
+my $C_GROUP = 'group';
+my $C_COLUMN = 'column';
+my $C_SLIDER = 'slider';
+my $C_SPINBOX = 'spinbox';
+my $C_LISTBOX = 'listbox';
+my $C_TEXTBOX = 'textbox';
+my $C_CHOOSER = 'chooser';
+my $C_CHECK = 'check';
+my $C_RADIO = 'radio';
+my $C_INLISTBOX = 'inlistbox';
+my $C_INTABLE = 'intable';
+my $C_INRANGE = 'inrange';
+my $C_TOOLTIP = 'tooltip';
+my $C_WHATSTHIS = 'whatsthis';
+my $C_STATUS = 'status';
+my $C_PROGRESS = 'progress';
+my $C_TIPOFTHEDAY = 'tipoftheday';
+my $C_CREDIT = 'credit';
+my $C_SHELL = 'shell';
+
+# All format names.
+my $F_PLAIN = 'plain';
+my $F_RICH = 'rich';
+my $F_TERM = 'term';
+
+# DTD-like specification for markup.
+my @inlines = (
+    $T_FILENAME, $T_LINK, $T_APPLICATION, $T_COMMAND, $T_RESOURCE, $T_ICODE,
+    $T_SHORTCUT, $T_INTERFACE, $T_EMPHASIS, $T_PLACEHOLDER, $T_EMAIL,
+    $T_NUMID, $T_ENVAR
+);
+my %kuitspec = (
+    $T_TOPLONG     => [ [$A_CTX], [$T_TITLE, $T_SUBTITLE, $T_PARA, $T_NOTEXT] ],
+    $T_TOPSHORT    => [ [$A_CTX], [@inlines, $T_NOTE, $T_WARNING, $T_MESSAGE] ],
+
+    $T_TITLE       => [ [], [@inlines] ],
+    $T_SUBTITLE    => [ [], [@inlines] ],
+    $T_PARA        => [ [], [@inlines, $T_NOTE, $T_WARNING, $T_MESSAGE, $T_LIST] ],
+    $T_LIST        => [ [], [$T_ITEM, $T_NOTEXT] ],
+    $T_ITEM        => [ [], [@inlines, $T_NOTE, $T_WARNING, $T_MESSAGE] ],
+
+    $T_NOTE        => [ [$A_LABEL], [@inlines] ],
+    $T_WARNING     => [ [$A_LABEL], [@inlines] ],
+    $T_FILENAME    => [ [], [$T_ENVAR] ],
+    $T_LINK        => [ [$A_URL], [] ],
+    $T_APPLICATION => [ [], [] ],
+    $T_COMMAND     => [ [$A_SECTION], [] ],
+    $T_RESOURCE    => [ [], [] ],
+    $T_ICODE       => [ [], [$T_PLACEHOLDER] ],
+    $T_BCODE       => [ [], [] ],
+    $T_SHORTCUT    => [ [], [] ],
+    $T_INTERFACE   => [ [], [] ],
+    $T_EMPHASIS    => [ [], [] ],
+    $T_PLACEHOLDER => [ [], [] ],
+    $T_EMAIL       => [ [$A_ADDRESS], [] ],
+    $T_ENVAR       => [ [], [] ],
+    $T_MESSAGE     => [ [], [] ],
+    $T_NUMID       => [ [], [] ],
+);
+
+# Specification for role/subcue combinations.
+my %rolcuespec = (
+    $R_ACTION => [$C_BUTTON, $C_INMENU, $C_INTOOLBAR],
+    $R_TITLE  => [$C_WINDOW, $C_MENU, $C_TAB, $C_GROUP, $C_COLUMN],
+    $R_LABEL  => [$C_SLIDER, $C_SPINBOX, $C_LISTBOX, $C_TEXTBOX, $C_CHOOSER],
+    $R_OPTION => [$C_CHECK, $C_RADIO],
+    $R_ITEM   => [$C_INMENU, $C_INLISTBOX, $C_INTABLE, $C_INRANGE],
+    $R_INFO   => [$C_TOOLTIP, $C_WHATSTHIS, $C_STATUS, $C_PROGRESS, $C_TIPOFTHEDAY, $C_CREDIT, $C_SHELL],
+);
+
+# All formats.
+my %fmtspec = (
+    $F_PLAIN => 1,
+    $F_RICH => 1,
+    $F_TERM => 1,
+);
+
+# HTML tags for Qt rich text.
+# 0 means the tag is better not mixed with KUIT markup,
+# 1 means mixing is ok.
+my %htmltags = (
+    'a' => 0, 'address' => 0, 'b' => 0, 'big' => 0, 'blockquote' => 0,
+    'body' => 0, 'br' => 0, 'center' => 0, 'cita' => 0, 'code' => 0,
+    'dd' => 0, 'dfn' => 0, 'div' => 0, 'dl' => 0, 'dt' => 0, 'em' => 0,
+    'font' => 0, 'h1' => 0, 'h2' => 0, 'h3' => 0, 'h4' => 0, 'h5' => 0,
+    'h6' => 0, 'head' => 0, 'hr' => 0, 'html' => 0, 'i' => 0, 'img' => 1,
+    'kbd' => 0, 'meta' => 0, 'li' => 0, 'nobr' => 0, 'ol' => 0, 'p' => 0,
+    'pre' => 0, 'qt' => 0, 's' => 0, 'samp' => 0, 'small' => 0, 'span' => 0,
+    'strong' => 0, 'sup' => 1, 'sub' => 1, 'table' => 1, 'tbody' => 1,
+    'td' => 1, 'tfoot' => 1, 'th' => 1, 'thead' => 1, 'title' => 0,
+    'tr' => 1, 'tt' => 0, 'u' => 0, 'ul' => 0, 'var' => 0
+);
+
+# Compiled specifications for use in test functions below.
+my %kuitspec_tags;
+my %kuitspec_tag_atts;
+my %kuitspec_tag_subtags;
+for my $tag (keys %kuitspec) {
+    # Set tag as known.
+    $kuitspec_tags{$tag} = 1;
+    # Set possible attributes to this tag.
+    for my $att (@{$kuitspec{$tag}[0]}) {
+        $kuitspec_tag_atts{$tag}{$att} = 1;
+    }
+    # Set possible subtags to this tag.
+    my $textok = 1;
+    for my $subtag (@{$kuitspec{$tag}[1]}) {
+        $kuitspec_tag_subtags{$tag}{$subtag} = 1;
+    }
+}
+my %htmltags_all;
+my %htmltags_approved;
+for my $tag (keys %htmltags) {
+    $htmltags_all{$tag} = 1;
+    $htmltags_approved{$tag} = 1 if $htmltags{$tag};
+}
+my %kuitspec_roles;
+my %kuitspec_role_cues;
+for my $role (keys %rolcuespec) {
+    # Set role is known.
+    $kuitspec_roles{$role} = 1;
+    # Set possible cues to this role.
+    for my $cue (@{$rolcuespec{$role}}) {
+        $kuitspec_role_cues{$role}{$cue} = 1;
+    }
+}
+my %kuitspec_formats;
+for my $format (keys %fmtspec) {
+    # Set format is known.
+    $kuitspec_formats{$format} = 1;
+}
+
+# Is node a known one?
+sub kuit_node {
+    my ($tag) = @_;
+    return defined $kuitspec_tags{$tag};
+}
+
+# Is child node a valid subnode of its parent?
+sub kuit_valid_subnode_of {
+    my ($ctag, $ptag) = @_;
+    return defined $kuitspec_tag_subtags{$ptag}{$ctag};
+}
+
+# Is attribute valid for the given tag?
+sub kuit_valid_attribute_of {
+    my ($att, $tag) = @_;
+    return defined $kuitspec_tag_atts{$tag}{$att};
+}
+
+# Is node a html node?
+sub html_node {
+    my ($tag) = @_;
+    return defined $htmltags_all{$tag};
+}
+
+# Is node an approved html node?
+sub html_node_approved {
+    my ($tag) = @_;
+    return defined $htmltags_approved{$tag};
+}
+
+# Is the role a known one?
+sub kuit_role {
+    my ($rol) = @_;
+    return defined $kuitspec_roles{$rol};
+}
+
+# Is the subcue appropriate for the role?
+sub kuit_valid_cue_for {
+    my ($cue, $rol) = @_;
+    return defined $kuitspec_role_cues{$rol}{$cue};
+}
+
+# Is the format a known one?
+sub kuit_format {
+    my ($fmt) = @_;
+    return defined $kuitspec_formats{$fmt};
+}
+
+# ------------------------------------------------------------------------------
+# KUIT checking.
+
+# Adds appropriate top tag to the message.
+sub kuit_equip_top_tag {
+    my ($msg) = @_;
+    if ($msg =~ /^\s*<(\w+)/s) {
+        my $tag = $1;
+        if ($tag eq $T_TOPSHORT or $tag eq $T_TOPLONG) {
+            return $msg;
+        }
+        elsif ($tag eq $T_PARA or $tag eq $T_TITLE or $tag eq $T_SUBTITLE) {
+            return "<$T_TOPLONG>" . $msg . "</$T_TOPLONG>";
+        }
+    }
+    return "<$T_TOPSHORT>" . $msg . "</$T_TOPSHORT>";
+}
+
+# Parse context marker to get role, subcue and format, and rest.
+sub kuit_parse_ctxmark {
+    my ($ctxt) = @_;
+
+    my ($rol, $cue, $fmt) = ("", "", "");
+    if ($ctxt =~ s/^\s*@([\w+]+):(\w+)\/(\w+)\b//s) {
+        ($rol, $cue, $fmt) = ($1, $2, $3);
+    }
+    elsif ($ctxt =~ s/^\s*@(\w+):(\w+)\b//s) {
+        ($rol, $cue) = ($1, $2);
+    }
+    elsif ($ctxt =~ s/^\s*@(\w+)\/(\w+)\b//s) {
+        ($rol, $fmt) = ($1, $2);
+    }
+    elsif ($ctxt =~ s/^\s*@(\w+)\b//s) {
+        ($rol) = ($1);
+    }
+    $rol = lc($rol);
+    $cue = lc($cue);
+    $fmt = lc($fmt);
+    return ($rol, $cue, $fmt, $ctxt);
+}
+
+# Check context marker validity.
+# $xctxt is expected context marker, where underscores can be used as
+# placeholder for any valid component at that point.
+sub kuit_check_ctxmark {
+    my ($ctxt, $xctxt) = @_;
+    $xctxt or $xctxt = '@_:_/_';
+
+    my (@errs, @warns);
+    my ($rol, $cue, $fmt) = kuit_parse_ctxmark($ctxt);
+    my ($xrol, $xcue, $xfmt) = kuit_parse_ctxmark($xctxt);
+
+    # Check validity of marker components.
+    not $rol or kuit_role($rol)
+        or push @errs, "invalid semantic role \@$rol";
+    if ($rol and kuit_role($rol)) {
+        not $cue or kuit_valid_cue_for($cue, $rol)
+            or push @errs, "invalid interface subcue :$cue to role \@$rol";
+    }
+    not $fmt or kuit_format($fmt)
+        or push @errs, "invalid visual format /$fmt";
+
+    # Match to expected context, but only if role is present
+    # (otherwise the warning will be about missing context marker).
+    if ($rol) {
+        my $xctxmark =   (!$xrol ? "" : $xrol eq '_' ? "[\@any]" : "\@$xrol")
+                       . (!$xcue ? "" : $xcue eq '_' ? "[:any]" : ":$xcue")
+                       . (!$xfmt ? "" : $xfmt eq '_' ? "[/any]" : "/$xfmt");
+        $xrol eq '_' or $rol eq $xrol
+            or push @warns, "expected context marker $xctxmark, got ".
+                            ($rol ? "role \@$rol" : "no role");
+        $xcue eq '_' or $cue eq $xcue
+            or push @warns, "expected context marker $xctxmark, got ".
+                            ($cue ? "subcue :$cue" : "no subcue");
+        $xfmt eq '_' or $fmt eq $xfmt
+            or push @warns, "expected context marker $xctxmark, got ".
+                            ($fmt ? "format /$fmt" : "no format");
+    }
+
+    return ([@errs], [@warns]);
+}
+
+# Check message for KUIT correctness.
+# Returns list of two references, first is to list of error messages,
+# second to list of warning messages. Both these lists will be empty
+# if no problems were found.
+# $xctxt if expected context specification, see comment to kuit_check_ctxmark.
+sub kuit_check {
+    my ($ctxt, $msg, $xctxt) = @_;
+    defined $ctxt or $ctxt = "";
+    defined $xctxt or $xctxt = "";
+
+    my $parser = XML::LibXML->new();
+    my (@errs, @warns);
+
+    # Replace ampersands, to not confuse the parser.
+    $msg =~ s/&/&amp;/gs;
+
+    # Add top tag, if not already there.
+    $msg = kuit_equip_top_tag($msg);
+
+    # Parse and check context marker.
+    my ($ctxerrs, $ctxwarns) = kuit_check_ctxmark($ctxt, $xctxt);
+    push @errs, @{$ctxerrs};
+    push @warns, @{$ctxwarns};
+
+    # Specific check: <br>
+    if ($msg =~ /<\s*br\s*>/) {
+        push @errs, "unclosed <br>, close in place: <br/>; ".
+                    "better yet, use proper paragraphs <p>...</p> instead";
+        return ([@errs], [@warns]);
+    }
+
+    # Parse XML.
+    my $xml;
+    eval {
+        $xml = $parser->parse_string($msg);
+    };
+    if ($@) {
+        #my ($shorterr) = split "\n", $@;
+        #$shorterr =~ s/^(.*?:){3}\s*//;
+        #push @errs, "malformed markup: $shorterr";
+
+        # Parsing errors are too crazy for the moment, just report there is one.
+        push @errs, "malformed markup (unmatched tags, etc.)";
+
+        return ([@errs], [@warns]);
+    }
+
+    # Check structure.
+    my $node = $xml->documentElement();
+    my ($suberrs, $subwarns) = kuit_check_traverse($node, 0, "", $xctxt);
+    push @errs, @{$suberrs};
+    push @warns, @{$subwarns};
+
+    return ([@errs], [@warns]);
+}
+
+# Recursive XML tree traverser to kuit_check.
+sub kuit_check_traverse {
+    my ($node, $lev, $ptag, $xctxt) = @_;
+    my $tag = lc($node->nodeName);
+    my (@errs, @warns);
+    #print "$lev: $tag (in $ptag)\n";
+
+    my $check_subnodes = 1;
+
+    if (kuit_node($tag)) {
+        # Check if this node is a valid child of its parent.
+        if ($lev > 0 and not kuit_valid_subnode_of($tag, $ptag)) {
+            push @errs, "tag '$tag' cannot be subtag of '$ptag'";
+            $check_subnodes = 0;
+        }
+
+        # Check if attributes are appropriate.
+        if ($node->hasAttributes) {
+            for my $anode ($node->attributes) {
+                my $att = lc($anode->name);
+                kuit_valid_attribute_of($att, $tag)
+                    or push @errs, "tag '$tag' has no '$att' attribute";
+
+                # Check possible context marker override.
+                if ($lev == 0 and $att eq $A_CTX) {
+                    my ($ctxerrs, $ctxwarns) = kuit_check_ctxmark($anode->value, $xctxt);
+                    push @errs, @{$ctxerrs};
+                    push @warns, @{$ctxwarns};
+                }
+            }
+        }
+
+    }
+    elsif (html_node($tag)) {
+        # Check if this HTML tag is approved for mixing with KUIT.
+        html_node_approved($tag)
+            or push @warns, "${OTH}HTML tag '$tag' is not advised with KUIT markup";
+            # ${OTH} means report only on reaching KUIT threshold
+
+        # Ignore HTML tag by promoting its name to parent tag.
+        $tag = $ptag;
+    }
+    else {
+        push @errs, "'$tag' is neither KUIT nor HTML tag";
+        $check_subnodes = 0;
+    }
+
+    # TODO: Check text where it is being transformed, like in <shortcut>, etc.
+
+    # Go through non-text subnodes.
+    for my $cnode ($node->childNodes()) {
+        my $ctype = $cnode->nodeType();
+        if ($ctype == 1) { # normal node
+            my ($cerrs, $cwarns) = kuit_check_traverse($cnode, $lev + 1, $tag, $xctxt);
+            push @errs, @{$cerrs};
+            push @warns, @{$cwarns};
+        }
+        elsif ($ctype == 3) { # text node
+            # Check if this tag can contain text, if it is KUIT tag.
+            if (    kuit_node($tag)
+                and kuit_valid_subnode_of($T_NOTEXT, $tag)
+                and not $cnode->data =~ /^\s*$/s)
+            {
+                push @errs, "tag '$tag' cannot have text content";
+            }
+        }
+        else {
+            # just drop it silently (eg. 8 is comment)
+            #push @errs, "Unknown child node type '$ctype' in node '$tag'";
+        }
+    }
+
+    return ([@errs], [@warns]);
+}
+
+# ------------------------------------------------------------------------------
+# Ambiguous phrases setup.
+
+# Phrase normalization.
+sub amb_norm {
+    my ($phrase) = @_;
+    $phrase =~ s/[^a-z]//gi;
+    return lc $phrase;
+}
+
+# Phrases explicitly reported by translators as ambiguous.
+my %amb_explicits = map {amb_norm($_) => 1} (
+'yes', 'no', 'all', 'none', 'never', 'forward', 'underline', 'center',
+'directory', 'manual', 'tab', 'track', 'player', 'address', 'back',
+'document', 'open', 'state', 'form', 'busy', 'color', 'creator', 'display',
+'editor', 'line', 'name', 'reload', 'load', 'title', 'volume',
+);
+
+# Adjectives sorted by frequency in KDE code
+# (mined by Kevin Scannell <kscanne@gmail.com>).
+my %amb_adjectives = map {amb_norm($_) => 1} qw {
+general unknown new normal custom close other open advanced right clear
+background ready medium left all warning next up miscellaneous game bold
+subject small top italic disabled red large horizontal vertical back
+select forward slow quit level green blue previous fast total source
+low bottom high unlimited plain more local automatic yellow transparent
+standard random false done cut true original model manual main created
+deleted class black personal magenta average undefined square selected
+finished empty current variable solid public on hard descending unread
+tomorrow stopped orange myanmar middle light latin last german executable
+english easy coral completed ascending anonymous active visible tan subscript
+sticky special single simple monochrome minimum maximum male lower idle
+hidden global first duplicate double connecting connected confidential
+changed busy binary available waiting turquoise thai terminal smooth smart
+short serial saving regular read-only purple pink neutral maroon long linear
+legal ivory infrared in gray french field female expired expert disconnected
+decimal daily classic cameroon brown basic azure away august aquamarine
+yearly white weekly spiral spanish south sound second scaled russian running
+reverse protected prompt private portuguese octal north moving mobile minute
+korean japanese invisible invalid important huge hexadecimal hebrew flat
+failed dutch constant common big base arabic added west unused two telugu
+tamil tabloid swedish sorry soft silent recursive polar plane partial opaque
+one muted mute monthly marble italian international inline human house
+highest greek generic fuzzy full forbidden flash fixed final exiting east
+critical circular canceled blank bengali any additional violet upper
+universal ukrainian turkish tiny tibetan tangent super started split slovak
+set secret required rectangular radial proportional professional primary
+polish parallel outline oriya old obsolete null nice net mean material
+manila malayalam loud logarithmic loaded lithuanian khmer kannada infinite
+hungarian heavy halftone gujarati good georgian freehand free floating fine
+due digital dark danish czech cubic cross counter correct content complete
+closed clockwise classical choice chinese broadcast alternate abstract wrong
+welsh walloon vivid visual virgin vietnamese valid uzbek used urgent unique
+uniform unidirectional unbound unbalanced thin tentative technical tall
+suspended sunken strange stereo static spherical skew sharp sharing shallow
+serbian sent scientific sample ruby romanian roman responsible remote relative
+recent rank raised progressive plural pessimistic pert pacific outgoing
+orthographic optimistic only often occupied oblique norwegian nepali navy
+mongolian metric median macedonian lost locked latvian latest inverse interior
+insane inactive impossible icelandic hypnotic gregorian grave gothic golden
+geographic frisian floppy finnish few far extreme executive excellent estonian
+equal embedded elegant dummy distinct displayed discrete dirty desert cyrillic
+croatian continuous conical compact classified cherokee charging central
+celtic catalan bulgarian breton both blocking bilinear bidirectional below
+beige bass basque bad backward attached armenian approved animated
+alphabetical alert advance zulu writeable world working whatever westerly
+vocal virtual variant vaporous up-to-date unprocessed unimportant unexpected
+unconfirmed unbeatable ultimate tribal triangular traditional tolerable tight
+three third thick thaana tense ten temporary tahitian superior styled
+stretched streaming stochastic still sterling stale spread spotted spin
+speedy spastic sparse southern some somali sold slight sleeping slate
+sinhalese singular similar shy seven separated separate sensitive seldom
+secure secondary scheduled sardinian samoan runic rounded round rough
+rotating romantic retired reserved repeating rejected recycled reciprocal
+rear real readable raw quick quadratic pure punk proof prior printed pressed
+present preliminary positive poor pneumatic planar phoenician persistent
+perpendicular permanent periodic pending patched participant parliamentary
+palestinian overdue overall outward out ordered optional optimized optical
+north-south northern norman normalized nine negative near native named musical
+multiple multimedia moldavian modern moderated missing minor military midland
+metallic merged meditative matte married marginal maori many manx mandatory
+managerial maltese malagasy major mad loose live literary lit liquid linking
+like lesser kurdish kind katakana kashmiri justified jumpy javanese isotropic
+irregular ironic irish internal integral instrumental insecure inherited
+informal industrial indonesian indirect indefinite incremental incorrect
+incomplete incoming incandescent inaccessible implicit imperial imaginary
+hollow historical hiragana hierarchical held healing hangul half-height gypsy
+gurmukhi ground grand glossy gaelic future frozen frequent freezing four forte
+focal fluorescent flickering flashing filling filled fijian favorite faulty
+faroese fake fairy fading external extended exponential experimental executing
+evolute every evergreen ethnic ethereal essential equatorial entangled
+enormous engaged endless else elliptic electronic electric eight effective
+ecliptic ecclesiastical duplex dumb dual drunken drawn domestic divorced
+dispatched direct diffuse diagonal devanagari departmental dense denied
+delayed definite deep cypriot cylindrical curved curly cumulative crazy crack
+counterclockwise corsican cornish coptic conjugate conic confirmed conditional
+condensed compressed closing cleared clean civil checked changeable chance
+certified cartesian caribbean car capital calm burmese built-in buffering
+buffer brilliant bright bountiful bosnian blind belorussian baltic aztec awful
+auburn assorted assigned artistic angular american ambient amazing alternating
+alpine alphanumeric allowed alkaline albanian aggressive aggregate
+administrative adaptive acoustic acid accepted academic abbreviated abandoned
+};
+
+# ------------------------------------------------------------------------------
+# Checkers.
+
+sub check_in_kuit {
+    my ($fname, $lineno, $xctxt, $call, @strlist) = @_;
+
+    # See if the message has KUIT context marker.
+    my $has_ctxmark = 0;
+    my $freectx = "";
+    if ($call =~ /i18ncp?|NOOP2/) {
+        my ($rol, $dummy1, $dummy2);
+        ($rol, $dummy1, $dummy2, $freectx) = kuit_parse_ctxmark($strlist[0]);
+        $has_ctxmark = 1 if $rol;
+    }
+    if ($has_ctxmark) {
+        $g_nmsgkuit++;
+    }
+    else {
+        $gg_nkuit++;
+        report $fname, $lineno, "warning",
+                "${OTH}missing KUIT context marker";
+        # ${OTH} means report only on reaching KUIT threshold
+    }
+
+    # Check KUIT markup.
+    my ($kuiterrs, $kuitwarns) = ([], []);
+    my ($kuiterrs2, $kuitwarns2) = ([], []);
+    my $msgid;
+    if ($call =~ /i18ncp/) {
+        ($kuiterrs, $kuitwarns) = kuit_check($strlist[0], $strlist[1], $xctxt);
+        ($kuiterrs2, $kuitwarns2) = kuit_check($strlist[0], $strlist[2], $xctxt);
+        $msgid = $strlist[1];
+    }
+    elsif ($call =~ /i18nc|NOOP2/) {
+        ($kuiterrs, $kuitwarns) = kuit_check($strlist[0], $strlist[1], $xctxt);
+        $msgid = $strlist[1];
+    }
+    elsif ($call =~ /i18np/) {
+        ($kuiterrs, $kuitwarns) = kuit_check("", $strlist[0], $xctxt);
+        ($kuiterrs2, $kuitwarns2) = kuit_check("", $strlist[1], $xctxt);
+        $msgid = $strlist[0];
+    }
+    else {
+        ($kuiterrs, $kuitwarns) = kuit_check("", $strlist[0], $xctxt);
+        $msgid = $strlist[0];
+    }
+
+    for (@{$kuiterrs}, @{$kuiterrs2}) {
+        $gg_nkuit++;
+        report $fname, $lineno, "error", $_;
+    }
+    for (@{$kuitwarns}, @{$kuitwarns2}) {
+        $gg_nkuit++;
+        report $fname, $lineno, "warning", $_;
+    }
+
+    # Check for ambiguous messages without free context info.
+    if ($freectx =~ /^\s*$/s) {
+        my $advice = $has_ctxmark ? "explain what it refers to following the KUIT context marker"
+                                  : "use context call to explain what it refers to";
+        my $nphrase = amb_norm($msgid);
+        if (defined $amb_explicits{$nphrase}) {
+            $gg_nambi++;
+            my $msg =  "reported ambiguous message by translators; " . $advice;
+            report $fname, $lineno, "warning", $msg;
+        }
+        elsif (defined $amb_adjectives{$nphrase}) {
+            $gg_nambi++;
+            my $msg =  "single adjective as message, probably ambiguous; " . $advice;
+            report $fname, $lineno, "warning", $msg;
+        }
+    }
+}
+
+sub check_in_string {
+    my ($ostr, $xctxt) = @_;
+    defined $xctxt or $xctxt = "";
+
+    my $ostrn = normalize($ostr);
+    defined $ostrn or return;
+    if (length($ostr) != length($ostrn)) {
+        #print ">>>>>>>>>>>>>>>>>>>>|$ostr|\n";
+        #print "<<<<<<<<<<<<<<<<<<<<|$ostrn|\n";
+        error "Internal: Normalized string has different length!";
+    }
+    my $nstr;
+
+    my $i18n_rx = '(k?i18n(|c|p|cp)|I18N_NOOP2?)';
+    my $adcons_rx = '(KAboutData(\s+\w+){0,1})';
+    my $addac_rx = '(add(Author|Credit))';
+    my $clainit_rx = '(KCmdLineArgs\s*::\s*init)';
+
+    while ($ostr) {
+        # Capture either an i18n call, or one of surrounding calls which
+        # indicate a particular recommendation for a KUIT context marker.
+        my ($pre, $match, $rest, $restn) = next_substr($ostr, $ostrn,
+                                           '\b('.$adcons_rx.
+                                             '|'.$addac_rx.
+                                             '|'.$clainit_rx.
+                                             '|'.$i18n_rx.')\s*\(\s*');
+        $nstr .= $pre;
+        $ostr = $rest;
+        $ostrn = $restn;
+        if ($match) {
+            my $call = $match;
+            $call =~ s/\s*\(\s*$//s;
+            my $start_lineno = $g_lineno;
+            my ($narg, $args, $rest, $restn, @arglist) = all_arguments($ostr, $ostrn);
+            $ostr = $rest;
+            $ostrn = $restn;
+            my $end_lineno = $g_lineno;
+            $g_lineno = $start_lineno;
+
+            # If not an i18n call, set recommended KUIT context marker,
+            # recurse through arguments, and go to next loop iteration.
+            if ($call !~ /$i18n_rx/) {
+                for my $i (0 .. $#arglist) {
+                    my $xctxt =
+                          ($call =~ $adcons_rx and $i == 2) ? '@title'
+                        : ($call =~ $adcons_rx and $i == 4) ? '@title'
+                        : ($call =~ $adcons_rx and $i == 6) ? '@info:credit'
+                        : ($call =~ $adcons_rx and $i == 7) ? '@info'
+                        : ($call =~ $addac_rx) ? '@info:credit'
+                        : ($call =~ $clainit_rx and $i == 4) ? '@title'
+                        : ($call =~ $clainit_rx and $i == 6) ? '@title'
+                        : "";
+                    check_in_string($arglist[$i], $xctxt);
+                }
+                $g_lineno = $end_lineno;
+                next;
+            }
+
+            # Split out message strings from argument list and unquote them
+            # to proper strings, or skip further checks if any is not.
+            my @strlist;
+            if ($call =~ /i18ncp/)  {
+                push @strlist, shift @arglist for 1..3;
+            }
+            elsif ($call =~ /i18n[cp]|NOOP2/) {
+                push @strlist, shift @arglist for 1..2;
+            }
+            else {
+                push @strlist, shift @arglist;
+            }
+            my $literall = 0;
+            for (@strlist) {
+                ($_, $literall) = unquote_string($_);
+                next if not $literall;
+            }
+            # Skip checks if any of the strings is not a literal.
+            next if not $literall;
+
+            # Total number of checkable messages.
+            $g_nmsg++;
+
+            # Check KUIT stuff.
+            check_in_kuit($g_fname, $g_lineno, $xctxt, $call, @strlist);
+
+            # Get sorted unique lists of placeholder numbers
+            # (first string is context in i18n*c, hence look at strings
+            # from the back).
+            my (@upl, @upls, @uplp);
+            if ($call =~ /i18nc?p/) {
+                @upls = uniqpl($strlist[-2]);
+                @uplp = uniqpl($strlist[-1]);
+            }
+            else {
+                @upl = uniqpl($strlist[-1]);
+            }
+
+            # Check for legacy %n placeholder in plural calls.
+            my $legplu = 0;
+            if ($call =~ /i18nc?p/) {
+                if ($strlist[-1] =~ /%n/ or $strlist[-2] =~ /%n/) {
+                    $legplu = 1;
+                    report $g_fname, $g_lineno, "error",
+                           "legacy \%n placeholder in plural call";
+                    $gg_nlegplu++;
+                }
+            }
+
+            # Check for gaps in placeholder numbering
+            # and count the needed number of arguments.
+            # (provided that legacy plural check passed)
+            my $wgaps = 0;
+            my $nneedargs = 0;
+            my $gapstr;
+            if (not $legplu) {
+            if ($call =~ /i18nc?p/) {
+                # Plural-deciding placeholder can be missing in plural calls.
+                if (@upls == @uplp) {
+                    $nneedargs = @upls;
+                    if ($nneedargs > 0) {
+                        # - it can be %1 which is plural-number and missing,
+                        # hence first placeholder must be either %1 or %2;
+                        # - allow plural-number placeholder missing
+                        # in both singular and plural;
+                        ++$nneedargs if $upls[0] == 2;
+                        if ($upls[0] > 2) {
+                            $wgaps = 1;
+                        }
+                        else {
+                            for(my $i = 0; $i < @upls; ++$i) {
+                                if ($upls[$i] != $uplp[$i]) {
+                                    $wgaps = 1;
+                                    last;
+                                }
+                            }
+                        }
+                    }
+                }
+                elsif (@upls + 1 == @uplp) {
+                    # - allow plural-number placeholder missing in singular
+                    $nneedargs = @uplp;
+                    if ($uplp[0] != 1 or $uplp[-1] != $nneedargs) {
+                        $wgaps = 1;
+                    }
+                    elsif ($nneedargs > 1) {
+                        my $gapwidth = $upls[0] - 1;
+                        for (my $i = 1; $i < @upls; ++$i) {
+                            $gapwidth += ($upls[$i] - $upls[$i - 1]) - 1;
+                        }
+                        if ($gapwidth > 1) {
+                            $wgaps = 1;
+                        }
+                    }
+                }
+                else {
+                    $wgaps = 1;
+                }
+
+                $gapstr = "(@upls) (@uplp)" if $wgaps;
+            }
+            else {
+                # All placeholders must be in sequence for non-plural calls.
+                $nneedargs = @upl;
+                if (    $nneedargs > 0
+                    and ($upl[0] != 1 or $upl[-1] != $nneedargs)) {
+                    $wgaps = 1;
+                    $gapstr = "(@upl)";
+                }
+            }
+            if ($wgaps) {
+                report $g_fname, $g_lineno, "error",
+                       "gaps in placeholder numbering, $gapstr";
+                $gg_nwgaps++;
+            }
+            }
+
+            # Check if there is exact number of arguments supplied
+            # (provided that legacy plural and gap check passed)
+            my $badcount = 0;
+            my $nhaveargs = @arglist;
+            if (not $legplu and not $wgaps) {
+            if ($call !~ /ki18n/ and $call !~ /NOOP/) {
+                if ($call =~ /i18nc?p/) {
+                    # - allow one argument extra in case both singular and plural
+                    # placeholder lists start with 1 and are of same length;
+                    if ($nneedargs != $nhaveargs) {
+                        if (   $nneedargs + 1 != $nhaveargs
+                            or @upls != @uplp
+                            or (@upls and $upls[0] != 1)) {
+                            $badcount = 1;
+                        }
+                    }
+                }
+                else {
+                    # - need exact match in non-plural calls.
+                    $badcount = 1 if $nneedargs != $nhaveargs;
+                }
+                if ($badcount) {
+                    report $g_fname, $g_lineno, "error",
+                           "wrong argument count, have $nhaveargs need $nneedargs";
+                    $gg_ncount++;
+                }
+            }
+            }
+
+            # Check if number of arguments exceeds capacity of template calls
+            # (provided that legacy plural, gap and count checks passed)
+            my $toomany = 0;
+            if (not $legplu and not $wgaps and not $badcount) {
+            if ($call !~ /ki18n/ and $nhaveargs > $maxnarg) {
+                $toomany = 1;
+                report $g_fname, $g_lineno, "error",
+                       "too many arguments, have $nhaveargs max $maxnarg";
+                $gg_novermax++;
+            }
+            }
+
+            # Check if there are any QString::number() conversions.
+            for my $arg (@arglist) {
+                if ($arg =~ /QString\s*::\s*number/) {
+                    report $g_fname, $g_lineno, "warning",
+                           "use of QString::number() on an argument";
+                    $gg_nqnumber++;
+                }
+            }
+
+            # Check if there are any KLocale::formatNumber() conversions.
+            for my $arg (@arglist) {
+                if ($arg =~ /formatNumber/) {
+                    report $g_fname, $g_lineno, "warning",
+                           "use of KLocale::formatNumber() on an argument ".
+                           "(use only for numbers outside of i18n messages)";
+                    $gg_nkfmtnum++;
+                }
+            }
+
+            # Recurse into arguments, they may be i18n calls themselves.
+            for my $arg (@arglist) {
+                check_in_string($arg);
+            }
+            $g_lineno = $end_lineno;
+        }
+    }
+}
+
+sub check_in_string_xml {
+    my ($fname, $str) = @_;
+
+    # Actually might not be an XML file, skip it if it doesn't start with <.
+    $str =~ /^\s*</s or return;
+
+    my $parser = XML::LibXML->new();
+    $parser->line_numbers(1);
+
+    # Parse XML.
+    my $xml;
+    eval {
+        $xml = $parser->parse_string($str);
+    };
+    if ($@) {
+        warning "Problem parsing XML file '$fname': $@";
+        return;
+    }
+
+    # Recurse through the nodes.
+    my $node = $xml->documentElement();
+    my ($suberrs, $subwarns) = check_in_string_xml_r($fname, $node);
+}
+
+sub check_in_string_xml_r {
+    my ($fname, $node) = @_;
+    my $tag = lc($node->nodeName);
+
+    # This match is like that in trunk/KDE/kdesdk/scripts/extractrc.
+    if ($tag =~ /^([tT][eE][xX][tT]|title|string|whatsthis|tooltip|label|text)$/i) {
+        # Total number of checkable messages.
+        $g_nmsg++;
+
+        # Check if the message has context.
+        my $ctxt;
+        if ($node->hasAttributes) {
+            for my $anode ($node->attributes) {
+                if ($anode->name =~ /^(comment|context)$/) {
+                    $ctxt = $anode->value;
+                    last;
+                }
+            }
+        }
+
+        # The message itself.
+        my $msg = $node->toString();
+        # Remove outer tags.
+        unless ($msg =~ s/^<[^<]+>(.*)<[^<]+>/$1/si) {
+            # Nothing removed, possibly in-place closed tag.
+            return;
+        }
+
+        # Assemble data for the check.
+        my $call;
+        my @strlist;
+        if ($ctxt) {
+            $call = "i18nc";
+            push @strlist, $ctxt, $msg;
+        }
+        else {
+            $call = "i18n";
+            push @strlist, $msg;
+        }
+        my $xctxt =
+              ($fname =~ /\.rc$/ and $tag =~ /text/i) ? '@title:menu'
+            : ($fname =~ /\.kcfg$/ and $tag =~ /label/i) ? '@label'
+            : ($fname =~ /\.kcfg$/ and $tag =~ /whatsthis/i) ? '@info:whatsthis'
+            : "";
+
+        # Check KUIT stuff.
+        check_in_kuit($g_fname, $node->line_number(), $xctxt, $call, @strlist);
+    }
+    else {
+        # Recurse through non-text subnodes.
+        for my $cnode ($node->childNodes()) {
+            if ($cnode->nodeType() == 1) {
+                check_in_string_xml_r($fname, $cnode);
+            }
+        }
+    }
+}
+
+sub check_in_file {
+    my ($fname) = @_;
+
+    if (   $fname =~ /klocale\.(h|cpp)$/
+        or $fname =~ /klocalizedstring\.(h|cpp)$/
+        or $fname =~ /kjsembed\/kjseglobal\.h$/
+        or $fname =~ /kdecore\/tests\/.*$/) {
+        #print "Special case, skipping: $fname\n";
+        return;
+    }
+
+    $g_lineno = 1; # Global line number.
+    $g_fname = $fname; # Debug global variable, for other functions to use
+    $g_nmsg = 0; # Number of checkable i18n messages in this file
+    $g_nmsgkuit = 0; # Number of certain KUIT messages in this file
+    if (not (open IF, "<$fname")) {
+        print "*** Cannot read: $fname\n";
+        return;
+    }
+    my @flines = <IF>;
+    close IF;
+    #print "--------------------> $fname\n";
+
+    my $fstr = join "", @flines;
+    if ($fstr !~ /^\s*$/s) {
+        $fstr .= "\n" if not $fstr =~ /\n$/s; # end with newline if it doesn't
+
+        if ($fname !~ /\.(rc|kcfg|ui)$/i) {
+            return if not $fstr =~ /i18n/s; # quick check
+            check_in_string($fstr);
+        }
+        else {
+            check_in_string_xml($fname, $fstr);
+        }
+
+        # Check if KUIT threshold reached.
+        my $over_kuit_th = ($g_nmsgkuit >= ceil($kuit_th * $g_nmsg));
+        $over_kuit_th = 1 if $ctxmark; # set reached anyway if --ctxmark
+
+        my $header_printed = 0;
+        my @msgs = keys %g_errcnt;
+        if (@msgs) {
+            for (@msgs) {
+                if (/$OTH/s and not $over_kuit_th) {
+                    # OTH marked and KUIT threshold not reached, don't report.
+                    $gg_nkuit -= @{$g_errcnt{$_}};
+                }
+                else {
+                    if ($allsources and not $header_printed) {
+                        print ">>>>> $fname\n" ;
+                        $header_printed = 1;
+                    }
+                    my $lstr = join ",", @{$g_errcnt{$_}};
+                    s/$OTH//gs; # remove OTH marker, if there
+                    print "$_ line#$lstr\n" if (!$quiet);
+                }
+            }
+            %g_errcnt = ();
+        }
+    }
+}
+
+sub descend_tree {
+    my ($path) = @_;
+
+    opendir(CDIR, $path) or error "Cannot open directory '$path'.";
+    my @entries = grep {not /^\./} readdir CDIR;
+    closedir CDIR;
+
+    my @files = grep {-f} map {"$path/$_"} @entries;
+    my @sources = sort(
+        grep {   /\.h$/i or /\.hh$/i or /\.hpp$/i or /\.hxx$/i
+              or /\.h.in$/i or /\.hh.in$/i or /\.hpp.in$/i or /\.hxx.in$/i
+              or /\.cc$/i or /\.cxx$/i or /\.cpp$/i
+              or /\.cc.in$/i or /\.cxx.in$/i or /\.cpp.in$/i
+              or /\.rc$/i or /\.kcfg$/i or /\.ui$/i } @files);
+    my @dirs = sort(grep {-d} map {"$path/$_"} @entries);
+
+    check_in_file($_) for (@sources);
+
+    descend_tree($_) for (@dirs);
+}
+
+sub Help {
+  print "Check validity of i18n calls\n";
+  exit 0 if $help;
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if $version;
+}
+
+sub Explain {
+  print "Make the translators' job easier and detect problems in the usage of the i18n() calls. When the fix is not clear, check the Techbase article at <http://techbase.kde.org/Development/Tutorials/Localization/i18n_Krazy> for more information.\n";
+  exit 0 if $explain;
+}
+
+# ------------------------------------------------------------------------------
+# Main body.
+
+# Collect paths.
+my @paths = @ARGV;
+@paths = (".") if @paths == 0;
+for my $path (@paths) {
+    -f $path or -d $path
+        or error "'$path' is neither file nor directory.";
+     # Engage --allsources automatically if a directory path given
+    -d $path and $allsources = 1;
+}
+
+# Go through all paths.
+for my $path (@paths) {
+    $path =~ s/\/$//;
+    if (-d $path) { descend_tree($path) }
+    else { check_in_file($path) }
+}
+
+my $cnt =   $gg_nwgaps + $gg_ncount + $gg_nqnumber + $gg_nkfmtnum
+          + $gg_novermax + $gg_nlegplu + $gg_nkuit + $gg_nambi;
+if ($cnt == 0) {
+    print "okay\n" if (!$quiet);
+    exit 0;
+}
+else {
+    exit $cnt;
+}

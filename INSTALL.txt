@@ -1,0 +1,99 @@
+"Krazy" Installation Instructions
+
+Make sure you have the required software installed first.
+See =Requirements= section below.
+
+"Easy" Krazy Installation Instructions
+======================================
+The easiest and safest way to install Krazy is by using the simple
+install script called 'install.sh'.  Make sure that the first 'qmake'
+found in your execute path is from Qt4 and then run:
+
+  % ./install.sh
+
+which will install by default into /usr/local/Krazy. Set another
+installation directory by passing it to 'install.sh' on the command line,
+like so:
+
+  % ./install.sh /another/location
+
+Next you must add /usr/local/Krazy/bin (or /another/location/bin)
+to your execute path.
+
+  % export PATH=$PATH:/usr/local/Krazy/bin
+    or
+  % export PATH=$PATH:/another/location/bin
+
+Finally, tell Krazy where to find the plugins by setting the KRAZY_PLUGIN_PATH
+environment variable:
+
+  % export KRAZY_PLUGIN_PATH=/usr/local/Krazy/libexec/krazy-plugins
+    or
+  % export KRAZY_PLUGIN_PATH=/another/location/libexec/krazy-plugins
+
+
+Now, the 'krazy --list' command should show you a list of available plugins.
+
+
+Documentation
+=============
+For quick help run 'krazy --help'
+For detailed help,
+  you can run 'man krazy', assuming you have added the path
+  /usr/local/Krazy/share/man added to your MANPATH
+    or
+  run 'perldoc /usr/local/Krazy/bin/krazy'
+
+
+"Hard" Krazy Installation Instructions
+======================================
+If you must do things the hard way, then the following should help you:
+
+the following steps are needed (to be done in the directory which
+contains the top-level Makefile.PL)
+
+  % perl Makefile.PL
+  % make
+
+If the build succeeds, install it with the following command:
+
+  % make install
+
+Next, build and install the helpers:
+
+  % cd helpers
+  % make install
+
+Build and install the non-binary plugins:
+
+  % cd plugins
+  % make install
+
+Build and install the binary plugins:
+
+  % cd src
+  % /path/to/qt4/bin/qmake
+  % make
+  % make install
+
+Finally, set up your $PATH and $KRAZY_PLUGIN_PATH environment variables
+as shown above.
+
+
+Requirements
+=============
+As of this writing there are several perl modules required that may
+not normally ship with a typical O/S distribution. These modules are
+checked for when the top-level Makefile.PL is processed.
+The modules are:
+  HTML::Parser
+  File::Find
+  Tie::IxHash
+ 
+Otherwise, Krazy should work with all known operating systems where
+Qt4 and perl are available. If this is not true, please let me know.
+
+
+Contact
+=======
+Please send questions, comments, etc. to Allen Winter <winter@kde.org>

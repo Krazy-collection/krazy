@@ -1,0 +1,162 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2006-2007 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program; if not, write to the Free Software                 #
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for TRUE and FALSE
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --explain:       print an explanation with solving instructions, then exit
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Getopt::Long;
+
+my($Prog) = "captruefalse";
+my($Version) = "1.1";
+
+my($help) = '';
+my($version) = '';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+
+exit 1
+if (!GetOptions('help' => \$help, 'version' => \$version,
+                'explain' => \$explain, 'installed' => \$installed,
+                'verbose' => \$verbose, 'quiet' => \$quiet));
+
+&Help() if $help;
+&Version() if $version;
+&Explain() if $explain;
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+
+# skip C source files
+if ($f =~ m/\.c$/) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+}
+
+#open file and slurp it in
+open(F, "$f") || die "Couldn't open $f";
+my(@data_lines) = <F>;
+close(F);
+
+#get all the c-style comments from the file
+my($data)="@data_lines";
+my(@comments) = ($data =~ /\/\*.*?\*\//gs);
+
+#for each comment, remove everything but the linebreaks, so
+#our line numbering report does not get screwed up.
+foreach my $comment ( @comments ) {
+        my($fixed_comment) = $comment;
+        $fixed_comment =~ s/[^\n]//gs;
+        $fixed_comment =~ s/\n/\n/gs;
+        $data =~ s/\Q$comment/$fixed_comment/s;
+}
+
+#put it back into an array so we can iterate over it
+my(@lines) = split(/\n/, $data);
+
+my($true_cnt) = 0;
+my($false_cnt) = 0;
+my($line_cnt) = 0;
+my($true_str) = "";
+my($false_str) = "";
+
+my($line);
+foreach my $line (@lines) {
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $true_cnt = $false_cnt = 0;
+    last;
+  }
+  $line_cnt++;
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
+  {
+    if ($line =~ m/TRUE/) {
+      last if ($line =~ m/\".*TRUE.*\"/);
+      last if ($line =~ m/\/\/.*TRUE/);
+      last if ($line =~ m/_TRUE/);
+      last if ($line =~ m/TRUE_/);
+      $true_cnt++;
+      if ($true_cnt == 1) {
+        $true_str = "line\#" . $line_cnt;
+      } else {
+        $true_str = $true_str . "," . $line_cnt;
+      }
+      print "=> $line\n" if ($verbose);
+    }
+  }
+
+  {
+    if ($line =~ m/FALSE/) {
+      last if ($line =~ m/\".*FALSE.*\"/);
+      last if ($line =~ m/\/\/.*FALSE/);
+      last if ($line =~ m/_FALSE/);
+      last if ($line =~ m/FALSE_/);
+      $false_cnt++;
+      if ($false_cnt == 1) {
+        $false_str = "line\#" . $line_cnt;
+      } else {
+        $false_str = $false_str . "," . $line_cnt;
+      }
+      print "=> $line\n" if ($verbose);
+    }
+  }
+}
+
+if (!$true_cnt && !$false_cnt) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+} else {
+  print "TRUE: $true_str ($true_cnt) FALSE: $false_str ($false_cnt)\n" if (!$quiet);
+  exit $true_cnt + $false_cnt;
+}
+
+sub Help {
+  print "Check for TRUE and FALSE macros\n";
+  exit 0 if $help;
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if $version;
+}
+
+sub Explain {
+  print "The TRUE and FALSE macros are obsolete and should be replaced with true and false (all lower case) respectively.\n";
+  exit 0 if $explain;
+}
+

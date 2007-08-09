@@ -1,0 +1,1 @@
+Checks for PO translator files

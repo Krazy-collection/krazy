@@ -1,0 +1,619 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2006-2007 by Allen Winter <winter@kde.org>                    #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for proper include directives:
+#  an installed header should never have an #include "..."
+#  must #include <QtCore/QFoo> in an installed header.
+#  check for multiple includes
+#  check for include <QtModule>
+#  check for includes that never should be used (blacklists)
+#  foo.cpp always include your own foo.h first, then your private foo_p.h
+#  no config.h in an installed header
+#  config.h in angle brackets
+# TODO: to include an installed header, always use #include <fred/ethel.h>
+#       even if you are in library fred source
+# TODO: an app "Foo" should include its own, non-installed headers with #include ".."
+# TODO: check if foo.h is needed at all
+# TODO: check if foo.h included in class.h should replaced with class Foo;
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --explain:       print an explanation with solving instructions, then exit
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Getopt::Long;
+use Tie::IxHash;
+use File::Basename;
+use Cwd 'abs_path';
+
+my($Prog) = "includes";
+my($Version) = "1.1";
+
+my($help) = '';
+my($version) = '';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+
+exit 1
+if (!GetOptions('help' => \$help, 'version' => \$version,
+                'explain' => \$explain, 'installed' => \$installed,
+                'verbose' => \$verbose, 'quiet' => \$quiet));
+
+&Help() if $help;
+&Version() if $version;
+&Explain() if $explain;
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+my($absf) = basename(abs_path($f));
+
+#open file and slurp it in
+if ($f =~ m/\.c$/) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+} else {
+  open(F, "$f") || die "Couldn't open $f";
+}
+my(@data_lines) = <F>;
+close(F);
+
+#get all the c-style comments from the file
+my($data)="@data_lines";
+my(@comments) = ($data =~ /\/\*.*?\*\//gs);
+
+#for each comment, remove everything but the linebreaks, so
+#our line numbering report does not get screwed up.
+foreach my $comment ( @comments ) {
+        my($fixed_comment) = $comment;
+        $fixed_comment =~ s/[^\n]//gs;
+        $fixed_comment =~ s/\n/\n/gs;
+        $data =~ s/\Q$comment/$fixed_comment/s;
+}
+
+#put it back into an array so we can iterate over it
+my(@lines) = split(/\n/, $data);
+
+my($linecnt) = 0;
+my($line);
+my($total) = 0;  #total number of issues
+# has of all issues we need to keep track of
+tie my(%Issues), "Tie::IxHash";
+
+my($incpath,$qincpath);
+my($inc);
+tie my(%Incs), "Tie::IxHash";
+
+my($nth) = 1;    #track the include in the file
+my($sep) = "";   #track the separator (angle bracket vs. double-quote)
+my($guard) = ""; #include guard
+
+&initIssues();
+while ($linecnt < $#lines) {
+  $line = $lines[$linecnt++];
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    print "okay\n" if (!$quiet);
+    exit 0;
+  }
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  # get the include guard, if there is one
+  if (!$guard && $line =~ m/^[[:space:]]*#[[:space:]]*ifndef[[:space:]]/) {
+    my($pguard) = $line;
+    $pguard =~ s/^[[:space:]]*#[[:space:]]*ifndef[[:space:]]//g;
+    ($pguard) = split(' ',$pguard);
+    $pguard =~ s/_[Hh]_*$//;
+    $pguard =~ s/_//g;
+    my($tguard) = $absf;
+    $tguard =~ s/\.h.*$//;
+    $tguard =~ s/\.hxx.*$//;
+    $tguard =~ s/_//g;
+    $tguard =~ s/-//g;
+    $tguard =~ s/\.//g;
+    $tguard =~ s/^k3//g;
+    $tguard =~ s/\+\+/pp/;
+    if ($tguard =~ m/$pguard/i || $pguard =~ m/$tguard/i) {
+      $guard = $pguard;
+    }
+    next;
+  }
+
+  # get the include path, if there is one
+  if ($line =~ m+^[[:space:]]*#include[[:space:]]+) {
+    if ($line =~ m+\"+ ) {
+      $sep = "\"";
+      $incpath = &incPath($line);
+    } else {
+      $sep = "<";
+      $incpath = &incAnglePath($line);
+    }
+    $qincpath = &qPath($incpath);
+    if(!defined($Incs{$qincpath})) {
+      $Incs{$qincpath}{'nth'} = $nth++;       #cardinality, first instance
+      $Incs{$qincpath}{'sep'} = $sep;         #separator used, first instance
+    }
+    $Incs{$qincpath}{'count'}++;              #how many times we've seen it
+    $Incs{$qincpath}{'lines'} .= "$linecnt,"; #and what linenos in the file
+  } else {
+    next;
+  }
+
+  # look for problems in installed headers
+  if ($installed) {
+    # this file is an installed header
+
+    # every file it includes must be in angle brackets
+    if ($sep ne "<") {
+      $Issues{'ANGLE'}{'count'}++;
+      $Issues{'ANGLE'}{'lines'} .= "$linecnt,";
+      print "=> $line\n" if ($verbose);
+    }
+    # every Qt file it includes must be of the form <QtModule/QFoo>
+    if ($incpath =~ m+^(Q[A-Z]|Qt[A-Z]|Q3|q).*$+) {
+      if ($incpath !~ m+^Qt.*/Q.*$+ && !&qModule($incpath) && !&qNotClasses($incpath)) {
+        $Issues{'QINC'}{'count'}++;
+        $Issues{'QINC'}{'lines'} .= "$linecnt,";
+        print "=> $line\n" if ($verbose);
+      }
+    }
+    if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ ) {
+      $Issues{'KINC'}{'count'}++;
+      $Issues{'KINC'}{'lines'} .= "$linecnt,";
+      print "=> $line\n" if ($verbose);
+    }
+    # do not include config.h or config-foo.h in an installed header
+    if (&configH($incpath)) {
+      $Issues{'CONFIG'}{'count'}++;
+      $Issues{'CONFIG'}{'lines'} .= "$linecnt,";
+      print "=> $line\n" if ($verbose);
+    }
+    next;
+  } else {
+    # look for problems in non-installed files
+    ### TODO
+  }
+}
+
+### Now let's check for problems based solely on the include path
+### independent of the type of file (installed or not).
+
+foreach $inc (keys %Incs) {
+  $Incs{$inc}{'lines'} =~ s/,$//; # remove trailing comma
+
+  # check for multiply included files
+  if ($Incs{$inc}{'count'} > 1) {
+    $Issues{'DUPE'}{'count'}++;
+    $Issues{'DUPE'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
+    print "=> $line\n" if ($verbose);
+  }
+
+  # check for including QtModule
+  if (&qModule($inc)) {
+    $Issues{'QMOD'}{'count'}++;
+    $Issues{'QMOD'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
+    print "=> $line\n" if ($verbose);
+  }
+
+  # check for Qt/qfoo.h
+  if ($inc =~ m+^Qt/q.*\.h+) {
+    $Issues{'QMIX'}{'count'}++;
+    $Issues{'QMIX'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
+    print "=> $line\n" if ($verbose);
+  }
+
+  # check for config.h in doublequotes
+  if (&configH($inc) && $Incs{$inc}{'sep'} ne "<") {
+    $Issues{'CONFIGSEP'}{'count'}++;
+    $Issues{'CONFIGSEP'}{'lines'} .= "$Incs{$inc}{'lines'};";
+    print "=> $line\n" if ($verbose);
+  }
+
+  # check for including a blacklisted include
+  if (&blackList($inc)) {
+    $Issues{'DONT'}{'count'}++;
+    $Issues{'DONT'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
+    print "=> $line\n" if ($verbose);
+  }
+}
+
+# check for include positions within a .cpp file
+my($foo,$foop);
+if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
+  $foo = basename(abs_path($f));
+  $foo=~ s/\.cpp$//; $foo =~ s/\.cxx$//; $foo =~ s/\.cc$//;
+  $foop = $foo . "_p.h";
+  $foo  = $foo . ".h";
+  if (defined($Incs{$foo})) {
+    if ($Incs{$foo}{'nth'} != 1) {
+      $Issues{'OWN1'}{'count'}++;
+      $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
+      print "=> $line\n" if ($verbose);
+    }
+    if (defined($Incs{$foop})) {
+      if ($Incs{$foop}{'nth'} != 2) {
+        $Issues{'PRIV2'}{'count'}++;
+        $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
+        print "=> $line\n" if ($verbose);
+      }
+    }
+  } elsif (defined($Incs{$foop})) {
+    if ($Incs{$foop}{'nth'} != 1) {
+      $Issues{'PRIV1'}{'count'}++;
+      $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
+      print "=> $line\n" if ($verbose);
+    }
+  }
+
+  $foo = basename(dirname(abs_path($f))) . "/" . $foo;
+  $foop = basename(dirname(abs_path($f))) . "/" . $foop;
+  if (defined($Incs{$foo})) {
+    if ($Incs{$foo}{'nth'} != 1) {
+      $Issues{'OWN1'}{'count'}++;
+      $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
+      print "=> $line\n" if ($verbose);
+    }
+    if (defined($Incs{$foop})) {
+      if ($Incs{$foop}{'nth'} != 2) {
+        $Issues{'PRIV2'}{'count'}++;
+        $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
+        print "=> $line\n" if ($verbose);
+      }
+    }
+  } elsif (defined($Incs{$foop})) {
+    if ($Incs{$foop}{'nth'} != 1) {
+      $Issues{'PRIV1'}{'count'}++;
+      $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
+      print "=> $line\n" if ($verbose);
+    }
+  }
+}
+
+# check for missing include guard (headers only)
+if (($f =~ m/\.h$/ || $f =~ m/\.hxx$/ && $f !~ m+/tests/+) && $guard eq "") {
+  $Issues{'GUARD'}{'count'} = 1;
+}
+
+my($cnt) = &printResults();
+if (!$cnt) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+} else {
+  exit $cnt;
+}
+
+sub Help {
+  print "Check for proper include directives\n";
+  exit 0 if $help;
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if $version;
+}
+
+sub Explain {
+  print "Use <..> to include installed headers; <QtModule/QClass> to include Qt headers from installed headers; cpp file should include their own headers first; other rules apply, see <http://techbase.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriatedly encoded macro names.";
+  exit 0 if $explain;
+}
+
+sub initIssues() {
+  $Issues{'GUARD'}{'issue'} = "missing or improper include guard in header";
+  $Issues{'GUARD'}{'explain'} = "Use an include guard in headers to ensure the header is not included more than once";
+  $Issues{'GUARD'}{'count'} = 0;
+  $Issues{'GUARD'}{'lines'} = '';
+
+  $Issues{'ANGLE'}{'issue'} = "use angle brackets";
+  $Issues{'ANGLE'}{'explain'} = "Use angle brackets to include installed headers or if the file is an installed header";
+  $Issues{'ANGLE'}{'count'} = 0;
+  $Issues{'ANGLE'}{'lines'} = '';
+
+  $Issues{'QINC'}{'issue'} = "use QtModule/QClass in angle brackets";
+  $Issues{'QINC'}{'explain'} = "Installed headers must include Qt headers using the form <QtModule/QClass>";
+  $Issues{'QINC'}{'count'} = 0;
+  $Issues{'QINC'}{'lines'} = '';
+
+  $Issues{'KINC'}{'issue'} = "use KDE/KClass in angle brackets";
+  $Issues{'KINC'}{'explain'} = "Installed headers must include KClass forwarding headers ithe form <KDE/KClass>";
+  $Issues{'KINC'}{'count'} = 0;
+  $Issues{'KINC'}{'lines'} = '';
+
+  $Issues{'QMOD'}{'issue'} = "do not include QtModules";
+  $Issues{'QMOD'}{'explain'} = "Do not include QtModules";
+  $Issues{'QMOD'}{'count'} = 0;
+  $Issues{'QMOD'}{'lines'} = '';
+
+  $Issues{'QMIX'}{'issue'} = "do not include Qt/qfoo.h";
+  $Issues{'QMIX'}{'explain'} = "Do not include Qt/qfoo.h. When compiling Mac OS X with frameworks enabled, there is no include/Qt/ directory. This directory only exists so that the qt3-style #include <qfoo.h> still works, but was never intended to be used as #include <Qt/foo.h>.";
+  $Issues{'QMIX'}{'count'} = 0;
+  $Issues{'QMIX'}{'lines'} = '';
+
+  $Issues{'DUPE'}{'issue'} = "duplicate includes";
+  $Issues{'DUPE'}{'explain'} = "Do not include a header more than once";
+  $Issues{'DUPE'}{'count'} = 0;
+  $Issues{'DUPE'}{'lines'} = '';
+
+  $Issues{'DONT'}{'issue'} = "never include";
+  $Issues{'DONT'}{'explain'} = "We never want to include these headers";
+  $Issues{'DONT'}{'count'} = 0;
+  $Issues{'DONT'}{'lines'} = '';
+
+  $Issues{'OWN1'}{'issue'} = "include own header first";
+  $Issues{'OWN1'}{'explain'} = "foo.cpp should always include its own header foo.h first, helping to check that foo.h is useable as standalone";
+  $Issues{'OWN1'}{'count'} = 0;
+  $Issues{'OWN1'}{'lines'} = '';
+
+  $Issues{'PRIV2'}{'issue'} = "include own _p header second";
+  $Issues{'PRIV2'}{'explain'} = "foo.cpp should include its own header foo.h first, followed by its private header foo_p.h second";
+  $Issues{'PRIV2'}{'count'} = 0;
+  $Issues{'PRIV2'}{'lines'} = '';
+
+  $Issues{'PRIV1'}{'issue'} = "include own _p header first";
+  $Issues{'PRIV1'}{'explain'} = "foo.cpp should include its own private header foo_p.h first if there is no foo.h header";
+  $Issues{'PRIV1'}{'count'} = 0;
+  $Issues{'PRIV1'}{'lines'} = '';
+
+  $Issues{'CONFIG'}{'issue'} = "config.h in installed header";
+  $Issues{'CONFIG'}{'explain'} = "config.h should not be included in an installed header";
+  $Issues{'CONFIG'}{'count'} = 0;
+  $Issues{'CONFIG'}{'lines'} = '';
+
+  $Issues{'CONFIGSEP'}{'issue'} = "put config.h in angle brackets";
+  $Issues{'CONFIGSEP'}{'explain'} = "Use angle brackets to include generated config.h headers";
+  $Issues{'CONFIGSEP'}{'count'} = 0;
+  $Issues{'CONFIGSEP'}{'lines'} = '';
+}
+
+sub printResults() {
+  my($guy);
+  my($check_num)=0;
+  my($tot)=0;
+  my($cline,$rline);
+  my($fred);
+  foreach $guy (keys %Issues) {
+next if ($guy eq "ANGLE");  # controversial
+    $cline = "$Issues{$guy}{'issue'}";
+
+    $Issues{$guy}{'lines'} =~ s/,[[:space:]]*$//;
+    $Issues{$guy}{'lines'} =~ s/;[[:space:]]*$//;
+    if ($Issues{$guy}{'count'}) {
+      $tot += $Issues{$guy}{'count'};
+      print "$cline";
+      print " line\#$Issues{$guy}{'lines'}" if ($Issues{$guy}{'lines'});
+      print "\n";
+    }
+  }
+  return $tot;
+}
+
+sub incPath {
+  my($in) = @_;
+  my($fred);
+  $in =~ s+^\s*#\s*include[[:space:]]++;
+  ($fred,$in) = split('"',$in);
+  return $in;
+}
+
+sub incAnglePath {
+  my($in) = @_;
+  $in =~ s+^\s*#\s*include[[:space:]]++;
+  $in =~ s+<++; $in =~ s+>++;
+  return $in;
+}
+
+# turns QtModule/QFoo or QtModule/qfoo.h into qfoo.h
+sub qPath {
+  my($p) = @_;
+  my($t);
+  if ($p =~ m+^Qt[[:alpha:]]/[Qq].*$+) {
+    ($t,$p) = split("/",$p);
+    $p = lc($p);
+    $p .= ".h" if ($p !~ m/\.h$/);
+  }
+  return $p;
+}
+
+# determine if $1 is a QtModule
+sub qModule {
+  my($p) = @_;
+  if($p eq "QtCore" ||
+     $p eq "QtGui" ||
+     $p eq "QtNetwork" ||
+     $p eq "QtOpenGL" ||
+     $p eq "QtSql" ||
+     $p eq "QtSvg" ||
+     $p eq "QtXml" ||
+     $p eq "QtDesigner" ||
+     $p eq "QtUiTools" ||
+     $p eq "QtAssistant" ||
+     $p eq "Qt3Support" ||
+     $p eq "QtTest") {
+    return 1;
+  } else {
+    return 0
+  }
+}
+
+# determine if $1 is not an exported class and therefore does
+# not have an auto-generated <QtModule/QClass> file.
+sub qNotClasses{
+  my($p) = @_;
+  if($p =~ m+[Qq]plugin+) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+# determine if $1 is a config.h type file
+sub configH {
+  my($p) = @_;
+  if($p eq "config.h" || $p =~ m+config-[[:alpha:]]*\.h+) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+# determine if $1 is a "blacklisted" include (never use it)
+sub blackList {
+  my($p) = @_;
+# apparently malloc.h is required on older systems that we support
+#  if($p eq "malloc.h") {
+#    return 1;
+#  } else {
+#    return 0;
+#  }
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
+__END__
+sub topModule {
+  my($in) = @_;
+  my($apath) = abs_path($in);
+  my($top) = $apath;
+  $top =~ s+/kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
+  my($module) = $apath;
+  $module =~ s+$top/++;
+  $module =~ s+/.*++;
+  return "$top/$module";
+}
+
+sub topSubdir {
+  my($in) = @_;
+  my($apath) = abs_path($in);
+  my($top) = $apath;
+  $top =~ s+/kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
+  my($module) = $apath;
+  $module =~ s+$top/++;
+  my($subdir);
+  ($module,$subdir) = split("/",$module);
+  return "$top/$module/$subdir";
+}
+
+sub topDir {
+  my($in) = @_;
+  return dirname(abs_path($in));
+}
+
+
+# old code that might be of some use
+  if ($line =~ m+^[[:space:]]*#include[[:space:]]".*/.*"+) {
+    $incpath = &incPath($line);
+    # if the incpath basename is in $dir
+    $p1 = $dir . "/" . basename($incpath);
+    # of the incpath is not in $topmod
+    $p2 = $topmod . "/" . $incpath;
+    if (-e $p1 || ! -e $p2 || $installed) {
+      $cnt++;
+      if ($cnt == 1) {
+        $lstr = "line\#" . $linecnt;
+      } else {
+        $lstr = $lstr . "," . $linecnt;
+      }
+      print "=> $line\n" if ($verbose);
+    }
+    next;
+  }
+
+  if ($line =~ m+^[[:space:]]*#include[[:space:]]".*"+) {
+    # the incpath must reside in $topmod or in $dir
+    $incpath = &incPath($line);
+    next if ($incpath =~ m/\.moc$/);
+    next if ($incpath eq "config.h");
+    $p1 = $topmod . "/" . $incpath;
+    $p2 = $dir . "/". $incpath;
+    if (! -e $p1 && ! -e $p2 || $installed) {
+      $cnt++;
+      if ($cnt == 1) {
+        $lstr = "line\#" . $linecnt;
+      } else {
+        $lstr = $lstr . "," . $linecnt;
+      }
+      print "=> $line\n" if ($verbose);
+    }
+    next;
+  }
+
+  if ($line =~ m+^[[:space:]]*#include[[:space:]]\<.*\>+) {
+    # the incpath must NOT reside in $topmod or in $dir
+    $incpath = &incAnglePath($line);
+    $p1 = $topmod . "/" . $incpath;
+    $p2 = $dir . "/". $incpath;
+    if (-e $p1 || -e $p2 && !$installed) {
+      $cnt++;
+      if ($cnt == 1) {
+        $lstr = "line\#" . $linecnt;
+      } else {
+        $lstr = $lstr . "," . $linecnt;
+      }
+      print "=> $line\n" if ($verbose);
+    }
+
+sub topModule {
+  my($in) = @_;
+  my($apath) = abs_path($in);
+  my($top) = $apath;
+  $top =~ s+/kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
+  my($module) = $apath;
+  $module =~ s+$top/++;
+  $module =~ s+/.*++;
+  return "$top/$module";
+}
+
+sub topSubdir {
+  my($in) = @_;
+  my($apath) = abs_path($in);
+  my($top) = $apath;
+  $top =~ s+/kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
+  my($module) = $apath;
+  $module =~ s+$top/++;
+  my($subdir);
+  ($module,$subdir) = split("/",$module);
+  return "$top/$module/$subdir";
+}
+
+sub topDir {
+  my($in) = @_;
+  return dirname(abs_path($in));
+}
+

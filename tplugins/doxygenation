@@ -1,0 +1,182 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2005-2007 by Allen Winter <winter@kde.org>                    #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program; if not, write to the Free Software                 #
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for minimum set of doxygen tags
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --explain:       print an explanation with solving instructions, then exit
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Getopt::Long;
+
+my($Prog) = "doxygenation";
+my($Version) = "1.3";
+
+my($help) = '';
+my($version) = '';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+
+exit 1
+if (!GetOptions('help' => \$help, 'version' => \$version,
+		'explain' => \$explain, 'installed' => \$installed,
+		'verbose' => \$verbose, 'quiet' => \$quiet));
+
+&Help() if $help;
+&Version() if $version;
+&Explain() if $explain;
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+
+if ($f !~ m/\.cpp$/ && $f !~ m/\.cc$/ && $f !~ m/\.cxx$/ &&
+    $f !~ m/\.h$/ && $f !~ m/\.hxx$/) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+}
+
+# look for @file near the top
+if ($verbose) {
+  print "----- header -----\n";
+  print `head -n 150 $f| sed 's/ / /g;s/\$/ /g;s#//##g' | tr -d -c ' A-Za-z.,/\@1-9()'`."\n";
+  print "--- end header ---\n";
+}
+open(F, "<$f") || die "Couldn't open $f";
+my(@c) = <F>;
+my($htxt) = join '', @c[0.. ($#c > 149 ? 149 : $#c)];
+my($atfile) = &checkAtFile($htxt);
+my($atauthor) = &checkAtAuthor($htxt);
+my($atbrief) = &checkAtBrief($htxt);
+close(F);
+
+my($tags) = "";
+my($cnt) = 0;
+if ($atfile eq "UNKNOWN") {
+  $tags .= "\@file ";
+  $cnt++;
+}
+if ($atauthor eq "UNKNOWN") {
+  $tags .= "\@authors ";
+  $cnt++;
+}
+if ($atbrief eq "UNKNOWN") {
+  $tags .= "\@brief ";
+  $cnt++;
+}
+
+if (! $tags ) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+} else {
+  print "missing tags: $tags ($cnt)\n" if (!$quiet);
+  exit $cnt;
+}
+
+sub checkAtFile($)
+{
+  my($text) = @_;
+  $text =~ s/^\#//g;
+  $text =~ y/\t\n\r/   /;
+  $text =~ y/ A-Za-z.,@1-9\(\)//cd;
+  $text =~ s/\s+/ /g;
+
+  my($atfile);
+
+  $atfile = "";
+  $atfile = "GENERATED FILE" if ($text =~ /(changes made in this file will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by)/);
+  if (!$atfile) {
+    $atfile = "UNKNOWN" if ($text !~ /\@file/);
+  } else {
+    $atfile = "GOT IT";
+  }
+
+  return "$atfile";
+}
+
+sub checkAtAuthor($)
+{
+  my($text) = @_;
+  $text =~ s/^\#//g;
+  $text =~ y/\t\n\r/   /;
+  $text =~ y/ A-Za-z.,@1-9\(\)//cd;
+  $text =~ s/\s+/ /g;
+
+  my($atauthor);
+
+  $atauthor = "";
+  $atauthor = "GENERATED FILE" if ($text =~ /(changes made in this file will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by)/);
+  if (!$atauthor) {
+    $atauthor = "UNKNOWN" if ($text !~ /\@author/);
+  } else {
+    $atauthor = "GOT IT";
+  }
+
+  return "$atauthor";
+}
+
+sub checkAtBrief($)
+{
+  my($text) = @_;
+  $text =~ s/^\#//g;
+  $text =~ y/\t\n\r/   /;
+  $text =~ y/ A-Za-z.,@1-9\(\)//cd;
+  $text =~ s/\s+/ /g;
+
+  my($atauthor);
+
+  $atbrief = "";
+  $atbrief = "GENERATED FILE" if ($text =~ /(changes made in this file will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by)/);
+  if (!$atbrief) {
+    $atbrief = "UNKNOWN" if ($text !~ /\@brief/);
+  } else {
+    $atbrief = "GOT IT";
+  }
+
+  return "$atbrief";
+}
+
+sub Help {
+  print "[TEST] Check for minimum set of required doxygen tags\n";
+  exit 0 if $help;
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if $version;
+}
+
+sub Explain {
+  print "A (poor) attempt at determing if a specific set of Doxygen tags are present in a source file.  Not sure how to use this yet.  Ignore for now.\n";
+  exit 0 if $explain;
+}

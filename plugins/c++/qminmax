@@ -1,0 +1,132 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2006-2007 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program; if not, write to the Free Software                 #
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for QMIN and QMAX
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --explain:       print an explanation with solving instructions, then exit
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Getopt::Long;
+
+my($Prog) = "qminmax";
+my($Version) = "1.1";
+
+my($help) = '';
+my($version) = '';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+
+exit 1
+if (!GetOptions('help' => \$help, 'version' => \$version,
+                'explain' => \$explain, 'installed' => \$installed,
+                'verbose' => \$verbose, 'quiet' => \$quiet));
+
+&Help() if $help;
+&Version() if $version;
+&Explain() if $explain;
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+open(F, "$f") || die "Couldn't open $f";
+my($linecnt) = 1;
+my($line);
+my($min_cnt) = 0;
+my($max_cnt) = 0;
+my($min_str) = "";
+my($max_str) = "";
+
+while ($line = <F>) {
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $min_cnt = $max_cnt = 0;
+    last;
+  }
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  #I'm going to cheat here. My regexps fail if QMIN/QMAX appear at the very
+  #beginning or very end of the line. In c/c++ syntax this is highly unlikely,
+  #but I can't rule it completely out. I'm sure there is SOME way of getting
+  #this to work with ^ and $ but I can't do it reliably, so I just add a space
+  #to the beginning and end of the line here and everything is happy and my
+  #brains don't ooze out my ears from regexp overload.
+  $line = " " . $line . " ";
+
+  if ($line =~ m/[^[:alnum:]_]Q_?MIN[^[:alnum:]_]/ ) {
+    $min_cnt++;
+    if ($min_cnt == 1) {
+      $min_str = "line\#" . $linecnt;
+    } else {
+      $min_str = $min_str . "," . $linecnt;
+    }
+    print "=> $line" if ($verbose);
+  }
+  if ($line =~ m/[^[:alnum:]_]Q_?MAX[^[:alnum:]_]/ ) {
+    $max_cnt++;
+    if ($max_cnt == 1) {
+      $max_str = "line\#" . $linecnt;
+    } else {
+      $max_str = $max_str . "," . $linecnt;
+    }
+    print "=> $line" if ($verbose);
+  }
+  $linecnt++;
+}
+close(F);
+my($total_count) = $min_cnt + $max_cnt;
+if (!$total_count) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+} else {
+  print "MIN: $min_str ($min_cnt) MAX: $max_str ($max_cnt)\n" if (!$quiet);
+  exit $total_count;
+}
+
+sub Help {
+  print "Check for QMIN and QMAX macros\n";
+  exit 0 if $help;
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if $version;
+}
+
+sub Explain {
+  print "Obsolete macros QMIN(), Q_MIN(), QMAX() and Q_MAX() should be replaced by the qMin() and qMax() functions.\n";
+  exit 0 if $explain;
+}
+

@@ -1,0 +1,71 @@
+The Krazy README
+================
+Krazy scans KDE source code looking for issues that should be fixed
+for reasons of policy, good coding practice, optimization, or any other
+good reason.  In typical use, Krazy simply counts up the issues
+and provides the line numbers where those issues occurred in each
+file processed.  With the verbose option, the offending content will
+be printed as well.
+
+Krazy uses "sanity checker programs" which are small plugin programs
+to do the real work of the scanning.  It is easy to write your own plugins
+and tell Krazy how to use them.
+
+Donate Plugins!  I'll include your cool plugin with this package if it
+has an OSS-approved license!
+
+
+Usage on your local machine:
+----------------------------
+For individual files use the krazy script and provide the filenames you 
+want to check.
+
+For checking a whole directory including subdirectories, cd into the
+topmost directory you want to check and run the krazyall script from
+there.
+
+The commandline options for both can be obtained by providing the
+--help option.
+
+!!Caveat: Running the commandline tool currently doesn't read .krazy files,
+so if you excluded certain directories or files via a .krazy file you'll
+still see the issues from these reported. This does not happen in the big
+run that is done on the EBN.
+
+
+Exempting lines, files and directories from the checks:
+-------------------------------------------------------
+1. Exempting individual lines from specific checks
+  Provide a C++ comment at the line like this
+  //krazy:exclude-<name1[,name2,...,nameN]> 
+  Where nameX is the name of one of the plugins
+
+2. Exempting a whole file from specific checks
+  Provide a C++ comment at the line like this
+  //krazy:excludeall-<name1[,name2,...,nameN]>
+  Where nameX is the name of one of the plugins
+
+3. Exempting a whole file from all checks
+  Provide a C++ comment in the file like this
+  //krazy:skip
+
+4. Exempting subdirectories from checks
+  Provide a .krazy file in the directory containing the subdirectories 
+  to skip, for example if you want to exclude kdepim/kmail and 
+  kdepim/kontact provide a .krazy file in kdepim with this content
+  IGNORESUBS kmail,kontact
+
+5. Exempting files or directories from checks
+  Provide a .krazy file in the topmost directory and use
+  regular expressions to specify the files that should not
+  be checked. For example to exclude kcal/libical, kcal/versit
+  and kcal/fred.c in the kdepimlibs module but this .krazy file
+  into kdepimlib/kcal
+  SKIP /libical/\|/versit/\|fred\.c
+
+Note: The comments need to be C++ comments and cannot be embedded
+      into C comments, so if you need to exempt a plain C file
+      use a .krazy file and the SKIP directive.
+
+=======================================================================
+Send comments, suggestion, and plugins to Allen Winter <winter@kde.org>
