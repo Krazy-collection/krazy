@@ -69,7 +69,7 @@ install::
 	done
 	list=$(PLUGINLNS); for plugin in $$list; do \
 		echo "Installing plugin link $$plugin"; \
-		( cd $(INSTALLSCRIPT) && ln -s ../general/$$plugin $$plugin ); \
+		( cd $(INSTALLSCRIPT) && rm -f $$plugin && ln -s ../general/$$plugin $$plugin ); \
 	done
 
 # remove old plugins that are no longer used
