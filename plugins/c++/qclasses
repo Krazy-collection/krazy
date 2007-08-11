@@ -62,7 +62,8 @@ if ($#ARGV != 0){ &Help(); exit 0; }
 my($f) = $ARGV[0];
 my($absf) = abs_path($f);
 
-if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
+if ($absf !~ m+/kdesupport/+ &&
+    ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/)) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!$quiet);
