@@ -1,1 +1,1 @@
-Checks for Freedesktop.org desktop files.
+Checks for Freedesktop.org desktop files

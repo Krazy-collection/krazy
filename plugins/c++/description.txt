@@ -1,1 +1,1 @@
-Checks for C++ source code.  Some checks also support C source code.
+Checks for C/C++ source code

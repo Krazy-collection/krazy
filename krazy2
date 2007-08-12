@@ -378,7 +378,8 @@ sub List {
   }
 
   foreach $type (keys %Checkers) {
-    &printFType($type);
+    my($pth) = ${$Checkers{$type}}[0];
+    &printFType(dirname($pth),$type);
     if ($#{$Checkers{$type}} >= 0) {
       for $prog (sort @{$Checkers{$type}}) {
 	$use = `$prog --help`;
@@ -604,13 +605,29 @@ sub printCheck(){
   }
 }
 
+# ftypeDescription function: return the File Type description
+sub ftypeDescription {
+  my($pth) = @_;
+  my($f) = "$pth" . "/description.txt";
+  open(F, "$f") || return "";
+  my($line) = "";
+  while ($line = <F>) {
+    last;
+  }
+  close(F);
+  chomp($line);
+  return($line);
+}
+
 # printFType function: print the File Type line, according to export type.
 sub printFType {
-  my($ftype) = @_;
+  my($pth,$ftype) = @_;
+  my($desc) = &ftypeDescription($pth);
+  $desc = "For File Type $ftype" if ($desc eq "");
   if ($export !~ "text") {
-    print "<li><b><u>For File Type $ftype\n (TODO: Insert description.txt)</u></b>\n<ol>\n";
+    print "<li><b><u>$desc\n</u></b>\n<ol>\n";
   } else {
-    print "==>For File Type $ftype (TODO: Insert description.txt)<==\n";
+    print "==>$desc<==\n";
   }
 }
 
