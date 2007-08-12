@@ -7,7 +7,6 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # --check
 # --exclude
 # --extras
-# mirko's export for kdevelop
 # preprocess: comment removal; #if 0 removal
 # preprocess: look if file is list (not commented-out) in the CMakeLists.txt
 #             but this would only be useful for krazyebn
@@ -63,10 +62,11 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                    run the specified checker program(s) only
 #   --exclude <prog[,prog1,prog2,...,progN]>:
 #                    do NOT run the specified checker program(s)
-#   --export <text|textlist|ebn|ebnlxr|html|htmllxr>
+#   --export <text|textlist|textedit|ebn|ebnlxr|html|htmllxr>
 #                    output in one of the following formats:
 #                      text (default)
 #                      textlist -> plain old text, 1 offending file-per-line
+#                      textedit -> text formatted for IDEs, 1 issue-per-line
 #                      ebn -> English Breakfast Network style
 #                      ebnlxr -> English Breakfast Network style + lxr.kde.org
 #                      html -> plain old html
@@ -119,7 +119,8 @@ if (!$list && $#ARGV < 0){ &Help(); exit 0; }
 
 if ($export) {
   $export = lc($export);
-  if (($export ne "text") && ($export ne "textlist") &&
+  if (($export ne "text") &&
+      ($export ne "textlist") && ($export ne "textedit") &&
       ($export ne "ebn") && ($export ne "ebnlxr") &&
       ($export ne "html") && ($export ne "htmllxr")) {
     print "Unsupported export type \"$export\"... exiting\n";
@@ -276,7 +277,8 @@ if (!$quiet) {
   my($cline,$rline);
   for $ftype (@types) {
     $st=0;
-    &printFType($ftype);
+    my($pth) = ${$Checkers{$ftype}}[0];
+    &printFType($pth,$ftype);
     for $p (sort @{$Checkers{$ftype}}) {
       $st++;
       $use = `$p --help`;
@@ -293,7 +295,7 @@ if (!$quiet) {
       }
       &printCheck($cline,$rline);
       if (defined($status{$p}) && $status{$p} > 0 && length($result{$p}) > 0) {
-	printOOPS($result{$p});
+	printOOPS($result{$p},$cline);
 	if ($explain) {
 	  my($use) = `$p --explain 2>/dev/null`;
 	  chomp($use);
@@ -301,7 +303,7 @@ if (!$quiet) {
 	  &printExplain(wrap("        ", "        ", $use));
 	}
       }
-      print "\n" if ($export ne "textlist");
+      print "\n" if ($export ne "textlist" && $export ne "textedit");
     }
     print "</ol>\n<br>\n" if ($export !~ "text");
   }
@@ -325,10 +327,11 @@ sub Help {
   print "                     run the specified checker program(s) only\n";
   print "  --exclude <prog[,prog1,prog2,...,progN]>\n";
   print "                     do NOT run the specified checker program(s)\n";
-  print "  --export <text|textlist|ebn|ebnlxr|html|htmllxr>\n";
+  print "  --export <text|textlist|textedit|ebn|ebnlxr|html|htmllxr>\n";
   print "                     output in one of the following formats:\n";
   print "                       text (default)\n";
   print "                       textlist -> plain old text, 1 offending file-per-line\n";
+  print "                       textedit -> text formatted for IDEs, 1 issue-per-line\n";
   print "                       ebn -> English Breakfast Network style\n";
   print "                       ebnlxr -> English Breakfast Network style,\n";
   print "                                 with links to lxr.kde.org\n";
@@ -622,6 +625,9 @@ sub ftypeDescription {
 # printFType function: print the File Type line, according to export type.
 sub printFType {
   my($pth,$ftype) = @_;
+
+  return if ($export eq "textlist" || $export eq "textedit");
+
   my($desc) = &ftypeDescription($pth);
   $desc = "For File Type $ftype" if ($desc eq "");
   if ($export !~ "text") {
@@ -646,6 +652,31 @@ sub printOOPS{
     if ($export eq "textlist") {
       my($t) = split(":",$o); $t =~ s+^\s++;
       print "$t\n";
+    } elsif ($export eq "textedit") {
+      #file:line:issue
+      my($f);
+      my($ls1,$ls2,$ls3) = ("","","");
+      ($f,$ls1,$ls2,$ls3) = split(":",$o);
+      $f =~ s+^[[:space:]]*\./++;
+      my(@ls) = ();
+      push(@ls, &arrayLineify($ls1)) if (defined($ls1));
+      push(@ls, &arrayLineify($ls2)) if (defined($ls2));
+      push(@ls, &arrayLineify($ls3)) if (defined($ls3));
+
+      my($subissue) = $o;
+      $subissue =~ s+^$f:[[:space:]]*++;
+      $subissue =~ s+[[:space:]]*line#.*$++;
+      $subissue .= ", " if ($subissue ne "");
+      my($issue) = $_[1];
+      $issue =~ s+^[Cc]hecks[[:space:]]*++;
+      $issue =~ s+^[Cc]heck[[:space:]]*++;
+      $issue =~ s+^for[[:space:]]*++;
+      $issue =~ s+\.*[[:space:]]*$++g;
+      $f =~ s+^[[:space:]]*++;
+      my($l);
+      for $l (@ls) {
+	print "$f:$l:$subissue$issue\n";
+      }
     } else {
       if ($export =~ "lxr") {
 	my($url);
@@ -653,7 +684,7 @@ sub printOOPS{
 	  $url = "http://lxr.kde.org/source/KDE/$module/$subdir/";
 	} elsif ($component eq "bundled-apps" && $module eq "koffice") {
 	  $url = "http://lxr.kde.org/source/koffice/$subdir/";
-	} elsif($component eq "bunlded-apps" && $module eq "enterprise-kdepim"){
+	} elsif($component eq "bundled-apps" && $module eq "enterprise-kdepim"){
 	  print &htmlify($o); print "\n"; goto here;
 	} elsif ($component eq "kdereview") {
 	  $url = "http://lxr.kde.org/source/kdereview/$subdir/";
@@ -665,12 +696,12 @@ sub printOOPS{
 
 	my($f);
 	my($ls1,$ls2,$ls3) = ("","","");
-	($f,$ls1,$ls2,$ls3) = split(":",$o); 
+	($f,$ls1,$ls2,$ls3) = split(":",$o);
 	$f =~ s+^[[:space:]]*\./++;
 	$url .= "$f";
-	$ls1 = &lineify($ls1,$url) if (defined($ls1));
-	$ls2 = &lineify($ls2,$url) if (defined($ls2));
-	$ls3 = &lineify($ls3,$url) if (defined($ls3));
+	$ls1 = &lxrLineify($ls1,$url) if (defined($ls1));
+	$ls2 = &lxrLineify($ls2,$url) if (defined($ls2));
+	$ls3 = &lxrLineify($ls3,$url) if (defined($ls3));
 	print "<a href=\"$url\">$f</a>: $ls1";
 	print ": $ls2" if ($ls2);
 	print ": $ls3" if ($ls3);
@@ -715,8 +746,19 @@ sub htmlify{
   return $s;
 }
 
+# turn a comma-separated line list into an array
+sub arrayLineify {
+  my($s) = @_;
+
+  return () if ($s !~ m/line#/);
+
+  $s =~ s+^.*line#++;
+  $s =~ s+[[:space:]]*\(\d*\)[[:space:]]*$++;
+  return split(",",$s);
+}
+
 # htmlify the line number string for lxr
-sub lineify {
+sub lxrLineify {
   my($s,$url) = @_;
 
   $s = &htmlify($s);
@@ -837,11 +879,12 @@ Run the specified checker program(s) only.
 
 Do B<NOT> run the specified checker program(s).
 
-=item B<--export> <text|textlist|ebn|ebnlxr|html|htmllxr>
+=item B<--export> <text|textlist|textedit|ebn|ebnlxr|html|htmllxr>
 
 Output in one of the following formats:
      text (default)
      textlist -> plain old text, 1 offending file-per-line
+     textedit -> text formatted for IDEs, 1 issue-per-line (file:line:issue)
      ebn -> English Breakfast Network style
      ebnlxr -> English Breakfast Network style, with links to lxr.kde.org
      html -> plain old html
