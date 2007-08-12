@@ -2,6 +2,17 @@
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
+
+#TODO
+# --check
+# --exclude
+# --extras
+# mirko's export for kdevelop
+# preprocess: comment removal; #if 0 removal
+# preprocess: look if file is list (not commented-out) in the CMakeLists.txt
+#             but this would only be useful for krazyebn
+# support .krazy files?? will this screw with krazyebn?
+
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
 # Copyright (C) 2005-2007 by Allen Winter <winter@kde.org>                    #
@@ -265,7 +276,7 @@ if (!$quiet) {
   my($cline,$rline);
   for $ftype (@types) {
     $st=0;
-    print "For $ftype file types ==\n";
+    &printFType($ftype);
     for $p (sort @{$Checkers{$ftype}}) {
       $st++;
       $use = `$p --help`;
@@ -292,6 +303,7 @@ if (!$quiet) {
       }
       print "\n" if ($export ne "textlist");
     }
+    print "</ol>\n<br>\n" if ($export !~ "text");
   }
   &printFooter();
 }
@@ -350,30 +362,50 @@ sub initCheckers {
 # List function: print a list of all checker programs available to run.
 sub List {
   my($prog, $use, $type);
-  print "Available KDE source code sanitizer checks:\n";
+
+  $title = "Available KDE source code sanitizer checks";
+  if ($export =~ "ebn") {
+    &printEbnHeader();
+  } elsif ($export =~ "html") {
+    &printHtmlHeader();
+  }
+
+  if ($export !~ "text") {
+    print "<ul>\n";
+    print "<h2>$title</h2>\n";
+  } else {
+    print "$title:\n";
+  }
+
   foreach $type (keys %Checkers) {
-    print "\nFor $type file types ==\n";
+    &printFType($type);
     if ($#{$Checkers{$type}} >= 0) {
       for $prog (sort @{$Checkers{$type}}) {
 	$use = `$prog --help`;
 	chomp($use);
 	$use = "(no description available)" if (length($use) < 4);
-	printf("%18.18s: %s\n", &basename($prog), $use);
+	if ($export !~ "text") {
+	  print "<li><b>" . &basename($prog). ":</b> $use\n";
+	} else {
+	  printf("%18.18s: %s\n", &basename($prog), $use);
+	}
 	if ($explain) {
 	  $use = `$prog --explain 2>/dev/null`;
 	  chomp($use);
 	  $use = "(no explanation available)" if (length($use) < 4);
-	  $use = "=>" . $use;
-	  print wrap("                  ",
-		     "                    ",
-		     $use); print "\n";
+	  &printExplain(wrap("        ", "        ", $use));
 	}
       }
     } else {
       printf("%18.18s\n", "(none)");
     }
-#    print "\n" if (! $explain);
+    if ($export !~ "text") {
+      print "</ol>\n<br>\n";
+    } else {
+      print "\n";
+    }
   }
+  &printFooter();
   exit 0 if $list;
 }
 
@@ -397,51 +429,80 @@ sub fileType {
 }
 
 # asOf function: return nicely formatted string containing the current time
-sub asOf{
+sub asOf {
   return strftime("%B %d %Y %H:%M:%S", localtime(time()));
+}
+
+# printEbnHeader function: print the header string for the EBN export type.
+sub printEbnHeader {
+  print "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n";
+  print "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n";
+  print "<head>\n";
+  print "<title>$title</title>\n";
+  print "<link rel=\"stylesheet\" type=\"text/css\" title=\"Normal\" href=\"/style.css\" />\n";
+  print "</head>\n";
+  print "<body>\n";
+  print "<div id=\"title\">\n";
+  print "<div class=\"logo\">&nbsp;</div>\n";
+  print "<div class=\"header\">\n";
+  print "<h1><a href=\"/\">English Breakfast Network</a></h1>\n";
+  print "<p><a href=\"/\">Almost, but not quite, entirely unlike tea.</a></p>\n";
+  print "</div>\n";
+  print "</div>\n";
+  print "<div id=\"content\">\n";
+  print "<div class=\"inside\">\n";
+}
+
+# printEbnBreadcrumbs function: print breadcrumbs for EBN navigation
+sub printEbnBreadcrumbs {
+  my($component,$module,$subdir) = @_;
+  my($upcomp) = uc($component);
+  $upcomp =~ s/-/ /;
+
+  print "<p style=\"font-size: x-small;font-style: sans-serif;\">\n";
+  print "<a href=\"/index.php\">Home</a>&nbsp;&gt;&nbsp;\n";
+  print "<a href=\"/$Prog/index.php\">Krazy Code Checker</a>&nbsp;&gt;&nbsp;\n";
+  print "<a href=\"/$Prog/index.php?component=$component\">$upcomp</a>&nbsp;&gt;&nbsp;\n" if ($component);
+  print "<a href=\"/$Prog/index.php?component=$component&module=$module\">$module</a>&nbsp;&gt;&nbsp;\n" if ($component && $module);
+  print "$subdir\n" if ($subdir);
+  print "</p>\n";
+}
+
+# printEbnQualityLinks function: print links to other EBN quality tools
+sub printEbnQualityLinks {
+  my($component,$module,$subdir) = @_;
+
+  print "<p style=\"font-size: x-small;font-style: sans-serif;\">\n";
+  print "Other $module/$subdir reports:\n";
+  print "[<a href=\"/apidocs/apidox-$component/$module-$subdir.html\">APIDOX</a>]\n";
+  print "[<a href=\"/sanitizer/reports/$component/$module/$subdir/index.html\">Docs</a>]\n";
+  print "</p>\n";
+}
+
+# printHtmlHeader function: print the header string for the HTML export type.
+sub printHtmlHeader {
+  print "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n";
+  print "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n";
+  print "<head>\n";
+  print "<title>$title</title>\n";
+  print "</head>\n";
+  print "<body>\n";
 }
 
 # printHeader function: print the header string, according to export type.
 sub printHeader{
   my($num_issues,$num_checks,$num_files)=@_;
   my($component,$module,$subdir)=split("/",$cms);
-  my($upcomp) = uc($component);
-  $upcomp =~ s/-/ /;
 
   if ($export =~ "ebn") {
-    print "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n";
-    print "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n";
-    print "<head>\n";
-    print "<title>$title</title>\n";
-    print "<link rel=\"stylesheet\" type=\"text/css\" title=\"Normal\" href=\"/style.css\" />\n";
-    print "</head>\n";
-    print "<body>\n";
-    print "<div id=\"title\">\n";
-    print "<div class=\"logo\">&nbsp;</div>\n";
-    print "<div class=\"header\">\n";
-    print "<h1><a href=\"/\">English Breakfast Network</a></h1>\n";
-    print "<p><a href=\"/\">Almost, but not quite, entirely unlike tea.</a></p>\n";
-    print "</div>\n";
-    print "</div>\n";
-    print "<div id=\"content\">\n";
-    print "<div class=\"inside\">\n";
+    &printEbnHeader();
 
     # Breadcrumbs
-    print "<p style=\"font-size: x-small;font-style: sans-serif;\">\n";
-    print "<a href=\"/index.php\">Home</a>&nbsp;&gt;&nbsp;\n";
-    print "<a href=\"/$Prog/index.php\">Krazy Code Checker</a>&nbsp;&gt;&nbsp;\n";
-    print "<a href=\"/$Prog/index.php?component=$component\">$upcomp</a>&nbsp;&gt;&nbsp;\n" if ($component);
-    print "<a href=\"/$Prog/index.php?component=$component&module=$module\">$module</a>&nbsp;&gt;&nbsp;\n" if ($component && $module);
-    print "$subdir\n" if ($subdir);
-    print "</p>\n";
+    &printEbnBreadcrumbs($component,$module,$subdir);
 
     # Links to other available reports
     if ($component && $module && $subdir) {
-      print "<p style=\"font-size: x-small;font-style: sans-serif;\">\n";
-      print "Other $module/$subdir reports:\n";
-      print "[<a href=\"/apidocs/apidox-$component/$module-$subdir.html\">APIDOX</a>]\n";
-      print "[<a href=\"/sanitizer/reports/$component/$module/$subdir/index.html\">Docs</a>]\n";
-      print "</p>\n";
+      &printEbnQualityLinks($component,$module,$subdir);
     }
 
     print "<h1>$title</h1>\n";
@@ -455,15 +516,10 @@ sub printHeader{
     print " ...as of "; print &asOf();
     print " (SVN revision $rev)" if ($rev);
     print "</p>\n";
-    print "<ol>\n";
+    print "<ul>\n";
   } else {
     if ($export eq "html") {
-      print "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n";
-      print "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n";
-      print "<head>\n";
-      print "<title>$title</title>\n";
-      print "</head>\n";
-      print "<body>\n";
+      &printHtmlHeader();
       print "<h1>$title</h1>\n";
       print "<p>Checkers Run = $num_checks<br>\n";
       print "Files Processed = $num_files<br>\n";
@@ -475,7 +531,7 @@ sub printHeader{
       print " ...as of "; print &asOf();
       print " (SVN revision $rev)" if ($rev);
       print "</p>\n";
-      print "<ol>\n";
+      print "<ul>\n";
     } else {
       if ($export eq "text") {
 	print "\n$title\n" if ($title);
@@ -494,24 +550,35 @@ sub printHeader{
   }
 }
 
+# printEbnFooter function: print the footer string for the EBN export type.
+sub printEbnFooter {
+  print "\n";
+  print "</ul>\n";
+  print "</div>\n";
+  print "</div>\n";
+  print "<div id=\"footer\">\n";
+  print "<p>Site content Copyright 2005-2007 by Adriaan de Groot,<br/>\n";
+  print "except images as indicated.</p>\n";
+  print "</div>\n";
+  print "</body>\n";
+  print "</html>\n";
+}
+
+# printHtmlFooter function: print the footer string for the HTML export type.
+sub printHtmlFooter {
+  print "</ul>\n";
+  print "</body>\n";
+  print "</html>\n";
+}
+
 # printFooter function: print the footer string, according to export type.
-sub printFooter{
+sub printFooter {
 
   if ($export =~ "ebn") {
-    print "</ol>\n";
-    print "</div>\n";
-    print "</div>\n";
-    print "<div id=\"footer\">\n";
-    print "<p>Site content Copyright 2005-2007 by Adriaan de Groot,<br/>\n";
-    print "except images as indicated.</p>\n";
-    print "</div>\n";
-    print "</body>\n";
-    print "</html>\n";
+    &printEbnFooter();
   } else {
     if ($export eq "html") {
-      print "</ol>\n";
-      print "</body>\n";
-      print "</html>\n";
+      &printHtmlFooter();
     } else {
       if ($export eq "text") {
 	print "";
@@ -534,6 +601,16 @@ sub printCheck(){
       print "$check\n<b>$result</b>";
       print "</span>" if ($export =~ "ebn");
     }
+  }
+}
+
+# printFType function: print the File Type line, according to export type.
+sub printFType {
+  my($ftype) = @_;
+  if ($export !~ "text") {
+    print "<li><b><u>For File Type $ftype\n (TODO: Insert description.txt)</u></b>\n<ol>\n";
+  } else {
+    print "==>For File Type $ftype (TODO: Insert description.txt)<==\n";
   }
 }
 
@@ -590,7 +667,6 @@ sub printOOPS{
   here:
     print "</li>\n" if ($export !~ "text");
   }
-  print "</ul>\n" if ($export !~ "text");
 }
 
 # printExplain function: print the explanation lines, according to export type.
