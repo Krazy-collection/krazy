@@ -4,13 +4,13 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 
 #TODO
-# --check
-# --exclude
 # --extras
 # preprocess: comment removal; #if 0 removal
 # preprocess: look if file is list (not commented-out) in the CMakeLists.txt
 #             but this would only be useful for krazyebn
-# support .krazy files?? will this screw with krazyebn?
+# support .krazy files?? will this screw with krazyebn? new --ignorerc option?
+# support multiple SKIP, EXCLUDE lines per .krazy
+# support EXCLUDE <plugin_list> <skip_regexp>
 
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
@@ -133,6 +133,9 @@ my($KRAZYPATH) = dirname($KRAZYBINPATH);
 
 # Checkers hash has a list of all the plugins, by file type we support.
 tie my(%Checkers), "Tie::IxHash";
+tie my(%oCheckers), "Tie::IxHash";
+tie my(%eCheckers), "Tie::IxHash";
+tie my(%pCheckers), "Tie::IxHash";
 &initCheckers();
 
 ############################################################
@@ -142,7 +145,6 @@ $KRAZY_PLUGIN_PATH = "$KRAZYPATH/libexec/krazy-plugins:/usr/libexec/krazy-plugin
 
 my(@sanity_paths);
 my(@sanity_types);
-my(%sanity_progs);
 
 # Generate an array of paths to search for plugins
 my($sp);
@@ -173,6 +175,83 @@ foreach $type (keys %Checkers) {
 
 # Print the list of available checker programs and exit.
 &List() if $list;
+
+my($p);
+# If only, then run the specified check program only
+if ($only) {
+  my(@only_progs) = split(",",$only);
+  my($i,$o);
+  for $o (@only_progs) {
+    # Make sure specified only program is in the list
+    my($found) = 0;
+    foreach $type (keys %Checkers) {
+      for $p (sort @{$Checkers{$type}}) {
+	if (&basename($p) eq $o) {
+	  $found = 1;
+	  push(@{$oCheckers{$type}},$p);
+	  last;
+	}
+      }
+    }
+    if (!$found) {
+      print "No such checker \"$o\"... exiting\n";
+      exit 1;
+    }
+  }
+} else {
+  foreach $type (keys %Checkers) {
+    for $p (sort @{$Checkers{$type}}) {
+      push(@{$oCheckers{$type}},$p);
+    }
+  }
+}
+
+## process program exclusions
+if ($exclude) {
+  my(@exclude_progs) = split(",",$exclude);
+  my($i,$e);
+  for $e (@exclude_progs) {
+    # Make sure specified exclude program is in the list
+    my($found) = 0;
+    foreach $type (keys %Checkers) {
+      for $p (sort @{$Checkers{$type}}) {
+	if (&basename($p) eq $e) {
+	  $found = 1;
+	  push(@{$eCheckers{$type}},$p);
+	  last;
+	}
+      }
+    }
+    if (!$found) {
+      print "No such checker to exclude \"$e\"... exiting\n";
+      exit 1;
+    }
+  }
+}
+
+# finally, remove the "excluded" checkers from the "only" checkers
+my($nprogs)=0;
+foreach $type (keys %Checkers) {
+  for $p (sort @{$oCheckers{$type}}) {
+    my($q);
+    my($found)=0;
+    for $q (sort @{$eCheckers{$type}}) {
+      if (&basename($p) eq &basename($q)) {
+	$found=1;
+	last;
+      }
+    }
+    if (!$found) {
+      push(@{$pCheckers{$type}},$p);
+      $nprogs++;  #count the total number of checkers, over all filetypes
+    }
+  }
+}
+
+if ($nprogs == 0) {
+  print "No checker programs to run... exiting...\n";
+  exit 1;
+}
 
 #####################################################################
 # This section runs each checker program for each specified file,   #
@@ -209,11 +288,11 @@ for $f (@ARGV) {
 my($insopt);
 my($overall_status) = 0;
 my($num_checkers) = 0;
-my($p, $use, %result, $pid, %status);
+my($use, %result, $pid, %status);
 my($insp) = $KRAZYPATH . "/libexec/krazy-helpers/getInstalledHeaders.pl";
 my($absf, $dirf);
 for $ftype (@types) {
-  for $p (sort @{$Checkers{$ftype}}) {
+  for $p (sort @{$pCheckers{$ftype}}) {
     my($bp)=&basename($p);
     print STDERR "=>$ftype/$bp test in-progress." unless ($quiet);
     $result{$p} = "";
@@ -277,9 +356,9 @@ if (!$quiet) {
   my($cline,$rline);
   for $ftype (@types) {
     $st=0;
-    my($pth) = ${$Checkers{$ftype}}[0];
+    my($pth) = ${$pCheckers{$ftype}}[0];
     &printFType($pth,$ftype);
-    for $p (sort @{$Checkers{$ftype}}) {
+    for $p (sort @{$pCheckers{$ftype}}) {
       $st++;
       $use = `$p --help`;
       chomp($use);
@@ -360,6 +439,15 @@ sub initCheckers {
 	       'desktop'   => [],
 	       'designer'  => [],
 	      );
+  my($type);
+  foreach $type (keys %Checkers) {
+    # check these only from the list of all available
+    @{$oCheckers{$type}} = ();
+    # except, exclude these
+    @{$eCheckers{$type}} = ();
+    # and here is the final list of checkers
+    @{$pCheckers{$type}} = ();
+  }
 }
 
 # List function: print a list of all checker programs available to run.
@@ -770,61 +858,6 @@ sub lxrLineify {
 }
 __END__
 
-my(@progs);
-# If only, then run the specified check program only
-if ($only) {
-  my(@only_progs) = split(",",$only);
-  my($i,$o);
-  for $o (@only_progs) {
-    # Make sure specified only program is in the list
-    my($matchidx) = -1;
-    for ($i=0; $i<@sanity_progs; $i++) {
-      if (&basename($sanity_progs[$i]) eq $o) {
-	$matchidx = $i;
-	last;
-      }
-    }
-    if ($matchidx == -1) {
-      print "No such sanity program \"$o\"... exiting\n";
-      exit 1;
-    } else {
-      push(@progs,$sanity_progs[$matchidx]);
-    }
-  }
-} else {
-  my($s);
-  for $s (@sanity_progs) {
-    push(@progs,$s);
-  }
-}
-## process program exclusions
-if ($exclude) {
-  my(@exclude_progs) = split(",",$exclude);
-  my($i,$e);
-  for $e (@exclude_progs) {
-    # Make sure specified exclude program is in the list
-    my($matchidx) = -1;
-    for ($i=0; $i<@progs; $i++) {
-      if (&basename($progs[$i]) eq $e) {
-	$matchidx = $i;
-	last;
-      }
-    }
-    if ($matchidx == -1) {
-      print "\"$e\" is not in the list of checker programs... exiting\n";
-      exit 1;
-    } else {
-      splice(@progs,$matchidx,1);
-    }
-  }
-}
-
-if ($#progs < 0) {
-  print "No checker programs to run... exiting...\n";
-  exit 1;
-}
-
-__END__
 #==============================================================================
 
 =head1 NAME
