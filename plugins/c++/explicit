@@ -16,9 +16,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
 # GNU General Public License for more details.                                #
 #                                                                             #
-# You should have received a copy of the GNU General Public License           #
-# along with this program; if not, write to the Free Software                 #
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
 #                                                                             #
 ###############################################################################
 
@@ -46,8 +46,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 use strict;
 use Getopt::Long;
 
+my($debug) = 0;  #set to go into debug mode
 my($Prog) = "explicit";
-my($Version) = "1.1";
+my($Version) = "1.2";
 
 my($help) = '';
 my($version) = '';
@@ -96,45 +97,87 @@ foreach my $comment ( @comments ) {
 #put it back into an array so we can iterate over it
 my(@lines) = split(/\n/, $data);
 
+my($CNAME) = ""; #current class name
+my(@classes) = ();
+my(%stuff);
 my($cnt) = 0;
 my($linecnt) = 0;
 my($lstr) = "";
-my($cname) = "";
 my($ctor) = "";
 my($line);
+
+my($lastl)=""; #last line
 while ($linecnt < $#lines) {
-  $linecnt++;
-  $line = $lines[$linecnt];
+  $lastl = $line;
+  $line = $lines[$linecnt++];
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
     $cnt = 0;
     last;
   }
 
-  $cname = &Cname($line,$lines[$linecnt-1]);
-  if ($cname ne "") {
-    $ctor = "";
+  $CNAME = &Cname($line,$lastl);
+  if ($CNAME ne "") {
+    print "($linecnt) Start Class $CNAME\n" if ($debug);
 
-    while ($linecnt < $#lines) {
-      # search for a constructor
-      $linecnt++;
-      $line = $lines[$linecnt];
-      if (&Cname($line,$lines[$linecnt-1])) { $linecnt--; last; }
-      if ($line =~ m/[[:space:]]$cname[[:space:]]*\(/) {
-        # we found a constructor
-        $ctor = $line;
+    $stuff{$CNAME}{'ctor'} = 0;
+    $stuff{$CNAME}{'excluded'} = 0;       #is this class krazy excluded?
+    $stuff{$CNAME}{'section'} = "public"; #default visibility in classes
+    $stuff{$CNAME}{'privLinesList'} = ""; #list of lines with private members
 
-        if (&Ctor($lines[$linecnt-1],$ctor,$lines[$linecnt+1]) &&
-            !&searchBack("private:", $linecnt, 5) &&
-            !&searchBack("protected:", $linecnt, 5)) {
-          # found a constructor that should be declared explicit
-          $cnt++;
-          if ($cnt == 1) {
-            $lstr = "line\#" . ($linecnt+1);
-          } else {
-            $lstr = $lstr . "," . ($linecnt+1);
-          }
-          print "=> $line\n" if ($verbose);
+    $stuff{$CNAME}{'excluded'} = 1 if($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
+    print " Searching for public: section\n" if ($debug);
+    while ($linecnt < $#lines && $#classes >= 0) {
+      $lastl = $line;
+      $line = $lines[$linecnt++];
+      $line =~ s+//.*++; #strip trailing C++ comment
+      &Section($line);
+      if (&Cname($line,$lastl)) { $linecnt--; last; }
+      last if (&endClass($line,$linecnt));
+
+      if ($CNAME ne "" && defined($stuff{$CNAME}{'section'}) &&
+	  $stuff{$CNAME}{'section'} eq "public") {
+        # we are in the public declarations
+        print "  Searching for constructors\n" if ($debug);
+
+	while ($linecnt < $#lines) {
+	  $lastl = $line;
+	  $line = $lines[$linecnt++];
+          &Section($line);
+          if (&Cname($line,$lastl)) { $linecnt--; last; }
+	  if (&endClass($line,$linecnt)) { last; }
+
+	  next if ($line =~ m/[[:space:]]*public[[:space:]]*:/);
+	  last if ($line =~ m/[[:space:]]*private[[:space:]]*Q_SLOTS[[:space:]]*:
+/);
+          last if ($line =~ m/[[:space:]]*private[[:space:]]*slots[[:space:]]*:/)
+;
+          last if ($line =~ m/[[:space:]]*protected[[:space:]]*:/);
+          last if ($line =~ m/[[:space:]]*protected[[:space:]]*Q_SLOTS[[:space:]]
+*:/);
+          last if ($line =~ m/[[:space:]]*protected[[:space:]]*slots[[:space:]]*:
+/);
+          last if ($line =~ m/[[:space:]]*public[[:space:]]*:/);
+          last if ($line =~ m/[[:space:]]*public[[:space:]]*Q_SLOTS[[:space:]]*:/
+);
+          last if ($line =~ m/[[:space:]]*public[[:space:]]*slots[[:space:]]*:/);
+          last if ($line =~ m/[[:space:]]*signals[[:space:]]*:/);
+          last if ($line =~ m/[[:space:]]*k_dcop_signals[[:space:]]*:/);
+          last if ($line =~ m/[[:space:]]*Q_SIGNALS[[:space:]]*:/);
+
+	  if ($line =~ m/[[:space:]]$CNAME[[:space:]]*\(/ &&
+	      &Ctor($lastl,$line,$lines[$linecnt])) {
+	    # found a non-explicit constructor
+            print "   ($linecnt) found non-explicit ctor ($line)\n" if ($debug);
+            $stuff{$CNAME}{'ctor'}++;
+            if ($stuff{$CNAME}{'ctor'} == 1) {
+              $stuff{$CNAME}{'privLinesList'} = $linecnt;
+            } else {
+              $stuff{$CNAME}{'privLinesList'} .= "," . $linecnt;
+            }
+            print "=> $line\n" if ($verbose);
+	  }
         }
       }
     }
@@ -149,6 +192,22 @@ if (!$cnt) {
   exit $cnt;
 }
 
+sub Section {
+  my($l) = @_;
+  if ($l =~ m/slots/i) {
+    $stuff{$CNAME}{'section'} = "slot";
+  } elsif ($l =~ m/signals/i) {
+    $stuff{$CNAME}{'section'} = "signal";
+  } elsif ($l =~ m/private/) {
+    $stuff{$CNAME}{'section'} = "private";
+  } elsif ($l =~ m/public/) {
+    $stuff{$CNAME}{'section'} = "public";
+    print "In public section of $CNAME\n" if ($debug);
+  } elsif ($l =~ m/protected/) {
+    $stuff{$CNAME}{'section'} = "protected";
+  }
+}
+
 # determine if the current line $l has a class, checking the previous line $l1
 # for classes to ignore (like "template").
 # return the class name, or empty if no class is found
@@ -157,6 +216,7 @@ sub Cname {
   my($cname)="";
   $l =~ s+//.*++; #strip trailing C++ comment
   return 0 if ($l =~ m/_EXPORT_DEPRECATED/);
+  return 0 if ($l =~ m/_TEST_EXPORT/);
   if ($l =~ m+^[[:space:]]*class[[:space:]].*+ && $l !~ m/;\s*$/ && $l !~ m/\\\s*$/) {
     if ($l1 !~ m/template/ && $l1 !~ m/#define[[:space:]]/) {
       $cname = $l;
@@ -165,9 +225,56 @@ sub Cname {
       $cname =~ s/[[:space:]]*class[[:space:]].*EXPORT[[:space:]]//;
       $cname =~ s/[[:space:]]*class[[:space:]]//;
       $cname =~ s/\s+$//;
+      if ($#classes < 0 || $cname ne $classes[$#classes]) {
+        push(@classes,$cname);
+        print "push $cname, $#classes in stack\n" if ($debug);
+      }
     }
   }
   return $cname;
+}
+
+sub endClass {
+  my($l,$lc) = @_;
+  return 0 if ($l !~ m/^[[:space:]]*}[[:space:]]*;/);
+  # This is getting ridiculous
+  # TODO: do it the other way around: when we get to an opening enum or struct
+  #       declaration in a private: section, skip forward to the end
+  #       but be wary of things like enum { foo, bar, foobar };
+  #       (and nested structs?)
+  return 0 if (&searchBackWithStop('^[[:space:]]*struct[[:space:]]',$lc-1,50,
+                  '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'));
+  # enums don't have semicolons in them;
+  # unless, of course, someone puts one at
+  # the end of a doxygen line (why would they?)
+  return 0 if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]',$lc-1,50,
+                  ';[[:space:]]*$|^[[:space:]]*private:'));
+
+  #at end of class
+  my($cclass) = $classes[$#classes];
+  if ($#classes >= 0) {
+    &chkNonExplicitCtors($cclass);
+  }
+  print "($lc) End Class $cclass ($l)\n" if ($debug);
+  pop(@classes);
+
+  if ($#classes >= 0) {
+    $CNAME = $classes[$#classes];
+    print "pop to class $CNAME, section $stuff{$CNAME}{'section'}, $#classes in stack\n" if ($debug);
+  }
+  return 1;
+}
+
+sub chkNonExplicitCtors {
+  my($c) = @_;
+  if ($c ne "" && !$stuff{$c}{'excluded'}) {
+    if ($cnt == 0) {
+      $lstr = "line\#" . $stuff{$c}{'privLinesList'};
+    } else {
+      $lstr = $lstr . "," . $stuff{$c}{'privLinesList'} if ($stuff{$c}{'privLinesList'});
+    }
+    $cnt += $stuff{$c}{'ctor'};
+  }
 }
 
 # determine if the current line $l has a constructor, $l1 has the next line,
@@ -182,17 +289,18 @@ sub Ctor {
     return 0 if ($lp =~ m/explicit[[:space:]]*$/);     # already explicit
     return 0 if ($l =~ m/implicit/);     # if implicit in a comment on the line
     return 0 if ($l =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-    return 0 if ($l =~ m/$cname[[:space:]]*\([[:space:]]*\)/);  # no args
-    return 0 if ($l =~ /\([[:space:]]*const[[:space:]]$cname[[:space:]]*&[[:space:]]*[[:print:]]*[[:space:]]*\)/); # copy constructor
-    return 0 if ($l =~ m/[[:space:]]*inline[[:space:]]$cname/);
-    return 0 if ($l =~ m/[[:space:]]*return[[:space:]]$cname/);
-    return 0 if ($l =~ m/[[:space:]]*return[[:space:]]new[[:space:]]$cname/);
+    return 0 if ($l =~ m/$CNAME[[:space:]]*\([[:space:]]*\)/);  # no args
+    return 0 if ($l =~ /\([[:space:]]*const[[:space:]]$CNAME[[:space:]]*&[[:space:]]*[[:print:]]*[[:space:]]*\)/); # copy constructor
+    return 0 if ($l =~ m/[[:space:]]operator/);
+    return 0 if ($l =~ m/[[:space:]]*inline[[:space:]]$CNAME/);
+    return 0 if ($l =~ m/[[:space:]]*return[[:space:]]$CNAME/);
+    return 0 if ($l =~ m/[[:space:]]*return[[:space:]]new[[:space:]]$CNAME/);
     return 0 if ($l =~ m/\([[:space:]]*void[[:space:]]*\)/);  #skip ctor(void)
     $l =~ s/{.*$//; # remove brace to end-of-line
     if ($l =~ m/,/) {
       # a constructor with more than 1 arg
       $args = $l;
-      $args =~ s/^[[:space:]]*$cname[[:space:]]*\(//;
+      $args =~ s/^[[:space:]]*$CNAME[[:space:]]*\(//;
       ($a1,$a2) = split(",",$args);
       if (!$a2) {
         ($a2,$a3) = split(",",$l1);
@@ -216,6 +324,23 @@ sub searchBack {
   $n = $#lines if ($#lines < $n);
   for($i=1; $i<=$n; $i++) {
     if ($lines[$l-$i] =~ $p) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+sub searchBackWithStop {
+  my($p,$l,$n,$s) = @_;
+  my($i);
+  $n = $#lines if ($#lines < $n);
+  for($i=1; $i<=$n; $i++) {
+    if ($lines[$l-$i] =~ $s) {
+      # stop searching
+      return 0;
+    }
+    if ($lines[$l-$i] =~ $p) {
+      # got a match
       return 1;
     }
   }
