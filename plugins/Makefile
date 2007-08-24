@@ -1,6 +1,6 @@
-# krazy helpers Makefile
+# krazy plugins Makefile
 #
-# Copyright (C) 2007 by Allen Winter <winter@kde.org>
+# Copyright 2007 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,37 +17,35 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # list of all plugin subdirs to install
-SUBDIRS = "\
+SUBDIRS = \
 general \
 c++ \
 designer \
-desktop \
-"
+desktop
+
 
 #default installation location
 PREFIX=/usr/local
-INSTALLSCRIPT=$(PREFIX)/libexec/krazy-plugins
-PERM=775
+DESTDIR=$(PREFIX)/libexec/krazy-plugins
 
 all:
 
 install::
-	@if test ! -d $(INSTALLSCRIPT); then \
-		mkdir -p $(INSTALLSCRIPT) || exit 1; \
-		chmod $(PERM) $(INSTALLSCRIPT); \
+	@if test ! -d $(DESTDIR); then \
+		mkdir -p $(DESTDIR) || exit 1; \
 	fi
-	chmod $(PERM) $(INSTALLSCRIPT)
-	list=$(SUBDIRS); for dir in $$list; do \
+
+	list="$(SUBDIRS)"; for dir in $$list; do \
 		echo "Installing plugin subdir $$dir"; \
 		( cd $$dir && make install ); \
 	done
 
 # remove old subdirs that are no longer used
 #install::
-#	rm -rf $(INSTALLSCRIPT)/fred
+#	rm -rf $(DESTDIR)/fred
 
 clean:
-	list=$(SUBDIRS); for dir in $$list; do \
+	list="$(SUBDIRS)"; for dir in $$list; do \
 		echo "Cleaning plugin subdir $$dir"; \
 		( cd $$dir && make clean ); \
 	done

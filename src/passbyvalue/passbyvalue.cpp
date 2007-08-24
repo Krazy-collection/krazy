@@ -8,7 +8,7 @@
  *
  * Copyright (C) Andreas Kling 2006
  * Copyright (C) Massimo Callegari 2003
- * Copyright (c) Allen Winter 2007 <winter@kde.org>
+ * Copyright Allen Winter 2007 <winter@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,7 +150,7 @@ main( int argc, char **argv )
         if ( cl.trimmed().startsWith("//") ) {
             continue;
         }
-        
+
         foreach(QRegExp const &re, skipLineMarkers) {
             if ( cl.contains(re) ) {
                skip = true;

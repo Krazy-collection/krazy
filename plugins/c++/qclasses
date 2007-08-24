@@ -38,9 +38,12 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 use strict;
 use Getopt::Long;
 use Cwd 'abs_path';
+use FindBin qw($Bin);
+use lib "$Bin/../../../lib";
+use Krazy::PreProcess;
 
 my($Prog) = "qclasses";
-my($Version) = "1.2";
+my($Version) = "1.3";
 
 my($help) = '';
 my($version) = '';
@@ -62,6 +65,7 @@ if ($#ARGV != 0){ &Help(); exit 0; }
 my($f) = $ARGV[0];
 my($absf) = abs_path($f);
 
+# open file and slurp it in (C++, non-headers only)
 if ($absf !~ m+/kdesupport/+ &&
     ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/)) {
   open(F, "$f") || die "Couldn't open $f";
@@ -69,26 +73,11 @@ if ($absf !~ m+/kdesupport/+ &&
   print "okay\n" if (!$quiet);
   exit 0;
 }
-
 my(@data_lines) = <F>;
 close(F);
 
-#get all the c-style comments from the file
-my($data)="@data_lines";
-my(@comments) = ($data =~ /\/\*.*?\*\//gs);
-
-#for each comment, remove everything but the linebreaks, so
-#our line numbering report does not get screwed up.
-foreach my $comment ( @comments ) {
-        my($fixed_comment) = $comment;
-        $fixed_comment =~ s/[^\n]//gs;
-        $fixed_comment =~ s/\n/\n/gs;
-        $data =~ s/\Q$comment/$fixed_comment/s;
-}
-
-#put it back into an array so we can iterate over it
-my(@lines) = split(/\n/, $data);
-
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
 
 my($cnt) = 0;
 my($linecnt) = 0;
@@ -112,6 +101,8 @@ while ($linecnt < $#lines) {
   &doIt($line,"QSystemTrayIcon","KSystemTrayIcon");
   &doIt($line,"QDialog","KDialog");
   &doIt($line,"QLineEdit","KLineEdit");
+  &doIt($line,"QTabBar","KTabBar");
+  &doIt($line,"QTabWidget","KTabWidget");
   &doIt($line,"QTextBrowser","KTextBrowser");
   &doIt($line,"QTextEdit","KTextEdit");
   &doIt($line,"QUrl","KUrl");

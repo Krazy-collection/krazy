@@ -1,4 +1,4 @@
-# krazy plugins/po Makefile
+# krazy docs Makefile
 #
 # Copyright 2007 by Allen Winter <winter@kde.org>
 #
@@ -16,37 +16,37 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# list of all plugins to install
-PLUGINS = \
-
-# links to general purpose plugins
-PLUGINLNS = \
-endswithnewline \
-i18ncheckarg \
+PERLDOC=perldoc
 
 #default installation location
 PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-plugins/po
+DESTDIR=$(PREFIX)/share/man
 
-all:
+# list of all MAN5 files install
+MAN5S = \
+krazyrc.5
 
-install::
+%.5 : %.pod
+	$(PERLDOC) $< > $@
+
+all: $(MAN5S)
+
+install:: all
 	@if test ! -d $(DESTDIR); then \
 		mkdir -p $(DESTDIR) || exit 1; \
 	fi
 
-	cp -f description.txt $(DESTDIR)
+	@if test ! -d $(DESTDIR)/man5; then \
+		mkdir -p $(DESTDIR)/man5 || exit 1; \
+	fi
 
-	list="$(PLUGINS)"; for plugin in $$list; do \
-		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(DESTDIR)/$$plugin; \
-	done
-	list="$(PLUGINLNS)"; for plugin in $$list; do \
-		echo "Installing plugin link $$plugin"; \
-		( cd $(DESTDIR) && rm -f $$plugin && ln -s ../general/$$plugin $$plugin ); \
-	done
+	list="$(MAN5S)"; for man in $$list; do \
+		echo "Installing man page $$man"; \
+		cp -f $$man $(DESTDIR)/man5/$$man; \
+        done
 
 clean:
-	@echo "Nothing to clean"
+	$(RM) $(MAN5S)
 
 realclean: clean
+

@@ -130,7 +130,7 @@ if (!$cnt) {
 }
 
 sub Help {
-  print "[TEST] Check for using NULL in C++ code.\n";
+  print "Check for using NULL in C++ code.\n";
   exit 0 if $help;
 }
 

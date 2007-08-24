@@ -1,4 +1,4 @@
-# krazy plugins/po Makefile
+# krazy extras/c++ Makefile
 #
 # Copyright 2007 by Allen Winter <winter@kde.org>
 #
@@ -16,17 +16,18 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# list of all plugins to install
-PLUGINS = \
+# list of all extras to install
+EXTRAS = \
+multiclasses \
+null \
+style
 
-# links to general purpose plugins
-PLUGINLNS = \
-endswithnewline \
-i18ncheckarg \
+# links to general purpose extras
+EXTRALNS = \
 
 #default installation location
 PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-plugins/po
+DESTDIR=$(PREFIX)/libexec/krazy-extras/c++
 
 all:
 
@@ -37,13 +38,13 @@ install::
 
 	cp -f description.txt $(DESTDIR)
 
-	list="$(PLUGINS)"; for plugin in $$list; do \
-		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(DESTDIR)/$$plugin; \
+	list="$(EXTRAS)"; for extra in $$list; do \
+		echo "Installing extra $$extra"; \
+		cp -f $$extra $(DESTDIR)/$$extra; \
 	done
-	list="$(PLUGINLNS)"; for plugin in $$list; do \
-		echo "Installing plugin link $$plugin"; \
-		( cd $(DESTDIR) && rm -f $$plugin && ln -s ../general/$$plugin $$plugin ); \
+	list="$(EXTRALNS)"; for extra in $$list; do \
+		echo "Installing extra link $$extra"; \
+		( cd $(DESTDIR) && rm -f $$extra && ln -s ../general/$$extra $$extra ); \
 	done
 
 clean:

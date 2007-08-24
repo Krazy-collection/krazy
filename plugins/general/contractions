@@ -16,9 +16,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
 # GNU General Public License for more details.                                #
 #                                                                             #
-# You should have received a copy of the GNU General Public License           #
-# along with this program; if not, write to the Free Software                 #
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
 #                                                                             #
 ###############################################################################
 
@@ -37,9 +37,12 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 use strict;
 use Getopt::Long;
+use FindBin qw($Bin);
+use lib "$Bin/../../../lib";
+use Krazy::PreProcess;
 
 my($Prog) = "contractions";
-my($Version) = "1.1";
+my($Version) = "1.2";
 
 my($help) = '';
 my($version) = '';
@@ -58,30 +61,39 @@ if (!GetOptions('help' => \$help, 'version' => \$version,
 &Explain() if $explain;
 if ($#ARGV != 0){ &Help(); exit 0; }
 
-# Check Condition
 my($f) = $ARGV[0];
 
-if ($f =~ m/\.h$/ || $f =~ m/\.hxx$/) {
-  # skip include files
-  print "okay\n" if (!$quiet);
-  exit 0;
+# open file and slurp it in
+open(F, "$f") || die "Couldn't open $f";
+my(@data_lines) = <F>;
+close(F);
+
+# Remove comments from the file input
+my(@lines);
+if ($f =~ m/\.desktop$/) {
+  @lines = RemoveCommentsFDO( @data_lines );
+} elsif ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/ || $f =~ m/\.c$/ ||
+	 $f =~ m/\.h$/ || $f =~ m/\.hxx$/) {
+  # also remove #if 0 blocks from C/C++ source
+  @lines = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+} else {
+  @lines = @data_lines;
 }
 
-open(F, "$f") || die "Couldn't open $f";
 my($cnt) = 0;
 my($linecnt) = 0;
 my($line);
 my($lstr) = "";
-while ($line = <F>) {
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+foreach $line (@lines) {
+  if ($line =~ m+[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+[Kk]razy:skip+) {
     $cnt = 0;
     last;
   }
   $linecnt++;
-  $line =~ s/\/\/.*//; #Ignore c++ style comments
-  next unless ($line =~ m/"/ && $line =~ m/'/);
-  next unless ($line =~ m/i18n/ || $line =~ m/I18N_NOOP/);
+  next if ($line =~ m+[Kk]razy:exclude=.*$Prog+);
+
+  $line =~ s+//.*++;  #skip C++ comments
 
   for my $word ( split /[^\w']/,$line ) {  # \W would split on apostrophe
     my $lw = lc($word);
@@ -129,7 +141,6 @@ while ($line = <F>) {
     }
   }
 }
-close(F);
 
 if (!$cnt) {
   print "okay\n" if (!$quiet);
@@ -150,6 +161,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Contractions in strings are sometimes hard to translate so do not use them.  For example: \"don't\" should be changed to \"do not\".  Contractions used in comments and apidox are ok.\n";
+  print "Contractions in strings are sometimes hard to translate so do not use them.  For example: \"don't\" should be changed to \"do not\".  Contractions used in comments are ok.\n";
   exit 0 if $explain;
 }

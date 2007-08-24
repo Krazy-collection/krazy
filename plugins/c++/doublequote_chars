@@ -39,9 +39,12 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 use strict;
 use Getopt::Long;
+use FindBin qw($Bin);
+use lib "$Bin/../../../lib";
+use Krazy::PreProcess;
 
 my($Prog) = "doublequote_chars";
-my($Version) = "1.5";
+my($Version) = "1.6";
 
 my($help) = '';
 my($version) = '';
@@ -62,31 +65,18 @@ if ($#ARGV != 0){ &Help(); exit 0; }
 
 my($f) = $ARGV[0];
 
+# open file and slurp it in (C++, non-headers only)
 if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!$quiet);
   exit 0;
 }
-#open file and slurp it in
 my(@data_lines) = <F>;
 close(F);
 
-#get all the c-style comments from the file
-my($data)="@data_lines";
-my(@comments) = ($data =~ /\/\*.*?\*\//gs);
-
-#for each comment, remove everything but the linebreaks, so
-#our line numbering report does not get screwed up.
-foreach my $comment ( @comments ) {
-        my($fixed_comment) = $comment;
-        $fixed_comment =~ s/[^\n]//gs;
-        $fixed_comment =~ s/\n/\n/gs;
-        $data =~ s/\Q$comment/$fixed_comment/s;
-}
-
-#put it back into an array so we can iterate over it
-my(@lines) = split(/\n/, $data);
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
 
 my($cnt) = 0;
 my($scnt) = 0;

@@ -52,6 +52,12 @@ make install PREFIX=$TOP && \
 make realclean
 cd ..
 
+#build and install non-binary extras
+cd extras && \
+make install PREFIX=$TOP && \
+make realclean
+cd ..
+
 #build and install binary plugins
 cd src && \
 $QMAKE && \
@@ -60,8 +66,13 @@ make install INSTALL_ROOT=$TOP && \
 make distclean
 cd ..
 
+#build and install extra docs
+cd doc && \
+make install PREFIX=$TOP && \
+make realclean
+cd ..
+
 #permissions
 if ( test $EBN -eq 1 ) then
-  chmod ug+w $TOP/bin/*
-  chmod ug+w $TOP/libexec/krazy-plugins/*
+  chmod -R ug+w $TOP
 fi

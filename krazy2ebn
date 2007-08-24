@@ -1,7 +1,13 @@
 #!/usr/bin/perl -w
+
+#TODO
+# .krazy support "EXCLUDE [plugin_list] <subdir_list>
+# .krazy support the new .krazy stuff in krazy2
+# preprocess: look if file is listed (not commented-out) in the CMakeLists.txt
+
 ###############################################################################
 # Runs krazy over the KDE source code for the EnglishBreakfastNetwork (EBN)   #
-# Copyright (C) 2006-2007 by Allen Winter <winter@kde.org>                    #
+# Copyright 2006-2007 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -19,13 +25,13 @@
 #                                                                             #
 ###############################################################################
 # Program options:
-#   --help:          display help message and exit
-#   --help:          display help message and exit
-#   --version:       display version information and exit
-#   --component [comp]
-#                    process component 'comp'
+#   --help:            display help message and exit
+#   --version:         display version information and exit
+#   --dry-run:         don't execute the checks; only show what would be run
+#   --component [comp] process component 'comp'
+#   --module [mod1<,mod2,..>]
+#                      process module list from component 'comp'
 #
-
 use strict;
 use Getopt::Long;
 use Env qw (PSQL KRAZY_PLUGIN_PATH);
@@ -35,115 +41,135 @@ use File::Find;
 use File::Path;
 use POSIX qw (strftime);
 
-my($Prog) = 'krazy2ebn';
+my ($Prog) = 'krazy2ebn';
 my
-$VERSION = '2.0'; #split line so MakeMaker can find the version here
+ $VERSION = '2.0';    #split line so MakeMaker can find the version here
 
-my(@modules); # list of modules to process.  change as desired.
-my($comp);    # default component to process
-my($tempdir); # fullpath to the top level temporary output directory
-my($destdir); # fullpath to the top level output directory
-my($trunk);   # fullpath to the top level of the trunk checkout
-my($krazy);   # fullpath to the krazy program
-my($plgpth);  # fullpath to the krazy plugins
-my($PSQL);    # fullpath to the psql program
-my($md5);     # fullpath to the md5sum checksum program
-my($svn);     # fullpath to the svnlook program
-my($repos);   # fullpath to the svn repository (where svnlook looks)
+my (@modules);    # list of modules to process.  change as desired.
+my ($comp);       # default component to process
+my ($module);     # default module to process (empty implies ALL modules)
+my ($tempdir);    # fullpath to the top level temporary output directory
+my ($destdir);    # fullpath to the top level output directory
+my ($trunk);      # fullpath to the top level of the trunk checkout
+my ($krazy);      # fullpath to the krazy program
+my ($plgpth);     # fullpath to the krazy plugins
+my ($xtrpth);     # fullpath to the krazy extras
+my ($PSQL);       # fullpath to the psql program
+my ($md5);        # fullpath to the md5sum checksum program
+my ($svn);        # fullpath to the svnlook program
+my ($repos);      # fullpath to the svn repository (where svnlook looks)
 
-if (hostname() =~ m/englishbreakfast/) {
+if ( hostname() =~ m/englishbreakfast/ ) {
   $tempdir = '/usr/local/www/data-ebn/krazy/temp';
   $destdir = '/usr/local/www/data-ebn/krazy/reports';
-  $comp = 'kde-4.0';
-  $trunk = '/usr/local/src';
-  $krazy = '/usr/local/www/data-ebn/krazy/bin/krazy';
-  $plgpth = '/usr/local/www/data-ebn/krazy/libexec/krazy-plugins';
-  $PSQL = '/usr/local/bin/psql' if (! $PSQL);
-  $md5 = '/sbin/md5';
-  $svn = '/usr/local/bin/svnlook youngest';
-  $repos = '/home/svn/home/kde';
+  $comp    = 'kde-4.0';
+  $module  = '';
+  $trunk   = '/usr/local/src';
+  $krazy   = '/usr/local/www/data-ebn/krazy/bin/krazy';
+  $plgpth  = '/usr/local/www/data-ebn/krazy/libexec/krazy-plugins';
+  $xtrpth  = '/usr/local/www/data-ebn/krazy/libexec/krazy-extras';
+  $PSQL    = '/usr/local/bin/psql' if ( !$PSQL );
+  $md5     = '/sbin/md5';
+  $svn     = '/usr/local/bin/svnlook youngest';
+  $repos   = '/home/svn/home/kde';
 } else {
-# my system settings for testing
-  $tempdir = '/home/winterz/local/src/krazy/temp';
-  $destdir = '/home/winterz/local/src/krazy/reports';
-  $comp = 'KDE';
-  $trunk = '/data/kde/trunk';
-  $krazy = '/usr/local/Krazy/bin/krazy';
-  $plgpth = '/usr/local/Krazy/libexec/krazy-plugins';
-  $PSQL = 'debug';
-  $md5 = '/usr/bin/md5sum';
-  $svn = 'echo';
-  $repos = '/data/kde';
+
+  # my system settings for testing
+  $tempdir = '/home/winterz/local/src/krazy2/temp';
+  $destdir = '/home/winterz/local/src/krazy2/reports';
+  $comp    = 'KDE';
+  $module  = 'module';
+  $trunk   = '/data/kde/trunk';
+  $krazy   = '/usr/local/Krazy2/bin/krazy2';
+  $plgpth  = '/usr/local/Krazy2/libexec/krazy-plugins';
+  $xtrpth  = '/usr/local/Krazy2/libexec/krazy-extras';
+  $PSQL    = 'debug';
+  $md5     = '/usr/bin/md5sum';
+  $svn     = 'echo';
+  $repos   = '/data/kde';
 }
+
 #END OF SETTINGS
 
-my($help) = '';
-my($version) = '';
+my ($help)      = '';
+my ($version)   = '';
+my ($dryrun)    = '';
 
 exit 1
-if(!GetOptions('help' => \$help, 'version' => \$version,
-	       'component=s' => \$comp));
+  if ( !GetOptions(
+		   'help'        => \$help,
+		   'version'     => \$version,
+		   'dry-run'     => \$dryrun,
+		   'component=s' => \$comp,
+		   'module=s'    => \$module
+		  )
+     );
 
-&Help() if ($help);
+&Help()    if ($help);
 &Version() if ($version);
 
 # Setup for db
-my($compId)=&execSql("\"SELECT id FROM components WHERE name='$comp';\"");
-die "Error: Cannot get Component Id for $comp\n" if (! $compId || $compId eq "0");
+my ($compId) = &execSql("\"SELECT id FROM components WHERE name='$comp';\"");
+die "Error: Cannot get Component Id for $comp\n"
+  if ( !$compId || $compId eq "0" );
 
-my($toolId)=&execSql("\"SELECT id FROM tools WHERE name='krazy' AND component=$compId;\"");
-die "Error: Cannot get Tool Id for krazy and component $comp\n" if (! $toolId || $toolId eq "0");
+my ($toolId) = &execSql(
+  "\"SELECT id FROM tools WHERE name='krazy' AND component=$compId;\"");
+die "Error: Cannot get Tool Id for krazy and component $comp\n"
+  if ( !$toolId || $toolId eq "0" );
 
-my($generation)=&execSql("\"SELECT * FROM nextval('generation');\"");
+my ($generation) = &execSql("\"SELECT * FROM nextval('generation');\"");
 
-my($svnRev)=`$svn $repos`;
+my ($svnRev) = `$svn $repos`;
 chomp($svnRev);
-$svnRev = 0 if (! $svnRev || $svnRev eq "0");
+$svnRev = 0 if ( !$svnRev || $svnRev eq "0" );
 
 # Global settings
-my(@gIgModsList);           #modules to ignore
-my(@gIgSubsList)=(          #subdirs to ignore in all modules
-		  "doc",
-		  "cmake",
-		  "pics",
-		  "applnk",
-		  "admin"
-		 );
-my($defRegex)="/////";
-my($gSkipRegex)="$defRegex"; #regex of stuff to skip in a subdir
-my(@gCheckList);             #plugins to run. default is all
-my(@gExcludeList);           #plugins to exclude. default is none
+my (@gIgModsList);    #modules to ignore
+my (@gIgSubsList) = ( #subdirs to ignore in all modules
+  "doc",
+  "cmake",
+  "pics",
+  "applnk",
+  "admin"
+);
+my ($defRegex)   = "/////";
+my ($gSkipRegex) = "$defRegex";    #regex of stuff to skip in a subdir
+my (@gCheckList);                  #plugins to run. default is all
+my (@gExcludeList);                #plugins to exclude. default is none
 
 # Per Module settings
-my(@mIgSubsList);
-my($mSkipRegex)="";
-my(@mCheckList);
-my(@mExcludeList);
+my (@mIgSubsList);
+my ($mSkipRegex) = "";
+my (@mCheckList);
+my (@mExcludeList);
 
 # Per Subdir settings
-my($sSkipRegex)="";
-my(@sCheckList);
-my(@sExcludeList);
+my ($sSkipRegex) = "";
+my (@sCheckList);
+my (@sExcludeList);
 
 # Override Global settings from the component .krazy file
 &overrideSettings("$trunk/$comp");
 
+push ( @modules, split( ",", $module ) ) if ( $module );
+
 # Create the module list
-my($m);
-if ($#modules < 0) {
-  my ($im,$found);
-  opendir(DIR,"$trunk/$comp") or die "Error: Cannot open $trunk/$comp: $!";
-  while (defined($m = readdir(DIR))) {
-    next unless (-d "$trunk/$comp/$m");
-    next if (-l "$trunk/$comp/$m"); #skip symlinks
-    next if ($m eq ".");            #skip cwd
-    next if ($m eq "..");           #skip parent dir
-    next if ($m eq ".svn");         #skip .svn
-    $found=0;
+my ($m);
+if ( $#modules < 0 ) {
+  my ( $im, $found );
+  opendir( DIR, "$trunk/$comp" ) or die "Error: Cannot open $trunk/$comp: $!";
+  while ( defined( $m = readdir(DIR) ) ) {
+    next unless ( -d "$trunk/$comp/$m" );
+    next if ( -l "$trunk/$comp/$m" );    #skip symlinks
+    next if ( $m eq "." );               #skip cwd
+    next if ( $m eq ".." );              #skip parent dir
+    next if ( $m eq ".svn" );            #skip .svn
+    $found = 0;
     for $im (@gIgModsList) {
-      if ($im eq $m) {          #IGNOREMODS from component-level .krazy
-	$found=1;
-	last;
+      if ( $im eq $m ) {                 #IGNOREMODS from component-level .krazy
+        $found = 1;
+        last;
       }
     }
     push @modules, $m unless $found;
@@ -155,7 +181,7 @@ if ($#modules < 0) {
 &myRmdir("$tempdir/$comp");
 &myMkdir("$tempdir/$comp");
 
-my(@subdirs);
+my (@subdirs);
 for $m (@modules) {
   print "  [$m]\n";
   &myMkdir("$tempdir/$comp/$m");
@@ -171,153 +197,169 @@ for $m (@modules) {
     }
   }
   &mergeModuleSettings("$trunk/$comp/$m");
-  &doItForList("$m",$compId,$toolId,$generation,$svnRev);
+  &doItForList( "$m", $compId, $toolId, $generation, $svnRev );
 }
 
 &myMkdir("$destdir");
-&myMvdir("$tempdir/$comp","$destdir/$comp");
+&myMvdir( "$tempdir/$comp", "$destdir/$comp" );
 
 # Update our generation field in the tools table.
 &execSql("\"UPDATE tools SET generation=$generation WHERE id=$toolId;\"");
 
 # Put a summary of this run into the generations table.
-my($now)=`date "+%B %d %Y %T"`;
+my ($now) = `date "+%B %d %Y %T"`;
 chomp $now;
-&execSql("\"INSERT INTO generations VALUES ($generation, '$now', (SELECT SUM(issues) FROM results_krazy WHERE component='$compId' AND generation=$generation), $toolId, $svnRev );\"");
-
+&execSql(
+"\"INSERT INTO generations VALUES ($generation, '$now', (SELECT SUM(issues) FROM results_krazy WHERE component='$compId' AND generation=$generation), $toolId, $svnRev );\""
+);
 
 #==============================================================================
 
 #override global settings from component-level directives
-sub overrideSettings(){
-  my($rc) = @_;
-  my(@tmplist,$tmpstr);
+sub overrideSettings() {
+  my ($rc) = @_;
+  my ( @tmplist, $tmpstr );
 
-  @tmplist=&ignoremodsList($rc);
+  @tmplist = &ignoremodsList($rc);
 
-  @gIgModsList=@tmplist if ($#tmplist >= 0);
+  @gIgModsList = @tmplist if ( $#tmplist >= 0 );
 
-  @tmplist=&ignoresubsList($rc);
-  @gIgSubsList=@tmplist if ($#tmplist >= 0);
+  @tmplist = &ignoresubsList($rc);
+  @gIgSubsList = @tmplist if ( $#tmplist >= 0 );
 
-  $tmpstr=&skipRegex($rc);
-  $gSkipRegex=$tmpstr if ($tmpstr);
+  $tmpstr = &skipRegex($rc);
+  $gSkipRegex = $tmpstr if ($tmpstr);
 
   #do not allow CHECK at the component-level
   #@tmplist=&checkList($rc);
   #@gCheckList=@tmplist if ($#tmplist >= 0);
 
-  @tmplist=&excludeList($rc);
-  @gExcludeList=@tmplist if ($#tmplist >= 0);
+  @tmplist = &excludeList($rc);
+  @gExcludeList = @tmplist if ( $#tmplist >= 0 );
 }
 
 #merge global settings with module-level directives
-sub mergeModuleSettings(){
-  my($rc) = @_;
-  my($tmpstr);
+sub mergeModuleSettings() {
+  my ($rc) = @_;
+  my ($tmpstr);
 
   @mIgSubsList = @gIgSubsList;
-  push(@mIgSubsList, &ignoresubsList($rc));
+  push( @mIgSubsList, &ignoresubsList($rc) );
   &dedupe(@mIgSubsList);
 
   $mSkipRegex = $gSkipRegex;
-  $tmpstr=&skipRegex($rc);
-  if ($mSkipRegex ne $defRegex) {
+  $tmpstr     = &skipRegex($rc);
+  if ( $mSkipRegex ne $defRegex ) {
     $mSkipRegex = $mSkipRegex . "\\|" . $tmpstr if ($tmpstr);
   } else {
     $mSkipRegex = $tmpstr if ($tmpstr);
   }
 
   @mCheckList = @gCheckList;
-  push(@mCheckList, &checkList($rc));
+  push( @mCheckList, &checkList($rc) );
   &dedupe(@mCheckList);
 
   @mExcludeList = @gExcludeList;
-  push(@mExcludeList, &excludeList($rc));
+  push( @mExcludeList, &excludeList($rc) );
   &dedupe(@mExcludeList);
 }
 
 #merge module-level directives with subdir-level directives
-sub mergeSubdirSettings(){
-  my($rc) = @_;
-  my($tmpstr);
+sub mergeSubdirSettings() {
+  my ($rc) = @_;
+  my ($tmpstr);
 
   $sSkipRegex = $mSkipRegex;
-  $tmpstr = &skipRegex($rc);
-  if ($sSkipRegex ne $defRegex) {
-    $sSkipRegex=$sSkipRegex . "\\|" . $tmpstr if ($tmpstr);
+  $tmpstr     = &skipRegex($rc);
+  if ( $sSkipRegex ne $defRegex ) {
+    $sSkipRegex = $sSkipRegex . "\\|" . $tmpstr if ($tmpstr);
   } else {
     $sSkipRegex = $tmpstr if ($tmpstr);
   }
 
   @sCheckList = @mCheckList;
-  push(@sCheckList, &checkList($rc));
+  push( @sCheckList, &checkList($rc) );
   &dedupe(@sCheckList);
 
   @sExcludeList = @mExcludeList;
-  push(@sExcludeList, &excludeList($rc));
+  push( @sExcludeList, &excludeList($rc) );
   &dedupe(@sExcludeList);
 }
 
 sub doItForList() {
-  my($module, # module
-     $compId, # componentId
-     $toolId, # toolId
-     $generation,
-     $rev
-    ) = @_;
+  my (
+    $module,    # module
+    $compId,    # componentId
+    $toolId,    # toolId
+    $generation,
+    $rev
+  ) = @_;
 
-  my($s,$is);
-  my($checksum);
-  my($out,@issues,$iss);
+  my ( $s, $is );
+  my ($checksum);
+  my ( $out, @issues, $iss );
   if ( $#subdirs >= 0 ) {
     for $s (@subdirs) {
 
       $out = "$tempdir/$comp/$module/$s";
       &myMkdir("$out");
-      $checksum = 0; $iss = 0;
+      $checksum = 0;
+      $iss      = 0;
       if ( &inIgnoreSubs($s) ) {
-	print "    Ignoring $comp/$module/$s\n";
-	&createIgnorePage("$out","$comp/$module/$s");
+        print "    Ignoring $comp/$module/$s\n";
+        &createIgnorePage( "$out", "$comp/$module/$s" );
       } else {
-	&mergeSubdirSettings("$trunk/$comp/$module/$s");
-	&doIt("$trunk/$comp/$module/$s","$out","$comp/$module/$s",$rev);
-	if (-f "$out/index.html" && `grep "Total Issues" $out/index.html` ) {
-	  (@issues) = split(" ",`grep "Total Issues" $out/index.html | head -1`);
-	  $iss = $issues[3];
-	  #compute checksum (grep out the date, which changes every run)
-	  ($checksum) = split(" ",`grep -v "\.\.\.as of" $out/index.html | $md5`);
-	}
+        &mergeSubdirSettings("$trunk/$comp/$module/$s");
+        &doIt( "$trunk/$comp/$module/$s", "$out", "$comp/$module/$s", $rev );
+        if ( -f "$out/index.html" && `grep "Total Issues" $out/index.html` ) {
+          (@issues) =
+            split( " ", `grep "Total Issues" $out/index.html | head -1` );
+          $iss = $issues[3];
+
+          #compute checksum (grep out the date, which changes every run)
+          ($checksum) =
+            split( " ", `grep -v "\.\.\.as of" $out/index.html | $md5` );
+        }
       }
-      &execSql("\"INSERT INTO results_krazy (checksum, issues, report, component, module, application, generation ) VALUES ( '$checksum', $iss, '$comp/$module/$s/index.html', '$compId', '$module', '$s', $generation );\"");
+      &execSql(
+"\"INSERT INTO results_krazy (checksum, issues, report, component, module, application, generation ) VALUES ( '$checksum', $iss, '$comp/$module/$s/index.html', '$compId', '$module', '$s', $generation );\""
+      );
     }
   }
 }
 
 sub doIt() {
-  my($in,    # dir to process
-     $out,   # dir to write the report
-     $cms,   # component/module/subdir
-     $rev    # svn revision
-    ) = @_;
+  my (
+    $in,     # dir to process
+    $out,    # dir to write the report
+    $cms,    # component/module/subdir
+    $rev     # svn revision
+  ) = @_;
 
-  my($t);
+  my ($t);
 
   #subtract checkList from excludeList
   &removeChecksFromExcludes();
+
   #turn array into comma-separated string
   $t = &arrayToCSL(@sExcludeList);
-  my($exclude) = "";
+  my ($exclude) = "";
   $exclude = "--exclude=$t" if ($t);
 
-  my($skip) = $sSkipRegex;
-  if ($skip ne $defRegex) {
+  my ($skip) = $sSkipRegex;
+  if ( $skip ne $defRegex ) {
     print "    Processing $cms (without $skip)\n";
   } else {
     print "    Processing $cms\n";
   }
 
-  system("cd $in; find . -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' | grep -v '$skip' | xargs env KRAZY_PLUGIN_PATH=$plgpth $krazy --export=ebnlxr --explain --title \"Results for $cms\" --cms $cms --rev $rev $exclude > $out/index.html");
+  my ($command) =
+ "cd $in; find . -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' | grep -v '$skip' | xargs env KRAZY_PLUGIN_PATH=$plgpth KRAZY_EXTRA_PATH=$xtrpth $krazy --export=ebnlxr --explain --title \"Results for $cms\" --cms $cms --rev $rev $exclude > $out/index.html";
+   if ( $dryrun ) {
+     print "$command\n";
+   } else {
+     system( "$command" );
+   }
 }
 
 #search for ignoremods directive (comma-separated list) in this directory
@@ -325,16 +367,16 @@ sub doIt() {
 #!!currently absolutely no error checking, so the user better be careful.
 #!!only makes sense in the global .krazy
 sub ignoremodsList() {
-  my($f) = @_;
+  my ($f) = @_;
   $f .= "/.krazy";
-  open(F, "$f") || return;
-  my($line,$ig,$vals,@vals);
-  while ($line = <F>) {
+  open( F, "$f" ) || return;
+  my ( $line, $ig, $vals, @vals );
+  while ( $line = <F> ) {
     $line =~ s/#.*//;
-    ($ig,$vals) = split(" ",$line);
+    ( $ig, $vals ) = split( " ", $line );
     $ig = uc($ig);
-    if ($ig eq "IGNOREMODS") {
-      @vals=split(",",$vals);
+    if ( $ig eq "IGNOREMODS" ) {
+      @vals = split( ",", $vals );
       &dedupe(@vals);
       return @vals;
     }
@@ -348,16 +390,16 @@ sub ignoremodsList() {
 #!!currently absolutely no error checking, so the user better be careful.
 #!!only makes sense in the global .krazy, or in a module .krazy
 sub ignoresubsList() {
-  my($f) = @_;
+  my ($f) = @_;
   $f .= "/.krazy";
-  open(F, "$f") || return;
-  my($line,$ig,$vals,@vals);
-  while ($line = <F>) {
+  open( F, "$f" ) || return;
+  my ( $line, $ig, $vals, @vals );
+  while ( $line = <F> ) {
     $line =~ s/#.*//;
-    ($ig,$vals) = split(" ",$line);
+    ( $ig, $vals ) = split( " ", $line );
     $ig = uc($ig);
-    if ($ig eq "IGNORESUBS") {
-      @vals=split(",",$vals);
+    if ( $ig eq "IGNORESUBS" ) {
+      @vals = split( ",", $vals );
       &dedupe(@vals);
       return @vals;
     }
@@ -370,16 +412,16 @@ sub ignoresubsList() {
 # EXCLUDE spelling,qminmax
 #!!currently absolutely no error checking, so the user better be careful.
 sub excludeList() {
-  my($f) = @_;
+  my ($f) = @_;
   $f .= "/.krazy";
-  open(F, "$f") || return;
-  my($line,$ex,$vals,@vals);
-  while ($line = <F>) {
+  open( F, "$f" ) || return;
+  my ( $line, $ex, $vals, @vals );
+  while ( $line = <F> ) {
     $line =~ s/#.*//;
-    ($ex,$vals) = split(" ",$line);
+    ( $ex, $vals ) = split( " ", $line );
     $ex = uc($ex);
-    if ($ex eq "EXCLUDE") {
-      @vals=split(",",$vals);
+    if ( $ex eq "EXCLUDE" ) {
+      @vals = split( ",", $vals );
       &dedupe(@vals);
       return @vals;
     }
@@ -392,16 +434,16 @@ sub excludeList() {
 # CHECK spelling,qminmax
 #!!currently absolutely no error checking, so the user better be careful.
 sub checkList() {
-  my($f) = @_;
+  my ($f) = @_;
   $f .= "/.krazy";
-  open(F, "$f") || return;
-  my($line,$ck,$vals,@vals);
-  while ($line = <F>) {
+  open( F, "$f" ) || return;
+  my ( $line, $ck, $vals, @vals );
+  while ( $line = <F> ) {
     $line =~ s/#.*//;
-    ($ck,$vals) = split(" ",$line);
+    ( $ck, $vals ) = split( " ", $line );
     $ck = uc($ck);
-    if ($ck eq "CHECK") {
-      @vals=split(",",$vals);
+    if ( $ck eq "CHECK" ) {
+      @vals = split( ",", $vals );
       &dedupe(@vals);
       return @vals;
     }
@@ -415,87 +457,91 @@ sub checkList() {
 # SKIP /kjs/\|/kdeui/\|/kdefoo/
 #!!currently absolutely no error checking, so the user better be careful.
 sub skipRegex() {
-  my($f) = @_;
+  my ($f) = @_;
   $f .= "/.krazy";
-  open(F, "$f") || return;
-  my($line,$sk,$vals);
-  while ($line = <F>) {
+  open( F, "$f" ) || return;
+  my ( $line, $sk, $vals );
+  while ( $line = <F> ) {
     $line =~ s/#.*//;
-    ($sk,$vals) = split(" ",$line);
+    ( $sk, $vals ) = split( " ", $line );
     $sk = uc($sk);
-    return $vals if ($sk eq "SKIP");
+    return $vals if ( $sk eq "SKIP" );
   }
   close(F);
   return;
 }
 
 sub subdirsFromCMakeList() {
-  my($f) = @_;
-  open(F, "$f") || die "Error: Cannot open $f";
-  my($line);
-  while ($line = <F>) {
-    next if ($line =~ m/^[[:space:]]*#/);
-    next unless ($line =~ m/add_subdirectory/);
+  my ($f) = @_;
+  open( F, "$f" ) || die "Error: Cannot open $f";
+  my ($line);
+  while ( $line = <F> ) {
+    next if ( $line =~ m/^[[:space:]]*#/ );
+    next unless ( $line =~ m/add_subdirectory/ );
     $line =~ s/macro_optional_//;
     $line =~ s/add_subdirectory[[:space:]]*\(\s+(\S+)\s+\)/$1/;
     $line =~ s/add_subdirectory[[:space:]]*\((\S+)\)/$1/;
     $line =~ s/^\s+//;
     $line =~ s/\s+$//;
-    push(@subdirs,$line);
+    push( @subdirs, $line );
   }
   close(F);
 }
 
 sub subdirsFromSubdirs() {
-  my($f) = @_;
-  (@subdirs) = split("[[:space:]]",`cat $f`);
+  my ($f) = @_;
+  (@subdirs) = split( "[[:space:]]", `cat $f` );
 }
 
 sub subdirsFromAll() {
-  my($d) = @_;
-  my($s);
-  opendir(DIR,"$d") or die "Error: Cannot open $d: $!";
-  while (defined($s = readdir(DIR))) {
-    next unless (-d "$d/$s");
-    next if (-l "$d/$s");        #skip symlinks
-    next if ($s eq ".");         #skip cwd
-    next if ($s eq "..");        #skip parent dir
-    next if ($s =~ /svn/);       #skip .svn
-    next if ($s =~ /build/);     #skip build dirs
-    next if ($s eq "admin");
-    next if ($s eq "cmake");
-    next if ($s eq "CMakeFiles");
-    next if ($s eq "doc");
-    next if ($s eq ".libs");
-    next if ($s eq "Testing");
-    next if ($s eq "lib");
-    next if ($s eq "bin");
-    next if ($s eq "pics");
-    next if ($s eq "m4");
-    push(@subdirs,$s);
+  my ($d) = @_;
+  my ($s);
+  if ( !-d $d ) {
+    print "bad component or module specified... exiting\n";
+    exit 1;
+  }
+  opendir( DIR, "$d" ) or die "Error: Cannot open $d: $!";
+  while ( defined( $s = readdir(DIR) ) ) {
+    next unless ( -d "$d/$s" );
+    next if ( -l "$d/$s" );           #skip symlinks
+    next if ( $s eq "." );            #skip cwd
+    next if ( $s eq ".." );           #skip parent dir
+    next if ( $s =~ /svn/ );          #skip .svn
+    next if ( $s =~ /build/ );        #skip build dirs
+    next if ( $s eq "admin" );
+    next if ( $s eq "cmake" );
+    next if ( $s eq "CMakeFiles" );
+    next if ( $s eq "doc" );
+    next if ( $s eq ".libs" );
+    next if ( $s eq "Testing" );
+    next if ( $s eq "lib" );
+    next if ( $s eq "bin" );
+    next if ( $s eq "pics" );
+    next if ( $s eq "m4" );
+    push( @subdirs, $s );
   }
 }
 
 # remove duplicate entries from a list
 sub dedupe() {
-  my(@list) = @_;
-  my(%seen) = ();
-  my(@uniq,$item);
+  my (@list) = @_;
+  my (%seen) = ();
+  my ( @uniq, $item );
   foreach $item (@list) {
-    push(@uniq, $item) unless $seen{$item}++;
+    push( @uniq, $item ) unless $seen{$item}++;
   }
   @list = @uniq;
 }
 
 sub removeChecksFromExcludes() {
-  my(%count) = ();
-  my(@diff,$item);
-  foreach $item (@sExcludeList, @sCheckList) {
+  my (%count) = ();
+  my ( @diff, $item );
+  foreach $item ( @sExcludeList, @sCheckList ) {
     $count{$item}++;
   }
   foreach $item (@sExcludeList) {
-    if ($count{$item} == 1) {
-      push(@diff, $item);
+    if ( $count{$item} == 1 ) {
+      push( @diff, $item );
     }
   }
   @sExcludeList = @diff;
@@ -503,19 +549,19 @@ sub removeChecksFromExcludes() {
 
 # determine if $s is found in @mIgSubsList
 sub inIgnoreSubs() {
-  my($s) = @_;
-  my($item);
+  my ($s) = @_;
+  my ($item);
   foreach $item (@mIgSubsList) {
-    return 1 if ($s eq $item);
+    return 1 if ( $s eq $item );
   }
   return 0;
 }
 
 # turn array into a comma-separated list
 sub arrayToCSL() {
-  my(@list) = @_;
-  my($item);
-  my($s)="";
+  my (@list) = @_;
+  my ($item);
+  my ($s) = "";
   foreach $item (@list) {
     $s .= $item . ",";
   }
@@ -524,30 +570,30 @@ sub arrayToCSL() {
 }
 
 sub myMkdir() {
-  my($d) = @_;
-  if (! -d "$d") {
+  my ($d) = @_;
+  if ( !-d "$d" ) {
     mkpath("$d") || die "Error: Cannot create directory $d: $!\n";
     chmod 0775, $d;
   }
 }
 
 sub myRmdir() {
-  my($d) = @_;
-  if (-d "$d") {
+  my ($d) = @_;
+  if ( -d "$d" ) {
     rmtree("$d") || die "Error: Cannot remove directory $d: $!\n";
   }
 }
 
 sub myMvdir() {
-  my($d1,$d2) = @_;
+  my ( $d1, $d2 ) = @_;
   &myRmdir($d2);
-  rename($d1,$d2) || die "Error: Cannot move directory $d1 to $d2: $!\n";
+  rename( $d1, $d2 ) || die "Error: Cannot move directory $d1 to $d2: $!\n";
   chmod 0775, $d2;
 }
 
 sub execSql() {
   if ($PSQL) {
-    if ($PSQL ne "debug") {
+    if ( $PSQL ne "debug" ) {
       return `echo @_ | $PSQL -t -h services.codeyard.net -U kde kde -A -q`;
     } else {
       print "echo @_ | PSQL -t -h services.codeyard.net -U kde kde -A -q\n";
@@ -556,59 +602,57 @@ sub execSql() {
 }
 
 # asOf function: return nicely formatted string containing the current time
-sub asOf{
-  return strftime("%B %d %Y %H:%M:%S", localtime(time()));
+sub asOf {
+  return strftime( "%B %d %Y %H:%M:%S", localtime( time() ) );
 }
 
 # createIgnorePage: create an empty "ignore" page.
-sub createIgnorePage{
-  my($outdir,$cms)=@_;
-  my($f)="$outdir" . "/index.html";
-  open(F, ">$f") || return;
-  my($title)="Results for " . "$cms";
-print "$title\n";
-  my($component,$module,$subdir)=split("/",$cms);
-  my($upcomp) = uc($component);
+sub createIgnorePage {
+  my ( $outdir, $cms ) = @_;
+  my ($f) = "$outdir" . "/index.html";
+  open( F, ">$f" ) || return;
+  my ($title) = "Results for " . "$cms";
+  print "$title\n";
+  my ( $component, $module, $subdir ) = split( "/", $cms );
+  my ($upcomp) = uc($component);
   $upcomp =~ s/-/ /;
 
   print F "<html>\n";
   print F "<head>\n";
   print F "<title>$title</title>\n";
-  print F "<link rel=\"stylesheet\" type=\"text/css\" title=\"Normal\" href=\"/style.css\" />\n";
+  print F
+"<link rel=\"stylesheet\" type=\"text/css\" title=\"Normal\" href=\"/style.css\" />\n";
   print F "</head>\n";
   print F "<body>\n";
   print F "<div id=\"title\">\n";
   print F "<div class=\"logo\">&nbsp;</div>\n";
   print F "<div class=\"header\">\n";
   print F "<h1><a href=\"/\">English Breakfast Network</a></h1>\n";
-  print F "<p><a href=\"/\">Almost, but not quite, entirely unlike tea.</a></p>\n";
+  print F
+    "<p><a href=\"/\">Almost, but not quite, entirely unlike tea.</a></p>\n";
   print F "</div>\n";
   print F "</div>\n";
   print F "<div id=\"content\">\n";
   print F "<div class=\"inside\">\n";
 
-  # Breadcrumbs
-#   print F "<p style=\"font-size: x-small;font-style: sans-serif;\">\n";
-#   print F "<a href=\"/index.php\">Home</a>&nbsp;&gt;&nbsp;\n";
-#   print F "<a href=\"/$Prog/index.php\">Krazy Code Checker</a>&nbsp;&gt;&nbsp;\n";
-#   print F "<a href=\"/$Prog/index.php?component=$component\">$upcomp</a>&nbsp;&gt;&nbsp;\n" if ($component);
-#   print F "<a href=\"/$Prog/index.php?component=$component&module=$module\">$module</a>&nbsp;&gt;&nbsp;\n" if ($component && $module);
-#   print F "$subdir\n" if ($subdir);
-#   print F "</p>\n";
-
   # Links to other available reports
-  if ($component && $module && $subdir) {
+  if ( $component && $module && $subdir ) {
     print F "<p style=\"font-size: x-small;font-style: sans-serif;\">\n";
     print F "Other $module/$subdir reports:\n";
-    print F "[<a href=\"/apidocs/apidox-$component/$module-$subdir.html\">APIDOX</a>]\n";
-    print F "[<a href=\"/sanitizer/reports/$component/$module/$subdir/index.html\">Docs</a>]\n";
+    print F
+"[<a href=\"/apidocs/apidox-$component/$module-$subdir.html\">APIDOX</a>]\n";
+    print F
+"[<a href=\"/sanitizer/reports/$component/$module/$subdir/index.html\">Docs</a>]\n";
     print F "</p>\n";
   }
 
   print F "<h1>$title</h1>\n";
-  print F "<p>Not processed per IGNORESUBS directive found in $component/.krazy or $module/.krazy file.<br>\n";
+  print F
+"<p>Not processed per IGNORESUBS directive found in $component/.krazy or $module/.krazy file.<br>\n";
 
-  print F " ...as of "; print F &asOf(); print F "</p>\n";
+  print F " ...as of ";
+  print F &asOf();
+  print F "</p>\n";
   print F "<ol>\n";
 
   print F "</ol>\n";
@@ -630,9 +674,12 @@ sub Help {
   &Version();
   print "KDE source code checking for the English Breakfast Network (EBN)\n\n";
   print "Usage: $Prog [OPTION]... FILE...\n";
-  print "  --help             display help message and exit\n";
-  print "  --version          display version information and exit\n";
-  print "  --component        component to process (default=\"$comp\")\n";
+  print "  --help      display help message and exit\n";
+  print "  --version   display version information and exit\n";
+  print "  --dry-run   don't execute the checks; only show what would be run\n";
+  print "  --component component to process (default=\"$comp\")\n";
+  print "  --module    [mod1<,mod2...>]\n";
+  print "              comma-separated list of modules to process (default=ALL)\n";
   print "\n";
   exit 0 if $help;
 }

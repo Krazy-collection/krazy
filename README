@@ -21,11 +21,9 @@ For individual files use the krazy script and provide the filenames you
 want to check.
 
 For checking a whole directory including subdirectories, cd into the
-topmost directory you want to check and run the krazyall script from
-there.
+topmost directory you want to check and run the krazyall script from there.
 
-The commandline options for both can be obtained by providing the
---help option.
+The commandline options for both can be obtained by providing the --help option.
 
 !!Caveat: Running the commandline tool currently doesn't read .krazy files,
 so if you excluded certain directories or files via a .krazy file you'll

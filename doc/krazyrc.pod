@@ -1,2 +1,53 @@
 =pod
-place to describe how .krazy files work
+
+=head1 krazyrc
+
+.krazy - krazy control directives
+
+=head1 DESCRIPTION
+
+.krazy files provide directives that control how the Krazy Code Checking
+tools perform within a KDE source directory.
+
+Each line in the file can be a control directive, a blank line,
+or a comment. Comment lines start with the # character.
+
+If multiple instances of a directive are specified they will be
+merged together in a logical way.
+
+=head1 DIRECTIVES
+
+The following directives are understood by the Krazy Code Checking tools:
+
+=over 1
+
+=item EXCLUDE plugin1[,plugin2,...] <regexp>
+
+=item CHECK plugin1[,plugin2,...] <regexp>
+
+=item EXTRA plugin1[,plugin2,...] <regexp>
+
+=item SKIP regexp
+
+=item IGNORESUBS subdir1[,subdir2,...]
+
+=item IGNOREMODS module1[,module2,...]
+
+=back
+
+=head1 EXAMPLES
+
+=head1 COPYRIGHT
+
+Copyright 2005-2007 by Allen Winter <winter@kde.org>
+
+=head1 SEE ALSO
+
+krazy2(1), krazy2all(1), krazy2ebn(1)
+
+=head1 AUTHORS
+
+Allen Winter, <winter@kde.org>
+
+=cut
+

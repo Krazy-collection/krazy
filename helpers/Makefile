@@ -1,6 +1,6 @@
 # krazy helpers Makefile
 #
-# Copyright (C) 2007 by Allen Winter <winter@kde.org>
+# Copyright 2007 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,30 +17,23 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # list of all helpers to install
-HELPERS = "\
-getInstalledHeaders.pl \
-"
+HELPERS = \
+getInstalledHeaders.pl
+
 #default installation location
 PREFIX=/usr/local
-INSTALLSCRIPT=$(PREFIX)/libexec/krazy-helpers
-PERM=775
+DESTDIR=$(PREFIX)/libexec/krazy-helpers
 
 all:
 
 install::
-	@if test ! -d $(INSTALLSCRIPT); then \
-		mkdir -p $(INSTALLSCRIPT) || exit 1; \
+	@if test ! -d $(DESTDIR); then \
+		mkdir -p $(DESTDIR) || exit 1; \
 	fi
-	chmod $(PERM) $(INSTALLSCRIPT)
-	list=$(HELPERS); for helper in $$list; do \
+	list="$(HELPERS)"; for helper in $$list; do \
 		echo "Installing helper $$helper"; \
-		cp -f $$helper $(INSTALLSCRIPT)/$$helper; \
-		chmod $(PERM) $(INSTALLSCRIPT)/$$helper; \
+		cp -f $$helper $(DESTDIR)/$$helper; \
 	done
-
-# remove old helpers that are no longer used
-#install::
-#	rm -f $(INSTALLSCRIPT)/fred
 
 clean:
 	@echo "Nothing to clean"

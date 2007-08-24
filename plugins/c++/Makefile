@@ -1,6 +1,6 @@
-# krazy non-binary plugins Makefile
+# krazy plugins/c++ plugins Makefile
 #
-# Copyright (C) 2005-2007 by Allen Winter <winter@kde.org>
+# Copyright 2007 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # list of all plugins to install
-PLUGINS = "\
+PLUGINS = \
 captruefalse \
 constref \
 copyright \
@@ -36,45 +36,36 @@ qclasses \
 qminmax \
 qobject \
 sigsandslots \
-"
 
 # links to general purpose plugins
-PLUGINLNS = "\
+PLUGINLNS = \
 contractions \
 endswithnewline \
 i18ncheckarg \
 spelling \
-"
+
 
 #default installation location
 PREFIX=/usr/local
-INSTALLSCRIPT=$(PREFIX)/libexec/krazy-plugins/c++
-PERM=775
+DESTDIR=$(PREFIX)/libexec/krazy-plugins/c++
 
 all:
 
 install::
-	@if test ! -d $(INSTALLSCRIPT); then \
-		mkdir -p $(INSTALLSCRIPT) || exit 1; \
+	@if test ! -d $(DESTDIR); then \
+		mkdir -p $(DESTDIR) || exit 1; \
 	fi
-	chmod $(PERM) $(INSTALLSCRIPT)
 
-	cp -f description.txt $(INSTALLSCRIPT)
-	chmod 664 $(INSTALLSCRIPT)/description.txt
+	cp -f description.txt $(DESTDIR)
 
-	list=$(PLUGINS); for plugin in $$list; do \
+	list="$(PLUGINS)"; for plugin in $$list; do \
 		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(INSTALLSCRIPT)/$$plugin; \
-		chmod $(PERM) $(INSTALLSCRIPT)/$$plugin; \
+		cp -f $$plugin $(DESTDIR)/$$plugin; \
 	done
-	list=$(PLUGINLNS); for plugin in $$list; do \
+	list="$(PLUGINLNS)"; for plugin in $$list; do \
 		echo "Installing plugin link $$plugin"; \
-		( cd $(INSTALLSCRIPT) && rm -f $$plugin && ln -s ../general/$$plugin $$plugin ); \
+		( cd $(DESTDIR) && rm -f $$plugin && ln -s ../general/$$plugin $$plugin ); \
 	done
-
-# remove old plugins that are no longer used
-install::
-	rm -f $(INSTALLSCRIPT)/doxytags.0
 
 clean:
 	@echo "Nothing to clean"

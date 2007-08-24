@@ -17,9 +17,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
 # GNU General Public License for more details.                                #
 #                                                                             #
-# You should have received a copy of the GNU General Public License           #
-# along with this program; if not, write to the Free Software                 #
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
 #                                                                             #
 ###############################################################################
 
@@ -38,9 +38,12 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 use strict;
 use Getopt::Long;
+use FindBin qw($Bin);
+use lib "$Bin/../../../lib";
+use Krazy::PreProcess;
 
 my($Prog) = "qminmax";
-my($Version) = "1.1";
+my($Version) = "1.2";
 
 my($help) = '';
 my($version) = '';
@@ -60,21 +63,36 @@ if (!GetOptions('help' => \$help, 'version' => \$version,
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 my($f) = $ARGV[0];
+
+# skip C source files
+if ($f =~ m/\.c$/) {
+  print "okay\n" if (!$quiet);
+  exit 0;
+}
+
+#open file and slurp it in
 open(F, "$f") || die "Couldn't open $f";
-my($linecnt) = 1;
-my($line);
+my(@data_lines) = <F>;
+close(F);
+
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+
 my($min_cnt) = 0;
 my($max_cnt) = 0;
+my($linecnt) = 0;
+my($line);
 my($min_str) = "";
 my($max_str) = "";
-
-while ($line = <F>) {
+foreach $line (@lines) {
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
     $min_cnt = $max_cnt = 0;
     last;
   }
+  $linecnt++;
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
   $line =~ s+//.*++;  #skip C++ comments
 
   #I'm going to cheat here. My regexps fail if QMIN/QMAX appear at the very
@@ -105,7 +123,7 @@ while ($line = <F>) {
   }
   $linecnt++;
 }
-close(F);
+
 my($total_count) = $min_cnt + $max_cnt;
 if (!$total_count) {
   print "okay\n" if (!$quiet);

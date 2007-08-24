@@ -1,4 +1,4 @@
-# krazy plugins/po Makefile
+# krazy extras Makefile
 #
 # Copyright 2007 by Allen Winter <winter@kde.org>
 #
@@ -16,17 +16,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# list of all plugins to install
-PLUGINS = \
-
-# links to general purpose plugins
-PLUGINLNS = \
-endswithnewline \
-i18ncheckarg \
+# list of all extra subdirs to install
+SUBDIRS = \
+c++
 
 #default installation location
 PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-plugins/po
+DESTDIR=$(PREFIX)/libexec/krazy-extras
 
 all:
 
@@ -34,19 +30,15 @@ install::
 	@if test ! -d $(DESTDIR); then \
 		mkdir -p $(DESTDIR) || exit 1; \
 	fi
-
-	cp -f description.txt $(DESTDIR)
-
-	list="$(PLUGINS)"; for plugin in $$list; do \
-		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(DESTDIR)/$$plugin; \
-	done
-	list="$(PLUGINLNS)"; for plugin in $$list; do \
-		echo "Installing plugin link $$plugin"; \
-		( cd $(DESTDIR) && rm -f $$plugin && ln -s ../general/$$plugin $$plugin ); \
+	list="$(SUBDIRS)"; for dir in $$list; do \
+		echo "Installing extras subdir $$dir"; \
+		( cd $$dir && make install ); \
 	done
 
 clean:
-	@echo "Nothing to clean"
+	list="$(SUBDIRS)"; for dir in $$list; do \
+		echo "Cleaning extras subdir $$dir"; \
+		( cd $$dir && make clean ); \
+	done
 
 realclean: clean

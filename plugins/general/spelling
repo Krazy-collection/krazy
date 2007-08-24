@@ -46,7 +46,7 @@ use strict;
 use Getopt::Long;
 
 my($Prog) = "spelling";
-my($Version) = "1.2";
+my($Version) = "1.3";
 
 my($help) = '';
 my($version) = '';
@@ -125,6 +125,7 @@ sub check_file
     next if ($original =~ m+//.*[Kk]razy:exclude=.*$Prog+);
     for my $word ( split /[^\w']/ )    # \W would split on apostrophe
     {
+      $word=lc($word);
       next unless defined (my $correction = $DICTIONARY->{$word});
 
       s/\b$word\b/$correction/g;
@@ -170,10 +171,10 @@ sub build_dictionary_lookup_table
 
 # permit the following words
 #acknowledgement        acknowledgment
-#Acknowledgements       Acknowledgments
-#Acknowlege             Acknowledge
+#acknowledgements       acknowledgments
+#acknowlege             acknowledge
 #behaviour              behavior
-#Behaviour              Behavior
+#behaviour              behavior
 #cancelation            cancellation
 #cancelled              canceled
 #cancelling             canceling
@@ -188,43 +189,43 @@ sub build_dictionary_lookup_table
 #initialising           initializing
 #neighbourhood          neighborhood
 #neighbour              neighbor
-#Neighbour              Neighbor
+#neighbour              neighbor
 #neighbours             neighbors
 #organisational         organizational
 #organisation           organization
-#Organisation           Organization
+#organisation           organization
 #organisations          organizations
 #organised              organized
 #organise               organize
 #organiser              organizer
 #organising             organizing
-#Organising             Organizing
+#organising             organizing
 #recognised             recognized
 #recognise              recognize
 #recognises             recognizes
 #centre                 center
-#Centre                 Center
+#centre                 center
 #chatwindow             chat window
 
 __DATA__
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 aasumes                assumes
 abailable              available
-Abbrevation            Abbreviation
+abbrevation            abbreviation
 abbrevations           abbreviations
 abbriviate             abbreviate
 abbriviation           abbreviation
 abilties               abilities
-Ablolute               Absolute
+ablolute               absolute
 abreviate              abbreviate
 acces                  access
 accesible              accessible
 accesing               accessing
 accomodate             accommodate
 accross                across
-Acess                  Access
+acess                  access
 achive                 achieve
 achived                achieved
 achiving               achieving
@@ -241,35 +242,35 @@ adapater               adapter
 adatper                adapter
 addded                 added
 adddress               address
-Additinoally           Additionally
+additinoally           additionally
 additionaly            additionally
-Additionaly            Additionally
+additionaly            additionally
 additionnal            additional
 additonal              additional
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Addtional              Additional
+addtional              additional
 aditional              additional
 adminstrator           administrator
-Adminstrator           Administrator
+adminstrator           administrator
 adress                 address
-Adress                 Address
+adress                 address
 adressed               addressed
 adresses               addresses
 advertize              advertise
 aesthetic              esthetic
-Afganistan             Afghanistan
+afganistan             afghanistan
 agressive              aggressive
-Agressive              Aggressive
+agressive              aggressive
 agressively            aggressively
 alignement             alignment
 alligned               aligned
-Allignment             Alignment
+allignment             alignment
 allmost                almost
 allready               already
 allways                always
-Allways                Always
+allways                always
 alook                  a look
 alot                   a lot
 alows                  allows
@@ -277,7 +278,7 @@ alrady                 already
 alreay                 already
 alternativly           alternatively
 ammount                amount
-Ammount                Amount
+ammount                amount
 analagous              analogous
 analizer               analyzer
 analogue               analog
@@ -297,10 +298,10 @@ appeares               appears
 apperarance            appearance
 appers                 appears
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 applicaiton            application
-Applicalble            Applicable
+applicalble            applicable
 appliction             application
 appplication           application
 approciated            appreciated
@@ -312,7 +313,7 @@ aquire                 acquire
 aquired                acquired
 arbitarily             arbitrarily
 arbitary               arbitrary
-Arbitary               Arbitrary
+arbitary               arbitrary
 aribrary               arbitrary
 aribtrarily            arbitrarily
 aribtrary              arbitrary
@@ -335,17 +336,17 @@ authentification       authentication
 authoratative          authoritative
 authorisations         authorizations
 automaticaly           automatically
-Automaticaly           Automatically
+automaticaly           automatically
 automaticly            automatically
 autoreplacment         autoreplacement
 auxilary               auxiliary
-Auxilary               Auxiliary
+auxilary               auxiliary
 avaible                available
-Avaible                Available
+avaible                available
 availble               available
 availibility           availability
 availible              available
-Availible              Available
+availible              available
 avaliable              available
 avaluate               evaluate
 avare                  aware
@@ -354,9 +355,9 @@ backrefences           backreferences
 baloon                 balloon
 basicly                basically
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Basicly                Basically
+basicly                basically
 beautifull             beautiful
 becuase                because
 beeep                  beep
@@ -365,11 +366,11 @@ beexported             be exported
 befor                  before
 beggining              beginning
 begining               beginning
-Belarussian            Belarusian
+belarussian            belarusian
 beteen                 between
 betrween               between
 betweeen               between
-Blueish                Bluish
+blueish                bluish
 bofore                 before
 bosth                  both
 botton                 bottom
@@ -379,13 +380,13 @@ boundry                boundary
 boxs                   boxes
 bruning                burning
 buton                  button
-Buxfixes               Bugfixes
+buxfixes               bugfixes
 cacheing               caching
 calulation             calculation
 capabilites            capabilities
 caracters              characters
 cataloge               catalog
-Cataloge               Catalog
+cataloge               catalog
 catalogue              catalog
 catched                caught
 ceneration             generation
@@ -394,22 +395,22 @@ changable              changeable
 chaning                changing
 characers              characters
 charachters            characters
-Characteres            Characters
+characteres            characters
 charakters             characters
 charater               character
-Chatacter              Character
+chatacter              character
 childs                 children
 choosed                chose
 choosen                chosen
-Choosen                Chosen
+choosen                chosen
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 chosing                choosing
 cirumstances           circumstances
 classess               classes
 cloumn                 column
-Coffie                 Coffee
+coffie                 coffee
 colaboration           collaboration
 collecion              collection
 collumns               columns
@@ -423,18 +424,18 @@ commerical             commercial
 comming                coming
 commited               committed
 commiting              committing
-Commiting              Committing
+commiting              committing
 commmand               command
 commuication           communication
 communcation           communication
 compability            compatibility
 comparision            comparison
-Comparision            Comparison
+comparision            comparison
 comparisions           comparisons
-Compatability          Compatibility
+compatability          compatibility
 compatibilty           compatibility
 compatiblity           compatibility
-Compedium              Compendium
+compedium              compendium
 compiiled              compiled
 compleion              completion
 completly              completely
@@ -444,7 +445,7 @@ comunication           communication
 concatonated           concatenated
 concurent              concurrent
 configration           configuration
-Configuraton           Configuration
+configuraton           configuration
 connent                connect
 connnection            connection
 consecutivly           consecutively
@@ -457,13 +458,13 @@ contigious             contiguous
 contingous             contiguous
 continouos             continuous
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 continous              continuous
-Continous              Continuous
+continous              continuous
 contiribute            contribute
 contoller              controller
-Contorll               Control
+contorll               control
 controler              controller
 controling             controlling
 controll               control
@@ -472,47 +473,47 @@ convient               convenient
 convinience            convenience
 conviniently           conveniently
 coordiator             coordinator
-Copys                  Copies
+copys                  copies
 coresponding           corresponding
 corrent                correct
 correponds             corresponds
-Costraints             Constraints
-Coudn't                Couldn't
+costraints             constraints
+coudn't                couldn't
 coursor                cursor
-Coverted               Converted
+coverted               converted
 coypright              copyright
 cricles                circles
 criticisim             criticism
 cryptograhy            cryptography
-Culculating            Calculating
+culculating            calculating
 curren                 current
 currenty               currently
 curteousy              courtesy
-Custimize              Customize
+custimize              customize
 customisation          customization
 customise              customize
-Customise              Customize
+customise              customize
 customised             customized
 cutsom                 custom
 cutt                   cut
-Cutt                   Cut
+cutt                   cut
 datas                  data
-DCOPCient              DCOPClient
+dcopcient              dcopclient
 deactive               deactivate
-Deamon                 Daemon
+deamon                 daemon
 debuging               debugging
-Debuging               Debugging
+debuging               debugging
 decriptor              descriptor
 defaul                 default
 defered                deferred
-Defininition           Definition
+defininition           definition
 defintions             definitions
 deleteing              deleting
-Demonsrative           Demonstrative
-Denstiy                Density
+demonsrative           demonstrative
+denstiy                density
 depencies              dependencies
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 dependeds              depends
 dependend              dependent
@@ -529,7 +530,7 @@ desidered              desired
 desination             destination
 deskop                 desktop
 desription             description
-Desription             Description
+desription             description
 destiantion            destination
 determiend             determined
 determins              determines
@@ -544,18 +545,18 @@ diable                 disable
 diaglostic             diagnostic
 dialag                 dialog
 dialler                dialer
-Dialler                Dialer
+dialler                dialer
 dialling               dialing
-Dialling               Dialing
+dialling               dialing
 dialogue               dialog
 diaog                  dialog
 didnt                  didn't
 diffcult               difficult
 differenciate          differentiate
 differenly             differently
-Differntiates          Differentiates
+differntiates          differentiates
 dificulty              difficulty
-Difusion               Diffusion
+difusion               diffusion
 digitised              digitized
 diplayed               displayed
 dirctely               directly
@@ -565,9 +566,9 @@ directorys             directories
 directoy               directory
 disactivate            deactivate
 disappers              disappears
-Disbale                Disable
+disbale                disable
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 discontigous           discontiguous
 discpline              discipline
@@ -584,13 +585,13 @@ documentors            documenters
 doens't                doesn't
 doesnt                 doesn't
 donnot                 do not
-Donot                  Do not
+donot                  do not
 dont                   don't
 dont't                 don't
-Dou                    Do
+dou                    do
 draging                dragging
 dreamt                 dreamed
-Droped                 Dropped
+droped                 dropped
 duotes                 quotes
 durring                during
 dynamicly              dynamically
@@ -613,25 +614,25 @@ enles                  endless
 enought                enough
 entitities             entities
 entrys                 entries
-Entrys                 Entries
+entrys                 entries
 enumarated             enumerated
 envirnment             environment
 envirnoment            environment
 enviroment             environment
 environemnt            environment
 environent             environment
-Equador                Ecuador
+equador                ecuador
 equiped                equipped
 equlas                 equals
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 errorous               erroneous
 errror                 error
 escriptor              descriptor
 espacially             especially
 espesially             especially
-Evalute                Evaluate
+evalute                evaluate
 everytime              every time
 exacly                 exactly
 exapmle                example
@@ -650,11 +651,11 @@ experienceing          experiencing
 explicitely            explicitly
 explicity              explicitly
 explit                 explicit
-Expresion              Expression
+expresion              expression
 expresions             expressions
 extented               extended
 extention              extension
-Extention              Extension
+extention              extension
 extentions             extensions
 extesion               extension
 fabilous               fabulous
@@ -676,9 +677,9 @@ folllowed              followed
 follwing               following
 folowing               following
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Folowing               Following
+folowing               following
 footnotexs             footnotes
 formaly                formally
 fortunatly             fortunately
@@ -687,7 +688,7 @@ fragement              fragment
 framesyle              framestyle
 framset                frameset
 fucntion               function
-Fucntion               Function
+fucntion               function
 fuction                function
 fuctions               functions
 fufill                 fulfill
@@ -702,14 +703,14 @@ funtion                function
 funtions               functions
 furthur                further
 gaalxies               galaxies
-Gamee                  Game
+gamee                  game
 gernerated             generated
 ges                    goes
-Ghostscipt             Ghostscript
+ghostscipt             ghostscript
 giude                  guide
 globaly                globally
 goind                  going
-Gostscript             Ghostscript
+gostscript             ghostscript
 grapphis               graphics
 greyed                 grayed
 guaranted              guaranteed
@@ -718,20 +719,20 @@ guarrantee             guarantee
 gziped                 gzipped
 handeling              handling
 harware                hardware
-Harware                Hardware
+harware                hardware
 hasnt                  hasn't
 havn't                 haven't
 heigt                  height
 heigth                 height
 hiddden                hidden
-Hierachical            Hierarchical
+hierachical            hierarchical
 highlighlighted        highlighted
 highligting            highlighting
-Higlighting            Highlighting
+higlighting            highlighting
 honour                 honor
 honouring              honoring
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 honours                honors
 horziontal             horizontal
@@ -754,11 +755,11 @@ implmentation          implementation
 inactiv                inactive
 incldue                include
 incomming              incoming
-Incomming              Incoming
+incomming              incoming
 incovenient            inconvenient
 indeces                indices
 indentical             identical
-Indentification        Identification
+indentification        identification
 indepedancy            independency
 independant            independent
 independend            independent
@@ -772,20 +773,20 @@ informaion             information
 informatation          information
 informationon          information
 informations           information
-Inifity                Infinity
+inifity                infinity
 inital                 initial
 initalization          initialization
 initalized             initialized
 initalize              initialize
-Initalize              Initialize
-Initialyze             Initialize
-Initilialyze           Initialize
+initalize              initialize
+initialyze             initialize
+initilialyze           initialize
 initilization          initialization
 initilize              initialize
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Initilize              Initialize
+initilize              initialize
 innacurate             inaccurate
 innacurately           inaccurately
 insde                  inside
@@ -798,15 +799,15 @@ internationalisation   internationalization
 interrrupt             interrupt
 interrumped            interrupted
 interrups              interrupts
-Interupt               Interrupt
+interupt               interrupt
 intervall              interval
 intervalls             intervals
 intiailize             initialize
-Intial                 Initial
+intial                 initial
 intialisation          initialization
 intialization          initialization
 intialize              initialize
-Intialize              Initialize
+intialize              initialize
 intializing            initializing
 introdutionary         introductory
 introdution            introduction
@@ -814,13 +815,13 @@ intrrupt               interrupt
 intruction             instruction
 invarient              invariant
 invokation             invocation
-Ionisation             Ionization
+ionisation             ionization
 irrevesible            irreversible
 isntance               instance
 is'nt                  isn't
 issueing               issuing
 istory                 history
-Iterface               Interface
+iterface               interface
 itselfs                itself
 journalised            journalized
 judgement              judgment
@@ -828,24 +829,24 @@ kdelbase               kdebase
 keyboad                keyboard
 klicking               clicking
 knowlege               knowledge
-Konquerer              Konqueror
+konquerer              konqueror
 konstants              constants
 kscreensave            kscreensaver
 labelling              labeling
-Labelling              Labeling
+labelling              labeling
 lauching               launching
 layed                  laid
 learnt                 learned
 leats                  least
 lenght                 length
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Lenght                 Length
-Licenced               Licensed
+lenght                 length
+licenced               licensed
 licence                license
-Licence                License
-Licens                 License
+licence                license
+licens                 license
 liset                  list
 listenening            listening
 listveiw               listview
@@ -861,50 +862,51 @@ mailboxs               mailboxes
 maillinglists          mailinglists
 maintainance           maintenance
 maintainence           maintenance
-Malicous               Malicious
+malicous               malicious
 mamage                 manage
 managment              management
-Managment              Management
+managment              management
 manangement            management
 mannually              manually
-Mantainer              Maintainer
+mantainer              maintainer
 manupulation           manipulation
 marbels                marbles
 matchs                 matches
 maximimum              maximum
-Maxium                 Maximum
+maxium                 maximum
 mdification            modification
 mdified                modified
 menues                 menus
 mesages                messages
 messanger              messenger
 messanging             messaging
-Microsft               Microsoft
+messenging             messaging
+microsft               microsoft
 millimetres            millimeters
 mimimum                minimum
 minimise               minimize
 minimising             minimizing
-Minimun                Minimum
-Minium                 Minimum
+minimun                minimum
+minium                 minimum
 minumum                minimum
 miscelaneous           miscellaneous
 miscelanous            miscellaneous
 miscellaneaous         miscellaneous
 miscellanous           miscellaneous
-Miscellanous           Miscellaneous
+miscellanous           miscellaneous
 mispeled               misspelled
 mispelled              misspelled
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 mistery                mystery
-Modifes                Modifies
+modifes                modifies
 modifing               modifying
 modul                  module
 mosue                  mouse
-Mozzila                Mozilla
+mozzila                mozilla
 mssing                 missing
-Mulitimedia            Multimedia
+mulitimedia            multimedia
 mulitple               multiple
 multible               multiple
 multipe                multiple
@@ -927,7 +929,7 @@ newtork                network
 nickanme               nickname
 nonexistant            nonexistent
 noone                  nobody
-Noone                  No-one
+noone                  no-one
 normalisation          normalization
 noticable              noticeable
 nucleous               nucleus
@@ -947,7 +949,7 @@ ocupied                occupied
 offical                official
 ommited                omitted
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 onthe                  on the
 opend                  opened
@@ -955,7 +957,7 @@ optimisation           optimization
 optionnal              optional
 orangeish              orangish
 orginate               originate
-Originaly              Originally
+originaly              originally
 orignal                original
 oscilating             oscillating
 otehr                  other
@@ -975,15 +977,15 @@ paramters              parameters
 particip               participle
 particularily          particularly
 paticular              particular
-Pendings               Pending
+pendings               pending
 percetages             percentages
-Perfomance             Performance
+perfomance             performance
 performace             performance
-Periferial             Peripheral
+periferial             peripheral
 permision              permission
 permisions             permissions
 permissable            permissible
-Personalizsation       Personalization
+personalizsation       personalization
 perticularly           particularly
 phyiscal               physical
 plaforms               platforms
@@ -992,7 +994,7 @@ politness              politeness
 posibilities           possibilities
 posibility             possibility
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 posible                possible
 positon                position
@@ -1008,9 +1010,9 @@ preceeded              preceded
 preceeding             preceding
 precison               precision
 preemphasised          preemphasized
-Preemphasised          Preemphasized
+preemphasised          preemphasized
 prefered               preferred
-Prefered               Preferred
+prefered               preferred
 preferrable            preferable
 prefiously             previously
 preformance            performance
@@ -1018,7 +1020,7 @@ prerequisits           prerequisites
 presense               presence
 pressentation          presentation
 prgramm                program
-Prining                Printing
+prining                printing
 priveleges             privileges
 priviledge             privilege
 priviledges            privileges
@@ -1038,19 +1040,19 @@ promille               per mill
 promiscous             promiscuous
 promped                prompted
 pronounciation         pronunciation
-Pronounciation         Pronunciation
+pronounciation         pronunciation
 pronunce               pronounce
 pronunciated           pronounced
 properies              properties
-Propertites            Properties
-Propogate              Propagate
+propertites            properties
+propogate              propagate
 protoypes              prototypes
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Proxys                 Proxies
+proxys                 proxies
 psuedo                 pseudo
-Psuedo                 Pseudo
+psuedo                 pseudo
 pult                   desk
 purposees              purposes
 quatna                 quanta
@@ -1061,7 +1063,7 @@ quiting                quitting
 readony                readonly
 realise                realize
 realy                  really
-REAMDE                 README
+reamde                 readme
 reasonnable            reasonable
 receieve               receive
 recepeient             recipient
@@ -1071,10 +1073,10 @@ recevie                receive
 receving               receiving
 recieved               received
 recieve                receive
-Recieve                Receive
+recieve                receive
 reciever               receiver
 recieves               receives
-Recieves               Receives
+recieves               receives
 recives                receives
 recomended             recommended
 recommanded            recommended
@@ -1083,21 +1085,21 @@ recommented            recommended
 redialling             redialing
 reets                  resets
 refered                referred
-Refering               Referring
-Refeshes               Refreshes
+refering               referring
+refeshes               refreshes
 refreshs               refreshes
 regarless              regardless
 registaration          registration
 registred              registered
-Regsiter               Register
+regsiter               register
 regulare               regular
 regularily             regularly
-Reigster               Register
+reigster               register
 reimplemenations       reimplementations
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Reimplemenations       Reimplementations
+reimplemenations       reimplementations
 releated               related
 relection              reselection
 relevent               relevant
@@ -1109,7 +1111,7 @@ remotley               remotely
 renderes               renders
 renewd                 renewed
 reorienting            reorientating
-Repalcement            Replacement
+repalcement            replacement
 replys                 replies
 reponsibility          responsibility
 requeusts              requests
@@ -1126,10 +1128,10 @@ ressources             resources
 retreived              retrieved
 retreive               retrieve
 retults                results
-Rewritebles            Rewritables
+rewritebles            rewritables
 richt                  right
 rigths                 rights
-Rigt                   Right
+rigt                   right
 saftey                 safety
 satified               satisfied
 savely                 safely
@@ -1139,7 +1141,7 @@ scather                scatter
 scenerio               scenario
 sceptical              skeptical
 schduler               scheduler
-Sectionning            Sectioning
+sectionning            sectioning
 selction               selection
 selectde               selected
 sensistve              sensitive
@@ -1151,9 +1153,9 @@ seperately             separately
 seperate               separate
 seperate               separate
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Seperate               Separate
+seperate               separate
 seperation             separation
 seperatly              separately
 seperator              separator
@@ -1166,10 +1168,10 @@ sheme                  scheme
 shorctuts              shortcuts
 shoud                  should
 shouldnt               shouldn't
-Shouldnt               Shouldn't
+shouldnt               shouldn't
 shure                  sure
-Similarily             Similarly
-Similiarly             Similarly
+similarily             similarly
+similiarly             similarly
 similiar               similar
 simlar                 similar
 simpliest              simplest
@@ -1177,7 +1179,7 @@ simultaneuosly         simultaneously
 skript                 script
 slewin                 slewing
 smaple                 sample
-Sombody                Somebody
+sombody                somebody
 somehwat               somewhat
 soure                  source
 sparcely               sparsely
@@ -1188,34 +1190,34 @@ specfied               specified
 specialised            specialized
 specifc                specific
 specifed               specified
-Specificiation         Specification
+specificiation         specification
 specifieing            specifying
 specifing              specifying
 specifiy               specify
-Specifiy               Specify
+specifiy               specify
 speficied              specified
 speling                spelling
 spezifying             specifying
 sprectrum              spectrum
 standar                standard
-Startp                 Startup
-Statfeul               Stateful
+startp                 startup
+statfeul               stateful
 statfull               stateful
 storeys                storys
 straighforward         straightforward
 streched               stretched
-Streches               Stretches
-Strech                 Stretch
+streches               stretches
+strech                 stretch
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Striked                Stroked
+striked                stroked
 stuctures              structures
 styleshets             stylesheets
 subcribed              subscribed
 subdirectorys          subdirectories
 subseqently            subsequently
-Substracting           Subtracting
+substracting           subtracting
 subystem               subsystem
 succeded               succeeded
 succesfully            successfully
@@ -1237,17 +1239,17 @@ susbstitute            substitute
 swaped                 swapped
 synchonization         synchronization
 synchronisation        synchronization
-Synchronisation        Synchronization
+synchronisation        synchronization
 synchronised           synchronized
 synchronises           synchronizes
 synchronise            synchronize
 synchronyze            synchronize
-Syncronization         Synchronization
+syncronization         synchronization
 syncronized            synchronized
-Syncronizes            Synchronizes
+syncronizes            synchronizes
 syncronize             synchronize
 syncronizing           synchronizing
-Syncronizing           Synchronizing
+syncronizing           synchronizing
 syncronous             synchronous
 syncrounous            synchronous
 syndrom                syndrome
@@ -1259,10 +1261,10 @@ talbs                  tables
 talse                  false
 tecnology              technology
 temparary              temporary
-Tempertures            Temperatures
+tempertures            temperatures
 terminatin             terminating
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
 texured                textured
 themc                  them
@@ -1275,12 +1277,12 @@ throuth                through
 tiggered               triggered
 tihs                   this
 timditiy               timidity
-Timdity                Timidity
+timdity                timidity
 timming                timing
 tranceiver             transceiver
-Tranfers               Transfers
+tranfers               transfers
 tranfer                transfer
-Tranlate               Translate
+tranlate               translate
 tranlation             translation
 transalted             translated
 transation             transaction
@@ -1306,25 +1308,25 @@ unallowed              disallowed
 unamed                 unnamed
 unathorized            unauthorized
 uncrypted              unencrypted
-Uncutt                 Uncut
+uncutt                 uncut
 underlieing            underlying
 underrrun              underrun
 undesireable           undesirable
 undestood              understood
-Undexpected            Unexpected
+undexpected            unexpected
 undoedne               undid
 unecessary             unnecessary
 unexperienced          inexperienced
 unexperience           inexperience
 unfortunatly           unfortunately
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Unfortunatly           Unfortunately
+unfortunatly           unfortunately
 uniq                   unique
 unitialized            uninitialized
 unkown                 unknown
-Unmoveable             Unmovable
+unmoveable             unmovable
 unneccessary           unnecessary
 unneccessay            unnecessary
 unsellectected         unselected
@@ -1339,7 +1341,7 @@ usefull                useful
 usere                  user
 usuable                usable
 usuallly               usually
-Usualy                 Usually
+usualy                 usually
 utilisation            utilization
 vaild                  valid
 valied                 valid
@@ -1351,16 +1353,16 @@ verically              vertically
 versins                versions
 verticaly              vertically
 verticies              vertices
-Veryify                Verify
+veryify                verify
 vicitim                victim
 visualisations         visualizations
 visualisation          visualization
-Visualisation          Visualization
+visualisation          visualization
 visualise              visualize
 visul                  visual
 volonteer              volunteer
-Volumen                Volume
-Voribis                Vorbis
+volumen                volume
+voribis                vorbis
 vrtual                 virtual
 waranty                warranty
 watseful               wasteful
@@ -1371,9 +1373,9 @@ whishes                wishes
 whitch                 which
 whith                  with
 
-#INCORRECT SPELLING    CORRECTION
+#incorrect spelling    correction
 
-Wiazrd                 Wizard
+wiazrd                 wizard
 wich                   which
 wich                   which
 wierd                  weird
@@ -1387,9 +1389,9 @@ workstatio             workstation
 woud                   would
 wouldd                 would
 writting               writing
-Writting               Writing
+writting               writing
 yeld                   yield
 yorself                yourself
 you'ld                 you would
-yourContryCode         yourCountryCode
+yourcontrycode         yourcountrycode
 

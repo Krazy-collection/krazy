@@ -570,7 +570,7 @@ if (!$cnt) {
 }
 
 sub Help {
-  print "[TEST] Check for adherence to a coding style\n";
+  print "Check for adherence to a coding style\n";
   exit 0 if $help;
 }
 

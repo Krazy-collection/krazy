@@ -447,7 +447,7 @@ my %fmtspec = (
 # 1 means mixing is ok.
 my %htmltags = (
     'a' => 0, 'address' => 0, 'b' => 0, 'big' => 0, 'blockquote' => 0,
-    'body' => 0, 'br' => 0, 'center' => 0, 'cita' => 0, 'code' => 0,
+    'body' => 0, 'br' => 1, 'center' => 0, 'cita' => 0, 'code' => 0,
     'dd' => 0, 'dfn' => 0, 'div' => 0, 'dl' => 0, 'dt' => 0, 'em' => 0,
     'font' => 0, 'h1' => 0, 'h2' => 0, 'h3' => 0, 'h4' => 0, 'h5' => 0,
     'h6' => 0, 'head' => 0, 'hr' => 0, 'html' => 0, 'i' => 0, 'img' => 1,
@@ -796,7 +796,7 @@ short serial saving regular read-only purple pink neutral maroon long linear
 legal ivory infrared in gray french field female expired expert disconnected
 decimal daily classic cameroon brown basic azure away august aquamarine
 yearly white weekly spiral spanish south sound second scaled russian running
-reverse protected prompt private portuguese octal north moving mobile minute
+reverse protected prompt private portuguese octal north moving mobile
 korean japanese invisible invalid important huge hexadecimal hebrew flat
 failed dutch constant common big base arabic added west unused two telugu
 tamil tabloid swedish sorry soft silent recursive polar plane partial opaque

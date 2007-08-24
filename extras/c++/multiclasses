@@ -16,11 +16,13 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
 # GNU General Public License for more details.                                #
 #                                                                             #
-# You should have received a copy of the GNU General Public License           #
-# along with this program; if not, write to the Free Software                 #
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
 #                                                                             #
 ###############################################################################
+
+#TODO: Handle nested classes
 
 # Tests KDE source for multiple public, visible classes in a header file.
 
@@ -38,7 +40,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 use strict;
 use Getopt::Long;
 
-my($Prog) = "classes";
+my($Prog) = "multiclasses";
 my($Version) = "1.0";
 
 my($help) = '';
@@ -138,7 +140,6 @@ sub Cname {
   my($l,$l1) = @_;
   my($cname)="";
   $l =~ s+//.*++; #strip trailing C++ comment
-  return 0 if ($l =~ m/_EXPORT_DEPRECATED/);
   if ($l =~ m+^[[:space:]]*class[[:space:]].*+ && $l !~ m/;\s*$/ && $l !~ m/\\\s*$/) {
     if ($l1 !~ m/template/ && $l1 !~ m/#define[[:space:]]/) {
       $cname = $l;
@@ -174,7 +175,7 @@ sub searchBack {
 }
 
 sub Help {
-  print "[TEST] Check for multiple public classes in a C++ header\n";
+  print "Check for multiple public classes in a C++ header\n";
   exit 0 if $help;
 }
 
