@@ -18,9 +18,6 @@
 #                                                                             #
 ###############################################################################
 
-#TODO:
-# make these work for playground, koffice, kdereview
-
 package Krazy::Utils;
 
 use strict;
@@ -31,10 +28,10 @@ use Exporter;
 $VERSION = 1.00;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(topModule topSubdir);
+@EXPORT = qw(topModule topSubdir deDupe);
 @EXPORT_OK = qw();
 
-my($ModRegex) = "kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|velop|vplatform|webdev|support)";
+my($ModRegex) = "(kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|velop|vplatform|webdev|support|review)|extragear|playground|koffice)";
 
 #full path to the top of the module where the specified file resides
 sub topModule {
@@ -59,6 +56,17 @@ sub topSubdir {
   my($subdir);
   ($module,$subdir) = split("/",$module);
   return "$top/$module/$subdir";
+}
+
+# remove duplicate entries from a list
+sub deDupe {
+  my (@list) = @_;
+  my (%seen) = ();
+  my ( @uniq, $item );
+  foreach $item (@list) {
+    push( @uniq, $item ) unless $seen{$item}++;
+  }
+  @list = @uniq;
 }
 
 1;

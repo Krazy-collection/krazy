@@ -1,9 +1,8 @@
 #!/usr/bin/perl -w
 
 #TODO
+# POD
 # .krazy support "EXCLUDE [plugin_list] <subdir_list>
-# .krazy support the new .krazy stuff in krazy2
-# preprocess: look if file is listed (not commented-out) in the CMakeLists.txt
 
 ###############################################################################
 # Runs krazy over the KDE source code for the EnglishBreakfastNetwork (EBN)   #
@@ -40,6 +39,10 @@ use File::Basename;
 use File::Find;
 use File::Path;
 use POSIX qw (strftime);
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use Krazy::Config;
+use Krazy::Utils;
 
 my ($Prog) = 'krazy2ebn';
 my
@@ -78,7 +81,7 @@ if ( hostname() =~ m/englishbreakfast/ ) {
   $tempdir = '/home/winterz/local/src/krazy2/temp';
   $destdir = '/home/winterz/local/src/krazy2/reports';
   $comp    = 'KDE';
-  $module  = 'module';
+  $module  = '';
   $trunk   = '/data/kde/trunk';
   $krazy   = '/usr/local/Krazy2/bin/krazy2';
   $plgpth  = '/usr/local/Krazy2/libexec/krazy-plugins';
@@ -91,9 +94,9 @@ if ( hostname() =~ m/englishbreakfast/ ) {
 
 #END OF SETTINGS
 
-my ($help)      = '';
-my ($version)   = '';
-my ($dryrun)    = '';
+my ($help)    = '';
+my ($version) = '';
+my ($dryrun)  = '';
 
 exit 1
   if ( !GetOptions(
@@ -137,22 +140,25 @@ my ($defRegex)   = "/////";
 my ($gSkipRegex) = "$defRegex";    #regex of stuff to skip in a subdir
 my (@gCheckList);                  #plugins to run. default is all
 my (@gExcludeList);                #plugins to exclude. default is none
+my (@gExtraList);                  #extra plugins. default is none
 
 # Per Module settings
 my (@mIgSubsList);
 my ($mSkipRegex) = "";
 my (@mCheckList);
 my (@mExcludeList);
+my (@mExtraList);
 
 # Per Subdir settings
 my ($sSkipRegex) = "";
 my (@sCheckList);
 my (@sExcludeList);
+my (@sExtraList);
 
 # Override Global settings from the component .krazy file
-&overrideSettings("$trunk/$comp");
+&mergeComponentSettings("$trunk/$comp");
 
-push ( @modules, split( ",", $module ) ) if ( $module );
+push( @modules, split( ",", $module ) ) if ($module);
 
 # Create the module list
 my ($m);
@@ -216,77 +222,90 @@ chomp $now;
 #==============================================================================
 
 #override global settings from component-level directives
-sub overrideSettings() {
+sub mergeComponentSettings {
   my ($rc) = @_;
-  my ( @tmplist, $tmpstr );
+  $rc .= "/.krazy";
 
-  @tmplist = &ignoremodsList($rc);
+  my (%d) = ParseKrazyRC($rc);
 
-  @gIgModsList = @tmplist if ( $#tmplist >= 0 );
+  @gIgModsList = @{ $d{'IGMODSLIST'} } if ( $#{ $d{'IGMODSLIST'} } >= 0 );
+  @gIgSubsList = @{ $d{'IGSUBSLIST'} } if ( $#{ $d{'IGSUBSLIST'} } >= 0 );
 
-  @tmplist = &ignoresubsList($rc);
-  @gIgSubsList = @tmplist if ( $#tmplist >= 0 );
-
-  $tmpstr = &skipRegex($rc);
-  $gSkipRegex = $tmpstr if ($tmpstr);
-
+  if ( $d{'SKIPREGEX'} ) {
+    $gSkipRegex = $d{'SKIPREGEX'};
+    $gSkipRegex =~ s+\|+\\\|+g;
+  }
+  @gExcludeList = split( ",", $d{'EXCLUDE'} ) if ( $d{'EXCLUDE'} );
+  @gExtraList   = split( ",", $d{'EXTRA'} )   if ( $d{'EXTRA'} );
   #do not allow CHECK at the component-level
-  #@tmplist=&checkList($rc);
-  #@gCheckList=@tmplist if ($#tmplist >= 0);
-
-  @tmplist = &excludeList($rc);
-  @gExcludeList = @tmplist if ( $#tmplist >= 0 );
+  #@gCheckList   = split( ",", $d{'CHECK'} )   if ( $d{'CHECK'} );
 }
 
 #merge global settings with module-level directives
-sub mergeModuleSettings() {
+sub mergeModuleSettings {
   my ($rc) = @_;
-  my ($tmpstr);
+  $rc .= "/.krazy";
+
+  my (%d) = ParseKrazyRC($rc);
 
   @mIgSubsList = @gIgSubsList;
-  push( @mIgSubsList, &ignoresubsList($rc) );
-  &dedupe(@mIgSubsList);
+  push( @mIgSubsList, @{ $d{'IGSUBSLIST'} } ) if ( $#{ $d{'IGSUBSLIST'} } >= 0 );
+  deDupe(@mIgSubsList);
 
   $mSkipRegex = $gSkipRegex;
-  $tmpstr     = &skipRegex($rc);
+  my ($tmpstr) = "";
+  $tmpstr = $d{'SKIPREGEX'} if ( $d{'SKIPREGEX'} );
+  $tmpstr =~ s+\|+\\\|+g;
   if ( $mSkipRegex ne $defRegex ) {
-    $mSkipRegex = $mSkipRegex . "\\|" . $tmpstr if ($tmpstr);
+    $mSkipRegex = $mSkipRegex . "\\|" . $tmpstr if ( $tmpstr );
   } else {
-    $mSkipRegex = $tmpstr if ($tmpstr);
+    $mSkipRegex = $tmpstr if ( $tmpstr );
   }
 
-  @mCheckList = @gCheckList;
-  push( @mCheckList, &checkList($rc) );
-  &dedupe(@mCheckList);
-
   @mExcludeList = @gExcludeList;
-  push( @mExcludeList, &excludeList($rc) );
-  &dedupe(@mExcludeList);
+  push( @mExcludeList, split( ",", $d{'EXCLUDE'} ) ) if ( $d{'EXCLUDE'} );
+  deDupe(@mExcludeList);
+
+  @mExtraList = @gExtraList;
+  push( @mExtraList, split( ",", $d{'EXTRA'} ) ) if ( $d{'EXTRA'} );
+  deDupe(@mExtraList);
+
+  @mCheckList = @gCheckList;
+  push( @mCheckList, split( ",", $d{'CHECK'} ) ) if ( $d{'CHECK'} );
+  deDupe(@mCheckList);
 }
 
 #merge module-level directives with subdir-level directives
-sub mergeSubdirSettings() {
+sub mergeSubdirSettings {
   my ($rc) = @_;
-  my ($tmpstr);
+  $rc .= "/.krazy";
+
+  my (%d) = ParseKrazyRC($rc);
 
   $sSkipRegex = $mSkipRegex;
-  $tmpstr     = &skipRegex($rc);
+  my ($tmpstr) = "";
+  $tmpstr = $d{'SKIPREGEX'} if ( $d{'SKIPREGEX'} );
+  $tmpstr =~ s+\|+\\\|+g;
   if ( $sSkipRegex ne $defRegex ) {
-    $sSkipRegex = $sSkipRegex . "\\|" . $tmpstr if ($tmpstr);
+    $sSkipRegex = $sSkipRegex . "\\|" . $tmpstr if ( $tmpstr );
   } else {
-    $sSkipRegex = $tmpstr if ($tmpstr);
+    $sSkipRegex = $tmpstr if ( $tmpstr );
   }
 
-  @sCheckList = @mCheckList;
-  push( @sCheckList, &checkList($rc) );
-  &dedupe(@sCheckList);
-
   @sExcludeList = @mExcludeList;
-  push( @sExcludeList, &excludeList($rc) );
-  &dedupe(@sExcludeList);
+  push( @sExcludeList, split( ",", $d{'EXCLUDE'} ) ) if ( $d{'EXCLUDE'} );
+  deDupe(@sExcludeList);
+
+  @sExtraList = @mExtraList;
+  push( @sExtraList, split( ",", $d{'EXTRA'} ) ) if ( $d{'EXTRA'} );
+  deDupe(@sExtraList);
+
+  @sCheckList = @mCheckList;
+  push( @sCheckList, split( ",", $d{'CHECK'} ) ) if ( $d{'CHECK'} );
+  deDupe(@sCheckList);
 }
 
-sub doItForList() {
+sub doItForList {
   my (
     $module,    # module
     $compId,    # componentId
@@ -309,7 +328,7 @@ sub doItForList() {
         print "    Ignoring $comp/$module/$s\n";
         &createIgnorePage( "$out", "$comp/$module/$s" );
       } else {
-        &mergeSubdirSettings("$trunk/$comp/$module/$s");
+	&mergeSubdirSettings( "$trunk/$comp/$module/$s" );
         &doIt( "$trunk/$comp/$module/$s", "$out", "$comp/$module/$s", $rev );
         if ( -f "$out/index.html" && `grep "Total Issues" $out/index.html` ) {
           (@issues) =
@@ -328,7 +347,7 @@ sub doItForList() {
   }
 }
 
-sub doIt() {
+sub doIt {
   my (
     $in,     # dir to process
     $out,    # dir to write the report
@@ -341,137 +360,31 @@ sub doIt() {
   #subtract checkList from excludeList
   &removeChecksFromExcludes();
 
-  #turn array into comma-separated string
   $t = &arrayToCSL(@sExcludeList);
   my ($exclude) = "";
   $exclude = "--exclude=$t" if ($t);
 
+  $t = &arrayToCSL(@sExtraList);
+  my ($extra) = "";
+  $extra = "--extra=$t" if ($t);
+
   my ($skip) = $sSkipRegex;
-  if ( $skip ne $defRegex ) {
+  if ( $skip ne $defRegex && $skip ne "" ) {
     print "    Processing $cms (without $skip)\n";
   } else {
     print "    Processing $cms\n";
   }
 
   my ($command) =
- "cd $in; find . -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' | grep -v '$skip' | xargs env KRAZY_PLUGIN_PATH=$plgpth KRAZY_EXTRA_PATH=$xtrpth $krazy --export=ebnlxr --explain --title \"Results for $cms\" --cms $cms --rev $rev $exclude > $out/index.html";
-   if ( $dryrun ) {
-     print "$command\n";
-   } else {
-     system( "$command" );
-   }
-}
-
-#search for ignoremods directive (comma-separated list) in this directory
-# ignoremods kdebindings,kde-common
-#!!currently absolutely no error checking, so the user better be careful.
-#!!only makes sense in the global .krazy
-sub ignoremodsList() {
-  my ($f) = @_;
-  $f .= "/.krazy";
-  open( F, "$f" ) || return;
-  my ( $line, $ig, $vals, @vals );
-  while ( $line = <F> ) {
-    $line =~ s/#.*//;
-    ( $ig, $vals ) = split( " ", $line );
-    $ig = uc($ig);
-    if ( $ig eq "IGNOREMODS" ) {
-      @vals = split( ",", $vals );
-      &dedupe(@vals);
-      return @vals;
-    }
+ "cd $in; find . -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' | grep -v '$skip' | xargs env KRAZY_PLUGIN_PATH=$plgpth KRAZY_EXTRA_PATH=$xtrpth $krazy --export=ebnlxr --explain --title \"Results for $cms\" --cms $cms --rev $rev $exclude $extra > $out/index.html";
+  if ($dryrun) {
+    print "$command\n";
+  } else {
+    system("$command");
   }
-  close(F);
-  return;
 }
 
-#search for ignoresubs directive (comma-separated list) in this directory
-# ignoresubs cmake,.svn,pics
-#!!currently absolutely no error checking, so the user better be careful.
-#!!only makes sense in the global .krazy, or in a module .krazy
-sub ignoresubsList() {
-  my ($f) = @_;
-  $f .= "/.krazy";
-  open( F, "$f" ) || return;
-  my ( $line, $ig, $vals, @vals );
-  while ( $line = <F> ) {
-    $line =~ s/#.*//;
-    ( $ig, $vals ) = split( " ", $line );
-    $ig = uc($ig);
-    if ( $ig eq "IGNORESUBS" ) {
-      @vals = split( ",", $vals );
-      &dedupe(@vals);
-      return @vals;
-    }
-  }
-  close(F);
-  return;
-}
-
-#search for exclude directive (comma-separated list) in this directory
-# EXCLUDE spelling,qminmax
-#!!currently absolutely no error checking, so the user better be careful.
-sub excludeList() {
-  my ($f) = @_;
-  $f .= "/.krazy";
-  open( F, "$f" ) || return;
-  my ( $line, $ex, $vals, @vals );
-  while ( $line = <F> ) {
-    $line =~ s/#.*//;
-    ( $ex, $vals ) = split( " ", $line );
-    $ex = uc($ex);
-    if ( $ex eq "EXCLUDE" ) {
-      @vals = split( ",", $vals );
-      &dedupe(@vals);
-      return @vals;
-    }
-  }
-  close(F);
-  return;
-}
-
-#search for check directive (comma-separated list) in this directory
-# CHECK spelling,qminmax
-#!!currently absolutely no error checking, so the user better be careful.
-sub checkList() {
-  my ($f) = @_;
-  $f .= "/.krazy";
-  open( F, "$f" ) || return;
-  my ( $line, $ck, $vals, @vals );
-  while ( $line = <F> ) {
-    $line =~ s/#.*//;
-    ( $ck, $vals ) = split( " ", $line );
-    $ck = uc($ck);
-    if ( $ck eq "CHECK" ) {
-      @vals = split( ",", $vals );
-      &dedupe(@vals);
-      return @vals;
-    }
-  }
-  close(F);
-  return;
-}
-
-#search for skip directive in this directory
-# SKIP /kjs/
-# SKIP /kjs/\|/kdeui/\|/kdefoo/
-#!!currently absolutely no error checking, so the user better be careful.
-sub skipRegex() {
-  my ($f) = @_;
-  $f .= "/.krazy";
-  open( F, "$f" ) || return;
-  my ( $line, $sk, $vals );
-  while ( $line = <F> ) {
-    $line =~ s/#.*//;
-    ( $sk, $vals ) = split( " ", $line );
-    $sk = uc($sk);
-    return $vals if ( $sk eq "SKIP" );
-  }
-  close(F);
-  return;
-}
-
-sub subdirsFromCMakeList() {
+sub subdirsFromCMakeList {
   my ($f) = @_;
   open( F, "$f" ) || die "Error: Cannot open $f";
   my ($line);
@@ -488,12 +401,12 @@ sub subdirsFromCMakeList() {
   close(F);
 }
 
-sub subdirsFromSubdirs() {
+sub subdirsFromSubdirs {
   my ($f) = @_;
   (@subdirs) = split( "[[:space:]]", `cat $f` );
 }
 
-sub subdirsFromAll() {
+sub subdirsFromAll {
   my ($d) = @_;
   my ($s);
   if ( !-d $d ) {
@@ -522,17 +435,6 @@ sub subdirsFromAll() {
   }
 }
 
-# remove duplicate entries from a list
-sub dedupe() {
-  my (@list) = @_;
-  my (%seen) = ();
-  my ( @uniq, $item );
-  foreach $item (@list) {
-    push( @uniq, $item ) unless $seen{$item}++;
-  }
-  @list = @uniq;
-}
-
 sub removeChecksFromExcludes() {
   my (%count) = ();
   my ( @diff, $item );
@@ -548,7 +450,7 @@ sub removeChecksFromExcludes() {
 }
 
 # determine if $s is found in @mIgSubsList
-sub inIgnoreSubs() {
+sub inIgnoreSubs {
   my ($s) = @_;
   my ($item);
   foreach $item (@mIgSubsList) {
@@ -558,7 +460,7 @@ sub inIgnoreSubs() {
 }
 
 # turn array into a comma-separated list
-sub arrayToCSL() {
+sub arrayToCSL {
   my (@list) = @_;
   my ($item);
   my ($s) = "";
@@ -569,7 +471,7 @@ sub arrayToCSL() {
   return $s;
 }
 
-sub myMkdir() {
+sub myMkdir {
   my ($d) = @_;
   if ( !-d "$d" ) {
     mkpath("$d") || die "Error: Cannot create directory $d: $!\n";
@@ -577,21 +479,21 @@ sub myMkdir() {
   }
 }
 
-sub myRmdir() {
+sub myRmdir {
   my ($d) = @_;
   if ( -d "$d" ) {
     rmtree("$d") || die "Error: Cannot remove directory $d: $!\n";
   }
 }
 
-sub myMvdir() {
+sub myMvdir {
   my ( $d1, $d2 ) = @_;
   &myRmdir($d2);
   rename( $d1, $d2 ) || die "Error: Cannot move directory $d1 to $d2: $!\n";
   chmod 0775, $d2;
 }
 
-sub execSql() {
+sub execSql {
   if ($PSQL) {
     if ( $PSQL ne "debug" ) {
       return `echo @_ | $PSQL -t -h services.codeyard.net -U kde kde -A -q`;

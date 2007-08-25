@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
-# TODO:
-# support --dry-run
+#TODO:
+# POD
 
 ###############################################################################
 # Runs krazy over the KDE source code                                         #

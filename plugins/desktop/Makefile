@@ -23,7 +23,6 @@ PLUGINS = \
 PLUGINLNS = \
 contractions \
 endswithnewline \
-i18ncheckarg \
 spelling \
 
 #default installation location

@@ -26,6 +26,7 @@ package Krazy::Config;
 use strict;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 use Cwd;
+use Krazy::Utils;
 
 use Exporter;
 $VERSION = 1.00;
@@ -54,7 +55,7 @@ $VERSION = 1.00;
 # The directive is case-insensitive.
 #==============================================================================
 
-my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,$rcIgSubsRegex,$rcIgModsRegex);
+my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,@rcIgSubsList,@rcIgModsList);
 my($CWD);
 
 sub ParseKrazyRC {
@@ -63,6 +64,13 @@ sub ParseKrazyRC {
 
   my ( $line, $linecnt, $directive, $arg );
   $CWD = getcwd;
+
+  $rcExclude    = "";
+  $rcOnly       = "";
+  $rcExtra      = "";
+  $rcSkipRegex  = "";
+  @rcIgSubsList = ();
+  @rcIgModsList = ();
 
   while ( $line = <F> ) {
     $linecnt++;
@@ -95,12 +103,12 @@ sub ParseKrazyRC {
 
   #return a hash of the directives
   my(%directives);
-  $directives{'EXCLUDE'}     = $rcExclude;
-  $directives{'CHECK'}       = $rcOnly;
-  $directives{'EXTRA'}       = $rcExtra;
-  $directives{'SKIPREGEX'}   = $rcSkipRegex;
-  $directives{'IGSUBSREGEX'} = $rcIgSubsRegex;
-  $directives{'IGMODSREGEX'} = $rcIgModsRegex;
+  $directives{'EXCLUDE'}    = $rcExclude;
+  $directives{'CHECK'}      = $rcOnly;
+  $directives{'EXTRA'}      = $rcExtra;
+  $directives{'SKIPREGEX'}  = $rcSkipRegex;
+  @{$directives{'IGSUBSLIST'}} = deDupe(@rcIgSubsList);
+  @{$directives{'IGMODSLIST'}} = deDupe(@rcIgModsList);
   return %directives;
 }
 
@@ -149,14 +157,7 @@ sub ignoreSubs {
     print "missing IGNORESUBS arguments in .krazy...exiting\n";
     exit 1;
   }
-  my ($d);
-  for $d ( split( ",", $args ) ) {
-    if ( !$rcIgSubsRegex ) {
-      $rcIgSubsRegex = $CWD . "/" . $d . "/";
-    } else {
-      $rcIgSubsRegex .= "|" . $CWD . "/" . $d . "/";
-    }
-  }
+  push( @rcIgSubsList, split( ",", $args ) );
 }
 
 sub ignoreMods {
@@ -165,14 +166,7 @@ sub ignoreMods {
     print "missing IGNOREMODS arguments in .krazy...exiting\n";
     exit 1;
   }
-  my ($d);
-  for $d ( split( ",", $args ) ) {
-    if ( !$rcIgModsRegex ) {
-      $rcIgModsRegex = $CWD . "/" . $d . "/";
-    } else {
-      $rcIgModsRegex .= "|" . $CWD . "/" . $d . "/";
-    }
-  }
+  push( @rcIgModsList, split( ",", $args ) );
 }
 
 sub skips {

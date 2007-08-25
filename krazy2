@@ -2,10 +2,8 @@
 
 #TODO
 # document krazyrc file in a separate POD, so all krazy tools can refer to it
-# krazyebn, krazyall POD
 # pod2html the POD.  and install the resulting html pages??
-# copy parseRC code into krazyebn
-#   except krazyebn needs to support EXCLUDE [plugins] <subdirs>
+# .krazy support "EXCLUDE [plugin_list] <subdir_list>
 
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
@@ -97,22 +95,22 @@ my ($Prog) = 'krazy';
 my
  $VERSION = '2.0';    #split line so MakeMaker can find the version here
 
-my ($help)       = '';
-my ($version)    = '';
-my ($explain)    = '';
-my ($list)       = '';
-my ($quiet)      = '';
-my ($verbose)    = '';
-my ($dryrun)     = '';
-my ($ignorerc)   = '';
-my ($only)       = '';
-my ($exclude)    = '';
-my ($extra)      = '';
-my ($skip)       = "/////";            # hopefully a regex that matches nothing
-my ($export)     = 'text';
-my ($title)      = "$Prog Analysis";
-my ($cms)        = "KDE";
-my ($rev)        = '';
+my ($help)     = '';
+my ($version)  = '';
+my ($explain)  = '';
+my ($list)     = '';
+my ($quiet)    = '';
+my ($verbose)  = '';
+my ($dryrun)   = '';
+my ($ignorerc) = '';
+my ($only)     = '';
+my ($exclude)  = '';
+my ($extra)    = '';
+my ($skip)     = "/////";            # hopefully a regex that matches nothing
+my ($export)   = 'text';
+my ($title)    = "$Prog Analysis";
+my ($cms)      = "KDE";
+my ($rev)      = '';
 
 exit 1
   if ( !GetOptions(
@@ -152,7 +150,7 @@ if ($export) {
   }
 }
 
-my ($KRAZYBINPATH) = dirname(abs_path($0));
+my ($KRAZYBINPATH) = dirname( abs_path($0) );
 my ($KRAZYPATH)    = dirname($KRAZYBINPATH);
 my ($CWD)          = getcwd;
 
@@ -233,31 +231,31 @@ foreach $type ( keys %xCheckers ) {
 &List() if $list;
 
 ### Follow the commands in a .krazy file is one exists in this directory.
-my(%directives);
+my (%directives);
 if ( !$ignorerc ) {
   my ($rcfile) = topSubdir($CWD) . "/.krazy";
   %directives = ParseKrazyRC($rcfile);
 }
 
 # override .krazy file settings with command line settings
-$extra   = $directives{'EXTRA'}     unless ($extra);
-$only    = $directives{'CHECK'}     unless ($only);
-$exclude = $directives{'EXCLUDE'}   unless ($exclude);
-$skip    = $directives{'SKIPREGEX'} if ($directives{'SKIPREGEX'});
+$extra   = $directives{'EXTRA'}   unless ($extra);
+$only    = $directives{'CHECK'}   unless ($only);
+$exclude = $directives{'EXCLUDE'} unless ($exclude);
+$skip = $directives{'SKIPREGEX'} if ( $directives{'SKIPREGEX'} );
 
 if ($verbose) {
   print "\nDirectives:\n";
-  print "CHECK $only\n" if ($only);
+  print "CHECK $only\n"      if ($only);
   print "EXCLUDE $exclude\n" if ($exclude);
-  print "EXTRA $extra\n" if ($extra);
-  print "SKIP $skip\n" if ($skip);
+  print "EXTRA $extra\n"     if ($extra);
+  print "SKIP $skip\n"       if ($skip);
 }
 
 my ($p);
 ## process extras
 if ($extra) {
   my (@extra_progs) = split( ",", $extra );
-  &dedupe(@extra_progs);
+  deDupe(@extra_progs);
   my ( $i, $x );
   for $x (@extra_progs) {
 
@@ -282,7 +280,7 @@ if ($extra) {
 # If only, then run the specified check program only
 if ($only) {
   my (@only_progs) = split( ",", $only );
-  &dedupe(@only_progs);
+  deDupe(@only_progs);
   my ( $i, $o );
   for $o (@only_progs) {
 
@@ -313,7 +311,7 @@ if ($only) {
 ## process program exclusions
 if ($exclude) {
   my (@exclude_progs) = split( ",", $exclude );
-  &dedupe(@exclude_progs);
+  deDupe(@exclude_progs);
   my ( $i, $e );
   for $e (@exclude_progs) {
 
@@ -977,6 +975,7 @@ sub printOOPS {
   here:
     print "</li>\n" if ( $export !~ "text" );
   }
+  print "</ul>\n" if ( $export !~ "text" );
 }
 
 # printExplain function: print the explanation lines, according to export type.
@@ -1031,17 +1030,6 @@ sub lxrLineify {
   $s =~ s+line#(\d*)+line#<a href=\"$url#$1\">$1</a>+g;
   $s =~ s+,(\d*)+,<a href=\"$url#$1\">$1</a>+g;
   return $s;
-}
-
-# remove duplicate entries from a list
-sub dedupe() {
-  my (@list) = @_;
-  my (%seen) = ();
-  my ( @uniq, $item );
-  foreach $item (@list) {
-    push( @uniq, $item ) unless $seen{$item}++;
-  }
-  @list = @uniq;
 }
 
 __END__
