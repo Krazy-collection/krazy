@@ -423,7 +423,7 @@ for $ftype (@types) {
       close(F);
       next
         if ( $tt =~
-/(All changes made in this file will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
+/(All changes made in this file will be lost|All changes made to it will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
         );
 
       # use the helper program to determine if this file is to be installed
