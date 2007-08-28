@@ -39,6 +39,7 @@ sub topModule {
   my($apath) = abs_path($in);
   my($top) = $apath;
   $top =~ s+/$ModRegex/.*++;
+  return "" if ( $top eq $apath );
   my($module) = $apath;
   $module =~ s+$top/++;
   $module =~ s+/.*++;
@@ -51,8 +52,10 @@ sub topSubdir {
   my($apath) = abs_path($in);
   my($top) = $apath;
   $top =~ s+/$ModRegex/.*++;
+  return "" if ( $top eq $apath );
   my($module) = $apath;
   $module =~ s+$top/++;
+  return "" if ( $module eq $top ); # not in a KDE module
   my($subdir);
   ($module,$subdir) = split("/",$module);
   return "$top/$module/$subdir";
