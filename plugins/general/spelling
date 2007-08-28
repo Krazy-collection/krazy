@@ -122,6 +122,12 @@ sub check_file
              $original =~ m+https://+ ||
              $original =~ m+ftp://+);  # skip lines with urls
 
+    next if ($filename =~ m+\.desktop$+ &&
+	     ($original =~ m+^Comment\[.*\]+ ||
+	      $original =~ m+^Keywords\[.*\]+ ||
+	      $original =~ m+^Name\[.*\]+ ||
+	      $original =~ m+^GenericName\[.*\]+));
+
     next if ($original =~ m+//.*[Kk]razy:exclude=.*$Prog+);
     for my $word ( split /[^\w']/ )    # \W would split on apostrophe
     {
