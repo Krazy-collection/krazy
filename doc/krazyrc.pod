@@ -21,21 +21,43 @@ The following directives are understood by the Krazy Code Checking tools:
 
 =over 1
 
-=item EXCLUDE plugin1[,plugin2,...] <regexp>
+=item EXCLUDE plugin1[,plugin2,...]
 
-=item CHECK plugin1[,plugin2,...] <regexp>
+Remove the specified plugins from the default set of checkers.
 
-=item EXTRA plugin1[,plugin2,...] <regexp>
+=item CHECK plugin1[,plugin2,...]
+
+Run only the specified list of plugins from the default set of checkers.
+
+I<Note>: the CHECK directive takes precedence over the EXCLUDE directive;
+i.e, plugins specified by the CHECK directive are always run, even if
+they are also specified in an EXCLUDE directive.
+
+=item EXTRA plugin1[,plugin2,...]
+
+Add the specified list of "extra" plugins to the default set of checkers.
 
 =item SKIP regexp
 
+Do not process any file that maches the specified perl regular expression.
+See the perlreftut(1) man page for a description of how to write
+a perl regular expression.
+ 
 =item IGNORESUBS subdir1[,subdir2,...]
+
+Do not run Krazy on the specified list of subdirectories.
+These must be KDE "project" subdirectories that reside at
+the top level of a KDE module.
+
+IGNORESUBS is an administrator directive used only by the krazyebn(1) program.
 
 =item IGNOREMODS module1[,module2,...]
 
-=back
+Do not run Krazy on the specified list of KDE modules.
 
-=head1 EXAMPLES
+IGNOREMODS is an administrator directive used only by the krazyebn(1) program.
+
+=back
 
 =head1 COPYRIGHT
 
@@ -43,7 +65,7 @@ Copyright 2005-2007 by Allen Winter <winter@kde.org>
 
 =head1 SEE ALSO
 
-krazy2(1), krazy2all(1), krazy2ebn(1)
+krazy2(1), krazy2all(1), krazy2ebn(1), perlreftut(1)
 
 =head1 AUTHORS
 

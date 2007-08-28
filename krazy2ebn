@@ -1,9 +1,5 @@
 #!/usr/bin/perl -w
 
-#TODO
-# POD
-# .krazy support "EXCLUDE [plugin_list] <subdir_list>
-
 ###############################################################################
 # Runs krazy over the KDE source code for the EnglishBreakfastNetwork (EBN)   #
 # Copyright 2006-2007 by Allen Winter <winter@kde.org>                        #
@@ -376,7 +372,7 @@ sub doIt {
   }
 
   my ($command) =
- "cd $in; find . -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' | grep -v '$skip' | xargs env KRAZY_PLUGIN_PATH=$plgpth KRAZY_EXTRA_PATH=$xtrpth $krazy --export=ebnlxr --explain --title \"Results for $cms\" --cms $cms --rev $rev $exclude $extra > $out/index.html";
+ "cd $in; find . -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' | grep -v '$skip' | xargs env KRAZY_PLUGIN_PATH=$plgpth KRAZY_EXTRA_PATH=$xtrpth $krazy --ignorerc --export=ebnlxr --explain --title \"Results for $cms\" --cms $cms --rev $rev $exclude $extra > $out/index.html";
   if ($dryrun) {
     print "$command\n";
   } else {
@@ -591,3 +587,122 @@ sub Version {
   print "$Prog, version $VERSION\n";
   exit 0 if $version;
 }
+
+__END__
+
+#==============================================================================
+
+=head1 NAME
+
+krazy2ebn - KDE source code checking for the English Breakfast Network (EBN)
+
+=head1 SYNOPSIS
+
+krazy2ebn [options]
+
+=head1 DESCRIPTION
+
+krazy2ebn is a big wrapper around krazy(1) for no obvious use other than
+generating Code Checking Quality reports on the English Breakfast Network.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--help>
+
+Print help message and exit.
+
+=item B<--version>
+
+Print version information and exit.
+
+=item B<--dry-run>
+
+With this option the checker programs aren't run; instead, the command line
+for each check that would be run is printed.
+
+=item B<--component>
+
+Only run for the specified KDE component. By default, the kde-4.0
+component is assumed.
+
+=item B<--module>
+
+Only run for the specified KDE module within the component.
+By default all modules within the component are processed.
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Process all modules within component extragear
+
+ % krazy2ebn --component=extragear
+
+=item Process module kdelibs within component kde-4.0
+
+ % krazy2ebn --component=kde-4.0 --module=kdelibs
+
+=back
+
+=head1 ENVIRONMENT
+
+KRAZY_PLUGIN_PATH - this is a colon-separated list of paths which is
+searched when locating plugins. By default, plugins are searched for in
+the path F<$TOP/libexec/krazy-plugins:krazy-plugins>.
+
+KRAZY_EXTRA_PATH - this is a colon-separated list of paths which is
+searched when locating "extra" plugins. By default, the "extras" are searched
+for in the path F<$TOP/libexec/krazy-extras:krazy-extras>.
+
+where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/local/Krazy2>)
+
+=head1 EXIT STATUS
+
+In normal operation, krazy2ebn exits with status 0.
+
+If a command line option was incorrectly provided, krazy2ebn exits with
+status=1.
+
+If krazy2 was envoked with the B<--help> or B<--version> options it
+will exit with status=0.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2005-2007 by Allen Winter <winter@kde.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+=head1 FILES
+
+krazyrc(5) files are processed in descending hierarchical order
+with each sublevel setting appending in a logical way to the previous
+level settings. The following files are read:
+ F<component/.krazy>
+ F<component/module/.krazy>
+ F<component/module/subdir/.krazy>
+
+=head1 SEE ALSO
+
+krazyrc(5), krazy2(1), krazy2all(1)
+
+=head1 AUTHORS
+
+Allen Winter, <winter@kde.org>
+
+=cut

@@ -252,7 +252,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 =head1 FILES
 
-F<.krazy>
+F<.krazy> (see krazyrc(5))
+
+krazy2all looks up the current working directory tree for a F<.krazy> file
+in the project subdirectory.  Only F<.krazy> files found at the project
+subdirectory level are read.
+
+For example, if the current working dir is
+F</my/kde/trunk/KDE/kdepimlibs/kcal/versit>, then krazy2all will look for
+F</my/kde/trunk/KDE/kdepimlibs/kcal/.krazy>, since kcal is the project
+within the kdepimlibs module.
+
+If the current working dir is not within a KDE module, or if the current
+working dir is above a project subdir, then a F<.krazy> file will not be read.
+
 
 =head1 SEE ALSO
 
