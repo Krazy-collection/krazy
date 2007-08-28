@@ -27,7 +27,7 @@ DESTDIR=$(PREFIX)/libexec/krazy-helpers
 all:
 
 install::
-	$(RM) -r $(DESTDIR)/*
+	rm -rf $(DESTDIR)/*
 	@if test ! -d $(DESTDIR); then \
 		mkdir -p $(DESTDIR) || exit 1; \
 	fi

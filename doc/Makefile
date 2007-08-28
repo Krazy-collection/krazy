@@ -22,14 +22,10 @@ PERLDOC=perldoc
 PREFIX=/usr/local
 DESTDIR=$(PREFIX)/share/man
 
-# list of all MAN5 files install
-MAN5S = \
-krazyrc.5
+krazyrc.5 : krazyrc.pod
+	$(PERLDOC) $? > $@
 
-%.5 : %.pod
-	$(PERLDOC) $< > $@
-
-all: $(MAN5S)
+all: krazyrc.5
 
 install:: all
 	@if test ! -d $(DESTDIR); then \
@@ -40,13 +36,13 @@ install:: all
 		mkdir -p $(DESTDIR)/man5 || exit 1; \
 	fi
 
-	list="$(MAN5S)"; for man in $$list; do \
+	list=krazyrc.5; for man in $$list; do \
 		echo "Installing man page $$man"; \
-		cp -f $$man $(DESTDIR)/man5/$$man; \
-        done
+		mv -f $$man $(DESTDIR)/man5/$$man; \
+	done
 
 clean:
-	$(RM) $(MAN5S)
+	@echo "Nothing to clean"
 
 realclean: clean
 

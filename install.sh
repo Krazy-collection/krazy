@@ -74,5 +74,10 @@ cd ..
 
 #permissions
 if ( test $EBN -eq 1 ) then
-  chmod -R ug+w $TOP
+  chmod ug+w $TOP/bin/*
+  chmod ug+w $TOP/libexec/krazy-plugins/*
+  chmod ug+w $TOP/libexec/krazy-plugins/*/*
+  chmod ug+w $TOP/libexec/krazy-extras/*
+  chmod ug+w $TOP/libexec/krazy-extras/*/*
+  chmod ug+w $TOP/libexec/krazy-helpers/*
 fi
