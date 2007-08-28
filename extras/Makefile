@@ -27,6 +27,7 @@ DESTDIR=$(PREFIX)/libexec/krazy-extras
 all:
 
 install::
+	$(RM) -r $(DESTDIR)/*
 	@if test ! -d $(DESTDIR); then \
 		mkdir -p $(DESTDIR) || exit 1; \
 	fi

@@ -31,6 +31,7 @@ DESTDIR=$(PREFIX)/libexec/krazy-plugins
 all:
 
 install::
+	$(RM) -r $(DESTDIR)/*
 	@if test ! -d $(DESTDIR); then \
 		mkdir -p $(DESTDIR) || exit 1; \
 	fi
@@ -39,10 +40,6 @@ install::
 		echo "Installing plugin subdir $$dir"; \
 		( cd $$dir && make install ); \
 	done
-
-# remove old subdirs that are no longer used
-#install::
-#	rm -rf $(DESTDIR)/fred
 
 clean:
 	list="$(SUBDIRS)"; for dir in $$list; do \
