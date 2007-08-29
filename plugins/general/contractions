@@ -40,9 +40,10 @@ use Getopt::Long;
 use FindBin qw($Bin);
 use lib "$Bin/../../../lib";
 use Krazy::PreProcess;
+use Krazy::Utils;
 
 my($Prog) = "contractions";
-my($Version) = "1.2";
+my($Version) = "1.3";
 
 my($help) = '';
 my($version) = '';
@@ -70,10 +71,9 @@ close(F);
 
 # Remove comments from the file input
 my(@lines);
-if ($f =~ m/\.desktop$/) {
+if (fileType($f) eq "desktop") {
   @lines = RemoveCommentsFDO( @data_lines );
-} elsif ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/ || $f =~ m/\.c$/ ||
-	 $f =~ m/\.h$/ || $f =~ m/\.hxx$/) {
+} elsif (fileType($f) eq "c++") {
   # also remove #if 0 blocks from C/C++ source
   @lines = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
 } else {
@@ -93,11 +93,11 @@ foreach $line (@lines) {
   $linecnt++;
   next if ($line =~ m+[Kk]razy:exclude=.*$Prog+);
 
-  next if ($f =~ m+\.cpp$+ || $f =~ m+\.cc$+ || $f =~ m+\.cxx$+ || $f =~ m+\.h$+ || $f =~ m+\.hxx$+ &&
-	   ($line =~ m+kDebug\(.*\)+ ||
-	    $line =~ m+kError\(.*\)+ ||
-	    $line =~ m+kWarning\(.*\)+ ||
-	    $line =~ m+kFatal\(.*\)+));
+  next if (fileType($f) eq "c++" &&
+	   (&searchBack('kDebug\(.*\)',$linecnt,3) ||
+	    &searchBack('kWarning\(.*\)',$linecnt,3) ||
+	    &searchBack('kError\(.*\)',$linecnt,3) ||
+	    &searchBack('kFatal\(.*\)',$linecnt,3)));
 
   $line =~ s+//.*++;  #skip C++ comments
 
@@ -154,6 +154,19 @@ if (!$cnt) {
 } else {
   print "$lstr ($cnt)\n" if (!$quiet);
   exit $cnt;
+}
+
+# search the previous $n lines for a pattern $p
+sub searchBack {
+  my($p,$l,$n) = @_;
+  my($i);
+  $n = $#lines if ($#lines < $n);
+  for($i=1; $i<=$n; $i++) {
+    if ($lines[$l-$i] =~ $p) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 sub Help {
