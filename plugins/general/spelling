@@ -44,6 +44,10 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 use strict;
 use Getopt::Long;
+use FindBin qw($Bin);
+use lib "$Bin/../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
 
 my($Prog) = "spelling";
 my($Version) = "1.3";
@@ -122,16 +126,18 @@ sub check_file
              $original =~ m+https://+ ||
              $original =~ m+ftp://+);  # skip lines with urls
 
-    next if ($filename =~ m+\.desktop$+ &&
+    next if (fileType($filename) eq "desktop" &&
 	     ($original =~ m+^Comment\[.*\]+ ||
 	      $original =~ m+^Keywords\[.*\]+ ||
 	      $original =~ m+^Name\[.*\]+ ||
 	      $original =~ m+^GenericName\[.*\]+));
 
     next if ($original =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
+    $_=~s/&//g;
     for my $word ( split /[^\w']/ )    # \W would split on apostrophe
     {
-      $word=lc($word);
+      $word=lc($word) if ($word =~ /^[A-Z]/);
       next unless defined (my $correction = $DICTIONARY->{$word});
 
       s/\b$word\b/$correction/g;
@@ -591,7 +597,6 @@ documentors            documenters
 doens't                doesn't
 doesnt                 doesn't
 donnot                 do not
-donot                  do not
 dont                   don't
 dont't                 don't
 dou                    do
@@ -747,7 +752,6 @@ hysical                physical
 iconized               iconified
 illumnating            illuminating
 imaginery              imaginary
-i'm                    I'm
 imitatation            imitation
 immedialely            immediately
 immediatly             immediately
