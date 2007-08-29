@@ -255,7 +255,7 @@ sub endClass {
 
 sub chkNonExplicitCtors {
   my($c) = @_;
-  if ($c ne "" && !$stuff{$c}{'excluded'}) {
+  if ($c ne "" && defined($stuff{$c}) && !$stuff{$c}{'excluded'}) {
     if ($cnt == 0) {
       $lstr = "line\#" . $stuff{$c}{'privLinesList'};
     } else {
