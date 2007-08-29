@@ -79,7 +79,6 @@ use File::Basename;
 use File::Find;
 use Text::Wrap;
 use HTML::Entities;
-use POSIX qw (strftime);
 use File::Basename;
 use Cwd;
 use Cwd 'abs_path';
@@ -376,7 +375,7 @@ for $f (@ARGV) {
     print STDERR "skipping $f\n" if ($verbose);
     next;
   }
-  $ftype = &fileType($f);
+  $ftype = fileType($f);
   if ( $ftype eq "" ) {
     print "Unsupported file type for $f... exiting\n";
     exit 1;
@@ -409,7 +408,7 @@ for $ftype (@types) {
     $num_checkers++;
     for $f (@ARGV) {
       next if ( $f =~ m+$skip+ );
-      next unless ( &fileType($f) eq $ftype );
+      next unless ( fileType($f) eq $ftype );
 
       $nf++;
 
@@ -647,33 +646,6 @@ sub List {
   exit 0 if $list;
 }
 
-# fileType function: compute the file type.
-# Returns an empty string if an unsupported file type is encountered.
-sub fileType {
-  my ($f) = @_;
-
-  if ( $f =~ m/\.cpp$/ ||
-    $f =~ m/\.cc$/ ||
-    $f =~ m/\.cxx$/ ||
-    $f =~ m/\.c$/ ||
-    $f =~ m/\.h$/ ||
-    $f =~ m/\.hxx$/ ) {
-    return "c++";
-  } elsif ( $f =~ m/\.desktop$/ ) {
-    return "desktop";
-  } elsif ( $f =~ m/\.ui$/ ) {
-    return "designer";
-  } elsif ( $f =~ m/\.po$/ ) {
-    return "po";
-  }
-  return "";
-}
-
-# asOf function: return nicely formatted string containing the current time
-sub asOf {
-  return strftime( "%B %d %Y %H:%M:%S", localtime( time() ) );
-}
-
 # printEbnHeader function: print the header string for the EBN export type.
 sub printEbnHeader {
   print
@@ -767,7 +739,7 @@ sub printHeader {
       print "No Issues Found!";
     }
     print " ...as of ";
-    print &asOf();
+    print asOf();
     print " (SVN revision $rev)" if ($rev);
     print "</p>\n";
     print "<ul>\n";
@@ -783,7 +755,7 @@ sub printHeader {
         print "No Issues Found!";
       }
       print " ...as of ";
-      print &asOf();
+      print asOf();
       print " (SVN revision $rev)" if ($rev);
       print "</p>\n";
       print "<ul>\n";
@@ -798,7 +770,7 @@ sub printHeader {
           print "No Issues Found!";
         }
         print " ...as of ";
-        print &asOf();
+        print asOf();
         print " (SVN revision $rev)" if ($rev);
         print "\n\n";
       }

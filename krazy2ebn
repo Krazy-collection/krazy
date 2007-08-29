@@ -499,11 +499,6 @@ sub execSql {
   }
 }
 
-# asOf function: return nicely formatted string containing the current time
-sub asOf {
-  return strftime( "%B %d %Y %H:%M:%S", localtime( time() ) );
-}
-
 # createIgnorePage: create an empty "ignore" page.
 sub createIgnorePage {
   my ( $outdir, $cms ) = @_;
@@ -549,7 +544,7 @@ sub createIgnorePage {
 "<p>Not processed per IGNORESUBS directive found in $component/.krazy or $module/.krazy file.<br>\n";
 
   print F " ...as of ";
-  print F &asOf();
+  print F asOf();
   print F "</p>\n";
   print F "<ol>\n";
 

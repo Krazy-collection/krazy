@@ -23,12 +23,13 @@ package Krazy::Utils;
 use strict;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 use Cwd 'abs_path';
+use POSIX qw (strftime);
 
 use Exporter;
 $VERSION = 1.00;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(topModule topSubdir deDupe);
+@EXPORT = qw(topModule topSubdir deDupe fileType asOf);
 @EXPORT_OK = qw();
 
 my($ModRegex) = "(kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|velop|vplatform|webdev|support|review)|extragear|playground|koffice)";
@@ -70,6 +71,33 @@ sub deDupe {
     push( @uniq, $item ) unless $seen{$item}++;
   }
   @list = @uniq;
+}
+
+# return a file type string determined by the filename extension
+# returns an empty string if an unsupported file type is encountered.
+sub fileType {
+  my ($f) = @_;
+
+  if ( $f =~ m/\.cpp$/ ||
+    $f =~ m/\.cc$/ ||
+    $f =~ m/\.cxx$/ ||
+    $f =~ m/\.c$/ ||
+    $f =~ m/\.h$/ ||
+    $f =~ m/\.hxx$/ ) {
+    return "c++";
+  } elsif ( $f =~ m/\.desktop$/ ) {
+    return "desktop";
+  } elsif ( $f =~ m/\.ui$/ ) {
+    return "designer";
+  } elsif ( $f =~ m/\.po$/ ) {
+    return "po";
+  }
+  return "";
+}
+
+# asOf function: return nicely formatted string containing the current time
+sub asOf {
+  return strftime( "%B %d %Y %H:%M:%S", localtime( time() ) );
 }
 
 1;
