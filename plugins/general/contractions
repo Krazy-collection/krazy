@@ -93,6 +93,12 @@ foreach $line (@lines) {
   $linecnt++;
   next if ($line =~ m+[Kk]razy:exclude=.*$Prog+);
 
+  next if ($f =~ m+\.cpp$+ || $f =~ m+\.cc$+ || $f =~ m+\.cxx$+ || $f =~ m+\.h$+ || $f =~ m+\.hxx$+ &&
+	   ($line =~ m+kDebug\(.*\)+ ||
+	    $line =~ m+kError\(.*\)+ ||
+	    $line =~ m+kWarning\(.*\)+ ||
+	    $line =~ m+kFatal\(.*\)+));
+
   $line =~ s+//.*++;  #skip C++ comments
 
   for my $word ( split /[^\w']/,$line ) {  # \W would split on apostrophe
