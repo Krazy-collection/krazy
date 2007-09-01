@@ -97,7 +97,11 @@ foreach $line (@lines) {
 	   (&searchBack('kDebug\(.*\)',$linecnt,3) ||
 	    &searchBack('kWarning\(.*\)',$linecnt,3) ||
 	    &searchBack('kError\(.*\)',$linecnt,3) ||
-	    &searchBack('kFatal\(.*\)',$linecnt,3)) ||
+	    &searchBack('kFatal\(.*\)',$linecnt,3)
+	    &searchBack('qDebug\(.*\)',$linecnt,3)
+	    &searchBack('qWarning\(.*\)',$linecnt,3)
+	    &searchBack('qCritical\(.*\)',$linecnt,3)
+	    &searchBack('qFatal\(.*\)',$linecnt,3)) ||
 	   $line =~ m/^\s*#warning/);
 
   $line =~ s+//.*++;  #skip C++ comments
