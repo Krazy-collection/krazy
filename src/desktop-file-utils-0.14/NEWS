@@ -1,0 +1,138 @@
+============
+Version 0.14
+============
+
+  o update of the Emacs editing mode for .desktop files (Ville Skyttä)
+  o make desktop-file-install print an error when trying to install a
+    non-existing desktop file, or a desktop file that can't be read (Vincent)
+  o make the validator check the content of the Icon key (Vincent)
+  o make the validator accept X-Foo as a valid environment (this was added to
+    the spec) (Stanislav Brabec, Vincent)
+  o really handle the -m command line argument for desktop-file-install
+    (Matthias Clasen)
+  o make desktop-file-install accept as one valid argument multiple
+    categories/only-show-in/mime-types values. Now --add-category="GNOME;GTK"
+    works as expected. (Vincent)
+  o make desktop-file-install validate the created desktop file before removing
+    the original file, and unlink it if it's not valid (Vincent)
+  o code cleanups for desktop-file-install (Vincent)
+
+============
+Version 0.13
+============
+
+  o rewrite validator, and update it for desktop entry specification 1.0.
+    The validator should be stricter and report more useful messages.
+    (Vincent)
+  o add --warn-kde and --no-warn-deprecated command line options to
+    desktop-file-validate (Vincent)
+  o port desktop-file-install to GKeyFile (Vincent)
+  o don't require --vendor for desktop-file-install (Vincent)
+  o some general module cleanup (Vincent)
+
+============
+Version 0.12
+============
+
+  o improves category validation code to not catch false positives (Vincent Fretin, Ville Skyttä, Ray Strode, Vincent Untz) 
+  o make category validation code non-fatal (Ray)
+  o fix mem leaks and double frees (Pascal Terjan)
+
+============
+Version 0.11
+============
+
+  o Validate desktop file categories (Emmet Hikory, Vincent Untz)
+  o Use GKeyFile instead of the old egg code in update-desktop-database (Vincent)
+  o Use GOption instead of popt (Vincent)
+  o Fix grammar problem in one of the strings (Moritz Barsnick)
+  o NULL terminate search patch in update-desktop-database (Mike Hearn)
+  o Fix language to encoding mapping to match spec (Ville Skyttä) 
+
+============
+Version 0.10
+============
+
+  o Remove all menus code (Mark McLoughlin)
+  o Don't try and add key/value pairs to comments (Miloslav Trmac)
+
+===========
+Version 0.9
+===========
+
+  o Many update-desktop-database improvements (Ray Strode, Dan Williams)
+  o Fix desktop-file-install --remove-only-show-in (Ray Strode)
+
+===========
+Version 0.8
+===========
+
+ o Fix various leaks (Kjartan Maraas)
+ o Update with latest libegg code (Ray Strode)
+
+ o Menu method work (Mark McLoughlin, Dan Williams)
+     + Reload the menu when .desktop/.directory files change
+     + Respect NoDisplay in .desktop/.directory files
+     + Remove empty submenus
+     + Report the last modification time of the tree
+     + Support setting the OnlyShowIn name
+     + Add a reasonable default set of schemes
+
+===========
+Version 0.7
+===========
+
+ o Add update-desktop-database (Ray Strode)
+ o Emacs editing mode for .desktop files (Ville Skyttä)
+ o Update to latest spec, improve error messages (Ville Skyttä)
+ o Warning fixes (Mark McLoughlin)
+ o distcheck fixes (Jonathan Blandford)
+
+===========
+Version 0.6
+===========
+
+ o Bring up to date with version 0.8 of the menu spec
+ o Don't crash when a .desktop file is a symlink to a non-existant file
+
+===========
+Version 0.5
+===========
+
+ o Don't segfault with .desktop files which have a leading comment
+
+===========
+Version 0.4
+===========
+
+ o Add support for "Desktop Action" sections
+
+===========
+Version 0.3
+===========
+
+ o Create target dir of desktop-file-install if nonexistent;
+ o improve some error messages
+ o fix OnlyShowIn? handling
+ o add --print-available option to dump desktop files being considered by desktop-menu-tool
+ o rename obsolete [KDE Desktop Entry] section if found
+ o fix a crash
+ o verify proper spelling of KDE and GNOME in OnlyShowIn?
+ o add a --remove-key option; check that string lists end in a semicolon
+ o add --copy-name-to-generic-name and vice versa
+ o fix bug in --delete-original that made it not work
+
+===========
+Version 0.2
+===========
+
+ o Adds desktop-menu-tool to parse vfolder menus and generate a symlink tree or just print them out.
+
+===========
+Version 0.1
+===========
+
+ o Initial release. Contains desktop-file-validate and desktop-file-install.
+
+
+		

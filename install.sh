@@ -46,6 +46,13 @@ make install PREFIX=$TOP && \
 make realclean
 cd ..
 
+#install binary helper scripts
+cd src/desktop-file-utils-0.14 && \
+./configure && make && \
+cp -f ./src/desktop-file-validate $TOP/libexec/krazy-helpers && \
+make distclean
+cd ../..
+
 #build and install non-binary plugins
 cd plugins && \
 make install PREFIX=$TOP && \
