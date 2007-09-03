@@ -560,9 +560,10 @@ sub Version {
 # Initialize the Checkers hash
 sub initCheckers {
   %Checkers = (
-    'c++'      => [],
-    'desktop'  => [],
-    'designer' => [],
+    'c++'       => [],
+    'desktop'   => [],
+    'designer'  => [],
+    'kconfigxt' => [],
   );
   my ($type);
   foreach $type ( keys %Checkers ) {

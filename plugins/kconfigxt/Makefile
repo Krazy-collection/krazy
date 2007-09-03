@@ -1,4 +1,4 @@
-# krazy plugins Makefile
+# krazy plugins/kconfigxt Makefile
 #
 # Copyright 2007 by Allen Winter <winter@kde.org>
 #
@@ -16,35 +16,39 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# list of all plugin subdirs to install
-SUBDIRS = \
-general \
-c++ \
-designer \
-desktop \
-kconfigxt
+# list of all plugins to install
+PLUGINS = \
+
+# links to general purpose plugins
+PLUGINLNS = \
+contractions \
+endswithnewline \
+i18ncheckarg \
+spelling
 
 #default installation location
 PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-plugins
+DESTDIR=$(PREFIX)/libexec/krazy-plugins/kconfigxt
 
 all:
 
 install::
-	rm -rf $(DESTDIR)/*
 	@if test ! -d $(DESTDIR); then \
 		mkdir -p $(DESTDIR) || exit 1; \
 	fi
 
-	list="$(SUBDIRS)"; for dir in $$list; do \
-		echo "Installing plugin subdir $$dir"; \
-		( cd $$dir && make install ); \
+	cp -f description.txt $(DESTDIR)
+
+	list="$(PLUGINS)"; for plugin in $$list; do \
+		echo "Installing plugin $$plugin"; \
+		cp -f $$plugin $(DESTDIR)/$$plugin; \
+	done
+	list="$(PLUGINLNS)"; for plugin in $$list; do \
+		echo "Installing plugin link $$plugin"; \
+		( cd $(DESTDIR) && rm -f $$plugin && ln -s ../general/$$plugin $$plugin ); \
 	done
 
 clean:
-	list="$(SUBDIRS)"; for dir in $$list; do \
-		echo "Cleaning plugin subdir $$dir"; \
-		( cd $$dir && make clean ); \
-	done
+	@echo "Nothing to clean"
 
 realclean: clean

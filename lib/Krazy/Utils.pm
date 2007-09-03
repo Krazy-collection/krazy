@@ -89,6 +89,8 @@ sub fileType {
     return "desktop";
   } elsif ( $f =~ m/\.ui$/ ) {
     return "designer";
+  } elsif ( $f =~ m/\.kcfg$/ ) {
+    return "kconfigxt";
   } elsif ( $f =~ m/\.po$/ ) {
     return "po";
   }

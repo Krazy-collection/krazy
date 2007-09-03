@@ -1,0 +1,6 @@
+make sure that <whatsthis> text is all on 1 line. Apparently the 
+tool that extracts the translatable string from <whatsthis> can't
+handle newlines.
+
+Easy check: if a line starts with <whatsthis>, then that line must
+end with </whatsthis>
