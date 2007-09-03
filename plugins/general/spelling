@@ -129,6 +129,7 @@ sub check_file
     next if (fileType($filename) eq "desktop" &&
 	     ($original =~ m+^Comment\[.*\]+ ||
 	      $original =~ m+^Keywords\[.*\]+ ||
+	      $original =~ m+^X-KDE-Keywords\[.*\]+ ||
 	      $original =~ m+^Name\[.*\]+ ||
 	      $original =~ m+^GenericName\[.*\]+));
 
