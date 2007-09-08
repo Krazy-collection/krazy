@@ -377,6 +377,7 @@ my $C_RADIO = 'radio';
 my $C_INLISTBOX = 'inlistbox';
 my $C_INTABLE = 'intable';
 my $C_INRANGE = 'inrange';
+my $C_INTEXT = 'intext';
 my $C_TOOLTIP = 'tooltip';
 my $C_WHATSTHIS = 'whatsthis';
 my $C_STATUS = 'status';
@@ -431,7 +432,7 @@ my %rolcuespec = (
     $R_TITLE  => [$C_WINDOW, $C_MENU, $C_TAB, $C_GROUP, $C_COLUMN],
     $R_LABEL  => [$C_SLIDER, $C_SPINBOX, $C_LISTBOX, $C_TEXTBOX, $C_CHOOSER],
     $R_OPTION => [$C_CHECK, $C_RADIO],
-    $R_ITEM   => [$C_INMENU, $C_INLISTBOX, $C_INTABLE, $C_INRANGE],
+    $R_ITEM   => [$C_INMENU, $C_INLISTBOX, $C_INTABLE, $C_INRANGE, $C_INTEXT],
     $R_INFO   => [$C_TOOLTIP, $C_WHATSTHIS, $C_STATUS, $C_PROGRESS, $C_TIPOFTHEDAY, $C_CREDIT, $C_SHELL],
 );
 
