@@ -94,6 +94,7 @@ sub processFile() {
     chomp($line);
     $result = &analyze($line);
     if ($result && $line) {
+      next if ($line =~ m/value \"Service\" for key \"Type\"/); #allow this warning
       $cnt++;
       $line =~ s+^$f:\s*++;
       $line =~ s+^warning:\s*++;
