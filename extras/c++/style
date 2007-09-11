@@ -319,7 +319,7 @@ foreach $line (@lines) {
     print "$linecnt (space before '(')=> $line\n" if ($verbose);
   }
 
-  if ($pline =~ m/==/ && $line =~ m/==/ && $line !~ m/[[:space:]]{1}==[[:space:]]{1}/ && $line !~ m/==[[:space:]]*\(/) {
+  if ($pline =~ m/==/ && $line =~ m/==/ && $line !~ m/[[:space:]]{1}==[[:space:]]{1}/ && $line !~ m/==[[:space:]]*\(/ && $line !~ m/[[:space:]]{1}==$/) {
     $Issues{'EQUALSPACE'}{'count'}++;
     if ($Issues{'EQUALSPACE'}{'count'} == 1) {
       $Issues{'EQUALSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -339,7 +339,7 @@ foreach $line (@lines) {
     print "$linecnt (spaces around '!=') => $line\n" if ($verbose);
   }
 
-  if ($pline =~ m/\+/ && $line =~ m/\+/ && $line !~ m/[[:space:]]{1}\+[[:space:]]{1}/ && $line !~ m/\+=/ && $line !~ m/\+\+/ && $line !~ m/\+[[:digit:]]/ && $line !~ m/^[[:space:]]*\+/ && $line !~ m/\([[:space:]]*\+/ && $line !~ m/\+$/ && $line !~ m/operator\+/) {
+  if ($pline =~ m/\+/ && $line =~ m/\+/ && $line !~ m/[[:space:]]{1}\+[[:space:]]{1}/ && $line !~ m/\+=/ && $line !~ m/\+\+/ && $line !~ m/\+[[:digit:]]/ && $line !~ m/^[[:space:]]*\+/ && $line !~ m/\([[:space:]]*\+/ && $line !~ m/\+$/ && $line !~ m/operator\+/ && $line !~ m/,\s\+/) {
     $Issues{'OPERSPACE'}{'count'}++;
     if ($Issues{'OPERSPACE'}{'count'} == 1) {
       $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -349,7 +349,7 @@ foreach $line (@lines) {
     print "$linecnt (spaces around '+') => $line\n" if ($verbose);
   }
 
-  if ($pline =~ m/-/ && $line =~ m/-/ && $line !~ m/[[:space:]]{1}-[[:space:]]{1}/ && $line !~ m/-=/ && $line !~ m/\->/ && $line !~ m/--/ && $line !~ m/-[[:digit:]]/ && $line !~ m/=[[:space:]]{1}-/ && $line !~ m/^[[:space:]]*-/ && $line !~ m/\([[:space:]]*-/ && $line !~ m/-$/ && $line !~ m/operator-/) {
+  if ($pline =~ m/-/ && $line =~ m/-/ && $line !~ m/[[:space:]]{1}-[[:space:]]{1}/ && $line !~ m/-=/ && $line !~ m/\->/ && $line !~ m/--/ && $line !~ m/-[[:digit:]]/ && $line !~ m/=[[:space:]]{1}-/ && $line !~ m/^[[:space:]]*-/ && $line !~ m/\([[:space:]]*-/ && $line !~ m/-$/ && $line !~ m/operator-/ && $line !~ m/,\s-/) {
     $Issues{'OPERSPACE'}{'count'}++;
     if ($Issues{'OPERSPACE'}{'count'} == 1) {
       $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -379,7 +379,7 @@ foreach $line (@lines) {
     print "$linecnt (spaces around '/') => $line\n" if ($verbose);
   }
 
-  if ($pline =~ m/=/ && $line !~ m/[[:space:]]{1}=[[:space:]]{1}/ && $line !~ m/[=\!><%\+-|&]=/ && $line !~ m/=$/) {
+  if ($pline =~ m/=/ && $line !~ m/[[:space:]]{1}=[[:space:]]{1}/ && $line !~ m/[=\!><%\+-|&]=/ && $line !~ m/=$/ && $line !~ m/\*=/) {
     $Issues{'ASSIGNSPACE'}{'count'}++;
     if ($Issues{'ASSIGNSPACE'}{'count'} == 1) {
       $Issues{'ASSIGNSPACE'}{'lines'} = "line\#" . $linecnt;
