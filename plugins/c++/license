@@ -83,7 +83,8 @@ if ($absf =~ m+/kdelibs/solid/kcm/+ ||
     $absf =~ m+/kdelibs/kio/misc/ksendbugmail/+ ||
     $absf =~ m+/kdelibs/kinit/+ ||
     $absf =~ m+/kdelibs/kjsembed/examples/+ ||
-    $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+);
+    $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+ ||
+    $absf =~ m+/kdepimlibs/kioslave/+);
 
 open(F, "<$f") || die "Couldn't open $f";
 my(@c) = <F>;
