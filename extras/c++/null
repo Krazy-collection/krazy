@@ -105,6 +105,9 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++; #strip trailing C++ comment
 
+  $line =~ s+qMax\s*\(.*\)++g;
+  $line =~ s+qMin\s*\(.*\)++g;
+
   if ($line =~ m/NULL/ || $line =~ m/0[lL]/) {
     next if ($line =~ m/\".*NULL.*\"/);
     next if ($line =~ m/#.*NULL/);

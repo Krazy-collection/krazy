@@ -309,6 +309,16 @@ foreach $line (@lines) {
     }
   }
 
+  if ($line =~ m/^[[:space:]]*class/ && $line =~ m/\{$/) {
+    $Issues{'FUNCBRACE'}{'count'}++;
+    if ($Issues{'FUNCBRACE'}{'count'} == 1) {
+      $Issues{'FUNCBRACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'FUNCBRACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (put '{' on line after 'class')=> $line\n" if ($verbose);
+  }
+
   if ($line =~ m/^[[:space:]]if\(/ || $line =~ m/^[[:space:]]*for\(/ || $line =~ m/^[[:space:]]*while\(/ || $line =~ m/^[[:space:]]*foreach\(/) {
     $Issues{'CONDSPACE'}{'count'}++;
     if ($Issues{'CONDSPACE'}{'count'} == 1) {
@@ -387,6 +397,16 @@ foreach $line (@lines) {
       $Issues{'ASSIGNSPACE'}{'lines'} .= "," . $linecnt;
     }
     print "$linecnt (spaces around '=') => $line\n" if ($verbose);
+  }
+
+  if ($pline =~ m/<</ && $line !~ m/\ {1}<<\ {1}/ && $line !~ m/<<$/) {
+    $Issues{'PUSHSPACE'}{'count'}++;
+    if ($Issues{'PUSHSPACE'}{'count'} == 1) {
+      $Issues{'PUSHSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'PUSHSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (1 space on each side of '<<') => $line\n" if ($verbose);
   }
 
   if ($line =~ m/};/ && $line =~ m/[[:space:]]{/ && $line !~ m/=\s*{/ && $line !~ m/{[[:space:]]*};/) {
@@ -653,6 +673,10 @@ sub initIssues() {
   $Issues{'ASSIGNSPACE'}{'issue'} = 'Put spaces around \'=\' assignment';
   $Issues{'ASSIGNSPACE'}{'count'} = 0;
   $Issues{'ASSIGNSPACE'}{'lines'} = '';
+
+  $Issues{'PUSHSPACE'}{'issue'} = 'Put spaces around \'<<\'';
+  $Issues{'PUSHSPACE'}{'count'} = 0;
+  $Issues{'PUSHSPACE'}{'lines'} = '';
 
   $Issues{'SPACECONST'}{'issue'} = 'Put 1 space between closing paren and const';
   $Issues{'SPACECONST'}{'count'} = 0;
