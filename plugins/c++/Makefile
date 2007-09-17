@@ -33,6 +33,7 @@ license \
 nullstrassign \
 nullstrcompare \
 qclasses \
+qconnect \
 qminmax \
 qobject \
 sigsandslots \
