@@ -88,6 +88,11 @@ while ($linecnt < $#lines) {
     $cnt = 0;
     last;
   }
+
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  &doIt($line,'\"(.*)\"','"fooMethod()"','fooMethod()');
   &doIt($line,'clicked\s*\(\s*Q3ListViewItem\s*\*\s*\)',
 	"clicked(Q3ListViewItem*)","itemClicked(QTreeWidgetItem*,int)");
   &doIt($line,'processedSize\s*\(KJob\s*\*,\s*KIO::filesize_t\s*\)',
@@ -139,7 +144,7 @@ sub doIt() {
 
 sub invalidSignal() {
   my($l,$old) = @_;
-  if ($l =~ m/$old/) {
+  if ($l =~ m/SIGNAL\s*\(\s*$old/) {
     return 1;
   } else {
     return 0;
