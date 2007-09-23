@@ -340,6 +340,7 @@ my $T_EMAIL = 'email';
 my $T_ENVAR = 'envar';
 my $T_MESSAGE = 'message';
 my $T_NUMID = 'numid';
+my $T_NL = 'nl';
 
 my $T_NOTEXT = 'notext'; # internal, to mark no-text-content nodes
 
@@ -395,7 +396,7 @@ my $F_TERM = 'term';
 my @inlines = (
     $T_FILENAME, $T_LINK, $T_APPLICATION, $T_COMMAND, $T_RESOURCE, $T_ICODE,
     $T_SHORTCUT, $T_INTERFACE, $T_EMPHASIS, $T_PLACEHOLDER, $T_EMAIL,
-    $T_NUMID, $T_ENVAR
+    $T_NUMID, $T_ENVAR, $T_NL
 );
 my %kuitspec = (
     $T_TOPLONG     => [ [$A_CTX], [$T_TITLE, $T_SUBTITLE, $T_PARA, $T_NOTEXT] ],
@@ -424,6 +425,7 @@ my %kuitspec = (
     $T_ENVAR       => [ [], [] ],
     $T_MESSAGE     => [ [], [] ],
     $T_NUMID       => [ [], [] ],
+    $T_NL          => [ [], [] ],
 );
 
 # Specification for role/subcue combinations.
@@ -448,7 +450,7 @@ my %fmtspec = (
 # 1 means mixing is ok.
 my %htmltags = (
     'a' => 0, 'address' => 0, 'b' => 0, 'big' => 0, 'blockquote' => 0,
-    'body' => 0, 'br' => 1, 'center' => 0, 'cita' => 0, 'code' => 0,
+    'body' => 0, 'br' => 0, 'center' => 0, 'cita' => 0, 'code' => 0,
     'dd' => 0, 'dfn' => 0, 'div' => 0, 'dl' => 0, 'dt' => 0, 'em' => 0,
     'font' => 0, 'h1' => 0, 'h2' => 0, 'h3' => 0, 'h4' => 0, 'h5' => 0,
     'h6' => 0, 'head' => 0, 'hr' => 0, 'html' => 0, 'i' => 0, 'img' => 1,
