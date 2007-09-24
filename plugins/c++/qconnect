@@ -119,6 +119,10 @@ while ($linecnt < $#lines) {
 	"dragRequested(const QList<KTNEFAttach*>&)","dragRequested(const QList<KTnef::KTNEFAttach*>&)");
   &doIt($line,'selectionInfo\s*\(\s*const\sKFileItemList\s*\&\s*\)',
 	"selectionInfo(const KFileItemList&)","selectionInfo(const QList<KFileItem>&)");
+  &doIt($line,'textChanged\s*\(\s*const\sQString\s*\&\s*\)',
+	"textChanged(const QString &)","editTextChanged(const QString &)");
+  &doIt($line,'mouseOverInfo\s*\(\s*const\sKFileItem\s*\*\s*\)',
+	"mouseOverInfo(const KFileItem *)","mouseOverInfo(const KFileItem&)");
 }
 
 if (!$cnt) {
