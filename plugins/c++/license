@@ -115,6 +115,16 @@ if ($license eq "UNKNOWN") {
   exit 1;
 }
 
+if ($license =~ m/GPL.*(?:v3\+?|v2\))/) {
+  print "GPL v3 or later is not compatible with Qt licensing\n" if (!$quiet);
+  exit 1;
+}
+
+if ($license =~ m/GPL.*v3/) {
+  print "GPL v3 or later is not compatible with Qt licensing\n" if (!$quiet);
+  exit 1;
+}
+
 if ($LibPath &&
     ($license !~ m/^LGPL/ && $license !~ m/^X11/ && $license !~ m/^BSD/ &&
      $license !~ m/^Public/ && $license !~ m/^GENERATED/ &&
@@ -141,7 +151,9 @@ sub checkLicense($)
 
    if ( $verbose ) {
       $gl = " (v2)" if ($text =~ /version 2 as published by the Free Software Foundation/);
+      $gl = " (v3)" if ($text =~ /version 3 as published by the Free Software Foundation/);
       $gl = " (v2+)" if ($text =~ /either version 2 of the License, or .at your option. any later version/);
+      $gl = " (v3+)" if ($text =~ /either version 3 of the License, or .at your option. any later version/);
       $gl = " (v2.1)" if ($text =~ /version 2\.1 as published by the Free Software Foundation/);
       $gl = " (v2.1)" if ($text =~ /2\.1, available at: http:\/\/www.fsf.org\/copyleft\/lesser.html/);
       $gl = " (v2.1+)" if ($text =~ /either version 2\.1 of the License, or .at your option. any later version/);
