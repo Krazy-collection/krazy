@@ -26,11 +26,6 @@ WriteMakefile(
 	      'VERSION_FROM'    => 'krazy2',
 	      'ABSTRACT_FROM'   => 'krazy2',
 	      'EXE_FILES'       => ['krazy2','krazy2all','krazy2ebn'],
-	      'PM'              => {
-				    'lib/Krazy/Config.pm' => '$(PREFIX)/lib/Krazy/Config.pm',
-				    'lib/Krazy/PreProcess.pm' => '$(PREFIX)/lib/Krazy/PreProcess.pm',
-				    'lib/Krazy/Utils.pm' => '$(PREFIX)/lib/Krazy/Utils.pm'},
-	      'PREFIX'          => '/usr/local',
 	      'NORECURS'        => 1,
 	      'PREREQ_FATAL'    => true,
 	      'PREREQ_PM'       => { "HTML::Parser" => 2.20,
