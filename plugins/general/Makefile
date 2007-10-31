@@ -24,21 +24,20 @@ i18ncheckarg \
 spelling \
 
 #default installation location
-PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-plugins/general
+PREFIX=/usr/local/libexec/krazy-plugins/general
 
 all:
 
 install::
-	@if test ! -d $(DESTDIR); then \
-		mkdir -p $(DESTDIR) || exit 1; \
+	@if test ! -d $(DESTDIR)$(PREFIX); then \
+		mkdir -p $(DESTDIR)$(PREFIX) || exit 1; \
 	fi
 
-	cp -f description.txt $(DESTDIR)
+	cp -f description.txt $(DESTDIR)$(PREFIX)
 
 	list="$(PLUGINS)"; for plugin in $$list; do \
 		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(DESTDIR)/$$plugin; \
+		cp -f $$plugin $(DESTDIR)$(PREFIX)/$$plugin; \
 	done
 
 clean:

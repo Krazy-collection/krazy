@@ -25,16 +25,11 @@ desktop \
 kconfigxt
 
 #default installation location
-PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-plugins
+PREFIX=/usr/local/libexec/krazy-plugins
 
 all:
 
 install::
-	@if test ! -d $(DESTDIR); then \
-		mkdir -p $(DESTDIR) || exit 1; \
-	fi
-
 	list="$(SUBDIRS)"; for dir in $$list; do \
 		echo "Installing plugin subdir $$dir"; \
 		( cd $$dir && make install ); \

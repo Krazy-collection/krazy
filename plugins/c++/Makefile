@@ -47,25 +47,24 @@ spelling \
 
 
 #default installation location
-PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-plugins/c++
+PREFIX=/usr/local/libexec/krazy-plugins/c++
 
 all:
 
 install::
-	@if test ! -d $(DESTDIR); then \
-		mkdir -p $(DESTDIR) || exit 1; \
+	@if test ! -d $(DESTDIR)$(PREFIX); then \
+		mkdir -p $(DESTDIR)$(PREFIX) || exit 1; \
 	fi
 
-	cp -f description.txt $(DESTDIR)
+	cp -f description.txt $(DESTDIR)$(PREFIX)
 
 	list="$(PLUGINS)"; for plugin in $$list; do \
 		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(DESTDIR)/$$plugin; \
+		cp -f $$plugin $(DESTDIR)$(PREFIX)/$$plugin; \
 	done
 	list="$(PLUGINLNS)"; for plugin in $$list; do \
 		echo "Installing plugin link $$plugin"; \
-		( cd $(DESTDIR) && rm -f $$plugin && ln -s ../general/$$plugin $$plugin ); \
+		ln -sf ../general/$$plugin $(DESTDIR)$(PREFIX)/$$plugin; \
 	done
 
 clean:
