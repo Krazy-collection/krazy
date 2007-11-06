@@ -47,7 +47,7 @@ spelling \
 
 
 #default installation location
-INSTDIR=$(PREFIX)/libexec/krazy-plugins/c++
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/c++
 
 all:
 

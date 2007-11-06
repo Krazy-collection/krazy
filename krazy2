@@ -162,9 +162,15 @@ tie my (%pCheckers), "Tie::IxHash";    # the final list
 ############################################################
 # This section builds the list of checker programs to run. #
 ############################################################
-$KRAZY_PLUGIN_PATH = "$KRAZYPATH/libexec/krazy-plugins:krazy-plugins"
+$KRAZY_PLUGIN_PATH =
+  "$KRAZYPATH/lib64/krazy/krazy-plugins:" .
+  "$KRAZYPATH/lib/krazy/krazy-plugins:" .
+  "$KRAZYPATH/libexec/krazy-plugins:krazy-plugins"
   if ( !$KRAZY_PLUGIN_PATH );
-$KRAZY_EXTRA_PATH = "$KRAZYPATH/libexec/krazy-extras:krazy-extras"
+$KRAZY_EXTRA_PATH =
+  "$KRAZYPATH/lib64/krazy2/krazy-extras:" .
+  "$KRAZYPATH/lib/krazy2/krazy-extras:" .
+  "$KRAZYPATH/libexec/krazy-extras:krazy-extras"
   if ( !$KRAZY_EXTRA_PATH );
 
 my (@sanity_paths);

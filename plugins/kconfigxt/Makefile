@@ -27,7 +27,7 @@ i18ncheckarg \
 spelling
 
 #default installation location
-INSTDIR=$(PREFIX)/libexec/krazy-plugins/kconfigxt
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/kconfigxt
 
 all:
 

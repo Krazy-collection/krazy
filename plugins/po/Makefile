@@ -25,7 +25,7 @@ endswithnewline \
 i18ncheckarg \
 
 #default installation location
-INSTDIR=$(PREFIX)/libexec/krazy-plugins/po
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/po
 
 all:
 

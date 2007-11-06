@@ -26,7 +26,7 @@ kconfigxt
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/libexec/krazy-plugins
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy/krazy-plugins
 
 all:
 

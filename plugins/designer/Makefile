@@ -27,7 +27,7 @@ i18ncheckarg \
 spelling \
 
 #default installation location
-INSTDIR=$(PREFIX)/libexec/krazy-plugins/designer
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/designer
 
 all:
 
