@@ -27,24 +27,24 @@ i18ncheckarg \
 spelling
 
 #default installation location
-PREFIX=/usr/local/libexec/krazy-plugins/kconfigxt
+INSTDIR=$(PREFIX)/libexec/krazy-plugins/kconfigxt
 
 all:
 
 install::
-	@if test ! -d $(DESTDIR)$(PREFIX); then \
-		mkdir -p $(DESTDIR)$(PREFIX) || exit 1; \
+	@if test ! -d $(DESTDIR)$(INSTDIR); then \
+		mkdir -p $(DESTDIR)$(INSTDIR) || exit 1; \
 	fi
 
-	cp -f description.txt $(DESTDIR)$(PREFIX)
+	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
 	list="$(PLUGINS)"; for plugin in $$list; do \
 		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(DESTDIR)$(PREFIX)/$$plugin; \
+		cp -f $$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
 	done
 	list="$(PLUGINLNS)"; for plugin in $$list; do \
 		echo "Installing plugin link $$plugin"; \
-		ln -sf ../general/$$plugin $(DESTDIR)$(PREFIX)/$$plugin; \
+		ln -sf ../general/$$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
 	done
 
 clean:
