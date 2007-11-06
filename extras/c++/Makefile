@@ -27,24 +27,24 @@ EXTRALNS = \
 
 #default installation location
 PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-extras/c++
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/c++
 
 all:
 
 install::
-	@if test ! -d $(DESTDIR); then \
-		mkdir -p $(DESTDIR) || exit 1; \
+	@if test ! -d $(DESTDIR)$(INSTDIR); then \
+		mkdir -p $(DESTDIR)$(INSTDIR) || exit 1; \
 	fi
 
-	cp -f description.txt $(DESTDIR)
+	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
 	list="$(EXTRAS)"; for extra in $$list; do \
 		echo "Installing extra $$extra"; \
-		cp -f $$extra $(DESTDIR)/$$extra; \
+		cp -f $$extra $(DESTDIR)$(INSTDIR)/$$extra; \
 	done
 	list="$(EXTRALNS)"; for extra in $$list; do \
 		echo "Installing extra link $$extra"; \
-		( cd $(DESTDIR) && rm -f $$extra && ln -s ../general/$$extra $$extra ); \
+		ln -s ../general/$$extra $(DESTDIR)$(INSTDIR)/$$extra ); \
 	done
 
 clean:

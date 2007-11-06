@@ -22,13 +22,13 @@ c++
 
 #default installation location
 PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-extras
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras
 
 all:
 
 install::
-	@if test ! -d $(DESTDIR); then \
-		mkdir -p $(DESTDIR) || exit 1; \
+	@if test ! -d $(DESTDIR)$(INSTDIR); then \
+		mkdir -p $(DESTDIR)$(INSTDIR) || exit 1; \
 	fi
 	list="$(SUBDIRS)"; for dir in $$list; do \
 		echo "Installing extras subdir $$dir"; \
