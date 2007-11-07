@@ -115,7 +115,7 @@ if ($license eq "UNKNOWN") {
   exit 1;
 }
 
-if ($license =~ m/GPL.*(?:v3\+?|v2\))/) {
+if ($license =~ m/\bGPL.*(?:v3\+?|v2\))/) {
   print "GPL v3+ or v2-only is not compatible with Qt or KDE licensing\n" if (!$quiet);
   exit 1;
 }
