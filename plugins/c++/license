@@ -144,8 +144,8 @@ sub checkLicense($)
    my($license) = "";
    my($wrong) = "";
 
-   $gl = " (v2)" if ($text =~ /version 2 .{0,40}as published by the Free Software Foundation/);
-   $gl = " (v3)" if ($text =~ /version 3 .{0,40}as published by the Free Software Foundation/);
+   $gl = " (v2)" if ($text =~ /version 2(?:\.0)? .{0,40}as published by the Free Software Foundation/);
+   $gl = " (v3)" if ($text =~ /version 3(?:\.0)? .{0,40}as published by the Free Software Foundation/);
    $gl = " (v2+)" if ($text =~ /either version 2 of the License, or .at your option. any later version/);
    $gl = " (v3+)" if ($text =~ /either version 3 of the License, or .at your option. any later version/);
    $gl = " (v2.1)" if ($text =~ /version 2\.1 as published by the Free Software Foundation/);
@@ -167,7 +167,6 @@ sub checkLicense($)
    if ( $license && !$verbose ) { return "$license"; }
 
    # QPL
-   $license = "QPL (part of Qt) $license" if ($text =~ /This file is part of the .*Qt (GUI )?Toolkit./);
    $license = "QPL $license" if ($text =~ /may be distributed under the terms of the Q Public License as defined by Trolltech AS/);
    if ( $license && !$verbose ) { return "$license"; }
 
