@@ -145,6 +145,7 @@ sub checkLicense($)
    my($wrong) = "";
 
    $gl = " (v2)" if ($text =~ /version 2(?:\.0)? .{0,40}as published by the Free Software Foundation/);
+   $gl = " (v2)" if ($text =~ /version 2(?:\.0)? of the License/);
    $gl = " (v3)" if ($text =~ /version 3(?:\.0)? .{0,40}as published by the Free Software Foundation/);
    $gl = " (v2+)" if ($text =~ /either version 2 of the License, or .at your option. any later version/);
    $gl = " (v3+)" if ($text =~ /either version 3 of the License, or .at your option. any later version/);
