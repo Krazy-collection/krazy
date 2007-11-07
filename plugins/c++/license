@@ -116,12 +116,7 @@ if ($license eq "UNKNOWN") {
 }
 
 if ($license =~ m/GPL.*(?:v3\+?|v2\))/) {
-  print "GPL v3 or later is not compatible with Qt licensing\n" if (!$quiet);
-  exit 1;
-}
-
-if ($license =~ m/GPL.*v3/) {
-  print "GPL v3 or later is not compatible with Qt licensing\n" if (!$quiet);
+  print "GPL v3+ or v2-only is not compatible with Qt or KDE licensing\n" if (!$quiet);
   exit 1;
 }
 
@@ -149,16 +144,14 @@ sub checkLicense($)
    my($license) = "";
    my($wrong) = "";
 
-   if ( $verbose ) {
-      $gl = " (v2)" if ($text =~ /version 2 as published by the Free Software Foundation/);
-      $gl = " (v3)" if ($text =~ /version 3 as published by the Free Software Foundation/);
-      $gl = " (v2+)" if ($text =~ /either version 2 of the License, or .at your option. any later version/);
-      $gl = " (v3+)" if ($text =~ /either version 3 of the License, or .at your option. any later version/);
-      $gl = " (v2.1)" if ($text =~ /version 2\.1 as published by the Free Software Foundation/);
-      $gl = " (v2.1)" if ($text =~ /2\.1, available at: http:\/\/www.fsf.org\/copyleft\/lesser.html/);
-      $gl = " (v2.1+)" if ($text =~ /either version 2\.1 of the License, or .at your option. any later version/);
-      $qte = " (+Qt exception)" if ($text =~ /([Pp]ermission is given|[pP]ermission is also granted|[pP]ermission) to link (the code of )?this program with (any edition of )?(Qt|the Qt library)/);
-   }
+   $gl = " (v2)" if ($text =~ /version 2 .{0,40}as published by the Free Software Foundation/);
+   $gl = " (v3)" if ($text =~ /version 3 .{0,40}as published by the Free Software Foundation/);
+   $gl = " (v2+)" if ($text =~ /either version 2 of the License, or .at your option. any later version/);
+   $gl = " (v3+)" if ($text =~ /either version 3 of the License, or .at your option. any later version/);
+   $gl = " (v2.1)" if ($text =~ /version 2\.1 as published by the Free Software Foundation/);
+   $gl = " (v2.1)" if ($text =~ /2\.1, available at: http:\/\/www.fsf.org\/copyleft\/lesser.html/);
+   $gl = " (v2.1+)" if ($text =~ /either version 2\.1 of the License, or .at your option. any later version/);
+   $qte = " (+Qt exception)" if ($text =~ /([Pp]ermission is given|[pP]ermission is also granted|[pP]ermission) to link (the code of )?this program with (any edition of )?(Qt|the Qt library)/);
 
    # Check for an old FSF address
    # MIT licenses will trigger the check too, as "675 Mass Ave" is MIT's address
@@ -187,7 +180,7 @@ sub checkLicense($)
    if ( $license && !$verbose ) { return "$license"; }
 
    # BSD
-   $license="BSD $license" if ($text =~ /MERCHANTABILITY( AND|,| or) FITNESS FOR A PARTICULAR PURPOSE/);
+   $license="BSD $license" if ($text =~ /MERCHANTABILITY( AND|,| or) FITNESS FOR A PARTICULAR PURPOSE/) and ($license !~ /GPL/);
    if ( $license && !$verbose ) { return "$license"; }
 
    # MPL
