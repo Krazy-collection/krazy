@@ -163,8 +163,8 @@ tie my (%pCheckers), "Tie::IxHash";    # the final list
 # This section builds the list of checker programs to run. #
 ############################################################
 $KRAZY_PLUGIN_PATH =
-  "$KRAZYPATH/lib64/krazy/krazy-plugins:" .
-  "$KRAZYPATH/lib/krazy/krazy-plugins:" .
+  "$KRAZYPATH/lib64/krazy2/krazy-plugins:" .
+  "$KRAZYPATH/lib/krazy2/krazy-plugins:" .
   "$KRAZYPATH/libexec/krazy-plugins:krazy-plugins"
   if ( !$KRAZY_PLUGIN_PATH );
 $KRAZY_EXTRA_PATH =
@@ -403,7 +403,9 @@ my ($insopt);
 my ($overall_status) = 0;
 my ($num_checkers)   = 0;
 my ($use, %result, $pid, %status);
-my ($insp) = $KRAZYPATH . "/libexec/krazy-helpers/getInstalledHeaders.pl";
+my ($insp) = $KRAZYPATH . "/lib64/krazy2/krazy-helpers/getInstalledHeaders.pl";
+  $insp = $KRAZYPATH . "/lib/krazy2/krazy-helpers/getInstalledHeaders.pl" if (! -f $insp);
+  $insp = $KRAZYPATH . "/libexec/krazy-helpers/getInstalledHeaders.pl" if (! -f $insp);
 my ($dirf);
 for $ftype (@types) {
   for $p ( sort @{ $pCheckers{$ftype} } ) {

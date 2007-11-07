@@ -22,17 +22,17 @@ getInstalledHeaders.pl
 
 #default installation location
 PREFIX=/usr/local
-DESTDIR=$(PREFIX)/libexec/krazy-helpers
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-helpers
 
 all:
 
 install::
-	@if test ! -d $(DESTDIR); then \
-		mkdir -p $(DESTDIR) || exit 1; \
+	@if test ! -d $(DESTDIR)$(INSTDIR); then \
+		mkdir -p $(DESTDIR)$(INSTDIR) || exit 1; \
 	fi
 	list="$(HELPERS)"; for helper in $$list; do \
 		echo "Installing helper $$helper"; \
-		cp -f $$helper $(DESTDIR)/$$helper; \
+		cp -f $$helper $(DESTDIR)$(INSTDIR)/$$helper; \
 	done
 
 clean:
