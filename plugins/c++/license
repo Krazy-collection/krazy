@@ -74,6 +74,7 @@ my($LibPath) = ($absf =~ m+/kde.*libs/+ ||
 #from the stricter license check
 $LibPath = 0
 if ($absf =~ m+/kdelibs/solid/kcm/+ ||
+    $absf =~ m+/kdelibs/solid/tests/+ ||
     $absf =~ m+/kdelibs/cmake/automoc/+ ||
     $absf =~ m+/kdelibs/phonon/kcm/+ ||
     $absf =~ m+/kdelibs/phonon/examples/+ ||
