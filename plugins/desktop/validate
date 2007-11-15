@@ -61,6 +61,9 @@ if ($#ARGV != 0){ &Help(); exit 0; }
 my($f) = $ARGV[0];
 
 my($valp) = "$Bin/../../krazy-helpers/desktop-file-validate";
+if ( ! -x $valp ) {
+  $valp = "desktop-file-validate";
+}
 
 my($cnt) = &processFile($f);
 if (!$cnt) {
