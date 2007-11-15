@@ -164,13 +164,11 @@ tie my (%pCheckers), "Tie::IxHash";    # the final list
 ############################################################
 $KRAZY_PLUGIN_PATH =
   "$KRAZYPATH/lib64/krazy2/krazy-plugins:" .
-  "$KRAZYPATH/lib/krazy2/krazy-plugins:" .
-  "$KRAZYPATH/libexec/krazy-plugins:krazy-plugins"
+  "$KRAZYPATH/lib/krazy2/krazy-plugins:"
   if ( !$KRAZY_PLUGIN_PATH );
 $KRAZY_EXTRA_PATH =
   "$KRAZYPATH/lib64/krazy2/krazy-extras:" .
-  "$KRAZYPATH/lib/krazy2/krazy-extras:" .
-  "$KRAZYPATH/libexec/krazy-extras:krazy-extras"
+  "$KRAZYPATH/lib/krazy2/krazy-extras:"
   if ( !$KRAZY_EXTRA_PATH );
 
 my (@sanity_paths);
@@ -405,7 +403,6 @@ my ($num_checkers)   = 0;
 my ($use, %result, $pid, %status);
 my ($insp) = $KRAZYPATH . "/lib64/krazy2/krazy-helpers/getInstalledHeaders.pl";
   $insp = $KRAZYPATH . "/lib/krazy2/krazy-helpers/getInstalledHeaders.pl" if (! -f $insp);
-  $insp = $KRAZYPATH . "/libexec/krazy-helpers/getInstalledHeaders.pl" if (! -f $insp);
 my ($dirf);
 for $ftype (@types) {
   for $p ( sort @{ $pCheckers{$ftype} } ) {
@@ -1295,11 +1292,11 @@ I<finally, and importantly, the plugin must eliminate false positives as much as
 
 KRAZY_PLUGIN_PATH - this is a colon-separated list of paths which is
 searched when locating plugins. By default, plugins are searched for in
-the path F<$TOP/libexec/krazy-plugins:krazy-plugins>.
+the path F<$TOP/lib/krazy2/krazy-plugins:krazy-plugins>.
 
 KRAZY_EXTRA_PATH - this is a colon-separated list of paths which is
 searched when locating "extra" plugins. By default, the "extras" are searched
-for in the path F<$TOP/libexec/krazy-extras:krazy-extras>.
+for in the path F<$TOP/lib/krazy2/krazy-extras:krazy-extras>.
 
 where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/local/Krazy2>)
 

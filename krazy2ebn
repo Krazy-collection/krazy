@@ -65,8 +65,8 @@ if ( hostname() =~ m/englishbreakfast/ ) {
   $module  = '';
   $trunk   = '/usr/local/src';
   $krazy   = '/usr/local/www/data-ebn/krazy/bin/krazy2';
-  $plgpth  = '/usr/local/www/data-ebn/krazy/libexec/krazy-plugins';
-  $xtrpth  = '/usr/local/www/data-ebn/krazy/libexec/krazy-extras';
+  $plgpth  = '/usr/local/www/data-ebn/krazy/lib/krazy2/krazy-plugins';
+  $xtrpth  = '/usr/local/www/data-ebn/krazy/lib/krazy2/krazy-extras';
   $PSQL    = '/usr/local/bin/psql' if ( !$PSQL );
   $md5     = '/sbin/md5';
   $svn     = '/usr/local/bin/svnlook youngest';
@@ -80,8 +80,8 @@ if ( hostname() =~ m/englishbreakfast/ ) {
   $module  = '';
   $trunk   = '/data/kde/trunk';
   $krazy   = '/usr/local/Krazy2/bin/krazy2';
-  $plgpth  = '/usr/local/Krazy2/libexec/krazy-plugins';
-  $xtrpth  = '/usr/local/Krazy2/libexec/krazy-extras';
+  $plgpth  = '/usr/local/Krazy2/lib/krazy2/krazy-plugins';
+  $xtrpth  = '/usr/local/Krazy2/lib/krazy2/krazy-extras';
   $PSQL    = 'debug';
   $md5     = '/usr/bin/md5sum';
   $svn     = 'echo';
@@ -647,11 +647,11 @@ By default all modules within the component are processed.
 
 KRAZY_PLUGIN_PATH - this is a colon-separated list of paths which is
 searched when locating plugins. By default, plugins are searched for in
-the path F<$TOP/libexec/krazy-plugins:krazy-plugins>.
+the path F<$TOP/lib/krazy2/krazy-plugins:krazy-plugins>.
 
 KRAZY_EXTRA_PATH - this is a colon-separated list of paths which is
 searched when locating "extra" plugins. By default, the "extras" are searched
-for in the path F<$TOP/libexec/krazy-extras:krazy-extras>.
+for in the path F<$TOP/lib/krazy2/krazy-extras:krazy-extras>.
 
 where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/local/Krazy2>)
 

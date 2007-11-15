@@ -214,11 +214,11 @@ Print the offending content for each file processed
 
 KRAZY_PLUGIN_PATH - this is a colon-separated list of paths which is
 searched when locating plugins. By default, plugins are searched for in
-the path F<$TOP/libexec/krazy-plugins:krazy-plugins>.
+the path F<$TOP/lib/krazy/krazy-plugins:krazy-plugins>.
 
 KRAZY_EXTRA_PATH - this is a colon-separated list of paths which is
 searched when locating "extra" plugins. By default, the "extras" are searched
-for in the path F<$TOP/libexec/krazy-extras:krazy-extras>.
+for in the path F<$TOP/lib/krazy/krazy-extras:krazy-extras>.
 
 where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/local/Krazy2>)
 
