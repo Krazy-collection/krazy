@@ -40,6 +40,10 @@ make && \
 make install && \
 make realclean
 
+#create a symlink to the perl modules so we can find the modules
+V=`perl -e 'printf "%vd", $^V'`
+(cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy Krazy)
+
 #install helper scripts
 cd helpers && \
 make install PREFIX=$TOP && \
@@ -49,7 +53,7 @@ cd ..
 #install binary helper scripts
 cd src/desktop-file-utils-0.14 && \
 ./configure && make && \
-cp -f ./src/desktop-file-validate $TOP/libexec/krazy-helpers && \
+cp -f ./src/desktop-file-validate $TOP/lib/krazy2/krazy-helpers && \
 make distclean
 cd ../..
 
@@ -82,9 +86,9 @@ cd ..
 #permissions
 if ( test $EBN -eq 1 ) then
   chmod ug+w $TOP/bin/*
-  chmod ug+w $TOP/libexec/krazy-plugins/*
-  chmod ug+w $TOP/libexec/krazy-plugins/*/*
-  chmod ug+w $TOP/libexec/krazy-extras/*
-  chmod ug+w $TOP/libexec/krazy-extras/*/*
-  chmod ug+w $TOP/libexec/krazy-helpers/*
+  chmod ug+w $TOP/lib/krazy2/krazy-plugins/*
+  chmod ug+w $TOP/lib/krazy2/krazy-plugins/*/*
+  chmod ug+w $TOP/lib/krazy2/krazy-extras/*
+  chmod ug+w $TOP/lib/krazy2/krazy-extras/*/*
+  chmod ug+w $TOP/lib/krazy2/krazy-helpers/*
 fi

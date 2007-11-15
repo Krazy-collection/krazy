@@ -54,7 +54,7 @@ use Tie::IxHash;
 use File::Basename;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
-use lib "$Bin/../../../lib";
+use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 
 my($Prog) = "includes";

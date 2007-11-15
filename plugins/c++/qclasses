@@ -39,7 +39,7 @@ use strict;
 use Getopt::Long;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
-use lib "$Bin/../../../lib";
+use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 
 my($Prog) = "qclasses";
