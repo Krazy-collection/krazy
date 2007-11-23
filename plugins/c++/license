@@ -74,18 +74,15 @@ my($LibPath) = ($absf =~ m+/kde.*libs/+ ||
 #from the stricter license check
 $LibPath = 0
 if ($absf =~ m+/kdelibs/solid/kcm/+ ||
-    $absf =~ m+/kdelibs/solid/tests/+ ||
     $absf =~ m+/kdelibs/cmake/automoc/+ ||
     $absf =~ m+/kdelibs/phonon/kcm/+ ||
-    $absf =~ m+/kdelibs/phonon/examples/+ ||
     $absf =~ m+/kdelibs/knotify/daemon/+ ||
     $absf =~ m+/kdelibs/kioslave/+ ||
     $absf =~ m+/kdelibs/kio/misc/kwalletd/+ ||
     $absf =~ m+/kdelibs/kio/misc/kssld/+ ||
     $absf =~ m+/kdelibs/kio/misc/ksendbugmail/+ ||
     $absf =~ m+/kdelibs/kinit/+ ||
-    $absf =~ m+/kdelibs/solid/examples/+ ||
-    $absf =~ m+/kdelibs/kjsembed/examples/+ ||
+    $absf =~ m+/kde.*libs/.*/(?:tests|examples)/+ ||
     $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+ ||
     $absf =~ m+/kdepimlibs/kioslave/+);
 
