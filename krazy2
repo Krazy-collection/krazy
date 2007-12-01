@@ -247,13 +247,13 @@ $only    = $ds{'CHECK'}   if ( !$only && defined( $ds{'CHECK'} ) );
 $exclude = $ds{'EXCLUDE'} if ( !$exclude && defined( $ds{'EXCLUDE'} ) );
 $skip = $ds{'SKIPREGEX'}  if ( defined( $ds{'SKIPREGEX'} ) && $ds{'SKIPREGEX'} );
 
-if ($verbose) {
-  print "\nDirectives:\n";
-  print "CHECK $only\n"      if ($only);
-  print "EXCLUDE $exclude\n" if ($exclude);
-  print "EXTRA $extra\n"     if ($extra);
-  print "SKIP $skip\n"       if ($skip);
-}
+#if ($verbose) {
+#  print "\nDirectives:\n";
+#  print "CHECK $only\n"      if ($only);
+#  print "EXCLUDE $exclude\n" if ($exclude);
+#  print "EXTRA $extra\n"     if ($extra);
+#  print "SKIP $skip\n"       if ($skip);
+#}
 
 my ($p);
 ## process extras
@@ -569,6 +569,7 @@ sub initCheckers {
     'desktop'   => [],
     'designer'  => [],
     'kconfigxt' => [],
+    'messages'  => [],
   );
   my ($type);
   foreach $type ( keys %Checkers ) {

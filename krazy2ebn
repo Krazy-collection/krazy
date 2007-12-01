@@ -372,7 +372,7 @@ sub doIt {
   }
 
   my ($command) =
- "cd $in; find . -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' | grep -v '$skip' | xargs $krazy --ignorerc --export=ebnlxr --explain --title \"Results for $cms\" --cms $cms --rev $rev $exclude $extra > $out/index.html";
+ "cd $in; find . -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh | grep -v '$skip' | xargs $krazy --ignorerc --export=ebnlxr --explain --title \"Results for $cms\" --cms $cms --rev $rev $exclude $extra > $out/index.html";
   if ($dryrun) {
     print "$command\n";
   } else {

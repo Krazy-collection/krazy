@@ -93,6 +93,8 @@ sub fileType {
     return "kconfigxt";
   } elsif ( $f =~ m/\.po$/ ) {
     return "po";
+  } elsif ( $f =~ m/Messages\.sh$/ ) {
+    return "messages";
   }
   return "";
 }
