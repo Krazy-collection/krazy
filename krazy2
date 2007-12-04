@@ -142,8 +142,7 @@ if ($export) {
     ( $export ne "ebnlxr" ) &&
     ( $export ne "html" ) &&
     ( $export ne "htmllxr" ) ) {
-    print "Unsupported export type \"$export\"... exiting\n";
-    exit 1;
+    die "Unsupported export type \"$export\"... exiting\n";
   }
 }
 
@@ -381,8 +380,8 @@ for $f (@ARGV) {
   }
   $ftype = fileType($f);
   if ( $ftype eq "" ) {
-    print "Unsupported file type for $f... exiting\n";
-    exit 1;
+    print STDERR "Unsupported file type for $f... skipping\n";
+    next;
   }
   my ($t);
   my ($found) = 0;
