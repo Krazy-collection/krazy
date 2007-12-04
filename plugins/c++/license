@@ -96,7 +96,7 @@ sub checkOneFile($)
   my($htxt) = join '', @c[0.. ($#c > 29 ? 29 : $#c)];
   if ($htxt =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $htxt =~ m+//.*[Kk]razy:skip+) {
-    return "";
+    return (0, "");
   }
   my($license) = &checkLicense($htxt);
   $license =~ s/ $//;
