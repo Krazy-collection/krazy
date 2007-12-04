@@ -176,10 +176,11 @@ sub skips {
     exit 1;
   }
   $args =~ s+\\\|+|+g;
+  return if (!length($args));
   if ( !$rcSkipRegex ) {
     $rcSkipRegex = $args;
   } else {
-    $rcSkipRegex .= "|" . $rcSkipRegex;
+    $rcSkipRegex .= "|" . $args;
   }
 }
 
