@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+# vim:sw=2:et
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
@@ -6,6 +7,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Sanity check plugin for the Krazy project.                                  #
 # Copyright (C) 2005-2007 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
+# Copyright (C) 2007 by Dirk Mueller <mueller@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -60,73 +62,77 @@ if (!GetOptions('help' => \$help, 'version' => \$version,
 &Help() if $help;
 &Version() if $version;
 &Explain() if $explain;
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV < 0){ &Help(); exit 0; }
 
-my($f) = $ARGV[0];
 
-my($absf) = abs_path($f);
-my($LibPath) = ($absf =~ m+/kde.*libs/+ ||
-                $absf =~ m+/koffice/libs/+ ||
-                $absf =~ m+/kdebase/libkonq/+ ||
-                $absf =~ m+/kdesupport/+) ? 1 : 0;
+sub checkOneFile($)
+{
+  my ($f) = @_;
 
-#some stuff in libraries isn't library code, so we need to exempt them
-#from the stricter license check
-$LibPath = 0
-if ($absf =~ m+/kdelibs/solid/kcm/+ ||
-    $absf =~ m+/kdelibs/cmake/automoc/+ ||
-    $absf =~ m+/kdelibs/phonon/kcm/+ ||
-    $absf =~ m+/kdelibs/knotify/daemon/+ ||
-    $absf =~ m+/kdelibs/kioslave/+ ||
-    $absf =~ m+/kdelibs/kio/misc/kwalletd/+ ||
-    $absf =~ m+/kdelibs/kio/misc/kssld/+ ||
-    $absf =~ m+/kdelibs/kio/misc/ksendbugmail/+ ||
-    $absf =~ m+/kdelibs/kinit/+ ||
-    $absf =~ m+/kde.*libs/.*/(?:tests|examples)/+ ||
-    $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+ ||
-    $absf =~ m+/kdepimlibs/kioslave/+);
+  my($absf) = abs_path($f);
+  my($LibPath) = ($absf =~ m+/kde.*libs/+ ||
+                  $absf =~ m+/koffice/libs/+ ||
+                  $absf =~ m+/kdebase/libkonq/+ ||
+                  $absf =~ m+/kdesupport/+) ? 1 : 0;
 
-open(F, "<$f") || die "Couldn't open $f";
-my(@c) = <F>;
-my($htxt) = join '', @c[0.. ($#c > 29 ? 29 : $#c)];
-if ($htxt =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-    $htxt =~ m+//.*[Kk]razy:skip+) {
-  print "okay\n" if (!$quiet);
-  exit 0;
-}
-my($license) = &checkLicense($htxt);
-$license =~ s/ $//;
-close(F);
+  #some stuff in libraries isn't library code, so we need to exempt them
+  #from the stricter license check
+  $LibPath = 0
+  if ($absf =~ m+/kdelibs/solid/kcm/+ ||
+      $absf =~ m+/kdelibs/cmake/automoc/+ ||
+      $absf =~ m+/kdelibs/phonon/kcm/+ ||
+      $absf =~ m+/kdelibs/knotify/daemon/+ ||
+      $absf =~ m+/kdelibs/kioslave/+ ||
+      $absf =~ m+/kdelibs/kio/misc/kwalletd/+ ||
+      $absf =~ m+/kdelibs/kio/misc/kssld/+ ||
+      $absf =~ m+/kdelibs/kio/misc/ksendbugmail/+ ||
+      $absf =~ m+/kdelibs/kinit/+ ||
+      $absf =~ m+/kde.*libs/.*/(?:tests|examples)/+ ||
+      $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+ ||
+      $absf =~ m+/kdepimlibs/kioslave/+);
 
-print "$license\n" if ($verbose);
+  open(F, "<$f") || die "Couldn't open $f";
+  my(@c) = <F>;
+  my($htxt) = join '', @c[0.. ($#c > 29 ? 29 : $#c)];
+  if ($htxt =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $htxt =~ m+//.*[Kk]razy:skip+) {
+    return "";
+  }
+  my($license) = &checkLicense($htxt);
+  $license =~ s/ $//;
+  close(F);
 
-if ($license =~ m/(wrong address)/){
-  print "$license\n" if (!$quiet);
-  exit 1;
-}
+  return (1, "$license") if ($license =~ m/(wrong address)/);
+  return (1, "$license") if ($license eq "Unknown license");
+  return (1, "missing license") if ($license eq "UNKNOWN");
+  return (1, "GPL v3+ or v2-only is not compatible with Qt or KDE licensing")
+      if ($license =~ m/\bGPL.*(?:v3\+?|v2\))/);
 
-if ($license eq "Unknown license") {
-  print "$license\n" if (!$quiet);
-  exit 1;
-}
-
-if ($license eq "UNKNOWN") {
-  print "missing license\n" if (!$quiet);
-  exit 1;
-}
-
-if ($license =~ m/\bGPL.*(?:v3\+?|v2\))/) {
-  print "GPL v3+ or v2-only is not compatible with Qt or KDE licensing\n" if (!$quiet);
-  exit 1;
+  if ($LibPath &&
+      ($license !~ m/^LGPL/ && $license !~ m/^X11/ && $license !~ m/^BSD/ &&
+       $license !~ m/^Public/ && $license !~ m/^GENERATED/ &&
+       $license !~ m/^Trivial/)) {
+    return (1, "unacceptable license ($license) for library code");
+  }
+  return (0, $license);
 }
 
-if ($LibPath &&
-    ($license !~ m/^LGPL/ && $license !~ m/^X11/ && $license !~ m/^BSD/ &&
-     $license !~ m/^Public/ && $license !~ m/^GENERATED/ &&
-     $license !~ m/^Trivial/)) {
-  print "unacceptable license ($license) for library code\n" if (!$quiet);
-  exit 1;
+# krazy compat mode
+if ($#ARGV == 0) {
+    my ($r, $license) = &checkOneFile($ARGV[0]);
+    print "$license\n" if ($verbose || $r);
+    print "okay\n" if (!$quiet && !$r);
+    exit $r;
 }
+
+my $had_error = 0;
+foreach my $f (@ARGV) {
+    my ($r, $license) = &checkOneFile($f);
+    print "$f: $license\n" if ($verbose || $r);
+    $had_error |= $r;
+}
+
+exit 1 if $had_error;
 
 print "okay\n" if (!$quiet);
 exit 0;
