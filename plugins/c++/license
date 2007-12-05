@@ -96,39 +96,42 @@ sub checkOneFile($)
   my($htxt) = join '', @c[0.. ($#c > 29 ? 29 : $#c)];
   if ($htxt =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $htxt =~ m+//.*[Kk]razy:skip+) {
-    return (0, "");
+    return (0, "", "");
   }
   my($license) = &checkLicense($htxt);
   $license =~ s/ $//;
   close(F);
 
-  return (1, "$license") if ($license =~ m/(wrong address)/);
-  return (1, "$license") if ($license eq "Unknown license");
-  return (1, "missing license") if ($license eq "UNKNOWN");
-  return (1, "GPL v3+ or v2-only is not compatible with Qt or KDE licensing")
+  return (1, $license, $license) if ($license =~ m/(wrong address)/);
+  return (1, $license, $license) if ($license eq "Unknown license");
+  return (1, $license, "missing license") if ($license eq "UNKNOWN");
+  return (1, $license, "GPL v3+ or v2-only is not compatible with Qt or KDE licensing")
       if ($license =~ m/\bGPL.*(?:v3\+?|v2\))/);
 
   if ($LibPath &&
       ($license !~ m/^LGPL/ && $license !~ m/^X11/ && $license !~ m/^BSD/ &&
        $license !~ m/^Public/ && $license !~ m/GENERATED FILE/ &&
        $license !~ m/^Trivial/)) {
-    return (1, "unacceptable license ($license) for library code");
+    return (1, $license, "unacceptable license ($license) for library code");
   }
-  return (0, $license);
+  return (0, $license, $license)
 }
 
 # krazy compat mode
 if ($#ARGV == 0) {
-    my ($r, $license) = &checkOneFile($ARGV[0]);
-    print "$license\n" if ($verbose || $r);
+    my ($r, $license, $comment) = &checkOneFile($ARGV[0]);
+    print "$license\n" if ($verbose);
+    print "$comment\n" if (!$quiet && $r);
     print "okay\n" if (!$quiet && !$r);
     exit $r;
 }
 
 my $had_error = 0;
 foreach my $f (@ARGV) {
-    my ($r, $license) = &checkOneFile($f);
-    print "$f: $license\n" if ($verbose || $r);
+    my ($r, $license, $comment) = &checkOneFile($f);
+    print "$f: " if ($verbose || (!$quiet && $r));
+    print "$license\n"  if ($verbose);
+    print "\t$comment\n" if (!$quiet && $r);
     $had_error |= $r;
 }
 
