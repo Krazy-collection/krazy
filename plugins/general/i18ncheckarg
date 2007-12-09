@@ -777,7 +777,7 @@ my %amb_explicits = map {amb_norm($_) => 1} (
 'directory', 'manual', 'tab', 'track', 'player', 'address', 'back',
 'document', 'open', 'state', 'form', 'busy', 'color', 'creator', 'display',
 'editor', 'line', 'name', 'reload', 'load', 'title', 'volume', 'default',
-'area', 'contents', 'email',
+'area', 'contents', 'email', 'frame',
 );
 
 # Adjectives sorted by frequency in KDE code
