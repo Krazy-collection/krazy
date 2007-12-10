@@ -163,61 +163,61 @@ sub checkLicense($)
    if ( $license && !$verbose ) { return "$license"; }
 
 
-   $gl = " (v2)" if ($text =~ /version 2(?:\.0)? .{0,40}as published by the Free Software Foundation/);
-   $gl = " (v2)" if ($text =~ /version 2(?:\.0)? of the License/);
-   $gl = " (v3)" if ($text =~ /version 3(?:\.0)? .{0,40}as published by the Free Software Foundation/);
-   $gl = " (v2+)" if ($text =~ /version 2(?: of the License)? or at your option any later version/);
+   $gl = " (v2)" if ($text =~ /version 2(?:\.0)? .{0,40}as published by the Free Software Foundation/i);
+   $gl = " (v2)" if ($text =~ /version 2(?:\.0)? of the License/i);
+   $gl = " (v3)" if ($text =~ /version 3(?:\.0)? .{0,40}as published by the Free Software Foundation/i);
+   $gl = " (v2+)" if ($text =~ /version 2(?: of the License)? or at your option any later version/i);
 
-   $gl = " (v2/3)" if ($text =~ /version 2(?: of the License)? or at your option version 3/);
-   $gl = " (v2/3+eV)" if ($text =~ /version 2(?: of the License)? or at your option version 3 or at the discretion of KDE e.V.{10,60}any later version/);
+   $gl = " (v2/3)" if ($text =~ /version 2(?: of the License)? or at your option version 3/i);
+   $gl = " (v2/3+eV)" if ($text =~ /version 2(?: of the License)? or at your option version 3 or at the discretion of KDE e.V.{10,60}any later version/i);
 
-   $gl = " (v3+)" if ($text =~ /either version 3(?: of the License)? or at your option any later version/);
-   $gl = " (v2.1)" if ($text =~ /version 2\.1 as published by the Free Software Foundation/);
-   $gl = " (v2.1)" if ($text =~ /2\.1 available at: http:\/\/www.fsf.org\/copyleft\/lesser.html/);
-   $gl = " (v2.1+)" if ($text =~ /either version 2\.1 of the License or at your option any later version/);
-   $qte = " (+Qt exception)" if ($text =~ /([Pp]ermission is given|[pP]ermission is also granted|[pP]ermission) to link (the code of )?this program with (any edition of )?(Qt|the Qt library)/);
+   $gl = " (v3+)" if ($text =~ /either version 3(?: of the License)? or at your option any later version/i);
+   $gl = " (v2.1)" if ($text =~ /version 2\.1 as published by the Free Software Foundation/i);
+   $gl = " (v2.1)" if ($text =~ /2\.1 available at: http:\/\/www.fsf.org\/copyleft\/lesser.html/i);
+   $gl = " (v2.1+)" if ($text =~ /either version 2\.1 of the License or at your option any later version/i);
+   $qte = " (+Qt exception)" if ($text =~ /([Pp]ermission is given|[pP]ermission is also granted|[pP]ermission) to link (the code of )?this program with (any edition of )?(Qt|the Qt library)/i);
 
    # Check for an old FSF address
    # MIT licenses will trigger the check too, as "675 Mass Ave" is MIT's address
    $wrong = " (wrong address)" if ($text =~ /(?:675 Mass Ave|59 Temple Place|Suite 330|51 Franklin Steet|02139|02111-1307)/i); # "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301" is the right FSF address
 
    # LGPL or GPL
-   $license = "LGPL$gl$wrong $license" if ($text =~ /under (the (terms|conditions) of )?the GNU (Library|Lesser) General Public License/);
-   $license = "LGPL$gl$wrong $license" if ($text =~ /under (the (terms|conditions) of )?the (Library|Lesser) GNU General Public License/);
-   $license = "LGPL$gl$wrong $license" if ($text =~ /under (the (terms|conditions) of )?the (GNU )?LGPL/);
-   $license="LGPL$gl$wrong $license" if ($text =~ /[Tt]he LGPL as published by the Free Software Foundation/);
-   $license="LGPL$gl$wrong $license" if ($text =~ /LGPL with the following explicit clarification/);
-   $license = "GPL$gl$qte$wrong $license" if ($text =~ /under (the terms of )?(version 2 of )?the GNU (General Public License|GENERAL PUBLIC LICENSE)/);
+   $license = "LGPL$gl$wrong $license" if ($text =~ /under (the (terms|conditions) of )?the GNU (Library|Lesser) General Public License/i);
+   $license = "LGPL$gl$wrong $license" if ($text =~ /under (the (terms|conditions) of )?the (Library|Lesser) GNU General Public License/i);
+   $license = "LGPL$gl$wrong $license" if ($text =~ /under (the (terms|conditions) of )?the (GNU )?LGPL/i);
+   $license="LGPL$gl$wrong $license" if ($text =~ /[Tt]he LGPL as published by the Free Software Foundation/i);
+   $license="LGPL$gl$wrong $license" if ($text =~ /LGPL with the following explicit clarification/i);
+   $license = "GPL$gl$qte$wrong $license" if ($text =~ /under (the terms of )?(version 2 of )?the GNU (General Public License|GENERAL PUBLIC LICENSE)/i);
    if ( $license && !$verbose ) { return "$license"; }
 
    # QPL
-   $license = "QPL $license" if ($text =~ /may be distributed under the terms of the Q Public License as defined by Trolltech AS/);
+   $license = "QPL $license" if ($text =~ /may be distributed under the terms of the Q Public License as defined by Trolltech AS/i);
    if ( $license && !$verbose ) { return "$license"; }
 
    # X11, BSD-like
-   $license = "X11 (BSD like) $license" if ($text =~ /Permission is hereby granted free of charge to any person obtaining a copy of this software and associated documentation files/);
+   $license = "X11 (BSD like) $license" if ($text =~ /Permission is hereby granted free of charge to any person obtaining a copy of this software and associated documentation files/i);
    if ( $license && !$verbose ) { return "$license"; }
 
    # MIT license
-   $license = "MIT $license" if ($text =~ /Permission to use copy modify (and )?distribute(and sell)? this software and its documentation for any purpose/);
+   $license = "MIT $license" if ($text =~ /Permission to use copy modify (and )?distribute(and sell)? this software and its documentation for any purpose/i);
    if ( $license && !$verbose ) { return "$license"; }
 
    # BSD
-   $license="BSD $license" if ($text =~ /MERCHANTABILITY( AND|| or) FITNESS FOR A PARTICULAR PURPOSE/) and ($license !~ /GPL/);
+   $license="BSD $license" if ($text =~ /MERCHANTABILITY( AND|| or) FITNESS FOR A PARTICULAR PURPOSE/i) and ($license !~ /GPL/);
    if ( $license && !$verbose ) { return "$license"; }
 
    # MPL
-   $license = "MPL 1.1 $license" if ($text =~ /subject to the Mozilla Public License Version 1.1/);
-   $license="MPL 1.0 $license" if ($text =~ /Mozilla Public License Version 1\.0/);
+   $license = "MPL 1.1 $license" if ($text =~ /subject to the Mozilla Public License Version 1.1/i);
+   $license="MPL 1.0 $license" if ($text =~ /Mozilla Public License Version 1\.0/i);
    if ( $license && !$verbose ) { return "$license"; }
 
    # Artistic license
-   $license = "Artistic $license" if ($text =~ /under the Artistic License/);
+   $license = "Artistic $license" if ($text =~ /under the Artistic License/i);
    if ( $license && !$verbose ) { return "$license"; }
 
    # Public domain
    $license = "Public Domain $license" if ($text =~ /Public Domain/i);
-   $license = "Public Domain $license" if ($text =~ / disclaims [Cc]opyright/);
+   $license = "Public Domain $license" if ($text =~ / disclaims [Cc]opyright/i);
    if ( $license && !$verbose ) { return "$license"; }
 
    if ( !$license ) {
