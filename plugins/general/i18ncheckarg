@@ -772,13 +772,21 @@ sub amb_norm {
 }
 
 # Phrases explicitly reported by translators as ambiguous.
-my %amb_explicits = map {amb_norm($_) => 1} (
-'yes', 'no', 'all', 'none', 'never', 'forward', 'underline', 'center',
-'directory', 'manual', 'tab', 'track', 'player', 'address', 'back',
-'document', 'open', 'state', 'form', 'busy', 'color', 'creator', 'display',
-'editor', 'line', 'name', 'reload', 'load', 'title', 'volume', 'default',
-'area', 'contents', 'email', 'frame',
-);
+# Phrase strings cannot contain spaces, but since they are being normalized
+# (lowercased and all non-letters removed), a several word phrase can be
+# added with spaces replaced e.g. by dashes.
+my %amb_explicits = map {amb_norm($_) => 1} qw {
+yes no all none never forward underline center directory manual tab track
+player address back document open state form busy color creator display
+editor line name reload load title volume default area contents email frame
+start left right display debug to introduction test tonga monitor l r windows
+family space caption x group search state join video on off sun m scope dec
+event navigation w open-recent file-type delete-selected extension manual
+shade evening feature pie days completion base user-name prompt create-new
+selection element step ac finish update edit-toolbar shapes look won product
+continue-in-same use-global open-files java scatter misses oct watch
+preview-image
+};
 
 # Adjectives sorted by frequency in KDE code
 # (mined by Kevin Scannell <kscanne@gmail.com>).
