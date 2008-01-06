@@ -61,7 +61,7 @@ my ($repos);      # fullpath to the svn repository (where svnlook looks)
 if ( hostname() =~ m/englishbreakfast/ ) {
   $tempdir = '/usr/local/www/data-ebn/krazy/temp';
   $destdir = '/usr/local/www/data-ebn/krazy/reports';
-  $comp    = 'kde-4.0';
+  $comp    = 'kde-4.x';
   $module  = '';
   $trunk   = '/usr/local/src';
   $krazy   = '/usr/local/www/data-ebn/krazy/bin/krazy2';
