@@ -915,7 +915,7 @@ sub printOOPS {
     } else {
       if ( $export =~ "lxr" ) {
         my ($url);
-        if ( $component eq "kde-4.0" ) {
+        if ( $component eq "kde-4.x" ) {
           $url = "http://lxr.kde.org/source/KDE/$module/$subdir/";
         } elsif ( $component eq "bundled-apps" && $module eq "koffice" ) {
           $url = "http://lxr.kde.org/source/koffice/$subdir/";
