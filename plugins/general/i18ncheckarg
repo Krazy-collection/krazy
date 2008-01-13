@@ -1219,6 +1219,7 @@ sub check_in_string_xml {
 sub check_in_string_xml_r {
     my ($fname, $node) = @_;
     my $tag = lc($node->nodeName);
+    my $ptag = lc($node->parentNode->nodeName);
 
     # This match is like that in trunk/KDE/kdesdk/scripts/extractrc.
     if ($tag =~ /^([tT][eE][xX][tT]|title|string|whatsthis|tooltip|label|text)$/i) {
@@ -1257,6 +1258,7 @@ sub check_in_string_xml_r {
         }
         my $xctxt =
               ($fname =~ /\.rc$/ and $tag =~ /text/i) ? '@title:menu'
+            : ($fname =~ /\.kcfg$/ and $ptag =~ /choice/i and $tag =~ /label/i) ? '@option'
             : ($fname =~ /\.kcfg$/ and $tag =~ /label/i) ? '@label'
             : ($fname =~ /\.kcfg$/ and $tag =~ /whatsthis/i) ? '@info:whatsthis'
             : "";
