@@ -137,6 +137,7 @@ about-kde
 access
 account
 account_open
+add
 add_group
 add_sub_task
 add_user
@@ -186,6 +187,7 @@ artsmediatypes
 artsmidimanager
 atlantik_buy_estate
 atlantikdesigner
+attach
 back
 binary
 blender3d
@@ -241,6 +243,7 @@ check
 civworld
 clear_left
 close
+colorize
 colorpicker
 colorscm
 combo
@@ -270,6 +273,7 @@ database
 dateeditkonqsidebar_mediaplayer
 dcgui-qt
 deb
+decrypted
 default-applications-capplet
 delete
 delete_group
@@ -294,6 +298,7 @@ dvd-mount
 dvd_unmount
 dvd-unmount
 dvi
+edit
 edit_add
 editclear
 editcopy
@@ -445,6 +450,7 @@ hotmail
 html
 hwinfo
 iconthemes
+idea
 identity
 image
 imagegallery
@@ -522,6 +528,7 @@ kdetv
 kdevelop3
 kdevelop_down
 kdisknav
+kdmconfig
 kerberos-client
 kernel
 kexi-kexi
@@ -558,11 +565,13 @@ klpq
 kmaillight
 kmaway
 kmdr_editor
+kmultiple
 knewstuff
 knode
 knode2
 knotes_close
 knotes_delete
+knotify
 komparator
 konserve3floppy-unmount
 kontact_contacts
@@ -638,10 +647,14 @@ locked
 lockzoom
 log
 logjam
+looknfeel
 lvm
 lyx
 mail
 mailappt
+mail_custom_forward
+mail_custom_reply
+mail_custom_reply_all
 mail_delete
 mail_find
 mail_flag
@@ -658,6 +671,7 @@ mail_replylist
 mail_section
 mail_send
 mail_send_via
+mail_todo
 make
 make_kdevelop
 man
@@ -672,6 +686,7 @@ messagebox_critical
 messagebox_info
 messagebox_warning
 midi
+misc
 misc2
 mldonkey
 moc-src
@@ -826,10 +841,12 @@ recur
 recycled
 red_ball
 redo
+refresh
 reload3
 reload_all_tabs
 reload_page
 relokate
+remove
 report
 report_newobj
 reports
@@ -1037,6 +1054,7 @@ window_new
 window_suppressed
 wineconfig
 winprops
+wizard
 wmaker_apps
 wordprocessing
 www
