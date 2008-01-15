@@ -27,6 +27,7 @@ doxytags \
 dpointer \
 emptystrcompare \
 explicit \
+iconnames \
 includes \
 inline \
 license \
