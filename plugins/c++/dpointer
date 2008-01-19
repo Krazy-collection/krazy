@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007 by Allen Winter <winter@kde.org>                         #
+# Copyright (C) 2007-2008 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.5";
+my($Version) = "1.6";
 
 my($help) = '';
 my($version) = '';
@@ -212,16 +212,16 @@ if (!$cnt && !$ccnt && !$mcnt) {
 
 sub Section {
   my($l) = @_;
-  if ($l =~ m/slots/i) {
+  if ($l =~ m/slots\s*:/i) {
     $stuff{$CNAME}{'section'} = "slot";
-  } elsif ($l =~ m/signals/i) {
+  } elsif ($l =~ m/signals\s*:/i) {
     $stuff{$CNAME}{'section'} = "signal";
-  } elsif ($l =~ m/private/) {
+  } elsif ($l =~ m/private\s*:/) {
     $stuff{$CNAME}{'section'} = "private";
     print "In private section of $CNAME\n" if ($debug);
-  } elsif ($l =~ m/public/) {
+  } elsif ($l =~ m/public\s*:/) {
     $stuff{$CNAME}{'section'} = "public";
-  } elsif ($l =~ m/protected/) {
+  } elsif ($l =~ m/protected\s*:/) {
     $stuff{$CNAME}{'section'} = "protected";
   }
 }
