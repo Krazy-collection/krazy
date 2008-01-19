@@ -399,7 +399,7 @@ foreach $line (@lines) {
     print "$linecnt (spaces around '=') => $line\n" if ($verbose);
   }
 
-  if ($pline =~ m/<</ && $line !~ m/\ {1}<<\ {1}/ && $line !~ m/<<$/) {
+  if ($pline =~ m/<</ && $line !~ m/\ {1}<<\ {1}/ && $line !~ m/<<$/ && $line !~ m/operator</) {
     $Issues{'PUSHSPACE'}{'count'}++;
     if ($Issues{'PUSHSPACE'}{'count'} == 1) {
       $Issues{'PUSHSPACE'}{'lines'} = "line\#" . $linecnt;
