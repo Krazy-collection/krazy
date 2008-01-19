@@ -204,7 +204,7 @@ foreach $line (@lines) {
   }
 
   if ($pline =~ m/[[:alnum:]]\*/ || $pline =~ m/[[:alnum:]]&/) {
-    if ($pline !~ m/\*>/) {
+    if ($pline !~ m/\*>/ && $pline !~ m/operator\*/) {
       $Issues{'STARSPACE'}{'count'}++;
       if ($Issues{'STARSPACE'}{'count'} == 1) {
 	$Issues{'STARSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -379,7 +379,7 @@ foreach $line (@lines) {
 #    print "$linecnt (spaces around *) => $line\n" if ($verbose);
 #  }
 
-  if ($pline =~ m+/+ && $line =~ m+/+ && $line !~ m+[[:space:]]{1}/[[:space:]]{1}+ && $line !~ m+/=+ && $line !~ m/include/) {
+  if ($pline =~ m+/+ && $line =~ m+/+ && $line !~ m+[[:space:]]{1}/[[:space:]]{1}+ && $line !~ m+/=+ && $line !~ m/include/ && $line !~ m+operator/+) {
     $Issues{'OPERSPACE'}{'count'}++;
     if ($Issues{'OPERSPACE'}{'count'} == 1) {
       $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -449,19 +449,9 @@ foreach $line (@lines) {
     print "$linecnt (bad brace-brace-semi encountered) => $line\n" if ($verbose);
   }
 
-# allow semi on line by itself
-#  if ($line =~ m/^\s*;\s*$/) {
-#    $Issues{'BADSEMI'}{'count'}++;
-#    if ($Issues{'BADSEMI'}{'count'} == 1) {
-#      $Issues{'BADSEMI'}{'lines'} = "line\#" . $linecnt;
-#    } else {
-#      $Issues{'BADSEMI'}{'lines'} .= "," . $linecnt;
-#    }
-#    print "$linecnt (semicolon on a line by itself) => $line\n" if ($verbose);
-#  }
-
   if ($line =~ m/\s;/ && $line !~ m/for\s*\(\s*;/ && $line !~ m/while\s*\(\s*;/) {
-    if ($line !~ m/\s;$/) { # allow semi on line by itself
+    # allow semi on line by itself or consecutive semis inside a for statement
+    if ($line !~ m/\s;$/ && $line !~ m/;\s?;.*\)/) {
       $Issues{'SPACESEMI'}{'count'}++;
       if ($Issues{'SPACESEMI'}{'count'} == 1) {
 	$Issues{'SPACESEMI'}{'lines'} = "line\#" . $linecnt;
@@ -543,6 +533,26 @@ foreach $line (@lines) {
 	  $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
 	}
       }
+  }
+  if (($line =~ m/^\s*public\s*:/ && $line !~ m/\s{2}public/) ||
+      ($line =~ m/^\s*private\s*:/ && $line !~ m/\s{2}private/) ||
+      ($line =~ m/^\s*protected\s*:/ && $line !~ m/\s{2}protected/) ||
+      ($line =~ m/^\s*public\sslots\s*:/ && $line !~ m/\s{2}public/) ||
+      ($line =~ m/^\s*public\sQ_SLOTS\s*:/ && $line !~ m/\s{2}public/) ||
+      ($line =~ m/^\s*private\sslots\s*:/ && $line !~ m/\s{2}private/) ||
+      ($line =~ m/^\s*private\sQ_SLOTS\s*:/ && $line !~ m/\s{2}private/) ||
+      ($line =~ m/^\s*protected\sslots\s*:/ && $line !~ m/\s{2}protected/) ||
+      ($line =~ m/^\s*protected\sQ_SLOTS\s*:/ && $line !~ m/\s{2}protected/) ||
+      ($line =~ m/^\s*signals\s*:/ && $line !~ m/\s{2}signals/) ||
+      ($line =~ m/^\s*k_dcop_signals\s*:/ && $line !~ m/\s{2}k_dcop_signals/) ||
+      ($line =~ m/^\s*Q_SIGNALS\s*:/ && $line !~ m/\s{2}Q_SIGNALS/)
+     ) {
+    $Issues{'BADINDENT'}{'count'}++;
+    if ($Issues{'BADINDENT'}{'count'} == 1) {
+      $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
+    }
   }
   if (length($line)) {
     if ($lline !~ m/,$/ && $lline !~ m/&&$/ && $lline !~ m/\|\|$/) {
