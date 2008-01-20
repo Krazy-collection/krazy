@@ -212,16 +212,16 @@ if (!$cnt && !$ccnt && !$mcnt) {
 
 sub Section {
   my($l) = @_;
-  if ($l =~ m/slots\s*:/i) {
+  if ($l =~ m/slots/i) {
     $stuff{$CNAME}{'section'} = "slot";
-  } elsif ($l =~ m/signals\s*:/i) {
+  } elsif ($l =~ m/signals/i) {
     $stuff{$CNAME}{'section'} = "signal";
   } elsif ($l =~ m/private\s*:/) {
     $stuff{$CNAME}{'section'} = "private";
     print "In private section of $CNAME\n" if ($debug);
-  } elsif ($l =~ m/public\s*:/) {
+  } elsif ($l =~ m/public/) {
     $stuff{$CNAME}{'section'} = "public";
-  } elsif ($l =~ m/protected\s*:/) {
+  } elsif ($l =~ m/protected/) {
     $stuff{$CNAME}{'section'} = "protected";
   }
 }
