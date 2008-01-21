@@ -156,6 +156,6 @@ sub Version {
 }
 
 sub Explain {
-  print "System calls are not portable.\n";
+  print "Some system calls are not portable, please use the suggested portable wrapper instead. See kde_file.h\n";
   exit 0 if $explain;
 }
