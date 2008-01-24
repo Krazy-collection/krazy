@@ -149,10 +149,17 @@ foreach $line (@lines) {
   $pline =~ s/\(unsigned char\)//g;
   $pline =~ s/\(signed char\)//g;
   $pline =~ s/\(signed char \*\)//g;
+  $pline =~ s/\(const char \*\)//g;
   $pline =~ s/\(int\)//g;
   $pline =~ s/\(uint\)//g;
   $pline =~ s/\(float\)//g;
   $pline =~ s/\([[:alnum:]]*\s*\*\)//g;
+
+  #major hacks, but I'm lazy right now
+  $pline =~ s/\(LDAPMod \*\*\)//g;
+  $pline =~ s/\(LDAPControl \*\*\)//g;
+  $pline =~ s/\(BerValue \*\*\)//g;
+  $pline =~ s/\(sasl_conn_t \*\)//g;
 
   if ($pline =~ m/\(/ && $pline =~ m/\([[:alnum:]"'\(]/ || $line =~ m/\( {2,}/) {
     $Issues{'PARENSPACE'}{'count'}++;
