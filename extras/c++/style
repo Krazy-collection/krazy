@@ -308,7 +308,7 @@ foreach $line (@lines) {
   }
 
   if ($line =~ m/[[:alnum:]]::[[:alnum:]].*\(.*{/) {
-    if ($line !~ m/,/ && $line !~ m/\(\)->/ && !&isCond($line) && !&isCond($lline) && !&isLoop($line) && !&isLoop($lline)) {
+    if ($line !~ m/,/ && $line !~ m/\(\)->/ && !&isCond($line) && !&isCond($lline) && !&isLoop($line) && !&isLoop($lline) && $lline !~ m/,$/) {
       $Issues{'FUNCBRACE'}{'count'}++;
       if ($Issues{'FUNCBRACE'}{'count'} == 1) {
 	$Issues{'FUNCBRACE'}{'lines'} = "line\#" . $linecnt;
@@ -439,7 +439,7 @@ foreach $line (@lines) {
     print "$linecnt (bad brace-semi encountered) => $line\n" if ($verbose);
   }
 
-  if ($pline =~ m/return[[:space:]]*\(/ && $line !~ m/\?/ && $line !~ m/\($/ && $line !~ m/&\)/ && $line !~ m/\(\s*\);$/ && $line !~ m/\(\s*\(/) {
+  if ($pline =~ m/return[[:space:]]*\(.*\)$/ && $line !~ m/\?/ && $line !~ m/\($/ && $line !~ m/&\)/ && $line !~ m/\(\s*\);$/ && $line !~ m/\(\s*\(/) {
     $Issues{'RETURNPAREN'}{'count'}++;
     if ($Issues{'RETURNPAREN'}{'count'} == 1) {
       $Issues{'RETURNPAREN'}{'lines'} = "line\#" . $linecnt;
