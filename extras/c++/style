@@ -409,7 +409,7 @@ foreach $line (@lines) {
     print "$linecnt (spaces around '=') => $line\n" if ($verbose);
   }
 
-  if ($pline =~ m/<</ && $line !~ m/\ {1}<<\ {1}/ && $line !~ m/<<$/ && $line !~ m/operator</) {
+  if ($pline =~ m/<</ && $line !~ m/\ {1}<<\ {1}/ && $line !~ m/<<=/ && $line !~ m/<<$/ && $line !~ m/operator</) {
     $Issues{'PUSHSPACE'}{'count'}++;
     if ($Issues{'PUSHSPACE'}{'count'} == 1) {
       $Issues{'PUSHSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -439,7 +439,7 @@ foreach $line (@lines) {
     print "$linecnt (bad brace-semi encountered) => $line\n" if ($verbose);
   }
 
-  if ($pline =~ m/return[[:space:]]*\(/ && $line !~ m/\?/ && $line !~ m/\($/ && $line !~ m/&\)/) {
+  if ($pline =~ m/return[[:space:]]*\(/ && $line !~ m/\?/ && $line !~ m/\($/ && $line !~ m/&\)/ && $line !~ m/\(\s*\);$/ && $line !~ m/\(\s*\(/) {
     $Issues{'RETURNPAREN'}{'count'}++;
     if ($Issues{'RETURNPAREN'}{'count'} == 1) {
       $Issues{'RETURNPAREN'}{'lines'} = "line\#" . $linecnt;
