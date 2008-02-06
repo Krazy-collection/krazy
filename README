@@ -35,12 +35,12 @@ Exempting lines, files and directories from the checks:
 -------------------------------------------------------
 1. Exempting individual lines from specific checks
   Provide a C++ comment at the line like this
-  //krazy:exclude-<name1[,name2,...,nameN]> 
+  //krazy:exclude=<name1[,name2,...,nameN]> 
   Where nameX is the name of one of the plugins
 
 2. Exempting a whole file from specific checks
   Provide a C++ comment at the line like this
-  //krazy:excludeall-<name1[,name2,...,nameN]>
+  //krazy:excludeall=<name1[,name2,...,nameN]>
   Where nameX is the name of one of the plugins
 
 3. Exempting a whole file from all checks
