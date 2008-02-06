@@ -47,11 +47,14 @@ Exempting lines, files and directories from the checks:
   Provide a C++ comment in the file like this
   //krazy:skip
 
-4. Exempting subdirectories from checks
-  Provide a .krazy file in the directory containing the subdirectories 
-  to skip, for example if you want to exclude kdepim/kmail and 
-  kdepim/kontact provide a .krazy file in kdepim with this content
+4. Exempting project subdirectories from checks
+  Provide a .krazy file in the top-level module directory containing
+  the project subdirectories to skip, for example if you want to exclude
+  kdepim/kmail and kdepim/kontact the kdepim/.krazy file would be:
   IGNORESUBS kmail,kontact
+
+  Warning: this directive only works at the module level.
+  Use the SKIP directive for directories below the module level.
 
 5. Exempting files or directories from checks
   Provide a .krazy file in the topmost directory and use
