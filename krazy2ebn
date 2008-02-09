@@ -387,10 +387,9 @@ sub subdirsFromCMakeList {
   while ( $line = <F> ) {
     next if ( $line =~ m/^[[:space:]]*#/ );
     next unless ( $line =~ m/add_subdirectory/i );
-    $line = lc($line);
-    $line =~ s/macro_optional_//;
-    $line =~ s/add_subdirectory[[:space:]]*\(\s+(\S+)\s+\)/$1/;
-    $line =~ s/add_subdirectory[[:space:]]*\((\S+)\)/$1/;
+    $line =~ s/macro_optional_//i;
+    $line =~ s/add_subdirectory[[:space:]]*\(\s+(\S+)\s+\)/$1/i;
+    $line =~ s/add_subdirectory[[:space:]]*\((\S+)\)/$1/i;
     $line =~ s/^\s+//;
     $line =~ s/\s+$//;
     push( @subdirs, $line );
