@@ -51,19 +51,11 @@ make realclean
 cd ..
 
 #install binary helper scripts
-if ( test $EBN -eq 0 ) then
-  cd src/desktop-file-utils-0.14 && \
-  ./configure && make && \
-  cp -f ./src/desktop-file-validate $TOP/lib/krazy2/krazy-helpers && \
-  make distclean
-  cd ../..
-else
-  if ( test ! -x /usr/local/bin/desktop-file-validate ) then
-    echo "Please install the desktop-file-utils package"
-    echo "Exiting $0"
-    exit 1
-  fi
-fi
+cd src/desktop-file-utils-0.14 && \
+./configure && make && \
+cp -f ./src/desktop-file-validate $TOP/lib/krazy2/krazy-helpers && \
+make distclean
+cd ../..
 
 #build and install non-binary plugins
 cd plugins && \
