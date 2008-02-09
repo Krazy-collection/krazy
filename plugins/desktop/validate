@@ -40,7 +40,7 @@ use Getopt::Long;
 use FindBin qw($Bin);
 
 my($Prog) = "validate";
-my($Version) = "1.1";
+my($Version) = "1.2";
 my($help) = '';
 my($version) = '';
 my($explain) = '';
@@ -62,7 +62,10 @@ my($f) = $ARGV[0];
 
 my($valp) = "$Bin/../../krazy-helpers/desktop-file-validate";
 if ( ! -x $valp ) {
-  $valp = "desktop-file-validate";
+  $valp = "/usr/local/bin/desktop-file-validate";
+  if ( ! -x $valp ) {
+    $valp = "desktop-file-validate";
+  }
 }
 
 #look for krazy directives in the file
