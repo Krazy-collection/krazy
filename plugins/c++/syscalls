@@ -109,6 +109,7 @@ while ($linecnt < $#lines) {
   &doIt($line,"fsetpos","KDE_fsetpos");
   &doIt($line,"readdir","KDE_readdir");
   &doIt($line,"sendfile","KDE_sendfile");
+  &doIt($line,"signal","KDE_signal");
   &doIt($line,"getenv","qgetenv");
 }
 
@@ -137,9 +138,12 @@ sub doIt() {
 
 sub sysCall() {
   my($l,$syscall) = @_;
-  if ($l =~ m/[,;=:]\s*$syscall[[:space:]]*\(/ &&
-      $l !~ m/[[:alnum:]]::$syscall/ && $l !~ m/SIGNAL/ && $l !~ m/emit/) {
-    return 1;
+  if ($l =~ m/[\(,;=:]\s*$syscall[[:space:]]*\(/ ||
+      $l =~ m/^\s*$syscall[[:space:]]*\(/) {
+    if ($l !~ m/[[:alnum:]]::$syscall/ && $l !~ m/SIGNAL/ && $l !~ m/emit/ &&
+	$l !~ m/open.*\"\s*\)/ && $l !~ m/close\s*\(\s*\"/) {
+      return 1;
+    }
   } else {
     return 0;
   }
