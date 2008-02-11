@@ -1200,6 +1200,7 @@ sub check_in_string_xml {
 
     my $parser = XML::LibXML->new();
     $parser->line_numbers(1);
+    $parser->load_ext_dtd(0);
 
     # Parse XML.
     my $xml;
