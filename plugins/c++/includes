@@ -459,7 +459,7 @@ sub qModule {
 # not have an auto-generated <QtModule/QClass> file.
 sub qNotClasses{
   my($p) = @_;
-  if($p =~ m+[Qq]plugin+) {
+  if($p =~ m+[Qq]plugin+ || $p =~ m+qgpgme+) {
     return 1;
   } else {
     return 0;
