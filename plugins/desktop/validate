@@ -111,7 +111,11 @@ sub processFile() {
     chomp($line);
     $result = &analyze($line);
     if ($result && $line) {
-      next if ($line =~ m/value \"Service\" for key \"Type\"/); #allow this warning
+      #warnings we allow
+      next if ($line =~ m/value \"Service\" for key \"Type\"/);
+      next if ($line =~ m/value \"ServiceType\" for key \"Type\"/);
+      next if ($line =~ m/file contains group \"PropertyDef:/);
+
       $cnt++;
       $line =~ s+^$f:\s*++;
       $line =~ s+^warning:\s*++;
