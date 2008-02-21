@@ -121,7 +121,9 @@ while ($linecnt < $#lines) {
 
   #method
   my($pline) = $line;
+  $pline =~ s/QDate.*:://g;
   $pline =~ s/KGlobal.*:://g;
+  $pline =~ s/KLocale.*:://g;
   $pline =~ s/KSystem.*:://g;
   if ($pline =~ m+k(Debug|Warning|Error).*::[[:alnum:]]+ ||
       $pline =~ m+k(Debug|Warning|Error).*k_funcinfo+) {
