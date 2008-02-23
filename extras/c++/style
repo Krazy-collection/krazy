@@ -225,7 +225,7 @@ foreach $line (@lines) {
     }
   }
 
-  if ($pline =~ m/\(/ && $line =~ m/[[:space:]]*if[[:space:]]\(/ && $line !~ m/\{$/ && $line !~ m/\(\s*$/ && $line !~ m/,\s*$/ && $line !~ m/\.\s*$/ && !&isOKCond($line)) {
+  if ($pline =~ m/\(/ && $line =~ m/[[:space:]]*if[[:space:]]*\(/ && $line !~ m/\{$/ && $line !~ m/\(\s*$/ && $line !~ m/,\s*$/ && $line !~ m/\.\s*$/ && !&isOKCond($line)) {
     $Issues{'IFBRACE'}{'count'}++;
     if ($Issues{'IFBRACE'}{'count'} == 1) {
       $Issues{'IFBRACE'}{'lines'} = "line\#" . $linecnt;
