@@ -351,6 +351,7 @@ file-find
 fileimport
 file_important
 file_locked
+file-open
 fileopenurl
 file_temporary
 finances_section
