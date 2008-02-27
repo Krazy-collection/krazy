@@ -479,9 +479,9 @@ sub configH {
 # determine if $1 is a "blacklisted" include (never use it)
 sub blackList {
   my($p) = @_;
-  if ($p =~ m+X11/+) {
-    return 1;
-  }
+#  if ($p =~ m+X11/+) {
+#    return 1;
+#  }
 # apparently malloc.h is required on older systems that we support
 #  if($p eq "malloc.h") {
 #    return 1;
