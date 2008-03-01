@@ -50,7 +50,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.4";
+my($Version) = "1.5";
 
 my($help) = '';
 my($version) = '';
@@ -190,7 +190,6 @@ sub build_dictionary_lookup_table
 #acknowledgements       acknowledgments
 #acknowlege             acknowledge
 #behaviour              behavior
-#behaviour              behavior
 #cancelation            cancellation
 #cancelled              canceled
 #cancelling             canceling
@@ -200,6 +199,8 @@ sub build_dictionary_lookup_table
 #favour                 favor
 #favourite              favorite
 #favours                favors
+#honour                 honor
+#honouring              honoring
 #initialisation         initialization
 #initialise             initialize
 #initialising           initializing
@@ -617,6 +618,7 @@ editory                editor
 efficent               efficient
 efficently             efficiently
 effiency               efficiency
+elemt                  element
 embedabble             embeddable
 embedable              embeddable
 embeddabble            embeddable
@@ -745,8 +747,6 @@ hierachical            hierarchical
 highlighlighted        highlighted
 highligting            highlighting
 higlighting            highlighting
-honour                 honor
-honouring              honoring
 
 #incorrect spelling    correction
 
@@ -868,6 +868,7 @@ listveiw               listview
 litle                  little
 litteral               literal
 localisation           localization
+looged                 logged
 losely                 loosely
 maanged                managed
 maching                matching
@@ -1130,6 +1131,8 @@ repalcement            replacement
 replys                 replies
 reponsibility          responsibility
 requeusts              requests
+requeriment            requirement
+requeriments           requirements
 resently               recently
 resetted               reset
 resistent              resistant
@@ -1370,6 +1373,7 @@ verticaly              vertically
 verticies              vertices
 veryify                verify
 vicitim                victim
+visiblity              visibility
 visualisations         visualizations
 visualisation          visualization
 visualisation          visualization
@@ -1382,6 +1386,7 @@ vrtual                 virtual
 waranty                warranty
 watseful               wasteful
 weigth                 weight
+wether                 whether
 wheter                 whether
 whicn                  which
 whishes                wishes
