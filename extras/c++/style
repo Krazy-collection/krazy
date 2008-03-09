@@ -277,7 +277,7 @@ foreach $line (@lines) {
     print "$linecnt (missing switch '{')=> $line\n" if ($verbose);
   }
 
-  if ($line =~ m/[[:space:]]*enum[[:space:]]/ && $line !~ m/\{$/) {
+  if ($line =~ m/^[[:space:]]*enum[[:space:]]/ && $line !~ m/\{$/) {
     $Issues{'ENUMBRACE'}{'count'}++;
     if ($Issues{'ENUMBRACE'}{'count'} == 1) {
       $Issues{'ENUMBRACE'}{'lines'} = "line\#" . $linecnt;
