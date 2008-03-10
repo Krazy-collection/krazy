@@ -153,6 +153,7 @@ foreach $line (@lines) {
   $pline =~ s/\(int\)//g;
   $pline =~ s/\(uint\)//g;
   $pline =~ s/\(float\)//g;
+  $pline =~ s/\(Qt::[[:alnum:]]*\)//g;
   $pline =~ s/\([[:alnum:]]*\s*\*\)//g;
 
   #major hacks, but I'm lazy right now
