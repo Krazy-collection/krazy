@@ -569,6 +569,7 @@ sub initCheckers {
     'designer'  => [],
     'kconfigxt' => [],
     'messages'  => [],
+    'tips'      => [],
   );
   my ($type);
   foreach $type ( keys %Checkers ) {
