@@ -740,6 +740,8 @@ newlayer
 news
 news_subscribe
 news_unsubscribe
+newevent
+newjournal
 newtodo
 next
 nfs_mount
