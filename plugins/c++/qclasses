@@ -92,6 +92,7 @@ while ($linecnt < $#lines) {
     last;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
 
   &doIt($line,"QColorDialog","KColorDialog");
   &doIt($line,"QComboBox","KComboBox");
