@@ -34,6 +34,7 @@ nullstrassign \
 nullstrcompare \
 qclasses \
 qconnect \
+qmethods \
 qminmax \
 qobject \
 sigsandslots \
