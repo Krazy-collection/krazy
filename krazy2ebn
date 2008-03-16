@@ -163,7 +163,7 @@ if ( $#modules < 0 ) {
   opendir( DIR, "$trunk/$comp" ) or die "Error: Cannot open $trunk/$comp: $!";
   while ( defined( $m = readdir(DIR) ) ) {
     next unless ( -d "$trunk/$comp/$m" );
-    next if ( -l "$trunk/$comp/$m" );    #skip symlinks
+# allow kdebase-foo    next if ( -l "$trunk/$comp/$m" );    #skip symlinks
     next if ( $m eq "." );               #skip cwd
     next if ( $m eq ".." );              #skip parent dir
     next if ( $m eq ".svn" );            #skip .svn
