@@ -503,7 +503,7 @@ sub topModule {
   my($in) = @_;
   my($apath) = abs_path($in);
   my($top) = $apath;
-  $top =~ s+/kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
+  $top =~ s+/kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
   my($module) = $apath;
   $module =~ s+$top/++;
   $module =~ s+/.*++;
@@ -514,7 +514,7 @@ sub topSubdir {
   my($in) = @_;
   my($apath) = abs_path($in);
   my($top) = $apath;
-  $top =~ s+/kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
+  $top =~ s+/kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
   my($module) = $apath;
   $module =~ s+$top/++;
   my($subdir);
@@ -585,7 +585,7 @@ sub topModule {
   my($in) = @_;
   my($apath) = abs_path($in);
   my($top) = $apath;
-  $top =~ s+/kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
+  $top =~ s+/kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
   my($module) = $apath;
   $module =~ s+$top/++;
   $module =~ s+/.*++;
@@ -596,7 +596,7 @@ sub topSubdir {
   my($in) = @_;
   my($apath) = abs_path($in);
   my($top) = $apath;
-  $top =~ s+/kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
+  $top =~ s+/kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|develop|webdev)/.*++;
   my($module) = $apath;
   $module =~ s+$top/++;
   my($subdir);

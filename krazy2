@@ -149,6 +149,10 @@ if ($export) {
 my ($KRAZYBINPATH) = dirname( abs_path($0) );
 my ($KRAZYPATH)    = dirname($KRAZYBINPATH);
 my ($CWD)          = getcwd;
+# the following, just in case kdebase-foo are symlinks
+$CWD =~ s+/kdebase/apps/+/kdebase-apps/+;
+$CWD =~ s+/kdebase/runtime/+/kdebase-runtime/+;
+$CWD =~ s+/kdebase/workspace/+/kdebase-workspace/+;
 
 # Checkers hash has a list of all the plugins, by file type we support.
 tie my (%Checkers),  "Tie::IxHash";

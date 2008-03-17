@@ -72,7 +72,6 @@ sub checkOneFile($)
   my($absf) = abs_path($f);
   my($LibPath) = ($absf =~ m+/kde.*libs/+ ||
                   $absf =~ m+/koffice/libs/+ ||
-                  $absf =~ m+/kdebase/libkonq/+ ||
                   $absf =~ m+/kdesupport/+) ? 1 : 0;
 
   #some stuff in libraries isn't library code, so we need to exempt them

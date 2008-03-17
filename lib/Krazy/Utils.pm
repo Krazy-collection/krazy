@@ -32,12 +32,15 @@ $VERSION = 1.00;
 @EXPORT = qw(topModule topSubdir deDupe fileType asOf);
 @EXPORT_OK = qw();
 
-my($ModRegex) = "(kde(libs|pimlibs|base|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|velop|vplatform|webdev|support|review)|extragear|playground|koffice)";
+my($ModRegex) = "(kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|velop|vplatform|webdev|support|review)|extragear|playground|koffice)";
 
 #full path to the top of the module where the specified file resides
 sub topModule {
   my($in) = @_;
   my($apath) = abs_path($in);
+  $apath =~ s+/kdebase/apps/+/kdebase-apps/+;
+  $apath =~ s+/kdebase/runtime/+/kdebase-runtime/+;
+  $apath =~ s+/kdebase/workspace/+/kdebase-workspace/+;
   my($top) = $apath;
   $top =~ s+/$ModRegex/.*++;
   return "" if ( $top eq $apath );
@@ -51,6 +54,9 @@ sub topModule {
 sub topSubdir {
   my($in) = @_;
   my($apath) = abs_path($in);
+  $apath =~ s+/kdebase/apps/+/kdebase-apps/+;
+  $apath =~ s+/kdebase/runtime/+/kdebase-runtime/+;
+  $apath =~ s+/kdebase/workspace/+/kdebase-workspace/+;
   my($top) = $apath;
   $top =~ s+/$ModRegex/.*++;
   return "" if ( $top eq $apath );
