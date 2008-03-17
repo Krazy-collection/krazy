@@ -109,6 +109,9 @@ while ($linecnt < $#lines) {
   &doIt($line,"QTextBrowser","KTextBrowser");
   &doIt($line,"QTextEdit","KTextEdit");
   &doIt($line,"QUrl","KUrl");
+  # TODO: add an "exceptions" hashtable, with QUrl::fromPercentEncoding and QUrl::toPercentEncoding in it
+  # and check that exceptions table in qClass().
+  # Testcase: kio/dataprotocol.cpp and kio/kurlcompletion.cpp
 }
 
 if (!$cnt) {
