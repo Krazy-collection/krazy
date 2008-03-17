@@ -78,7 +78,7 @@ while ($line = <F>) {
     last;
   }
   $linecnt++;
-  if ($line =~ m/\@since/) { # || $line =~ m/\@deprecated/) {
+  if ($line =~ m/\@since 4\.0[^\.]/) {  # @since 4.0.1 or 4.1 is ok, @since 4.0 is not
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
@@ -109,6 +109,6 @@ sub Version {
 }
 
 sub Explain {
-  print "The \"\@since\" and \"\@deprecated\" doxygen tags should not be used in the API documention for major versions (i.e. 4.0).  Please remove those tags.\n";
+  print "The \"\@since\" doxygen tag should not be used in the API documention for major versions (i.e. 4.0).  Please remove those tags. \"\@since 4.0.1\" or \"\@since 4.1\" is OK of course.\n";
   exit 0 if $explain;
 }
