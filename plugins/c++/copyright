@@ -102,6 +102,7 @@ while ($line = <F>) {
   next if ($line =~ m/ infringement of copyright/i);
   next if ($line =~ m/ disclaims copyright/i);
   next if ($line =~ m/ the copyright/i);
+  next if ($line =~ m/ copyrights/i);
   $found++;
 
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
