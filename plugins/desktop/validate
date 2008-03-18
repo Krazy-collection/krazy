@@ -115,6 +115,7 @@ sub processFile() {
       next if ($line =~ m/value \"Service\" for key \"Type\"/);
       next if ($line =~ m/value \"ServiceType\" for key \"Type\"/);
       next if ($line =~ m/file contains group \"PropertyDef:/);
+      next if ($line =~ m/key \"InitialPreference\" in group \"Desktop Entry\"/);
 
       $cnt++;
       $line =~ s+^$f:\s*++;
