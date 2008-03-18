@@ -791,12 +791,12 @@ preview-image
 # Adjectives sorted by frequency in KDE code
 # (mined by Kevin Scannell <kscanne@gmail.com>).
 my %amb_adjectives = map {amb_norm($_) => 1} qw {
-general unknown new normal custom close other open advanced right clear
+general unknown new normal custom other open advanced right clear
 background ready medium left all warning next up miscellaneous game bold
 subject small top italic disabled red large horizontal vertical back
 select forward slow quit level green blue previous fast total source
 low bottom high unlimited plain more local automatic yellow transparent
-standard random false done cut true original model manual main created
+standard random false done true original model manual main created
 deleted class black personal magenta average undefined square selected
 finished empty current variable solid public on hard descending unread
 tomorrow stopped orange myanmar middle light latin last german executable
