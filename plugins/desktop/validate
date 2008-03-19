@@ -73,7 +73,8 @@ open(F, "$f") || die "Couldn't open $f";
 my($line);
 while ($line = <F>) {
   exit 0
-    if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
+    if ($line =~ m+^\s*Type=Service+ ||  # ignore Service files
+	$line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
         $line =~ m+#.*[Kk]razy:skip+);
 }
 close(F);
