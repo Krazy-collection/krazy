@@ -195,6 +195,7 @@ sub build_dictionary_lookup_table
 #cancelling             canceling
 #colour                 color
 #colours                colors
+#dialogue               dialog
 #favourable             favorable
 #favour                 favor
 #favourite              favorite
@@ -204,6 +205,8 @@ sub build_dictionary_lookup_table
 #initialisation         initialization
 #initialise             initialize
 #initialising           initializing
+#minimise               minimize
+#minimising             minimizing
 #neighbourhood          neighborhood
 #neighbour              neighbor
 #neighbour              neighbor
@@ -566,7 +569,6 @@ dialler                dialer
 dialler                dialer
 dialling               dialing
 dialling               dialing
-dialogue               dialog
 diaog                  dialog
 didnt                  didn't
 diffcult               difficult
@@ -900,8 +902,6 @@ messenging             messaging
 microsft               microsoft
 millimetres            millimeters
 mimimum                minimum
-minimise               minimize
-minimising             minimizing
 minimun                minimum
 minium                 minimum
 minumum                minimum
