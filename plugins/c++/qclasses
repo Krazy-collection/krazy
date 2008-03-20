@@ -97,6 +97,7 @@ while ($linecnt < $#lines) {
   &doIt($line,"QColorDialog","KColorDialog");
   &doIt($line,"QComboBox","KComboBox");
   &doIt($line,"QMessageBox","KMessageBox");
+  &doIt($line,"QErrorMessage","KMessageBox");
   &doIt($line,"QInputDialog","KInputDialog");
   &doIt($line,"QFileDialog","KFileDialog");
   &doIt($line,"QProgressDialog","KProgressDialog");
