@@ -91,10 +91,11 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  &doIt($line,"QWidget::showFullScreen",'showFullScreen\s*\(\s*\)');
-  &doIt($line,"QWidget::showMaximized",'showMaximized\s*\(\s*\)');
-  &doIt($line,"QWidget::showMinimized",'showMinimized\s*\(\s*\)');
-  &doIt($line,"QWidget::showNormal",'showNormal\s*\(\s*\)');
+  &doIt($line,'QWidget::showFullScreen','showFullScreen\s*\(\s*\)');
+  &doIt($line,'QWidget::showMaximized','showMaximized\s*\(\s*\)');
+  &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)');
+  &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)');
+  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(');
 }
 
 if (!$cnt) {
