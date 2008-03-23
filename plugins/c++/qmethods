@@ -42,7 +42,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 
 my($Prog) = "qmethods";
-my($Version) = "1.0";
+my($Version) = "1.1";
 
 my($help) = '';
 my($version) = '';
@@ -91,11 +91,11 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  &doIt($line,'QWidget::showFullScreen','showFullScreen\s*\(\s*\)');
-  &doIt($line,'QWidget::showMaximized','showMaximized\s*\(\s*\)');
-  &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)');
-  &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)');
-  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(');
+  &doIt($line,'QWidget::showFullScreen','showFullScreen\s*\(\s*\)','');
+  &doIt($line,'QWidget::showMaximized','showMaximized\s*\(\s*\)','');
+  &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)','');
+  &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)','');
+  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(','statusBar');
 }
 
 if (!$cnt) {
@@ -108,8 +108,8 @@ if (!$cnt) {
 }
 
 sub doIt() {
-  my($line,$qname,$regexp) = @_;
-  if (&qMethod($line,$regexp)) {
+  my($line,$qname,$regexp,$nregexp) = @_;
+  if (&qMethod($line,$regexp,$nregexp)) {
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
@@ -122,13 +122,14 @@ sub doIt() {
 }
 
 sub qMethod() {
-  my($l,$regexp) = @_;
+  my($l,$regexp,$nregexp) = @_;
   if ($l =~ m/[:\.>\s]$regexp/ &&
       $l !~ m/SIGNAL/ && $l !~ m/SLOT/) {
-    return 1;
-  } else {
-    return 0;
+    if ($nregexp eq "" || $l !~ m/$nregexp/) {
+      return 1;
+    }
   }
+  return 0;
 }
 
 sub Help {
