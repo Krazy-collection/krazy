@@ -189,6 +189,7 @@ sub build_dictionary_lookup_table
 #acknowledgement        acknowledgment
 #acknowledgements       acknowledgments
 #acknowlege             acknowledge
+#aesthetic              esthetic
 #behaviour              behavior
 #cancelation            cancellation
 #cancelled              canceled
@@ -280,7 +281,6 @@ adress                 address
 adressed               addressed
 adresses               addresses
 advertize              advertise
-aesthetic              esthetic
 afganistan             afghanistan
 agressive              aggressive
 agressive              aggressive
