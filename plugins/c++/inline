@@ -42,7 +42,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 
 my($Prog) = "inline";
-my($Version) = "1.8";
+my($Version) = "1.9";
 
 my($help) = '';
 my($version) = '';
@@ -213,6 +213,7 @@ sub Inline {
   return 0 if (&searchBack('^\s*class',$lc,3));
   return 0 if (&searchBack('^\s*struct',$lc,2));
   return 0 if (&searchBack('^\s*typedef',$lc,2));
+  return 0 if (&searchBack('^\s*#define',$lc,5));
   return 0 if (&searchBack('^\s*template',$lc,25));
   return 1;
 }
