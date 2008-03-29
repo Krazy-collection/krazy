@@ -689,9 +689,14 @@ sub kuit_check {
 # Recursive XML tree traverser to kuit_check.
 sub kuit_check_traverse {
     my ($node, $lev, $ptag, $xctxt) = @_;
-    my $tag = lc($node->nodeName);
+    my $tag_raw = $node->nodeName;
+    my $tag = lc($tag_raw);
     my (@errs, @warns);
     #print "$lev: $tag (in $ptag)\n";
+
+    if ($tag_raw ne $tag) {
+        push @warns, "tag '$tag_raw' contains uppercase letters";
+    }
 
     my $check_subnodes = 1;
 
