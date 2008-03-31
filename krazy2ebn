@@ -499,8 +499,10 @@ sub myRmdir {
 sub myMvdir {
   my ( $d1, $d2 ) = @_;
   &myRmdir($d2);
-  rename( $d1, $d2 ) || die "Error: Cannot move directory $d1 to $d2: $!\n";
-  chmod 0775, $d2;
+  if ( -d "$d1" ) {
+    rename( $d1, $d2 ) || die "Error: Cannot move directory $d1 to $d2: $!\n";
+    chmod 0775, $d2;
+  }
 }
 
 sub execSql {
