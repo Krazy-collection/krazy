@@ -23,9 +23,11 @@
 #   --help:            display help message and exit
 #   --version:         display version information and exit
 #   --dry-run:         don't execute the checks; only show what would be run
+#   --nodb:            don't execute any database commands
 #   --component [comp] process component 'comp'
 #   --module [mod1<,mod2,..>]
 #                      process module list from component 'comp'
+#   --title [title]    the title to print on the output reports
 #
 use strict;
 use Getopt::Long;
@@ -42,7 +44,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2ebn';
 my
- $VERSION = '2.1';    #split line so MakeMaker can find the version here
+ $VERSION = '2.2';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -93,14 +95,18 @@ if ( hostname() =~ m/englishbreakfast/ ) {
 my ($help)    = '';
 my ($version) = '';
 my ($dryrun)  = '';
+my ($nodb) = '';
+my ($reptitle) = '';
 
 exit 1
   if ( !GetOptions(
 		   'help'        => \$help,
 		   'version'     => \$version,
 		   'dry-run'     => \$dryrun,
+		   'nodb'        => \$nodb,
 		   'component=s' => \$comp,
-		   'module=s'    => \$module
+		   'module=s'    => \$module,
+		   'title=s'     => \$reptitle
 		  )
      );
 
@@ -108,6 +114,7 @@ exit 1
 &Version() if ($version);
 
 # Setup for db
+$PSQL="" if ($nodb);
 my ($compId) = &execSql("\"SELECT id FROM components WHERE name='$comp';\"");
 die "Error: Cannot get Component Id for $comp\n"
   if ( !$compId || $compId eq "0" );
@@ -371,8 +378,15 @@ sub doIt {
     print "    Processing $cms\n";
   }
 
+  my ($title);
+  if ($reptitle) {
+    $title = $reptitle;
+  } else {
+    $title = "Results for $cms";
+  }
+
   my ($command) =
- "cd $in; find . -name '*.tcc' -o -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh -o -name tips -type f | grep -v '$skip' | xargs $krazy --ignorerc --export=ebnlxr --explain --title \"Results for $cms\" --cms $cms --rev $rev $exclude $extra > $out/index.html";
+ "cd $in; find . -name '*.tcc' -o -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh -o -name tips -type f | grep -v '$skip' | xargs $krazy --ignorerc --export=ebnlxr --explain --title \"$title\" -cms $cms --rev $rev $exclude $extra > $out/index.html";
   if ($dryrun) {
     print "$command\n";
   } else {
@@ -570,9 +584,12 @@ sub Help {
   print "  --help      display help message and exit\n";
   print "  --version   display version information and exit\n";
   print "  --dry-run   don't execute the checks; only show what would be run\n";
+  print "  --nodb      don't execute any database commands\n";
   print "  --component component to process (default=\"$comp\")\n";
   print "  --module    [mod1<,mod2...>]\n";
   print "              comma-separated list of modules to process (default=ALL)\n";
+  print "  --title     [title] the title to print on the output reports\n";
+
   print "\n";
   exit 0 if $help;
 }
@@ -617,15 +634,25 @@ Print version information and exit.
 With this option the checker programs aren't run; instead, the command line
 for each check that would be run is printed.
 
-=item B<--component>
+=item B<--nodb>
+
+Set this option to turn-off all database operations.
+
+=item B<--component>=[comp]
 
 Only run for the specified KDE component. By default, the kde-4.0
 component is assumed.
 
-=item B<--module>
+=item B<--module>=[mod1,<mod2>,...<modN>]
 
 Only run for the specified KDE module within the component.
 By default all modules within the component are processed.
+
+=item B<--title>=title
+
+A title string to print onto each report page. If this option is not provided,
+a title for each page is generated that contains the source component,
+module and subdir.
 
 =back
 
