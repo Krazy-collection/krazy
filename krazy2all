@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the KDE source code                                         #
-# Copyright 2006-2007 by Allen Winter <winter@kde.org>                        #
+# Copyright 2006-2008 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -23,9 +23,9 @@
 use strict;
 use Getopt::Long;
 
-my ($Prog) = 'krazyall';
+my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.0';    #split line so MakeMaker can find the version here
+ $VERSION = '2.1';    #split line so MakeMaker can find the version here
 
 my ($help)     = '';
 my ($version)  = '';
@@ -37,6 +37,7 @@ my ($check)    = '';
 my ($exclude)  = '';
 my ($extra)    = '';
 my ($export)   = 'text';
+my ($title)    = '';
 my ($cms)      = '';
 
 exit 1
@@ -51,6 +52,7 @@ exit 1
 		   'exclude=s' => \$exclude,
 		   'extra=s'   => \$extra,
 		   'export=s'  => \$export,
+		   'title=s'   => \$title,
 		   'cms=s'     => \$cms
 		  )
      );
@@ -82,8 +84,9 @@ $opts .= "--check=$check "     if ($check);
 $opts .= "--exclude=$exclude " if ($exclude);
 $opts .= "--extra=$extra "     if ($extra);
 $opts .= "--export=$export "   if ($export);
+$opts .= "--title=\"$title\" " if ($title);
 $opts .= "--cms=$cms "         if ($cms);
-$opts .= "--explain"           if ( $export ne "textlist" );
+$opts .= "--explain"           if ($export ne "textlist");
 
 system(
 "find . -name .svn -prune -o \\( -name '*.cpp' -o -name '*.tcc' -o -name '*.C' -o -name '*.H' -o -name '*.cc' -o -name '*.c' -o -name '*.h' -o -name '*.cxx' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh -o -name tips \\) -type f -print0 | xargs -0 krazy2 $opts"
@@ -115,6 +118,7 @@ sub Help {
   print "              html -> plain old html\n";
   print "              htmllxr -> plain old html,\n";
   print "                         with links to lxr.kde.org\n";
+  print "  --title:  give the output a project title\n";
   print "  --cms     component/module/subdir triple for html and ebn exports\n";
   print "  --ignorerc: ignore .krazy files\n";
   print "  --dry-run don't execute the checks; only show what would be run\n";
@@ -193,6 +197,10 @@ Output in one of the following formats:
      ebnlxr -> English Breakfast Network style, with links to lxr.kde.org
      html -> plain old html
      htmllxr -> plain old html, with links to lxr.kde.org
+
+=item B<--title>
+
+Give the output report a project title.
 
 =item B<--cms>
 
