@@ -22,16 +22,19 @@ package Krazy::Utils;
 
 use strict;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
+use Cwd;
 use Cwd 'abs_path';
 use POSIX qw (strftime);
+use File::Find;
 
 use Exporter;
-$VERSION = 1.00;
+$VERSION = 1.10;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(topModule topSubdir deDupe fileType asOf);
+@EXPORT = qw(topModule topSubdir deDupe fileType findFiles asOf);
 @EXPORT_OK = qw();
 
+my(@tmp);
 my($ModRegex) = "(kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|velop|vplatform|webdev|support|review)|extragear|playground|koffice)";
 
 #full path to the top of the module where the specified file resides
@@ -100,6 +103,26 @@ sub fileType {
     return "tips";
   }
   return "";
+}
+
+# return a string containing all the supported files found in specified dirs
+# the files are newline-separated.
+sub findFiles {
+  my (@dirs) = @_;
+  push(@dirs, getcwd) if ($#dirs<0);
+
+  @tmp = ();
+  find( \&aok, @dirs );
+
+  sub aok {
+    -f && !-d && push( @tmp, $File::Find::name );
+  }
+  my ($i,$l);
+  $l="";
+  foreach $i (@tmp) {
+    $l = "$l" . "$i\n" if (&fileType($i));
+  }
+  return $l;
 }
 
 # asOf function: return nicely formatted string containing the current time
