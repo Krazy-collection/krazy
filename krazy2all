@@ -22,6 +22,10 @@
 
 use strict;
 use Getopt::Long;
+use Cwd;
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
@@ -88,9 +92,12 @@ $opts .= "--title=\"$title\" " if ($title);
 $opts .= "--cms=$cms "         if ($cms);
 $opts .= "--explain"           if ($export ne "textlist");
 
-system(
-"find . -name .svn -prune -o \\( -name '*.cpp' -o -name '*.tcc' -o -name '*.C' -o -name '*.H' -o -name '*.cc' -o -name '*.c' -o -name '*.h' -o -name '*.cxx' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh -o -name tips \\) -type f -print0 | xargs -0 krazy2 $opts"
-);
+my($files) = &findFiles();
+my($cwd) = getcwd;
+$files =~ s+$cwd+\.+g;
+open(P, "| krazy2 $opts -");
+print P "$files\n";
+close(P);
 
 exit 0;
 
