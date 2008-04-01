@@ -185,6 +185,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Contractions in strings are sometimes hard to translate so do not use them.  For example: \"don't\" should be changed to \"do not\".  Contractions used in comments are ok.\n";
+  print "The KDE Style Guide recommends not using contractions in strings. For example: \"don't\" should be changed to \"do not\".  Contractions used in comments are ok.\n";
   exit 0 if $explain;
 }

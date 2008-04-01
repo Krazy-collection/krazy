@@ -161,6 +161,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. *Please* *refer* *to* *the* *API* *documentation* *for* *details* *before* *porting* *to* *the* *K* *classes*.\n";
+  print "Use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. <http://techbase.kde.org/Policies/API_to_Avoid> *Please* *refer* *to* *the* *API* *documentation* *for* *details* *before* *porting* *to* *the* *K* *classes*.\n";
   exit 0 if $explain;
 }
