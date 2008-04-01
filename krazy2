@@ -5,7 +5,7 @@
 
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2005-2007 by Allen Winter <winter@kde.org>                        #
+# Copyright 2005-2008 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -88,9 +88,9 @@ use lib "$Bin/../lib";
 use Krazy::Config;
 use Krazy::Utils;
 
-my ($Prog) = 'krazy';
+my ($Prog) = 'krazy2';
 my
- $VERSION = '2.0';    #split line so MakeMaker can find the version here
+ $VERSION = '2.1';    #split line so MakeMaker can find the version here
 
 my ($help)     = '';
 my ($version)  = '';
@@ -374,10 +374,27 @@ my ($opts) = "";
 $opts .= "--quiet "   if ($quiet);
 $opts .= "--verbose " if ($verbose);
 
+# create the list of files to process
+my (@allfiles) = ();
+if ($ARGV[0] eq "-") {
+  # read the file list from stdin
+  while (defined($_ = <STDIN>)) {
+    chomp($_);
+    push(@allfiles, $_) if ($_ && $_ !~ m/^#/);
+  }
+} else {
+  # files were provided on the command line
+  @allfiles = @ARGV;
+}
+
 # quick run through all the files, eliminating types we don't need
 my ( $f, $absf, $ftype );
 my (@types) = ();
-for $f (@ARGV) {
+for $f (@allfiles) {
+  if ( ! -f $f ) {
+    print STDERR "Cannot access file $f\n";
+   next;
+  }
   if ( $f =~ m+$skip+ ) {
     print STDERR "skipping $f\n" if ($verbose);
     next;
@@ -414,7 +431,7 @@ for $ftype (@types) {
     $result{$p} = "";
     my ($nf) = 0;
     $num_checkers++;
-    for $f (@ARGV) {
+    for $f (@allfiles) {
       next if ( $f =~ m+$skip+ );
       next unless ( fileType($f) eq $ftype );
 
@@ -476,7 +493,7 @@ for $ftype (@types) {
 ###############################
 if ( !$quiet ) {
 
-  &printHeader( $overall_status, $num_checkers, $#ARGV + 1 );
+  &printHeader( $overall_status, $num_checkers, $#allfiles + 1 );
 
   my ($st);
   my ( $cline, $rline );
@@ -526,7 +543,8 @@ exit $overall_status;
 sub Help {
   &Version();
   print "A KDE source code sanitizer.\n\n";
-  print "Usage: $Prog [OPTION]... FILE...\n";
+  print "Usage: $Prog [OPTION] [FILES]\n\n";
+  print "When FILE is - read a list of files (1 file per line) from standard input.\n\n";
   print "  --help    display help message and exit\n";
   print "  --version display version information and exit\n";
   print "  --list    list all the checker programs\n";
@@ -1029,7 +1047,7 @@ krazy2 - Sanity checks KDE source code.
 
 =head1 SYNOPSIS
 
-krazy2 [options] file1 file2 file3 ...
+krazy2 [OPTIONS] [FILES]
 
 =head1 DESCRIPTION
 
@@ -1043,6 +1061,11 @@ be printed as well.
 krazy2 uses "checker programs" which are small plugin programs to do the
 real work of the scanning.  It is easy to write your own plugins
 (see B<PLUGINS>) and tell krazy2 how to use them (see B<ENVIRONMENT>).
+
+A list of FILES to process is either specified on the command line
+or read from standard input if the first file name is "-", in which
+case 1 file per line is expected.  Blank lines and lines starting
+with a '#' are ignored when reading the file list from standard input.
 
 =head1 OPTIONS
 
