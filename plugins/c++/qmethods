@@ -42,7 +42,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 
 my($Prog) = "qmethods";
-my($Version) = "1.1";
+my($Version) = "1.2";
 
 my($help) = '';
 my($version) = '';
@@ -95,7 +95,7 @@ while ($linecnt < $#lines) {
   &doIt($line,'QWidget::showMaximized','showMaximized\s*\(\s*\)','');
   &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)','');
   &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)','');
-  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(','statusBar');
+  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','');
 }
 
 if (!$cnt) {
@@ -133,7 +133,7 @@ sub qMethod() {
 }
 
 sub Help {
-  print "Check for Qt classes that should be avoided\n";
+  print "Check for Qt methods that should be avoided\n";
   exit 0 if $help;
 }
 
