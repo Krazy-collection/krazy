@@ -735,7 +735,6 @@ network
 network_disconnected
 network_local
 network-local
-network-wired
 newlayer
 news
 news_subscribe
