@@ -393,7 +393,7 @@ my (@types) = ();
 for $f (@allfiles) {
   if ( ! -f $f ) {
     print STDERR "Cannot access file $f\n";
-   next;
+    next;
   }
   if ( $f =~ m+$skip+ ) {
     print STDERR "skipping $f\n" if ($verbose);
@@ -425,67 +425,69 @@ my ($insp) = $KRAZYPATH . "/lib64/krazy2/krazy-helpers/getInstalledHeaders.pl";
   $insp = $KRAZYPATH . "/lib/krazy2/krazy-helpers/getInstalledHeaders.pl" if (! -f $insp);
 my ($dirf);
 for $ftype (@types) {
-  for $p ( sort @{ $pCheckers{$ftype} } ) {
-    my ($bp) = &basename($p);
-    print STDERR "=>$ftype/$bp test in-progress." unless ($quiet);
-    $result{$p} = "";
-    my ($nf) = 0;
-    $num_checkers++;
-    for $f (@allfiles) {
-      next if ( $f =~ m+$skip+ );
-      next unless ( fileType($f) eq $ftype );
+  if (defined($pCheckers{$ftype})){
+    for $p ( sort @{ $pCheckers{$ftype} } ) {
+      my ($bp) = &basename($p);
+      print STDERR "=>$ftype/$bp test in-progress." unless ($quiet);
+      $result{$p} = "";
+      my ($nf) = 0;
+      $num_checkers++;
+      for $f (@allfiles) {
+	next if ( $f =~ m+$skip+ );
+	next unless ( fileType($f) eq $ftype );
 
-      $nf++;
+	$nf++;
 
-      # skip the following files because they are auto-generated but do not
-      # contain text that can be tested to determine that situation.
-      next if ( $f =~ m/la\.all_cpp\.cpp$/ );
+	# skip the following files because they are auto-generated but do not
+	# contain text that can be tested to determine that situation.
+	next if ( $f =~ m/la\.all_cpp\.cpp$/ );
 
-      # skip auto-generated files -- test the first 5 lines for known signatures
-      open( F, "<$f" ) || die "Couldn't open $f";
-      my (@c) = <F>;
-      my ($tt) = join '', @c[ 0 .. ( $#c > 5 ? 5 : $#c ) ];
-      close(F);
-      next
-        if ( $tt =~
+	# skip auto-generated files: test the first 5 lines for known signatures
+	open( F, "<$f" ) || die "Couldn't open $f";
+	my (@c) = <F>;
+	my ($tt) = join '', @c[ 0 .. ( $#c > 5 ? 5 : $#c ) ];
+	close(F);
+	next
+	  if ( $tt =~
 /(All changes made in this file will be lost|All changes made to it will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
-        );
+	     );
 
-      # use the helper program to determine if this file is to be installed
-      $insopt = "";
-      $absf   = abs_path($f);
-      $dirf   = dirname($absf);
-      open( INS, "$insp $dirf |" ) or print STDERR "Cannot run: $insp\n";
-      while (<INS>) {
-        chomp($_);
-        if ( $absf eq $_ ) {
-          $insopt = "--installed";
-          last;
-        }
-      }
-      close(INS);
+	# use the helper program to determine if this file is to be installed
+	$insopt = "";
+	$absf   = abs_path($f);
+	$dirf   = dirname($absf);
+	open( INS, "$insp $dirf |" ) or print STDERR "Cannot run: $insp\n";
+	while (<INS>) {
+	  chomp($_);
+	  if ( $absf eq $_ ) {
+	    $insopt = "--installed";
+	    last;
+	  }
+	}
+	close(INS);
 
-      # run the checker, concatentating the output
-      if ( !$dryrun ) {
-        $pid = open( SANE, "$p $opts $insopt $f |" )
-          or print STDERR "Cannot run: &basename($p)\n";
-        while (<SANE>) {
-          chomp($_);
-          $result{$p} .= "\t" . $f . ": " . $_ . "\n"
-            unless ( $_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+ );
-        }
-        close(SANE);
-        $status{$p} += $? >> 8;
-      } else {
-        print "$p $opts $insopt $f\n";
+	# run the checker, concatentating the output
+	if ( !$dryrun ) {
+	  $pid = open( SANE, "$p $opts $insopt $f |" )
+	    or print STDERR "Cannot run: &basename($p)\n";
+	  while (<SANE>) {
+	    chomp($_);
+	    $result{$p} .= "\t" . $f . ": " . $_ . "\n"
+	      unless ( $_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+ );
+	  }
+	  close(SANE);
+	  $status{$p} += $? >> 8;
+	} else {
+	  print "$p $opts $insopt $f\n";
+	}
+	print STDERR "." unless ( $nf % 10 || $quiet );
+      }    # foreach file to process
+      if ( $nf > 0 ) {
+	$overall_status += $status{$p} if ( defined( $status{$p} ) );
+	print STDERR "done\n" unless ($quiet);
       }
-      print STDERR "." unless ( $nf % 10 || $quiet );
-    }    # foreach file to process
-    if ( $nf > 0 ) {
-      $overall_status += $status{$p} if ( defined( $status{$p} ) );
-      print STDERR "done\n" unless ($quiet);
-    }
-  }    # foreach Checker of this type
+    }    # foreach Checker of this type
+  }  # if any Checker is defined for file of this type
 }    # foreach type of file
 
 ###############################
