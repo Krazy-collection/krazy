@@ -102,6 +102,7 @@ foreach $line (@lines) {
     next if ($line =~ m/\"[[:print:]]\\\"/);
     next if ($line =~ m/\"\+\",\"/ || $line =~ m/\",\"\+\"/); # "+","x
     next if ($line =~ m/\"\\\"/);
+    next if ($line =~ m/\"[[:print:]]\"\s[A-Z]/);
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
