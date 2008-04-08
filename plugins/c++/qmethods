@@ -42,7 +42,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 
 my($Prog) = "qmethods";
-my($Version) = "1.2";
+my($Version) = "1.3";
 
 my($help) = '';
 my($version) = '';
@@ -96,6 +96,9 @@ while ($linecnt < $#lines) {
   &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)','');
   &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)','');
   &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','');
+  &doIt($line,'QImage::depth','depth\s*\(\s*\)/','[Pp]ix|desktop|screen|pd-');
+# when we have a real parser, check for the following as well:
+# QString::isNull (in almost all cases, QString::isEmpty should be used instead)
 }
 
 if (!$cnt) {
