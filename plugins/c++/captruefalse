@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2007 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2008 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 
 my($Prog) = "captruefalse";
-my($Version) = "1.2";
+my($Version) = "1.3";
 
 my($help) = '';
 my($version) = '';
@@ -96,6 +96,7 @@ foreach my $line (@lines) {
     if ($line =~ m/TRUE/) {
       last if ($line =~ m/\".*TRUE.*\"/);
       last if ($line =~ m/\/\/.*TRUE/);
+      last if ($line =~ m/OATRUE/);
       last if ($line =~ m/_TRUE/);
       last if ($line =~ m/TRUE_/);
       $true_cnt++;
@@ -112,6 +113,7 @@ foreach my $line (@lines) {
     if ($line =~ m/FALSE/) {
       last if ($line =~ m/\".*FALSE.*\"/);
       last if ($line =~ m/\/\/.*FALSE/);
+      last if ($line =~ m/OAFALSE/);
       last if ($line =~ m/_FALSE/);
       last if ($line =~ m/FALSE_/);
       $false_cnt++;
