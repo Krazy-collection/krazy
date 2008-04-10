@@ -37,6 +37,10 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                    if no arguments given, current dir is taken as path
 #   --ctxmark:       report missing KUIT context markers,
 #                    regardless of whether threshold is reached
+#   --basic:         report only call/argument/placeholder mismatches
+#                    (high priority problems!)
+#   --markup:        report only markup problems
+#   --ambiguous:     report only context ambiguities
 
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered, unless --allsources
@@ -64,18 +68,26 @@ my($quiet) = '';
 my($verbose) = '';
 my($allsources) = '';
 my($ctxmark) = '';
+my($basic) = '';
+my($markup) = '';
+my($ambiguous) = '';
 
 exit 1
 if (!GetOptions('help' => \$help, 'version' => \$version,
                 'explain' => \$explain, 'installed' => \$installed,
                 'verbose' => \$verbose, 'quiet' => \$quiet,
-                'allsources' => \$allsources, 'ctxmark' => \$ctxmark));
+                'allsources' => \$allsources, 'ctxmark' => \$ctxmark,
+                'basic' => \$basic, 'markup' => \$markup,
+                'ambiguous' => \$ambiguous));
 
 &Help() if $help;
 &Version() if $version;
 &Explain() if $explain;
 if ($#ARGV != 0 and not $allsources) { &Help(); exit 0; }
 
+my $c_basic = not ($markup or $ambiguous);
+my $c_markup = not ($basic or $ambiguous);
+my $c_ambi = not ($basic or $markup);
 
 # ------------------------------------------------------------------------------
 # Globals.
@@ -596,6 +608,8 @@ sub kuit_check_ctxmark {
     my ($ctxt, $xctxt) = @_;
     $xctxt or $xctxt = '@_:_/_';
 
+    $c_basic or return ([], []);
+
     my (@errs, @warns);
     my ($rol, $cue, $fmt) = kuit_parse_ctxmark($ctxt);
     my ($xrol, $xcue, $xfmt) = kuit_parse_ctxmark($xctxt);
@@ -639,6 +653,8 @@ sub kuit_check {
     my ($ctxt, $msg, $xctxt) = @_;
     defined $ctxt or $ctxt = "";
     defined $xctxt or $xctxt = "";
+
+    $c_markup or return ([], []);
 
     my $parser = XML::LibXML->new();
     my (@errs, @warns);
@@ -899,7 +915,7 @@ sub check_in_kuit {
     else {
         $gg_nkuit++;
         report $fname, $lineno, "warning",
-                "${OTH}missing KUIT context marker";
+               "${OTH}missing KUIT context marker" if $c_markup;
         # ${OTH} means report only on reaching KUIT threshold
     }
 
@@ -936,7 +952,7 @@ sub check_in_kuit {
     }
 
     # Check for ambiguous messages without free context info.
-    if ($freectx =~ /^\s*$/s) {
+    if ($c_ambi and $freectx =~ /^\s*$/s) {
         my $advice = $has_ctxmark ? "explain what it refers to following the KUIT context marker"
                                   : "use context call to explain what it refers to";
         my $nphrase = amb_norm($msgid);
@@ -1055,7 +1071,7 @@ sub check_in_string {
                 if ($strlist[-1] =~ /%n/ or $strlist[-2] =~ /%n/) {
                     $legplu = 1;
                     report $g_fname, $g_lineno, "error",
-                           "legacy \%n placeholder in plural call";
+                           "legacy \%n placeholder in plural call" if $c_basic;
                     $gg_nlegplu++;
                 }
             }
@@ -1123,7 +1139,7 @@ sub check_in_string {
             }
             if ($wgaps) {
                 report $g_fname, $g_lineno, "error",
-                       "gaps in placeholder numbering, $gapstr";
+                       "gaps in placeholder numbering, $gapstr" if $c_basic;
                 $gg_nwgaps++;
             }
             }
@@ -1151,7 +1167,8 @@ sub check_in_string {
                 }
                 if ($badcount) {
                     report $g_fname, $g_lineno, "error",
-                           "wrong argument count, have $nhaveargs need $nneedargs";
+                           "wrong argument count, have $nhaveargs ".
+                           "need $nneedargs" if $c_basic;
                     $gg_ncount++;
                 }
             }
@@ -1164,7 +1181,8 @@ sub check_in_string {
             if ($call !~ /ki18n/ and $nhaveargs > $maxnarg) {
                 $toomany = 1;
                 report $g_fname, $g_lineno, "error",
-                       "too many arguments, have $nhaveargs max $maxnarg";
+                       "too many arguments, have $nhaveargs max $maxnarg"
+                       if $c_basic;
                 $gg_novermax++;
             }
             }
@@ -1173,7 +1191,8 @@ sub check_in_string {
             for my $arg (@arglist) {
                 if ($arg =~ /QString\s*::\s*number/) {
                     report $g_fname, $g_lineno, "warning",
-                           "use of QString::number() on an argument";
+                           "use of QString::number() on an argument"
+                           if $c_basic;
                     $gg_nqnumber++;
                 }
             }
@@ -1183,7 +1202,8 @@ sub check_in_string {
                 if ($arg =~ /formatNumber/) {
                     report $g_fname, $g_lineno, "warning",
                            "use of KLocale::formatNumber() on an argument ".
-                           "(use only for numbers outside of i18n messages)";
+                           "(use only for numbers outside of i18n messages)"
+                           if $c_basic;
                     $gg_nkfmtnum++;
                 }
             }
