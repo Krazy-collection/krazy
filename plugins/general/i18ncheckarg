@@ -37,10 +37,22 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                    if no arguments given, current dir is taken as path
 #   --ctxmark:       report missing KUIT context markers,
 #                    regardless of whether threshold is reached
-#   --basic:         report only call/argument/placeholder mismatches
-#                    (high priority problems!)
-#   --markup:        report only markup problems
-#   --ambiguous:     report only context ambiguities
+#
+#   Report selection by type:
+#
+#   --basic:         call/argument/placeholder mismatches
+#   --markup:        markup problems
+#   --ambiguous:     context ambiguities
+#
+#   Report selection by priority:
+#
+#   --high           possible data loss in messages sent to the user
+#   --normal         possible formatting artifacts visible by the user
+#   --low            possible problems for translators
+#
+# Note that the report selection types do not stack at the moment,
+# e.g. --basic --high is undefined, instead of "high-priority basic problems";
+# should be fixed in the future.
 
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered, unless --allsources
@@ -71,6 +83,9 @@ my($ctxmark) = '';
 my($basic) = '';
 my($markup) = '';
 my($ambiguous) = '';
+my($pri_high) = '';
+my($pri_normal) = '';
+my($pri_low) = '';
 
 exit 1
 if (!GetOptions('help' => \$help, 'version' => \$version,
@@ -78,16 +93,18 @@ if (!GetOptions('help' => \$help, 'version' => \$version,
                 'verbose' => \$verbose, 'quiet' => \$quiet,
                 'allsources' => \$allsources, 'ctxmark' => \$ctxmark,
                 'basic' => \$basic, 'markup' => \$markup,
-                'ambiguous' => \$ambiguous));
+                'ambiguous' => \$ambiguous,
+                'high' => \$pri_high, 'normal' => \$pri_normal,
+                'low' => \$pri_low));
 
 &Help() if $help;
 &Version() if $version;
 &Explain() if $explain;
 if ($#ARGV != 0 and not $allsources) { &Help(); exit 0; }
 
-my $c_basic = not ($markup or $ambiguous);
-my $c_markup = not ($basic or $ambiguous);
-my $c_ambi = not ($basic or $markup);
+my $c_basic = not ($markup or $ambiguous or $pri_normal or $pri_low);
+my $c_markup = not ($basic or $ambiguous or $pri_high or $pri_low);
+my $c_ambi = not ($basic or $markup or $pri_high or $pri_normal);
 
 # ------------------------------------------------------------------------------
 # Globals.
