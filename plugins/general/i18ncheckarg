@@ -37,22 +37,8 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                    if no arguments given, current dir is taken as path
 #   --ctxmark:       report missing KUIT context markers,
 #                    regardless of whether threshold is reached
-#
-#   Report selection by type:
-#
-#   --basic:         call/argument/placeholder mismatches
-#   --markup:        markup problems
-#   --ambiguous:     context ambiguities
-#
-#   Report selection by priority:
-#
-#   --high           possible data loss in messages sent to the user
-#   --normal         possible formatting artifacts visible by the user
-#   --low            possible problems for translators
-#
-# Note that the report selection types do not stack at the moment,
-# e.g. --basic --high is undefined, instead of "high-priority basic problems";
-# should be fixed in the future.
+#   --priority=PRI:  report only problems of given priority,
+#                    PRI is one of: low, normal, high
 
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered, unless --allsources
@@ -83,28 +69,19 @@ my($ctxmark) = '';
 my($basic) = '';
 my($markup) = '';
 my($ambiguous) = '';
-my($pri_high) = '';
-my($pri_normal) = '';
-my($pri_low) = '';
+my($priority) = '';
 
 exit 1
 if (!GetOptions('help' => \$help, 'version' => \$version,
                 'explain' => \$explain, 'installed' => \$installed,
                 'verbose' => \$verbose, 'quiet' => \$quiet,
                 'allsources' => \$allsources, 'ctxmark' => \$ctxmark,
-                'basic' => \$basic, 'markup' => \$markup,
-                'ambiguous' => \$ambiguous,
-                'high' => \$pri_high, 'normal' => \$pri_normal,
-                'low' => \$pri_low));
+                'priority=s' => \$priority));
 
 &Help() if $help;
 &Version() if $version;
 &Explain() if $explain;
 if ($#ARGV != 0 and not $allsources) { &Help(); exit 0; }
-
-my $c_basic = not ($markup or $ambiguous or $pri_normal or $pri_low);
-my $c_markup = not ($basic or $ambiguous or $pri_high or $pri_low);
-my $c_ambi = not ($basic or $markup or $pri_high or $pri_normal);
 
 # ------------------------------------------------------------------------------
 # Globals.
@@ -127,6 +104,15 @@ my ($g_lineno, $g_fname);
 my ($g_nmsg, $g_nmsgkuit);
 my ($gg_nwgaps, $gg_ncount, $gg_nqnumber, $gg_nkfmtnum, $gg_novermax,
     $gg_nlegplu, $gg_nkuit, $gg_nambi) = (0,0,0,0,0,0,0,0);
+
+# Priorities for problem reporting.
+sub error;
+if ($priority and $priority !~ /^(low|normal|high)$/) {
+    error "priority must be given as one of: low, normal, high";
+}
+my $pri_lo = (not $priority or $priority eq "low");
+my $pri_no = (not $priority or $priority eq "normal");
+my $pri_hi = (not $priority or $priority eq "high");
 
 # ------------------------------------------------------------------------------
 # Functions.
@@ -625,25 +611,25 @@ sub kuit_check_ctxmark {
     my ($ctxt, $xctxt) = @_;
     $xctxt or $xctxt = '@_:_/_';
 
-    $c_basic or return ([], []);
-
     my (@errs, @warns);
     my ($rol, $cue, $fmt) = kuit_parse_ctxmark($ctxt);
     my ($xrol, $xcue, $xfmt) = kuit_parse_ctxmark($xctxt);
 
     # Check validity of marker components.
-    not $rol or kuit_role($rol)
-        or push @errs, "invalid semantic role \@$rol";
-    if ($rol and kuit_role($rol)) {
-        not $cue or kuit_valid_cue_for($cue, $rol)
-            or push @errs, "invalid interface subcue :$cue to role \@$rol";
+    if ($pri_no) {
+        not $rol or kuit_role($rol)
+            or push @errs, "invalid semantic role \@$rol";
+        if ($rol and kuit_role($rol)) {
+            not $cue or kuit_valid_cue_for($cue, $rol)
+                or push @errs, "invalid interface subcue :$cue to role \@$rol";
+        }
+        not $fmt or kuit_format($fmt)
+            or push @errs, "invalid visual format /$fmt";
     }
-    not $fmt or kuit_format($fmt)
-        or push @errs, "invalid visual format /$fmt";
 
     # Match to expected context, but only if role is present
     # (otherwise the warning will be about missing context marker).
-    if ($rol) {
+    if ($rol and $pri_no) {
         my $xctxmark =   (!$xrol ? "" : $xrol eq '_' ? "[\@any]" : "\@$xrol")
                        . (!$xcue ? "" : $xcue eq '_' ? "[:any]" : ":$xcue")
                        . (!$xfmt ? "" : $xfmt eq '_' ? "[/any]" : "/$xfmt");
@@ -671,8 +657,6 @@ sub kuit_check {
     defined $ctxt or $ctxt = "";
     defined $xctxt or $xctxt = "";
 
-    $c_markup or return ([], []);
-
     my $parser = XML::LibXML->new();
     my (@errs, @warns);
 
@@ -690,7 +674,8 @@ sub kuit_check {
     # Specific check: <br>
     if ($msg =~ /<\s*br\s*>/) {
         push @errs, "unclosed <br>, close in place: <br/>; ".
-                    "better yet, use proper paragraphs <p>...</p> instead";
+                    "better yet, use proper paragraphs <p>...</p> instead"
+                    if $pri_no;
         return ([@errs], [@warns]);
     }
 
@@ -705,7 +690,7 @@ sub kuit_check {
         #push @errs, "malformed markup: $shorterr";
 
         # Parsing errors are too crazy for the moment, just report there is one.
-        push @errs, "malformed markup (unmatched tags, etc.)";
+        push @errs, "malformed markup (unmatched tags, etc.)" if $pri_no;
 
         return ([@errs], [@warns]);
     }
@@ -728,7 +713,7 @@ sub kuit_check_traverse {
     #print "$lev: $tag (in $ptag)\n";
 
     if ($tag_raw ne $tag) {
-        push @warns, "tag '$tag_raw' contains uppercase letters";
+        push @warns, "tag '$tag_raw' contains uppercase letters" if $pri_lo;
     }
 
     my $check_subnodes = 1;
@@ -736,7 +721,7 @@ sub kuit_check_traverse {
     if (kuit_node($tag)) {
         # Check if this node is a valid child of its parent.
         if ($lev > 0 and not kuit_valid_subnode_of($tag, $ptag)) {
-            push @errs, "tag '$tag' cannot be subtag of '$ptag'";
+            push @errs, "tag '$tag' cannot be subtag of '$ptag'" if $pri_no;
             $check_subnodes = 0;
         }
 
@@ -744,8 +729,9 @@ sub kuit_check_traverse {
         if ($node->hasAttributes) {
             for my $anode ($node->attributes) {
                 my $att = lc($anode->name);
-                kuit_valid_attribute_of($att, $tag)
-                    or push @errs, "tag '$tag' has no '$att' attribute";
+                if (not kuit_valid_attribute_of($att, $tag)) {
+                    push @errs, "tag '$tag' has no '$att' attribute" if $pri_no;
+                }
 
                 # Check possible context marker override.
                 if ($lev == 0 and $att eq $A_CTX) {
@@ -759,15 +745,17 @@ sub kuit_check_traverse {
     }
     elsif (html_node($tag)) {
         # Check if this HTML tag is approved for mixing with KUIT.
-        html_node_approved($tag)
-            or push @warns, "${OTH}HTML tag '$tag' is not advised with KUIT markup";
+        if (not html_node_approved($tag)) {
+            push @warns, "${OTH}HTML tag '$tag' is not advised with ".
+                         "KUIT markup" if $pri_lo;
+        }
             # ${OTH} means report only on reaching KUIT threshold
 
         # Ignore HTML tag by promoting its name to parent tag.
         $tag = $ptag;
     }
     else {
-        push @errs, "'$tag' is neither KUIT nor HTML tag";
+        push @errs, "'$tag' is neither KUIT nor HTML tag" if $pri_no;
         $check_subnodes = 0;
     }
 
@@ -787,7 +775,7 @@ sub kuit_check_traverse {
                 and kuit_valid_subnode_of($T_NOTEXT, $tag)
                 and not $cnode->data =~ /^\s*$/s)
             {
-                push @errs, "tag '$tag' cannot have text content";
+                push @errs, "tag '$tag' cannot have text content" if $pri_no;
             }
         }
         else {
@@ -932,7 +920,7 @@ sub check_in_kuit {
     else {
         $gg_nkuit++;
         report $fname, $lineno, "warning",
-               "${OTH}missing KUIT context marker" if $c_markup;
+               "${OTH}missing KUIT context marker" if $pri_lo;
         # ${OTH} means report only on reaching KUIT threshold
     }
 
@@ -969,7 +957,7 @@ sub check_in_kuit {
     }
 
     # Check for ambiguous messages without free context info.
-    if ($c_ambi and $freectx =~ /^\s*$/s) {
+    if ($freectx =~ /^\s*$/s and $pri_lo) {
         my $advice = $has_ctxmark ? "explain what it refers to following the KUIT context marker"
                                   : "use context call to explain what it refers to";
         my $nphrase = amb_norm($msgid);
@@ -1088,7 +1076,7 @@ sub check_in_string {
                 if ($strlist[-1] =~ /%n/ or $strlist[-2] =~ /%n/) {
                     $legplu = 1;
                     report $g_fname, $g_lineno, "error",
-                           "legacy \%n placeholder in plural call" if $c_basic;
+                           "legacy \%n placeholder in plural call" if $pri_hi;
                     $gg_nlegplu++;
                 }
             }
@@ -1156,7 +1144,7 @@ sub check_in_string {
             }
             if ($wgaps) {
                 report $g_fname, $g_lineno, "error",
-                       "gaps in placeholder numbering, $gapstr" if $c_basic;
+                       "gaps in placeholder numbering, $gapstr" if $pri_hi;
                 $gg_nwgaps++;
             }
             }
@@ -1185,7 +1173,7 @@ sub check_in_string {
                 if ($badcount) {
                     report $g_fname, $g_lineno, "error",
                            "wrong argument count, have $nhaveargs ".
-                           "need $nneedargs" if $c_basic;
+                           "need $nneedargs" if $pri_hi;
                     $gg_ncount++;
                 }
             }
@@ -1198,8 +1186,8 @@ sub check_in_string {
             if ($call !~ /ki18n/ and $nhaveargs > $maxnarg) {
                 $toomany = 1;
                 report $g_fname, $g_lineno, "error",
-                       "too many arguments, have $nhaveargs max $maxnarg"
-                       if $c_basic;
+                       "too many arguments, have $nhaveargs ".
+                       "max $maxnarg" if $pri_hi;
                 $gg_novermax++;
             }
             }
@@ -1208,8 +1196,7 @@ sub check_in_string {
             for my $arg (@arglist) {
                 if ($arg =~ /QString\s*::\s*number/) {
                     report $g_fname, $g_lineno, "warning",
-                           "use of QString::number() on an argument"
-                           if $c_basic;
+                           "use of QString::number() on an argument" if $pri_no;
                     $gg_nqnumber++;
                 }
             }
@@ -1219,8 +1206,8 @@ sub check_in_string {
                 if ($arg =~ /formatNumber/) {
                     report $g_fname, $g_lineno, "warning",
                            "use of KLocale::formatNumber() on an argument ".
-                           "(use only for numbers outside of i18n messages)"
-                           if $c_basic;
+                           "(use only for numbers outside of i18n ".
+                           "messages)" if $pri_no;
                     $gg_nkfmtnum++;
                 }
             }
