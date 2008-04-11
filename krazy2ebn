@@ -383,7 +383,7 @@ sub doIt {
   }
 
   my ($command) =
- "cd $in; find . -name '*.tcc' -o -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh -o -name tips -type f | grep -v '$skip' | xargs $krazy --ignorerc --priority=normal --strict=normal --export=ebnlxr --explain --title \"$title\" -cms $cms --rev $rev $exclude $extra";
+ "cd $in; find . -name '*.tcc' -o -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh -o -name tips -type f | grep -v '$skip' | xargs $krazy --ignorerc --priority=high --strict=normal --export=ebnlxr --explain --title \"$title\" -cms $cms --rev $rev $exclude $extra";
   if ($dryrun) {
     print "$command\n";
     $command = "echo " . "\'" . $command . "\'";
