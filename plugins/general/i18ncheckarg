@@ -38,8 +38,8 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #   --ctxmark:       report missing KUIT context markers,
 #                    regardless of whether threshold is reached
 #   --priority=PRI:  report only problems of given priority, PRI is one of:
-#                    low, normal, high, ge_low, ge_normal, ge_high,
-#                    where ge_* stands for "greater or equal".
+#                    low, normal, high, important, all
+#                    (default is all, important is high+normal).
 
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered, unless --allsources
@@ -110,13 +110,13 @@ my ($gg_nwgaps, $gg_ncount, $gg_nqnumber, $gg_nkfmtnum, $gg_novermax,
 sub error;
 my ($pri_lo, $pri_no, $pri_hi) = (1, 1, 1);
 if ($priority) {
-    if ($priority !~ /^(low|normal|high|ge_low|ge_normal|ge_high)$/) {
+    if ($priority !~ /^(low|normal|high|important|all)$/) {
         error "priority must be given as one of: ".
-              "low, normal, high, ge_low, ge_normal, ge_high";
+              "low, normal, high, important, all";
     }
-    $pri_lo = ($priority =~ /^(low|ge_low)$/);
-    $pri_no = ($priority =~ /^(normal|ge_normal|ge_low)$/);
-    $pri_hi = ($priority =~ /^(high|ge_high|ge_normal|ge_low)$/);
+    $pri_lo = ($priority =~ /^(low|all)$/);
+    $pri_no = ($priority =~ /^(normal|important|all)$/);
+    $pri_hi = ($priority =~ /^(high|important|all)$/);
 }
 
 # ------------------------------------------------------------------------------
