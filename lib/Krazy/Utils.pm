@@ -26,12 +26,16 @@ use Cwd;
 use Cwd 'abs_path';
 use POSIX qw (strftime);
 use File::Find;
+use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.10;
+$VERSION = 1.11;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(topModule topSubdir deDupe fileType findFiles asOf);
+@EXPORT = qw(topModule topSubdir deDupe fileType findFiles asOf
+             parseArgs helpArg versionArg priorityArg strictArg
+             explainArg quietArg verboseArg installedArg
+             validateExportType validatePriorityType validateStrictType);
 @EXPORT_OK = qw();
 
 my(@tmp);
@@ -128,6 +132,86 @@ sub findFiles {
 # asOf function: return nicely formatted string containing the current time
 sub asOf {
   return strftime( "%B %d %Y %H:%M:%S", localtime( time() ) );
+}
+
+my($help) = '';
+my($version) = '';
+my($priority) = 'all';
+my($strict) = 'all';
+my($explain) = '';
+my($installed) = '';
+my($quiet) = '';
+my($verbose) = '';
+
+sub parseArgs {
+
+  exit 1
+  if (!GetOptions('help' => \$help, 'version' => \$version,
+		  'priority=s' => \$priority, 'strict=s' => \$strict,
+		  'explain' => \$explain, 'installed' => \$installed,
+		  'verbose' => \$verbose, 'quiet' => \$quiet));
+
+  if (!&validatePriorityType($priority)) {
+    die "Bad priority level \"$priority\" specified... exiting\n";
+  }
+
+  if (!&validateStrictType($strict)) {
+    die "Bad strictness level \"$strict\" specified... exiting\n";
+  }
+}
+
+sub helpArg { return $help; }
+sub versionArg { return $version; }
+sub priorityArg { return $priority; }
+sub strictArg { return $strict; }
+sub explainArg { return $explain; }
+sub installedArg { return $installed; }
+sub quietArg { return $quiet; }
+sub verboseArg { return $verbose; }
+
+sub validateExportType {
+  my ($export) = @_;
+  if ($export) {
+    $export = lc($export);
+    if ( ( $export eq "text" ) ||
+	 ( $export eq "textlist" ) ||
+	 ( $export eq "textedit" ) ||
+	 ( $export eq "ebn" ) ||
+	 ( $export eq "ebnlxr" ) ||
+	 ( $export eq "html" ) ||
+	 ( $export eq "htmllxr" ) ) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+sub validatePriorityType {
+  my ($priority) = @_;
+  if ($priority) {
+    $priority = lc($priority);
+    if ( ( $priority eq "all" ) ||        # low+normal+high
+	 ( $priority eq "low" ) ||        # low only
+	 ( $priority eq "normal" ) ||     # normal only
+	 ( $priority eq "important" ) ||  # low+normal
+	 ( $priority eq "high" ) ) {      # high only
+      return 1;
+    }
+  }
+  return 0;
+}
+
+sub validateStrictType {
+  my ($strict) = @_;
+  if ($strict) {
+    $strict = lc($strict);
+    if ( ( $strict eq "all" ) ||          # super+normal
+	 ( $strict eq "super" ) ||        # super only
+	 ( $strict eq "normal" ) ) {      # normal only
+      return 1;
+    }
+  }
+  return 0;
 }
 
 1;

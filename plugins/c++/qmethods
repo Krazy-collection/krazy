@@ -27,7 +27,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -36,29 +38,19 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Getopt::Long;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
+use Krazy::Utils;
 
 my($Prog) = "qmethods";
-my($Version) = "1.3";
+my($Version) = "1.4";
 
-my($help) = '';
-my($version) = '';
-my($explain) = '';
-my($installed) = '';
-my($quiet) = '';
-my($verbose) = '';
+&parseArgs();
 
-exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
-                'explain' => \$explain, 'installed' => \$installed,
-                'verbose' => \$verbose, 'quiet' => \$quiet));
-
-&Help() if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 my($f) = $ARGV[0];
@@ -67,7 +59,7 @@ my($f) = $ARGV[0];
 if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 }
 my(@data_lines) = <F>;
@@ -95,18 +87,18 @@ while ($linecnt < $#lines) {
   &doIt($line,'QWidget::showMaximized','showMaximized\s*\(\s*\)','');
   &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)','');
   &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)','');
-  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','');
+  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','statusBar');
   &doIt($line,'QImage::depth','depth\s*\(\s*\)/','[Pp]ix|desktop|screen|pd-');
 # when we have a real parser, check for the following as well:
 # QString::isNull (in almost all cases, QString::isEmpty should be used instead)
 }
 
 if (!$cnt) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 } else {
   $lstr =~ s/,$//;
-  print "$lstr ($cnt)\n" if (!$quiet);
+  print "$lstr ($cnt)\n" if (!&quietArg());
   exit $cnt;
 }
 
@@ -120,7 +112,7 @@ sub doIt() {
       $lstr = $lstr . "," . $linecnt;
     }
     $lstr .= " $qname";
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 }
 
@@ -137,15 +129,15 @@ sub qMethod() {
 
 sub Help {
   print "Check for Qt methods that should be avoided\n";
-  exit 0 if $help;
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "A few Qt methods should be avoided because they don't work as expected or because you need to really be an expert to use them correctly. <http://techbase.kde.org/Policies/API_to_Avoid> for more information.\n";
-  exit 0 if $explain;
+  exit 0 if &explainArg();
 }

@@ -27,7 +27,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -36,28 +38,20 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Getopt::Long;
 use Cwd 'abs_path';
 use Tie::IxHash;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.0";
+my($Version) = "1.1";
 
-my($help) = '';
-my($version) = '';
-my($explain) = '';
-my($installed) = '';
-my($quiet) = '';
-my($verbose) = '';
+&parseArgs();
 
-exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
-		'explain' => \$explain, 'installed' => \$installed,
-		'verbose' => \$verbose, 'quiet' => \$quiet));
-
-&Help() if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 
@@ -71,7 +65,7 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/ ||
     $f =~ m/\.h$/ || $f =~ m/\.hxx$/ ) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 }
 
@@ -169,7 +163,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'PARENSPACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (no space after '\(') => $line\n" if ($verbose);
+    print "$linecnt (no space after '\(') => $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/\)/ && $pline =~ m/[[:alnum:]"'\)]\)/ || $line =~ m/ {2,}\)/) {
@@ -179,7 +173,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'SPACEPAREN'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (no space before '\)') => $line\n" if ($verbose);
+    print "$linecnt (no space before '\)') => $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/\)const/ || $line =~ m/\) {2,}const/) {
@@ -189,7 +183,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'SPACECONST'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (1 space before 'const') => $line\n" if ($verbose);
+    print "$linecnt (1 space before 'const') => $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/,[[:alnum:]]/ || $line =~ m/, {2,}/) {
@@ -200,7 +194,7 @@ foreach $line (@lines) {
       } else {
 	$Issues{'COMMASPACE'}{'lines'} .= "," . $linecnt;
       }
-      print "$linecnt (no space after ',') => $line\n" if ($verbose);
+      print "$linecnt (no space after ',') => $line\n" if (&verboseArg());
     }
   }
 
@@ -211,7 +205,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'SPACECOMMA'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (no space before ',') => $line\n" if ($verbose);
+    print "$linecnt (no space before ',') => $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/[[:alnum:]]\*/ || $pline =~ m/[[:alnum:]]&/) {
@@ -222,7 +216,7 @@ foreach $line (@lines) {
       } else {
 	$Issues{'STARSPACE'}{'lines'} .= "," . $linecnt;
       }
-      print "$linecnt (space after '*' or '&') => $line\n" if ($verbose);
+      print "$linecnt (space after '*' or '&') => $line\n" if (&verboseArg());
     }
   }
 
@@ -233,7 +227,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'IFBRACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (missing if '{')=> $line\n" if ($verbose);
+    print "$linecnt (missing if '{')=> $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/[[:space:]]*else[[:space:]]*/  && $line !~ m/else if/ && $line !~ m/} else {/) {
@@ -243,7 +237,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'ELSEBRACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt ('}' else '{')=> $line\n" if ($verbose);
+    print "$linecnt ('}' else '{')=> $line\n" if (&verboseArg());
   }
 
   if (($line =~ m/[[:space:]]*for[[:space:]]\(/ || $line =~ m/[[:space:]]*foreach[[:space:]]\(/) && $line !~ m/\{$/ && $line !~ m/\;$/) {
@@ -253,7 +247,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'FORBRACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (missing for '{')=> $line\n" if ($verbose);
+    print "$linecnt (missing for '{')=> $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/[[:space:]]*while[[:space:]]\(/ && $line !~ m/\{$/ && !&isOKCond($line) && $line !~ m/\;$/) {
@@ -264,7 +258,7 @@ foreach $line (@lines) {
       } else {
 	$Issues{'WHILEBRACE'}{'lines'} .= "," . $linecnt;
       }
-      print "$linecnt (missing while '{')=> $line\n" if ($verbose);
+      print "$linecnt (missing while '{')=> $line\n" if (&verboseArg());
     }
   }
 
@@ -275,7 +269,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'SWITCHBRACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (missing switch '{')=> $line\n" if ($verbose);
+    print "$linecnt (missing switch '{')=> $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/^[[:space:]]*enum[[:space:]]/ && $line !~ m/\{$/) {
@@ -285,7 +279,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'ENUMBRACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (missing enum '{')=> $line\n" if ($verbose);
+    print "$linecnt (missing enum '{')=> $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/[[:space:]]*case[[:space:]].*:/ && $line =~ m/\{$/) {
@@ -295,7 +289,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'CASEBRACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (put {' on line after case:)=> $line\n" if ($verbose);
+    print "$linecnt (put {' on line after case:)=> $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/[[:space:]]*default[[:space:]].*:/ && $line =~ m/\{$/) {
@@ -305,7 +299,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'CASEBRACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (put {' on line after default:)=> $line\n" if ($verbose);
+    print "$linecnt (put {' on line after default:)=> $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/[[:alnum:]]::[[:alnum:]].*\(.*{/) {
@@ -316,7 +310,7 @@ foreach $line (@lines) {
       } else {
 	$Issues{'FUNCBRACE'}{'lines'} .= "," . $linecnt;
       }
-      print "$linecnt (put '{' on line after the 'class' or function)=> $line\n" if ($verbose);
+      print "$linecnt (put '{' on line after the 'class' or function)=> $line\n" if (&verboseArg());
     }
   }
 
@@ -327,7 +321,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'FUNCBRACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (put '{' on line after 'class')=> $line\n" if ($verbose);
+    print "$linecnt (put '{' on line after 'class')=> $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/^[[:space:]]if\(/ || $line =~ m/^[[:space:]]*for\(/ || $line =~ m/^[[:space:]]*while\(/ || $line =~ m/^[[:space:]]*foreach\(/) {
@@ -337,7 +331,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'CONDSPACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (space before '(')=> $line\n" if ($verbose);
+    print "$linecnt (space before '(')=> $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/==/ && $line =~ m/==/ && $line !~ m/[[:space:]]{1}==[[:space:]]{1}/ && $line !~ m/==[[:space:]]*\(/ && $line !~ m/[[:space:]]{1}==$/) {
@@ -347,7 +341,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'EQUALSPACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (spaces around '==') => $line\n" if ($verbose);
+    print "$linecnt (spaces around '==') => $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/!=/ && $line !~ m/[[:space:]]{1}!=[[:space:]]{1}/ && $line !~ m/!=[[:space:]]*\(/) {
@@ -357,7 +351,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'EQUALSPACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (spaces around '!=') => $line\n" if ($verbose);
+    print "$linecnt (spaces around '!=') => $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/\+/ && $line =~ m/\+/ && $line !~ m/[[:space:]]{1}\+[[:space:]]{1}/ && $line !~ m/\+=/ && $line !~ m/\+\+/ && $line !~ m/\+[[:digit:]]/ && $line !~ m/^[[:space:]]*\+/ && $line !~ m/\([[:space:]]*\+/ && $line !~ m/\+$/ && $line !~ m/operator\+/ && $line !~ m/,\s\+/) {
@@ -367,7 +361,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'OPERSPACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (spaces around '+') => $line\n" if ($verbose);
+    print "$linecnt (spaces around '+') => $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/-/ && $line =~ m/-/ && $line !~ m/[[:space:]]{1}-[[:space:]]{1}/ && $line !~ m/-=/ && $line !~ m/\->/ && $line !~ m/--/ && $line !~ m/-[[:digit:]]/ && $line !~ m/=[[:space:]]{1}-/ && $line !~ m/^[[:space:]]*-/ && $line !~ m/\([[:space:]]*-/ && $line !~ m/-$/ && $line !~ m/operator-/ && $line !~ m/,\s-/) {
@@ -377,7 +371,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'OPERSPACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (spaces around '-') => $line\n" if ($verbose);
+    print "$linecnt (spaces around '-') => $line\n" if (&verboseArg());
   }
 #Too hard
 #  if ($line =~ m/\*/ && $line !~ m/[[:space:]]{1}\*[[:space:]]{1}/) {
@@ -387,7 +381,7 @@ foreach $line (@lines) {
 #    } else {
 #      $Issues{'OPERSPACE'}{'lines'} .= "," . $linecnt;
 #    }
-#    print "$linecnt (spaces around *) => $line\n" if ($verbose);
+#    print "$linecnt (spaces around *) => $line\n" if (&verboseArg());
 #  }
 
   if ($pline =~ m+/+ && $line =~ m+/+ && $line !~ m+[[:space:]]{1}/[[:space:]]{1}+ && $line !~ m+/=+ && $line !~ m+/$+ && $line !~ m/include/ && $line !~ m+operator/+) {
@@ -397,7 +391,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'OPERSPACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (spaces around '/') => $line\n" if ($verbose);
+    print "$linecnt (spaces around '/') => $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/=/ && $line !~ m/[[:space:]]{1}=[[:space:]]{1}/ && $line !~ m/[=\!><%\+-|&]=/ && $line !~ m/=$/ && $line !~ m/\*=/) {
@@ -407,7 +401,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'ASSIGNSPACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (spaces around '=') => $line\n" if ($verbose);
+    print "$linecnt (spaces around '=') => $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/<</ && $line !~ m/\ {1}<<\ {1}/ && $line !~ m/<<=/ && $line !~ m/<<$/ && $line !~ m/operator</) {
@@ -417,7 +411,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'PUSHSPACE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (1 space on each side of '<<') => $line\n" if ($verbose);
+    print "$linecnt (1 space on each side of '<<') => $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/<<$/) {
@@ -427,7 +421,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'PUSHEOL'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (do not end a line with '<<') => $line\n" if ($verbose);
+    print "$linecnt (do not end a line with '<<') => $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/};/ && $line =~ m/[[:space:]]{/ && $line !~ m/=\s*{/ && $line !~ m/{[[:space:]]*};/) {
@@ -437,7 +431,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'BRACESEMI'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (bad brace-semi encountered) => $line\n" if ($verbose);
+    print "$linecnt (bad brace-semi encountered) => $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/return[[:space:]]*\(.*\)$/ && $line !~ m/\?/ && $line !~ m/\($/ && $line !~ m/&\)/ && $line !~ m/\(\s*\);$/ && $line !~ m/\(\s*\(/) {
@@ -447,7 +441,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'RETURNPAREN'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (no return values in parens) => $line\n" if ($verbose);
+    print "$linecnt (no return values in parens) => $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/{};/) {
@@ -457,7 +451,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'BADSEMI'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (bad brace-brace-semi encountered) => $line\n" if ($verbose);
+    print "$linecnt (bad brace-brace-semi encountered) => $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/\s;/ && $line !~ m/for\s*\(\s*;/ && $line !~ m/while\s*\(\s*;/) {
@@ -469,7 +463,7 @@ foreach $line (@lines) {
       } else {
 	$Issues{'SPACESEMI'}{'lines'} .= "," . $linecnt;
       }
-      print "$linecnt (whitespace preceeding semicolon) => $line\n" if ($verbose);
+      print "$linecnt (whitespace preceeding semicolon) => $line\n" if (&verboseArg());
     }
   }
 
@@ -480,7 +474,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'MULTISTATE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (only 1 statement permitted per line) => $line\n" if ($verbose);
+    print "$linecnt (only 1 statement permitted per line) => $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/\t/) {
@@ -490,7 +484,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'TAB'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (tab encountered) => $line\n" if ($verbose);
+    print "$linecnt (tab encountered) => $line\n" if (&verboseArg());
   }
 
   # do this test last please
@@ -506,7 +500,7 @@ foreach $line (@lines) {
       } else {
 	$Issues{'BADINDENTOFF'}{'lines'} .= "," . $linecnt;
       }
-      print "$linecnt (bad indent offset) => $tline\n" if ($verbose);
+      print "$linecnt (bad indent offset) => $tline\n" if (&verboseArg());
     }
   }
   if ($indent != $lindent) {
@@ -518,7 +512,7 @@ foreach $line (@lines) {
 	} else {
 	  $Issues{'BADINDENTOFF'}{'lines'} .= "," . $linecnt;
 	}
-	print "$linecnt (bad indent offset too much) => $tline\n" if ($verbose);
+	print "$linecnt (bad indent offset too much) => $tline\n" if (&verboseArg());
       }
     }
   }
@@ -531,7 +525,7 @@ foreach $line (@lines) {
 	} else {
 	  $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
 	}
-	print "$linecnt (bad indent) => $tline\n" if ($verbose);
+	print "$linecnt (bad indent) => $tline\n" if (&verboseArg());
       }
     }
   }
@@ -586,7 +580,7 @@ foreach $line (@data_lines) {
     } else {
       $Issues{'TRAILWHITE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (tailing whitespace) => $line\n" if ($verbose);
+    print "$linecnt (tailing whitespace) => $line\n" if (&verboseArg());
   }
 
   if (length($line) > $MAXLEN) {
@@ -596,7 +590,7 @@ foreach $line (@data_lines) {
     } else {
       $Issues{'LINELEN'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (line too long) => $line\n" if ($verbose);
+    print "$linecnt (line too long) => $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/^[[:space:]]*$/ && $lline =~ m/^[[:space:]]*$/) {
@@ -606,7 +600,7 @@ foreach $line (@data_lines) {
      } else {
        $Issues{'BLANKS'}{'lines'} .= "," . $linecnt;
      }
-     print "$linecnt (extra blank lines) => $tline\n" if ($verbose);
+     print "$linecnt (extra blank lines) => $tline\n" if (&verboseArg());
    }
 
   $lline = $line;
@@ -614,7 +608,7 @@ foreach $line (@data_lines) {
 
 $cnt = &printResults();
 if (!$cnt) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 } else {
   exit $cnt;
@@ -622,17 +616,17 @@ if (!$cnt) {
 
 sub Help {
   print "Check for adherence to a coding style\n";
-  exit 0 if $help;
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Please follow the coding style guidelines at <http://korganizer.kde.org/develop/hacking.html>\n";
-  exit 0 if $explain;
+  exit 0 if &explainArg();
 }
 
 sub initIssues() {

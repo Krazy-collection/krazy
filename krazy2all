@@ -29,14 +29,17 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.1';    #split line so MakeMaker can find the version here
+ $VERSION = '2.2';    #split line so MakeMaker can find the version here
 
 my ($help)     = '';
 my ($version)  = '';
+my ($list)     = '';
 my ($verbose)  = '';
 my ($ignorerc) = '';
 my ($dryrun)   = '';
 my ($quiet)    = '';
+my ($priority) = 'all';
+my ($strict)   = 'all';
 my ($check)    = '';
 my ($exclude)  = '';
 my ($extra)    = '';
@@ -48,10 +51,13 @@ exit 1
   if ( !GetOptions(
 		   'help'      => \$help,
 		   'version'   => \$version,
+		   'list'      => \$list,
 		   'dry-run'   => \$dryrun,
 		   'ignorerc'  => \$ignorerc,
 		   'verbose'   => \$verbose,
 		   'quiet'     => \$quiet,
+		   'priority'  => \$priority,
+		   'strict'    => \$strict,
 		   'check=s'   => \$check,
 		   'exclude=s' => \$exclude,
 		   'extra=s'   => \$extra,
@@ -64,33 +70,43 @@ exit 1
 &Help()    if ($help);
 &Version() if ($version);
 
-if ($export) {
-  $export = lc($export);
-  if ( ( $export ne "text" ) &&
-    ( $export ne "textlist" ) &&
-    ( $export ne "textedit" ) &&
-    ( $export ne "ebn" ) &&
-    ( $export ne "ebnlxr" ) &&
-    ( $export ne "html" ) &&
-    ( $export ne "htmllxr" ) ) {
-    print "Unsupported export type \"$export\"... exiting\n";
-    exit 1;
-  }
+if ($list) {
+  system("krazy2 --list");
+  exit 0;
+}
+
+#TODO:
+# pod describe priority
+# pod describe strict
+# pod describe list
+
+if (!&validatePriorityType($priority)) {
+  die "Bad priority level \"$priority\" specified... exiting\n";
+}
+
+if (!&validateStrictType($strict)) {
+  die "Bad strictness level \"$strict\" specified... exiting\n";
+}
+
+if (!&validateExportType($export)) {
+  die "Unsupported export type \"$export\"... exiting\n";
 }
 
 # Options to pass to the checker programs
 my ($opts) = "";
-$opts .= "--dry-run "          if ($dryrun);
-$opts .= "--ignorerc "         if ($ignorerc);
-$opts .= "--quiet "            if ($quiet);
-$opts .= "--verbose "          if ($verbose);
-$opts .= "--check=$check "     if ($check);
-$opts .= "--exclude=$exclude " if ($exclude);
-$opts .= "--extra=$extra "     if ($extra);
-$opts .= "--export=$export "   if ($export);
-$opts .= "--title=\"$title\" " if ($title);
-$opts .= "--cms=$cms "         if ($cms);
-$opts .= "--explain"           if ($export ne "textlist");
+$opts .= "--dry-run "            if ($dryrun);
+$opts .= "--ignorerc "           if ($ignorerc);
+$opts .= "--quiet "              if ($quiet);
+$opts .= "--verbose "            if ($verbose);
+$opts .= "--check=$check "       if ($check);
+$opts .= "--exclude=$exclude "   if ($exclude);
+$opts .= "--extra=$extra "       if ($extra);
+$opts .= "--export=$export "     if ($export);
+$opts .= "--title=\"$title\" "   if ($title);
+$opts .= "--cms=$cms "           if ($cms);
+$opts .= "--priority=$priority " if ($priority);
+$opts .= "--strict=$strict "     if ($strict);
+$opts .= "--explain"             if ($export ne "textlist");
 
 my($files) = &findFiles();
 my($cwd) = getcwd;
@@ -104,10 +120,25 @@ exit 0;
 # Help function: print help message and exit.
 sub Help {
   &Version();
-  print "Run krazy on all the source in the current working directory\n\n";
+  print "Run krazy2 on all the source in the current working directory\n\n";
   print "Usage: $Prog [OPTION]\n";
   print "  --help    display help message and exit\n";
   print "  --version display version information and exit\n";
+  print "  --list    list all the checker programs and exit\n";
+  print "  --priority <low|normal|high|important|all>\n";
+  print "            report only issues with the specified priorities:\n";
+  print "              low -> print low priority issues only\n";
+  print "              normal -> print normal priority issues only\n";
+  print "              high -> print high priority issues only\n";
+  print "              important -> print issues with normal or high priority\n";
+  print "              all -> print all issues (default)\n";
+  print "            use priorities to help put the issues in fix-first order.\n";
+  print "  --strict <normal|super|all>\n";
+  print "            report only issues matching the strictness level:\n";
+  print "              normal -> print non-super strict issues only\n";
+  print "              super -> print super strict issues only\n";
+  print "              all -> print all issues (default)\n";
+  print "            use strictness to help filter out issues of less importance\n";
   print "  --check <prog[,prog1,prog2,...,progN]>\n";
   print "            run the specified sanity checker program(s) only\n";
   print "  --exclude <prog[,prog1,prog2,...,progN]>\n";
@@ -171,6 +202,10 @@ Print help message and exit.
 
 Print version information and exit.
 
+=item B<--list>
+
+Print a list of all available checker programs and exit.
+
 =item B<--ignorerc>
 
 Ignore .krazy files.
@@ -179,6 +214,28 @@ Ignore .krazy files.
 
 With this option the checker programs aren't run; instead, the command line
 for each check that would be run is printed.
+
+=item B<--priority> <low|normal|high|important|all>
+
+Tell each checker program to report issues with the specified priority only.
+This option is useful to help put issues into "fix-first" order.
+
+Supported priorites are:
+     low -> print low priority issues only
+     normal -> print normal priority issues only
+     high -> print high priority issues only
+     important -> print issues with normal or high priority
+     all -> print all issues (default)
+
+=item B<--strict> <normal|super|all>
+
+Tell each checker program to report issues match the strictness level only.
+Use this option to help filter out issues of less importance.
+
+Support strictness levels are:
+     normal -> print non-super strict issues only
+     super -> print super strict issues only
+     all -> print all issues (default)
 
 =item B<--check> <prog[,prog1,prog2,...,progN]>
 
@@ -249,7 +306,7 @@ options it will exit with status=0.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 by Allen Winter <winter@kde.org>
+Copyright (c) 2005-2008 by Allen Winter <winter@kde.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -261,9 +318,9 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 =head1 FILES
 

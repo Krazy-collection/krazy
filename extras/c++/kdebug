@@ -27,7 +27,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -36,7 +38,6 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Getopt::Long;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -44,23 +45,13 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "kdebug";
-my($Version) = "1.0";
+my($Version) = "1.1";
 
-my($help) = '';
-my($version) = '';
-my($explain) = '';
-my($installed) = '';
-my($quiet) = '';
-my($verbose) = '';
+&parseArgs();
 
-exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
-                'explain' => \$explain, 'installed' => \$installed,
-                'verbose' => \$verbose, 'quiet' => \$quiet));
-
-&Help() if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 my($f) = $ARGV[0];
@@ -69,7 +60,7 @@ my($f) = $ARGV[0];
 if (fileType($f) eq "c++"){
   open(F, "$f") || die "Couldn't open $f";
 } else {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 }
 my(@data_lines) = <F>;
@@ -105,7 +96,7 @@ while ($linecnt < $#lines) {
     } else {
       $alstr = $alstr . "," . $linecnt;
     }
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 
   #endl;
@@ -116,7 +107,7 @@ while ($linecnt < $#lines) {
     } else {
       $elstr = $elstr . "," . $linecnt;
     }
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 
   #method
@@ -133,16 +124,16 @@ while ($linecnt < $#lines) {
     } else {
       $mlstr = $mlstr . "," . $linecnt;
     }
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 }
 
 my($total_count) = $acnt + $ecnt + $mcnt;
 if (!$total_count) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 } else {
-  if (!$quiet) {
+  if (!&quietArg()) {
     print "using debug areas: $alstr ($acnt)" if ($acnt);
     print ", " if ($acnt && $mcnt);
     print "printing method name: $mlstr ($mcnt)" if ($mcnt);
@@ -155,15 +146,15 @@ if (!$total_count) {
 
 sub Help {
   print "Check for kDebug issues\n";
-  exit 0 if $help;
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "No need to print the method name or a trailing endl with kDebug and friends -- all that is done for you as if by magic.\n";
-  exit 0 if $explain;
+  exit 0 if &explainArg();
 }

@@ -27,7 +27,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -36,36 +38,26 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Getopt::Long;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
+use Krazy::Utils;
 
 my($Prog) = "nullstrassign";
-my($Version) = "1.3";
+my($Version) = "1.4";
 
-my($help) = '';
-my($version) = '';
-my($explain) = '';
-my($installed) = '';
-my($quiet) = '';
-my($verbose) = '';
+&parseArgs();
 
-exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
-                'explain' => \$explain, 'installed' => \$installed,
-                'verbose' => \$verbose, 'quiet' => \$quiet));
-
-&Help() if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 my($f) = $ARGV[0];
 
 # skip C source files
 if ($f =~ m/\.c$/) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 }
 
@@ -101,29 +93,29 @@ foreach $line (@lines) {
     } else {
       $lstr = $lstr . "," . $linecnt;
     }
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 }
 
 if (!$cnt) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 } else {
-  print "$lstr ($cnt)\n" if (!$quiet);
+  print "$lstr ($cnt)\n" if (!&quietArg());
   exit $cnt;
 }
 
 sub Help {
   print "Check for assignments to QString::null\n";
-  exit 0 if $help;
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Do not assign QString::null to a QString.  Instead use the .clear() method.  For example, \"str = QString::null\" becomes \"str.clear()\". When returning an empty string from a method use \"return QString()\"  When passing an empty string use \"QString()\".";
-  exit 0 if $explain;
+  exit 0 if &explainArg();
 }

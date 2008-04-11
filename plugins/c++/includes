@@ -40,7 +40,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -49,32 +51,22 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Getopt::Long;
 use Tie::IxHash;
 use File::Basename;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
+use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.3";
+my($Version) = "1.4";
 
-my($help) = '';
-my($version) = '';
-my($explain) = '';
-my($installed) = '';
-my($quiet) = '';
-my($verbose) = '';
+&parseArgs();
 
-exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
-                'explain' => \$explain, 'installed' => \$installed,
-                'verbose' => \$verbose, 'quiet' => \$quiet));
-
-&Help() if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 my($f) = $ARGV[0];
@@ -82,7 +74,7 @@ my($absf) = basename(abs_path($f));
 
 # skip C source files
 if ($f =~ m/\.c$/) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 }
 
@@ -114,7 +106,7 @@ while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
-    print "okay\n" if (!$quiet);
+    print "okay\n" if (!&quietArg());
     exit 0;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
@@ -163,33 +155,33 @@ while ($linecnt < $#lines) {
   }
 
   # look for problems in installed headers
-  if ($installed) {
+  if (&installedArg()) {
     # this file is an installed header
 
     # every file it includes must be in angle brackets
     if ($sep ne "<") {
       $Issues{'ANGLE'}{'count'}++;
       $Issues{'ANGLE'}{'lines'} .= "$linecnt,";
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
     # every Qt file it includes must be of the form <QtModule/QFoo>
     if ($incpath =~ m+^(Q[A-Z]|Qt[A-Z]|Q3|q).*$+) {
       if ($incpath !~ m+^Qt.*/Q.*$+ && !&qModule($incpath) && !&qNotClasses($incpath)) {
         $Issues{'QINC'}{'count'}++;
         $Issues{'QINC'}{'lines'} .= "$linecnt,";
-        print "=> $line\n" if ($verbose);
+        print "=> $line\n" if (&verboseArg());
       }
     }
     if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ ) {
       $Issues{'KINC'}{'count'}++;
       $Issues{'KINC'}{'lines'} .= "$linecnt,";
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
     # do not include config.h or config-foo.h in an installed header
     if (&configH($incpath)) {
       $Issues{'CONFIG'}{'count'}++;
       $Issues{'CONFIG'}{'lines'} .= "$linecnt,";
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
     next;
   } else {
@@ -208,35 +200,35 @@ foreach $inc (keys %Incs) {
   if ($Incs{$inc}{'count'} > 1) {
     $Issues{'DUPE'}{'count'}++;
     $Issues{'DUPE'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 
   # check for including QtModule
   if (&qModule($inc)) {
     $Issues{'QMOD'}{'count'}++;
     $Issues{'QMOD'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 
   # check for Qt/qfoo.h
   if ($inc =~ m+^Qt/q.*\.h+) {
     $Issues{'QMIX'}{'count'}++;
     $Issues{'QMIX'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 
   # check for config.h in doublequotes
   if (&configH($inc) && $Incs{$inc}{'sep'} ne "<") {
     $Issues{'CONFIGSEP'}{'count'}++;
     $Issues{'CONFIGSEP'}{'lines'} .= "$Incs{$inc}{'lines'};";
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 
   # check for including a blacklisted include
   if (&blackList($inc)) {
     $Issues{'DONT'}{'count'}++;
     $Issues{'DONT'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 }
 
@@ -251,20 +243,20 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
     if ($Incs{$foo}{'nth'} != 1) {
       $Issues{'OWN1'}{'count'}++;
       $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
     if (defined($Incs{$foop})) {
       if ($Incs{$foop}{'nth'} != 2) {
         $Issues{'PRIV2'}{'count'}++;
         $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
-        print "=> $line\n" if ($verbose);
+        print "=> $line\n" if (&verboseArg());
       }
     }
   } elsif (defined($Incs{$foop})) {
     if ($Incs{$foop}{'nth'} != 1) {
       $Issues{'PRIV1'}{'count'}++;
       $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
   }
 
@@ -274,20 +266,20 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
     if ($Incs{$foo}{'nth'} != 1) {
       $Issues{'OWN1'}{'count'}++;
       $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
     if (defined($Incs{$foop})) {
       if ($Incs{$foop}{'nth'} != 2) {
         $Issues{'PRIV2'}{'count'}++;
         $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
-        print "=> $line\n" if ($verbose);
+        print "=> $line\n" if (&verboseArg());
       }
     }
   } elsif (defined($Incs{$foop})) {
     if ($Incs{$foop}{'nth'} != 1) {
       $Issues{'PRIV1'}{'count'}++;
       $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
   }
 }
@@ -305,7 +297,7 @@ if ($f =~ m/\.h$/ || $f =~ m/\.hxx$/ && $f !~ m+/tests/+) {
 
 my($cnt) = &printResults();
 if (!$cnt) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 } else {
   exit $cnt;
@@ -313,17 +305,17 @@ if (!$cnt) {
 
 sub Help {
   print "Check for proper include directives\n";
-  exit 0 if $help;
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Use <..> to include installed headers; <QtModule/QClass> to include Qt headers from installed headers; cpp file should include their own headers first; other rules apply, see <http://techbase.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriatedly encoded macro names.";
-  exit 0 if $explain;
+  exit 0 if &explainArg();
 }
 
 sub initIssues() {
@@ -548,14 +540,14 @@ sub topDir {
     $p1 = $dir . "/" . basename($incpath);
     # of the incpath is not in $topmod
     $p2 = $topmod . "/" . $incpath;
-    if (-e $p1 || ! -e $p2 || $installed) {
+    if (-e $p1 || ! -e $p2 || &installedArg()) {
       $cnt++;
       if ($cnt == 1) {
         $lstr = "line\#" . $linecnt;
       } else {
         $lstr = $lstr . "," . $linecnt;
       }
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
     next;
   }
@@ -567,14 +559,14 @@ sub topDir {
     next if ($incpath eq "config.h");
     $p1 = $topmod . "/" . $incpath;
     $p2 = $dir . "/". $incpath;
-    if (! -e $p1 && ! -e $p2 || $installed) {
+    if (! -e $p1 && ! -e $p2 || &installedArg()) {
       $cnt++;
       if ($cnt == 1) {
         $lstr = "line\#" . $linecnt;
       } else {
         $lstr = $lstr . "," . $linecnt;
       }
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
     next;
   }
@@ -584,14 +576,14 @@ sub topDir {
     $incpath = &incAnglePath($line);
     $p1 = $topmod . "/" . $incpath;
     $p2 = $dir . "/". $incpath;
-    if (-e $p1 || -e $p2 && !$installed) {
+    if (-e $p1 || -e $p2 && !&installedArg()) {
       $cnt++;
       if ($cnt == 1) {
         $lstr = "line\#" . $linecnt;
       } else {
         $lstr = $lstr . "," . $linecnt;
       }
-      print "=> $line\n" if ($verbose);
+      print "=> $line\n" if (&verboseArg());
     }
 
 sub topModule {

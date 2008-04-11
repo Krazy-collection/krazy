@@ -27,7 +27,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -36,26 +38,18 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Getopt::Long;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::Utils;
 
 my($Prog) = "<plugin>";
 my($Version) = "<version>";
 
-my($help) = '';
-my($version) = '';
-my($explain) = '';
-my($installed) = '';
-my($quiet) = '';
-my($verbose) = '';
+&parseArgs();
 
-exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
-                'explain' => \$explain, 'installed' => \$installed,
-                'verbose' => \$verbose, 'quiet' => \$quiet));
-
-&Help() if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 # Check Condition
@@ -74,30 +68,30 @@ if ($#ARGV != 0){ &Help(); exit 0; }
 #    } else {
 #      $lstr = $lstr . "," . $linecnt;
 #    }
-#    print "=> $line" if ($verbose);
+#    print "=> $line" if (&verboseArg());
 #  }
 #}
 #close(F);
 
 #if (!$cnt) {
-#  print "okay\n" if (!$quiet);
+#  print "okay\n" if (!&quietArg());
 #  exit 0;
 #} else {
-#  print "$lstr ($cnt)\n" if (!$quiet);
+#  print "$lstr ($cnt)\n" if (!&quietArg());
 #  exit $cnt;
 #}
 
 sub Help {
   print "Check for <condition>\n";
-  exit 0 if $help;
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "<describe problem with solution.>\n";
-  exit 0 if $explain;
+  exit 0 if &explainArg();
 }

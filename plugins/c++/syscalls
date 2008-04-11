@@ -27,7 +27,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -36,30 +38,20 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Getopt::Long;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
+use Krazy::Utils;
 
 my($Prog) = "syscalls";
-my($Version) = "1.0";
+my($Version) = "1.1";
 
-my($help) = '';
-my($version) = '';
-my($explain) = '';
-my($installed) = '';
-my($quiet) = '';
-my($verbose) = '';
+&parseArgs();
 
-exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
-                'explain' => \$explain, 'installed' => \$installed,
-                'verbose' => \$verbose, 'quiet' => \$quiet));
-
-&Help() if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 my($f) = $ARGV[0];
@@ -69,7 +61,7 @@ my($absf) = abs_path($f);
 if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 }
 my(@data_lines) = <F>;
@@ -114,11 +106,11 @@ while ($linecnt < $#lines) {
 }
 
 if (!$cnt) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 } else {
   $lstr =~ s/,$//;
-  print "$lstr ($cnt)\n" if (!$quiet);
+  print "$lstr ($cnt)\n" if (!&quietArg());
   exit $cnt;
 }
 
@@ -132,7 +124,7 @@ sub doIt() {
       $lstr = $lstr . "," . $linecnt;
     }
     $lstr .= " $syscall" . "[$kname]";
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 }
 
@@ -151,15 +143,15 @@ sub sysCall() {
 
 sub Help {
   print "Check for system calls to replace by KDE or Qt equivalents\n";
-  exit 0 if $help;
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Some system calls are not portable, please use the suggested portable wrapper instead. See kde_file.h\n";
-  exit 0 if $explain;
+  exit 0 if &explainArg();
 }

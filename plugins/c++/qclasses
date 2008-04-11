@@ -27,7 +27,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -36,30 +38,20 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Getopt::Long;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
+use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.4";
+my($Version) = "1.5";
 
-my($help) = '';
-my($version) = '';
-my($explain) = '';
-my($installed) = '';
-my($quiet) = '';
-my($verbose) = '';
+&parseArgs();
 
-exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
-                'explain' => \$explain, 'installed' => \$installed,
-                'verbose' => \$verbose, 'quiet' => \$quiet));
-
-&Help() if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 my($f) = $ARGV[0];
@@ -70,7 +62,7 @@ if ($absf !~ m+/kdesupport/+ &&
     ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/)) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 }
 my(@data_lines) = <F>;
@@ -113,11 +105,11 @@ while ($linecnt < $#lines) {
 }
 
 if (!$cnt) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 } else {
   $lstr =~ s/,$//;
-  print "$lstr ($cnt)\n" if (!$quiet);
+  print "$lstr ($cnt)\n" if (!&quietArg());
   exit $cnt;
 }
 
@@ -126,7 +118,7 @@ sub doIt() {
   if ($f !~ m/$kname\.c/i && &qClass($line,$qname)) {
     $cnt++;
     $lstr .= $qname . "[$kname],";
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 }
 
@@ -152,15 +144,15 @@ sub whiteList {
 
 sub Help {
   print "Check for Qt classes that should not be used\n";
-  exit 0 if $help;
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. <http://techbase.kde.org/Policies/API_to_Avoid> *Please* *refer* *to* *the* *API* *documentation* *for* *details* *before* *porting* *to* *the* *K* *classes*.\n";
-  exit 0 if $explain;
+  exit 0 if &explainArg();
 }

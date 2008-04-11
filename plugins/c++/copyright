@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2007 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2005-2008 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -28,7 +28,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -37,26 +39,18 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Getopt::Long;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::Utils;
 
 my($Prog) = "copyright";
-my($Version) = "1.3";
+my($Version) = "1.4";
 
-my($help) = '';
-my($version) = '';
-my($explain) = '';
-my($installed) = '';
-my($quiet) = '';
-my($verbose) = '';
+&parseArgs();
 
-exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
-                'explain' => \$explain, 'installed' => \$installed,
-                'verbose' => \$verbose, 'quiet' => \$quiet));
-
-&Help() if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0){ &Help(); exit 0; }
 
 my($f) = $ARGV[0];
@@ -132,7 +126,7 @@ while ($line = <F>) {
 # Enable this check once we determine a legally acceptable means of specifying this.
 #  if ( $line =~ m/the /i ) {
 #    $tags .= "non-legal group(line $lcnt) ";
-#    $tags .= "($line) " if ($verbose);
+#    $tags .= "($line) " if (&verboseArg());
 #    $cnt++;
 #    next;
 #  }
@@ -149,7 +143,7 @@ while ($line = <F>) {
       $lcnt--;
 
       $tags .= "email address(line $lcnt) ";
-      $tags .= "($line) " if ($verbose);
+      $tags .= "($line) " if (&verboseArg());
       $cnt++;
     }
   }
@@ -167,24 +161,24 @@ if (! $found) {
 }
 
 if (! $tags ) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   exit 0;
 } else {
-  print "missing tags: $tags ($cnt)\n" if (!$quiet);
+  print "missing tags: $tags ($cnt)\n" if (!&quietArg());
   exit $cnt;
 }
 
 sub Help {
   print "Check for an acceptable copyright\n";
-  exit 0 if $help;
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "All source files must contain a copyright header which identifies the copyright holder(s) together with a e-mail address that can be used to reach the copyright holder.  One copyright holder per line, with real email addresses please. For details regarding KDE's licensing policy please visit <http://techbase.kde.org/Policies/Licensing_Policy>.  A typical copyright looks like: \"Copyright 2002,2005-2006 Joe Hacker <joe.hacker\@kde.org>\"\n";
-  exit 0 if $explain;
+  exit 0 if &explainArg();
 }
