@@ -289,10 +289,11 @@ if ($f =~ m/\.h$/ || $f =~ m/\.hxx$/ && $f !~ m+/tests/+) {
   if ($guard eq "") {
     $Issues{'GUARD'}{'count'} = 1;
   }
-# TODO: do this only when a super-strict option is set
-#  if ($sguard =~ m/^_/ || $sguard =~ m/_$/){
-#    $Issues{'UGUARD'}{'count'} = 1;
-#  }
+  if (&strictArg() eq "all") {
+    if ($sguard =~ m/^_/ || $sguard =~ m/_$/){
+      $Issues{'UGUARD'}{'count'} = 1;
+    }
+  }
 }
 
 my($cnt) = &printResults();
