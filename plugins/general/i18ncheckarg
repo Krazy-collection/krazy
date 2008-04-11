@@ -37,8 +37,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                    if no arguments given, current dir is taken as path
 #   --ctxmark:       report missing KUIT context markers,
 #                    regardless of whether threshold is reached
-#   --priority=PRI:  report only problems of given priority,
-#                    PRI is one of: low, normal, high
+#   --priority=PRI:  report only problems of given priority, PRI is one of:
+#                    low, normal, high, ge_low, ge_normal, ge_high,
+#                    where ge_* stands for "greater or equal".
 
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered, unless --allsources
@@ -107,12 +108,16 @@ my ($gg_nwgaps, $gg_ncount, $gg_nqnumber, $gg_nkfmtnum, $gg_novermax,
 
 # Priorities for problem reporting.
 sub error;
-if ($priority and $priority !~ /^(low|normal|high)$/) {
-    error "priority must be given as one of: low, normal, high";
+my ($pri_lo, $pri_no, $pri_hi) = (1, 1, 1);
+if ($priority) {
+    if ($priority !~ /^(low|normal|high|ge_low|ge_normal|ge_high)$/) {
+        error "priority must be given as one of: ".
+              "low, normal, high, ge_low, ge_normal, ge_high";
+    }
+    $pri_lo = ($priority =~ /^(low|ge_low)$/);
+    $pri_no = ($priority =~ /^(normal|ge_normal|ge_low)$/);
+    $pri_hi = ($priority =~ /^(high|ge_high|ge_normal|ge_low)$/);
 }
-my $pri_lo = (not $priority or $priority eq "low");
-my $pri_no = (not $priority or $priority eq "normal");
-my $pri_hi = (not $priority or $priority eq "high");
 
 # ------------------------------------------------------------------------------
 # Functions.
