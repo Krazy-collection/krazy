@@ -79,7 +79,7 @@ if (!GetOptions('help' => \$help, 'version' => \$version,
                 'explain' => \$explain, 'installed' => \$installed,
                 'verbose' => \$verbose, 'quiet' => \$quiet,
                 'allsources' => \$allsources, 'ctxmark' => \$ctxmark,
-                'priority=s' => \$priority, 'strict' => \$strict));
+                'priority=s' => \$priority, 'strict=s' => \$strict));
 
 &Help() if $help;
 &Version() if $version;
