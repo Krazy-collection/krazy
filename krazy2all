@@ -75,11 +75,6 @@ if ($list) {
   exit 0;
 }
 
-#TODO:
-# pod describe priority
-# pod describe strict
-# pod describe list
-
 if (!&validatePriorityType($priority)) {
   die "Bad priority level \"$priority\" specified... exiting\n";
 }
