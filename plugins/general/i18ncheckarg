@@ -924,10 +924,10 @@ sub check_in_kuit {
     if ($has_ctxmark) {
         $g_nmsgkuit++;
     }
-    else {
+    elsif ($pri_lo) {
         $gg_nkuit++;
         report $fname, $lineno, "warning",
-               "${OTH}missing KUIT context marker" if $pri_lo;
+               "${OTH}missing KUIT context marker";
         # ${OTH} means report only on reaching KUIT threshold
     }
 
@@ -1082,9 +1082,11 @@ sub check_in_string {
             if ($call =~ /i18nc?p/) {
                 if ($strlist[-1] =~ /%n/ or $strlist[-2] =~ /%n/) {
                     $legplu = 1;
-                    report $g_fname, $g_lineno, "error",
-                           "legacy \%n placeholder in plural call" if $pri_hi;
-                    $gg_nlegplu++;
+                    if ($pri_hi) {
+                        report $g_fname, $g_lineno, "error",
+                               "legacy \%n placeholder in plural call";
+                        $gg_nlegplu++;
+                    }
                 }
             }
 
@@ -1149,9 +1151,9 @@ sub check_in_string {
                     $gapstr = "(@upl)";
                 }
             }
-            if ($wgaps) {
+            if ($wgaps and $pri_hi) {
                 report $g_fname, $g_lineno, "error",
-                       "gaps in placeholder numbering, $gapstr" if $pri_hi;
+                       "gaps in placeholder numbering, $gapstr";
                 $gg_nwgaps++;
             }
             }
@@ -1177,10 +1179,10 @@ sub check_in_string {
                     # - need exact match in non-plural calls.
                     $badcount = 1 if $nneedargs != $nhaveargs;
                 }
-                if ($badcount) {
+                if ($badcount and $pri_hi) {
                     report $g_fname, $g_lineno, "error",
                            "wrong argument count, have $nhaveargs ".
-                           "need $nneedargs" if $pri_hi;
+                           "need $nneedargs";
                     $gg_ncount++;
                 }
             }
@@ -1192,29 +1194,31 @@ sub check_in_string {
             if (not $legplu and not $wgaps and not $badcount) {
             if ($call !~ /ki18n/ and $nhaveargs > $maxnarg) {
                 $toomany = 1;
-                report $g_fname, $g_lineno, "error",
-                       "too many arguments, have $nhaveargs ".
-                       "max $maxnarg" if $pri_hi;
-                $gg_novermax++;
+                if ($pri_hi) {
+                    report $g_fname, $g_lineno, "error",
+                           "too many arguments, have $nhaveargs ".
+                           "max $maxnarg";
+                    $gg_novermax++;
+                }
             }
             }
 
             # Check if there are any QString::number() conversions.
             for my $arg (@arglist) {
-                if ($arg =~ /QString\s*::\s*number/) {
+                if ($arg =~ /QString\s*::\s*number/ and $pri_no) {
                     report $g_fname, $g_lineno, "warning",
-                           "use of QString::number() on an argument" if $pri_no;
+                           "use of QString::number() on an argument";
                     $gg_nqnumber++;
                 }
             }
 
             # Check if there are any KLocale::formatNumber() conversions.
             for my $arg (@arglist) {
-                if ($arg =~ /formatNumber/) {
+                if ($arg =~ /formatNumber/ and $pri_no) {
                     report $g_fname, $g_lineno, "warning",
                            "use of KLocale::formatNumber() on an argument ".
                            "(use only for numbers outside of i18n ".
-                           "messages)" if $pri_no;
+                           "messages)";
                     $gg_nkfmtnum++;
                 }
             }
