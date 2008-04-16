@@ -243,20 +243,20 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
     if ($Incs{$foo}{'nth'} != 1) {
       $Issues{'OWN1'}{'count'}++;
       $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
-      print "=> $line\n" if (&verboseArg());
+      print "=> $lines[$Incs{$foo}{'lines'}-1]\n" if (&verboseArg());
     }
     if (defined($Incs{$foop})) {
       if ($Incs{$foop}{'nth'} != 2) {
         $Issues{'PRIV2'}{'count'}++;
         $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
-        print "=> $line\n" if (&verboseArg());
+        print "=> $lines[$Incs{$foop}{'lines'}-1]n" if (&verboseArg());
       }
     }
   } elsif (defined($Incs{$foop})) {
     if ($Incs{$foop}{'nth'} != 1) {
       $Issues{'PRIV1'}{'count'}++;
       $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
-      print "=> $line\n" if (&verboseArg());
+      print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
     }
   }
 
@@ -266,20 +266,20 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
     if ($Incs{$foo}{'nth'} != 1) {
       $Issues{'OWN1'}{'count'}++;
       $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
-      print "=> $line\n" if (&verboseArg());
+      print "=> $lines[$Incs{$foo}{'lines'}-1]\n" if (&verboseArg());
     }
     if (defined($Incs{$foop})) {
       if ($Incs{$foop}{'nth'} != 2) {
         $Issues{'PRIV2'}{'count'}++;
         $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
-        print "=> $line\n" if (&verboseArg());
+        print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
       }
     }
   } elsif (defined($Incs{$foop})) {
     if ($Incs{$foop}{'nth'} != 1) {
       $Issues{'PRIV1'}{'count'}++;
       $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
-      print "=> $line\n" if (&verboseArg());
+      print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
     }
   }
 }
