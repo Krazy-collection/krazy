@@ -103,7 +103,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.2';    #split line so MakeMaker can find the version here
+ $VERSION = '2.3';    #split line so MakeMaker can find the version here
 
 my ($help)     = '';
 my ($version)  = '';
@@ -486,7 +486,7 @@ for $ftype (@types) {
 
 	# run the checker, concatentating the output
 	if ( !$dryrun ) {
-	  $pid = open( SANE, "$p $opts $insopt $f |" )
+	  $pid = open( SANE, "$p $opts $insopt \'$f\' |" )
 	    or print STDERR "Cannot run: &basename($p)\n";
 	  while (<SANE>) {
 	    chomp($_);

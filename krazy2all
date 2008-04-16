@@ -29,7 +29,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.2';    #split line so MakeMaker can find the version here
+ $VERSION = '2.3';    #split line so MakeMaker can find the version here
 
 my ($help)     = '';
 my ($version)  = '';
@@ -106,6 +106,7 @@ $opts .= "--explain"             if ($export ne "textlist");
 my($files) = &findFiles();
 my($cwd) = getcwd;
 $files =~ s+$cwd+\.+g;
+$files =~ s+\\n+\'\\n\'+g;
 open(P, "| krazy2 $opts -");
 print P "$files\n";
 close(P);
