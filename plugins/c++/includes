@@ -60,7 +60,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.4";
+my($Version) = "1.5";
 
 &parseArgs();
 
@@ -113,9 +113,12 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;  #skip C++ comments
 
   # get the include guard, if there is one
-  if (!$guard && $line =~ m/^[[:space:]]*#[[:space:]]*ifndef[[:space:]]/) {
+  if (!$guard &&
+      ($line =~ m/^\s*#\s*ifndef\s/ ||
+       $line =~ m/^\s*#\s*if\s*\!\s*defined\s/)) {
     my($pguard) = $line;
-    $pguard =~ s/^[[:space:]]*#[[:space:]]*ifndef[[:space:]]//g;
+    $pguard =~ s/^\s*#\s*ifndef\s//g;
+    $pguard =~ s/^\s*#\s*if\s*\!\s*defined\s//g;
     ($pguard) = split(' ',$pguard);
     $sguard = $pguard;
     $pguard =~ s/_[Hh]_*$//;
