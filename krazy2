@@ -976,7 +976,11 @@ sub printOOPS {
 	  $module =~ s+kdebase-apps+kdebase/apps+;
 	  $module =~ s+kdebase-runtime+kdebase/runtime+;
 	  $module =~ s+kdebase-workspace+kdebase/workspace+;
-          $url = "http://lxr.kde.org/source/KDE/$module/$subdir/";
+          $url = "http://lxr.kde.org/source/KDE/";
+	  if ($module) {
+	    $url .= "$module/";
+	    $url .= "$subdir/" if ($subdir);
+	  }
         } elsif ( $component eq "bundled-apps" && $module eq "koffice" ) {
           $url = "http://lxr.kde.org/source/koffice/$subdir/";
         } elsif ( $component eq "bundled-apps" &&
