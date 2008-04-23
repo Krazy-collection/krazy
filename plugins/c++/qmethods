@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qmethods";
-my($Version) = "1.4";
+my($Version) = "1.5";
 
 &parseArgs();
 
@@ -87,7 +87,7 @@ while ($linecnt < $#lines) {
   &doIt($line,'QWidget::showMaximized','showMaximized\s*\(\s*\)','');
   &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)','');
   &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)','');
-  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','statusBar');
+  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','statusBar|KGamePopupItem::');
   &doIt($line,'QImage::depth','depth\s*\(\s*\)/','[Pp]ix|desktop|screen|pd-');
 # when we have a real parser, check for the following as well:
 # QString::isNull (in almost all cases, QString::isEmpty should be used instead)

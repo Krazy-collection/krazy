@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "iconnames";
-my($Version) = "1.3";
+my($Version) = "1.4";
 
 &parseArgs();
 
@@ -1100,7 +1100,7 @@ zip_mount
 zip_unmountdf-odb
 };
 
-my($line);
+my($line,$pline);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
   if ($filetype eq "c++") {
@@ -1114,11 +1114,14 @@ while ($linecnt < $#lines) {
     next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
     $line =~ s+//.*++;  #skip C++ comments
 
+    $pline = $line;
+    $pline =~ s/KStandardDirs::locate\(.*\)/KStandardDirs::locate\(\)/g;
+
     # does this cover everything? without any filtering we get too much noise
-    if ( $line =~ m/Icon\s*\(/ || $line =~ m/iconPath\s*\(/ ||
-	 $line =~ m/[Pp]ixmap/ ) {
+    if ( $pline =~ m/Icon\s*\(/ || $pline =~ m/iconPath\s*\(/ ||
+	 $pline =~ m/[Pp]ixmap/ ) {
       # FIXME: this fails for quoted quotes and god knows what else...
-      my @strings = split( /\"/, $line );
+      my @strings = split( /\"/, $pline );
       for ( my $i = 1; $i < $#strings; $i = $i + 2 ) {
 	my $string = $strings[$i];
 	if ( $icon_map{$string} ) {
