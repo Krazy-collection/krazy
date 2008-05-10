@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.5";
+my($Version) = "1.6";
 
 &parseArgs();
 
@@ -86,22 +86,22 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  &doIt($line,"QColorDialog","KColorDialog");
-  &doIt($line,"QComboBox","KComboBox");
-  &doIt($line,"QMessageBox","KMessageBox");
-  &doIt($line,"QErrorMessage","KMessageBox");
-  &doIt($line,"QInputDialog","KInputDialog");
-  &doIt($line,"QFileDialog","KFileDialog");
-  &doIt($line,"QProgressDialog","KProgressDialog");
-  &doIt($line,"QSplashScreen","KSplashScreen");
-  &doIt($line,"QSystemTrayIcon","KSystemTrayIcon");
-  &doIt($line,"QDialog","KDialog");
-  &doIt($line,"QLineEdit","KLineEdit");
-  &doIt($line,"QTabBar","KTabBar");
-  &doIt($line,"QTabWidget","KTabWidget");
-  &doIt($line,"QTextBrowser","KTextBrowser");
-  &doIt($line,"QTextEdit","KTextEdit");
-  &doIt($line,"QUrl","KUrl");
+  &doIt($line,"QColorDialog","KColorDialog",'');
+  &doIt($line,"QComboBox","KComboBox",'');
+  &doIt($line,"QMessageBox","KMessageBox",'');
+  &doIt($line,"QErrorMessage","KMessageBox",'');
+  &doIt($line,"QInputDialog","KInputDialog",'');
+  &doIt($line,"QFileDialog","KFileDialog",'');
+  &doIt($line,"QProgressDialog","KProgressDialog",'');
+  &doIt($line,"QSplashScreen","KSplashScreen",'');
+  &doIt($line,"QSystemTrayIcon","KSystemTrayIcon",'');
+  &doIt($line,"QDialog","KDialog",'');
+  &doIt($line,"QLineEdit","KLineEdit",'');
+  &doIt($line,"QTabBar","KTabBar",'');
+  &doIt($line,"QTabWidget","KTabWidget",'');
+  &doIt($line,"QTextBrowser","KTextBrowser",'');
+  &doIt($line,"QTextEdit","KTextEdit",'');
+  &doIt($line,"QUrl","KUrl",'');
 }
 
 if (!$cnt) {
@@ -114,8 +114,8 @@ if (!$cnt) {
 }
 
 sub doIt() {
-  my($line,$qname,$kname) = @_;
-  if ($f !~ m/$kname\.c/i && &qClass($line,$qname)) {
+  my($line,$qname,$kname,$nregexp) = @_;
+  if ($f !~ m/$kname\.c/i && &qClass($line,$qname,$nregexp)) {
     $cnt++;
     $lstr .= $qname . "[$kname],";
     print "=> $line\n" if (&verboseArg());
@@ -123,11 +123,12 @@ sub doIt() {
 }
 
 sub qClass() {
-  my($l,$qname) = @_;
+  my($l,$qname,$nregexp) = @_;
   if ($l =~ m/new[[:space:]]$qname[[:space:]]*\(/ ||
       $l =~ m/$qname\::[[:alnum:]]+[[:space:]]*\(/ ||
       (($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/) && ($l !~ m/==/ && $l !~ m/\!=/))) {
-    return 1 if (!whiteList($l));
+    return 0 if ($nregexp ne "" && $l =~ m/$nregexp/);
+    return 1 if (!&whiteList($l));
   }
   return 0;
 }
@@ -135,7 +136,8 @@ sub qClass() {
 sub whiteList {
   my($l) = @_;
   if ($l =~ m/QUrl::toPercentEncoding/ ||
-      $l =~ m/QUrl::fromPercentEncoding/) {
+      $l =~ m/QUrl::fromPercentEncoding/ ||
+      $l =~ m/QDialog::DialogCode/) {
     return 1;
   } else {
     return 0;
