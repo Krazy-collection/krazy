@@ -304,13 +304,15 @@ foreach $line (@lines) {
 
   if ($line =~ m/[[:alnum:]]::[[:alnum:]].*\(.*{/) {
     if ($line !~ m/,/ && $line !~ m/\(\)->/ && !&isCond($line) && !&isCond($lline) && !&isLoop($line) && !&isLoop($lline) && $lline !~ m/,$/) {
-      $Issues{'FUNCBRACE'}{'count'}++;
-      if ($Issues{'FUNCBRACE'}{'count'} == 1) {
-	$Issues{'FUNCBRACE'}{'lines'} = "line\#" . $linecnt;
-      } else {
-	$Issues{'FUNCBRACE'}{'lines'} .= "," . $linecnt;
+      if ($line !~ m/\{\s*\}$/) {
+	$Issues{'FUNCBRACE'}{'count'}++;
+	if ($Issues{'FUNCBRACE'}{'count'} == 1) {
+	  $Issues{'FUNCBRACE'}{'lines'} = "line\#" . $linecnt;
+	} else {
+	  $Issues{'FUNCBRACE'}{'lines'} .= "," . $linecnt;
+	}
+	print "$linecnt (put '{' on line after the 'class' or function)=> $line\n" if (&verboseArg());
       }
-      print "$linecnt (put '{' on line after the 'class' or function)=> $line\n" if (&verboseArg());
     }
   }
 
