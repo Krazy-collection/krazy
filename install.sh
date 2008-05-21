@@ -42,7 +42,7 @@ make realclean
 
 #create a symlink to the perl modules so we can find the modules
 V=`perl -e 'printf "%vd", $^V'`
-(cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy Krazy)
+(cd $TOP/lib; rm -f Krazy; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy Krazy)
 
 #install helper scripts
 cd helpers && \
