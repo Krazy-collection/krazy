@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qmethods";
-my($Version) = "1.5";
+my($Version) = "1.6";
 
 &parseArgs();
 
@@ -87,7 +87,7 @@ while ($linecnt < $#lines) {
   &doIt($line,'QWidget::showMaximized','showMaximized\s*\(\s*\)','');
   &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)','');
   &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)','');
-  &doIt($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','statusBar|KGamePopupItem::');
+  &doIt1($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','statusBar|KGamePopupItem::|game');
   &doIt($line,'QImage::depth','depth\s*\(\s*\)/','[Pp]ix|desktop|screen|pd-');
 # when we have a real parser, check for the following as well:
 # QString::isNull (in almost all cases, QString::isEmpty should be used instead)
@@ -113,6 +113,24 @@ sub doIt() {
     }
     $lstr .= " $qname";
     print "=> $line\n" if (&verboseArg());
+  }
+}
+
+#version of doIt() that also searches forward 1 line for the nregexp
+sub doIt1() {
+  my($line,$qname,$regexp,$nregexp) = @_;
+
+  if (&qMethod($line,$regexp,$nregexp)) {
+    if ($lines[$linecnt] !~ m/$nregexp/) {
+      $cnt++;
+      if ($cnt == 1) {
+	$lstr = "line\#" . $linecnt;
+      } else {
+	$lstr = $lstr . "," . $linecnt;
+      }
+      $lstr .= " $qname";
+      print "=> $line\n" if (&verboseArg());
+    }
   }
 }
 
