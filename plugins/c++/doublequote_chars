@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "doublequote_chars";
-my($Version) = "1.8";
+my($Version) = "1.9";
 
 &parseArgs();
 
@@ -71,11 +71,15 @@ close(F);
 my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
 
 my($cnt) = 0;
-my($scnt) = 0;
+my($scnt) = 0; #QString::startsWith(), QString::endsWith() issues
+my($rcnt) = 0; #QString::replace() issues
+my($xcnt) = 0; #QString::remove() issues
 my($linecnt) = 0;
 my($line);
 my($lstr) = "";
 my($slstr) = "";
+my($rlstr) = "";
+my($xlstr) = "";
 foreach $line (@lines) {
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
@@ -136,6 +140,8 @@ foreach $line (@lines) {
   }
   my ($pline) = $line;
   $pline =~ s/\\\"/ /g; # remove quoted stuff
+
+  #QString::startsWith() and QString::endsWith() checks
   if ($pline =~ m/startsWith[[:space:]]*\([[:space:]]*\"[[:print:]]\"/ ||
       $pline =~ m/startsWith[[:space:]]*\([[:space:]]*\"\\n\"/ ||
       $pline =~ m/startsWith[[:space:]]*\([[:space:]]*\"\\t\"/ ||
@@ -146,26 +152,59 @@ foreach $line (@lines) {
       $pline =~ m/endsWith[[:space:]]*\([[:space:]]*\"\\\"\"/) {
     $scnt++;
     if ($scnt == 1) {
-      $slstr = "starts/endsWith line\#" . $linecnt;
+      $slstr = "starts/endsWith issues line\#" . $linecnt;
     } else {
       $slstr = $slstr . "," . $linecnt;
     }
     print "=> $line\n" if (&verboseArg());
     next;
   }
+
+  #QString::replace() checks
+  if ($pline =~ m/replace[[:space:]]*\(.*,[[:space:]]*\"\"/ &&
+      $pline !~ m/\(.*,\s*\d*,.*\)/) {
+    $rcnt++;
+    if ($rcnt == 1) {
+      $rlstr = "replace issues line\#" . $linecnt;
+    } else {
+      $rlstr = $rlstr . "," . $linecnt;
+    }
+    print "=> $line\n" if (&verboseArg());
+    next;
+  }
+
+  #QString::remove() checks
+  if ($pline =~ m/remove[[:space:]]*\([[:space:]]*\"[[:print:]]\"/ ||
+      $pline =~ m/remove[[:space:]]*\([[:space:]]*\"\\n\"/ ||
+      $pline =~ m/remove[[:space:]]*\([[:space:]]*\"\\t\"/ ||
+      $pline =~ m/remove[[:space:]]*\([[:space:]]*\"\\\"\"/) {
+    $xcnt++;
+    if ($xcnt == 1) {
+      $xlstr = "remove issues line\#" . $linecnt;
+    } else {
+      $xlstr = $xlstr . "," . $linecnt;
+    }
+    print "=> $line\n" if (&verboseArg());
+    next;
+  }
 }
 
-if (!$cnt && !$scnt) {
+my($total_count) = $cnt + $scnt + $rcnt + $xcnt;
+if (!$total_count) {
   print "okay\n" if (!&quietArg());
   exit 0;
 } else {
-  print "$lstr ($cnt)\n" if (!&quietArg() && $cnt);
-  print "$slstr ($scnt)\n" if (!&quietArg() && $scnt);
-  exit $cnt+$scnt;
+  if (!&quietArg()) {
+    print "$lstr ($cnt)\n" if ($cnt);
+    print "$slstr ($scnt)\n" if ($scnt);
+    print "$rlstr ($rcnt)\n" if ($rcnt);
+    print "$xlstr ($xcnt)\n" if ($xcnt);
+  }
+  exit $total_count;
 }
 
 sub Help {
-  print "Check for single char QStrings better written as a QChar\n";
+  print "Check single-char QString operations that could be written more efficiently\n";
   exit 0 if &helpArg();
 }
 
@@ -175,6 +214,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Adding single characters to a QString is faster if the characters are QChars and not QStrings.  For example: QString path = oldpath + \"/\" + base is better written as QString path = oldpath + \'/\' + base. Same holds for arguments to QString::startsWith() and QString::endsWith()\n";
+  print "Adding single characters to a QString is faster if the characters are QChars and not QStrings.  For example: QString path = oldpath + \"/\" + base is better written as QString path = oldpath + \'/\' + base. Same holds for arguments to QString::startsWith(), QString::endsWith() and QString::remove(). Use QString::remove() instead of QString::replace(foo,\"\")\n";
   exit 0 if &explainArg();
 }
