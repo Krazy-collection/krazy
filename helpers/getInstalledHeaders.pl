@@ -21,6 +21,7 @@ sub parseFile {
     open(FH, "< $file") or return;
     foreach(<FH>) {
         chomp;
+	s/#.*$//;  #remove comments
         if (m/^\s*install\s*\(\s*files(\s+[^)]+)?(\s*\))?/i) {
             $ininstall = 1;
             if ($1) {
