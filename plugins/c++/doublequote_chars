@@ -145,10 +145,12 @@ foreach $line (@lines) {
   if ($pline =~ m/startsWith[[:space:]]*\([[:space:]]*\"[[:print:]]\"/ ||
       $pline =~ m/startsWith[[:space:]]*\([[:space:]]*\"\\n\"/ ||
       $pline =~ m/startsWith[[:space:]]*\([[:space:]]*\"\\t\"/ ||
+      $pline =~ m/startsWith[[:space:]]*\([[:space:]]*\"\\r\"/ ||
       $pline =~ m/startsWith[[:space:]]*\([[:space:]]*\"\\\"\"/ ||
       $pline =~ m/endsWith[[:space:]]*\([[:space:]]*\"[[:print:]]\"/ ||
       $pline =~ m/endsWith[[:space:]]*\([[:space:]]*\"\\n\"/ ||
       $pline =~ m/endsWith[[:space:]]*\([[:space:]]*\"\\t\"/ ||
+      $pline =~ m/endsWith[[:space:]]*\([[:space:]]*\"\\r\"/ ||
       $pline =~ m/endsWith[[:space:]]*\([[:space:]]*\"\\\"\"/) {
     $scnt++;
     if ($scnt == 1) {
@@ -177,6 +179,7 @@ foreach $line (@lines) {
   if ($pline =~ m/remove[[:space:]]*\([[:space:]]*\"[[:print:]]\"/ ||
       $pline =~ m/remove[[:space:]]*\([[:space:]]*\"\\n\"/ ||
       $pline =~ m/remove[[:space:]]*\([[:space:]]*\"\\t\"/ ||
+      $pline =~ m/remove[[:space:]]*\([[:space:]]*\"\\r\"/ ||
       $pline =~ m/remove[[:space:]]*\([[:space:]]*\"\\\"\"/) {
     $xcnt++;
     if ($xcnt == 1) {
