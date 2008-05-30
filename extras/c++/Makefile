@@ -18,9 +18,11 @@
 
 # list of all extras to install
 EXTRAS = \
+defines \
 kdebug \
 multiclasses \
 null \
+qenums \
 style
 
 # links to general purpose extras

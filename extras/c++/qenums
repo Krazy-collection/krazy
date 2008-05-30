@@ -1,0 +1,151 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2008 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for prohibited Qt Enums
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Cwd 'abs_path';
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "qenums";
+my($Version) = "1.1";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+my($absf) = abs_path($f);
+
+# open file and slurp it in (C++, non-headers only)
+if (fileType($f) eq "c++"){
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  exit 0;
+}
+my(@data_lines) = <F>;
+close(F);
+
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+
+my($cnt) = 0;
+my($linecnt) = 0;
+my($lstr) = "";
+
+my($line);
+while ($linecnt < $#lines) {
+  $line = $lines[$linecnt++];
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $cnt = 0;
+    last;
+  }
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  #see http://doc.trolltech.com/4.3/qcolor.html#predefined-colors for colors
+  &doIt($line,"Qt::red");
+  &doIt($line,"Qt::darkRed");
+  &doIt($line,"Qt::green");
+  &doIt($line,"Qt::darkGreen");
+  &doIt($line,"Qt::blue");
+  &doIt($line,"Qt::darkBlue");
+  &doIt($line,"Qt::cyan");
+  &doIt($line,"Qt::darkCyan");
+  &doIt($line,"Qt::magenta");
+  &doIt($line,"Qt::darkMagenta");
+  &doIt($line,"Qt::yellow");
+  &doIt($line,"Qt::darkYellow");
+  &doIt($line,"Qt::gray");
+  &doIt($line,"Qt::darkGray");
+  &doIt($line,"Qt::lightGray");
+}
+
+if (!$cnt) {
+  print "okay\n" if (!&quietArg());
+  exit 0;
+} else {
+  $lstr =~ s/,$//;
+  print "$lstr ($cnt)\n" if (!&quietArg());
+  exit $cnt;
+}
+
+sub doIt() {
+  my($line,$syscall) = @_;
+  if (&eNum($line,$syscall)) {
+    $cnt++;
+    if ($cnt == 1) {
+      $lstr = "line\#" . $linecnt;
+    } else {
+      $lstr = $lstr . "," . $linecnt;
+    }
+    $lstr .= " $syscall";
+    print "=> $line\n" if (&verboseArg());
+  }
+}
+
+sub eNum() {
+  my($l,$enum) = @_;
+  if ($l =~ m/$enum/) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+sub Help {
+  print "Check for Qt enums that should not be used\n";
+  exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "For Qt color enums please use KColorScheme whereever possible; or at least use Oxygen color instead.\n";
+  exit 0 if &explainArg();
+}
