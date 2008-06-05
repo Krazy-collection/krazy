@@ -955,8 +955,8 @@ sub printOOPS {
       push( @ls, &arrayLineify($ls3) ) if ( defined($ls3) );
 
       my ($subissue) = $o;
-      $subissue =~ s+^$f:[[:space:]]*++;
-      $subissue =~ s+[[:space:]]*line#.*$++;
+      $subissue =~ s+^\s*\./$f:\s*++;
+      $subissue =~ s+\s*line#.*$++;
       $subissue .= ", " if ( $subissue ne "" );
       my ($issue) = $_[1];
       $issue =~ s+^[Cc]hecks[[:space:]]*++;
@@ -1060,6 +1060,7 @@ sub arrayLineify {
 
   $s =~ s+^.*line#++;
   $s =~ s+[[:space:]]*\(\d*\)[[:space:]]*$++;
+  $s =~ s+\[+:\[+;
   return split( ",", $s );
 }
 

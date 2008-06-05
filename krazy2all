@@ -101,7 +101,7 @@ $opts .= "--title=\"$title\" "   if ($title);
 $opts .= "--cms=$cms "           if ($cms);
 $opts .= "--priority=$priority " if ($priority);
 $opts .= "--strict=$strict "     if ($strict);
-$opts .= "--explain"             if ($export ne "textlist");
+$opts .= "--explain"             if ($export ne "textlist" && $export ne "textedit");
 
 my($files) = &findFiles();
 my($cwd) = getcwd;
