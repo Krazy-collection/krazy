@@ -45,8 +45,8 @@ V=`perl -e 'printf "%vd", $^V'`
 if ( test -d $TOP/lib/perl5/site_perl ) then
   (cd $TOP/lib; rm -f Krazy; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy Krazy)
 else
-  if ( test -d $TOP/lib/share/perl ) then
-    (cd $TOP/lib; rm -f Krazy; rm -f Krazy; ln -s $TOP/lib/share/perl/$V/Krazy Krazy)
+  if ( test -d $TOP/share/perl ) then
+    (cd $TOP/lib; rm -f Krazy; rm -f Krazy; ln -s $TOP/share/perl/$V/Krazy Krazy)
   else
     echo
     echo "==================================================================="
