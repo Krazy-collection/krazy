@@ -22,6 +22,7 @@ contractions \
 endswithnewline \
 iconnames \
 i18ncheckarg \
+qclasses \
 spelling \
 
 #default installation location

@@ -207,7 +207,7 @@ if (!$total_count) {
 }
 
 sub Help {
-  print "Check single-char QString operations that could be written more efficiently\n";
+  print "Check single-char QString operations for efficiency\n";
   exit 0 if &helpArg();
 }
 

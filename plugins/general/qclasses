@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.6";
+my($Version) = "1.7";
 
 &parseArgs();
 
@@ -57,9 +57,11 @@ if ($#ARGV != 0){ &Help(); exit 0; }
 my($f) = $ARGV[0];
 my($absf) = abs_path($f);
 
+my($filetype) = fileType($f);
+
 # open file and slurp it in (C++, non-headers only)
 if ($absf !~ m+/kdesupport/+ &&
-    ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/)) {
+    ($filetype eq "c++" || $filetype eq "designer")) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
@@ -69,7 +71,12 @@ my(@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my(@lines);
+if ($filetype eq "c++") {
+  @lines = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+} else {
+  @lines = @data_lines;
+}
 
 my($cnt) = 0;
 my($linecnt) = 0;
@@ -78,13 +85,15 @@ my($lstr) = "";
 my($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
-    $cnt = 0;
-    last;
+  if ($filetype eq "c++") {
+    if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+	$line =~ m+//.*[Kk]razy:skip+) {
+      $cnt = 0;
+      last;
+    }
+    next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+    $line =~ s+//.*++;  #skip C++ comments
   }
-  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
 
   &doIt($line,"QColorDialog","KColorDialog",'');
   &doIt($line,"QComboBox","KComboBox",'');
@@ -124,12 +133,23 @@ sub doIt() {
 
 sub qClass() {
   my($l,$qname,$nregexp) = @_;
-  if ($l =~ m/new[[:space:]]$qname[[:space:]]*\(/ ||
-      $l =~ m/$qname\::[[:alnum:]]+[[:space:]]*\(/ ||
-      (($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/) && ($l !~ m/==/ && $l !~ m/\!=/))) {
-    return 0 if ($nregexp ne "" && $l =~ m/$nregexp/);
-    return 1 if (!&whiteList($l));
+
+  if ($filetype eq "c++") {
+    if ($l =~ m/new[[:space:]]$qname[[:space:]]*\(/ ||
+	$l =~ m/$qname\::[[:alnum:]]+[[:space:]]*\(/ ||
+	(($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/) && ($l !~ m/==/ && $l !~ m/\!=/))) {
+      return 0 if ($nregexp ne "" && $l =~ m/$nregexp/);
+      return 1 if (!&whiteList($l));
+    }
   }
+
+  if ($filetype eq "designer") {
+    if ($l =~ m/class=\"$qname\"/) {
+      return 0 if ($nregexp ne "" && $l =~ m/$nregexp/);
+      return 1 if (!&whiteList($l));
+    }
+  }
+
   return 0;
 }
 

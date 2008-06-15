@@ -32,7 +32,6 @@ inline \
 license \
 nullstrassign \
 nullstrcompare \
-qclasses \
 qconnect \
 qmethods \
 qminmax \
@@ -46,6 +45,7 @@ contractions \
 endswithnewline \
 i18ncheckarg \
 iconnames \
+qclasses \
 spelling \
 
 #default installation location
