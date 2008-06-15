@@ -625,6 +625,7 @@ sub initCheckers {
     'designer'  => [],
     'kconfigxt' => [],
     'messages'  => [],
+    'kpartgui'  => [],
     'tips'      => [],
   );
   my ($type);

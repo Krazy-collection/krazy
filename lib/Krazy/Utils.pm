@@ -103,6 +103,8 @@ sub fileType {
     return "po";
   } elsif ( $f =~ m/Messages\.sh$/ ) {
     return "messages";
+  } elsif ( $f =~ m/\.rc$/ ) {
+    return "kpartgui";
   } elsif ( $f =~ m/tips$/ ) {
     return "tips";
   }
