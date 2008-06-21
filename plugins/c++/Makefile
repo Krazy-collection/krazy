@@ -36,6 +36,7 @@ qconnect \
 qmethods \
 qminmax \
 qobject \
+qbytearray \
 sigsandslots \
 syscalls \
 

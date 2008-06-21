@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "doublequote_chars";
-my($Version) = "1.10";
+my($Version) = "1.9";
 
 &parseArgs();
 
@@ -74,18 +74,16 @@ my($cnt) = 0;
 my($scnt) = 0; #QString::startsWith(), QString::endsWith() issues
 my($rcnt) = 0; #QString::replace() issues
 my($xcnt) = 0; #QString::remove() issues
-my($dcnt) = 0; #QString data()/constData() issues
 my($linecnt) = 0;
 my($line);
 my($lstr) = "";
 my($slstr) = "";
 my($rlstr) = "";
 my($xlstr) = "";
-my($dlstr) = "";
 foreach $line (@lines) {
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
-    $cnt = 0;
+    $cnt = $scnt = $rcnt = $xcnt = 0;
     last;
   }
 
@@ -192,21 +190,9 @@ foreach $line (@lines) {
     print "=> $line\n" if (&verboseArg());
     next;
   }
-
-  #QString::data() checks
-  if ($line =~ m:=\s*\w+\.(toLatin1|toAscii|toUtf8|toLocal8Bit)\(\)\.(data|constData)\(\):) {
-    $dcnt++;
-    if ($dcnt == 1) {
-      $dlstr = "data assignment issues line\#" . $linecnt;
-    } else {
-      $dlstr = $dlstr . "," . $linecnt;
-    }
-    print "=> $line\n" if (&verboseArg());
-    next;
-  }
 }
 
-my($total_count) = $cnt + $scnt + $rcnt + $xcnt + $dcnt;
+my($total_count) = $cnt + $scnt + $rcnt + $xcnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   exit 0;
@@ -216,7 +202,6 @@ if (!$total_count) {
     print "$slstr ($scnt)\n" if ($scnt);
     print "$rlstr ($rcnt)\n" if ($rcnt);
     print "$xlstr ($xcnt)\n" if ($xcnt);
-    print "$dlstr ($dcnt)\n" if ($dcnt);
   }
   exit $total_count;
 }

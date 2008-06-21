@@ -1,0 +1,123 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2008 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for QByteArray issues.
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "qbytearray";
+my($Version) = "1.1";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+
+# open file and slurp it in (C++, non-headers only)
+if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/) {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  exit 0;
+}
+my(@data_lines) = <F>;
+close(F);
+
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+
+my($dcnt) = 0; #QString data()/constData() issues
+my($linecnt) = 0;
+my($line);
+my($dlstr) = "";
+foreach $line (@lines) {
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $dcnt = 0;
+    last;
+  }
+
+  $linecnt++;
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  #data(), constData() checks
+  if ($line =~ m:[\w\s]+=\s*\w+\.(toLatin1|toAscii|toUtf8|toLocal8Bit)\(\)\.(data|constData)\(\):) {
+    $dcnt++;
+    if ($dcnt == 1) {
+      $dlstr = "data assignment issues line\#" . $linecnt;
+    } else {
+      $dlstr = $dlstr . "," . $linecnt;
+    }
+    print "=> $line\n" if (&verboseArg());
+    next;
+  }
+}
+
+my($total_count) = $dcnt;
+if (!$total_count) {
+  print "okay\n" if (!&quietArg());
+  exit 0;
+} else {
+  if (!&quietArg()) {
+    print "$dlstr ($dcnt)\n" if ($dcnt);
+  }
+  exit $total_count;
+}
+
+sub Help {
+  print "Check for dangerous or inefficient QByteArray usage\n";
+  exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Do not assign the result of QString::QByteArray.data() or QString::QByteArray::constData(); instead use temporary storage.  For example, data=str.toAscii().data() is safer as QByteArray b=str.toAscii(); data=b.data()\n";
+  exit 0 if &explainArg();
+}
