@@ -157,6 +157,8 @@ sub whiteList {
   my($l) = @_;
   if ($l =~ m/QUrl::toPercentEncoding/ ||
       $l =~ m/QUrl::fromPercentEncoding/ ||
+      $l =~ m/QUrl::toAce/ ||
+      $l =~ m/QUrl::fromAce/ ||
       $l =~ m/QDialog::DialogCode/) {
     return 1;
   } else {
