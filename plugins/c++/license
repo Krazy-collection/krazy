@@ -51,13 +51,8 @@ use Krazy::Utils;
 my($Prog) = "license";
 my($Version) = "1.5";
 
-&parseArgs();
-
-&Help() if &helpArg();
-&Version() if &versionArg();
-&Explain() if &explainArg();
-if ($#ARGV < 0){ &Help(); exit 0; }
-
+my $verbose = 0;
+my $quiet = 0;
 
 sub checkOneFile($)
 {
@@ -113,25 +108,35 @@ sub checkOneFile($)
 
 # krazy compat mode
 if ($#ARGV == 0) {
+    &parseArgs();
+
+    &Help() if &helpArg();
+    &Version() if &versionArg();
+    &Explain() if &explainArg();
+    if ($#ARGV < 0){ &Help(); exit 0; }
+
+    $verbose = &verboseArg();
+    $quiet = &quietArg();
+
     my ($r, $license, $comment) = &checkOneFile($ARGV[0]);
-    print "$license\n" if (&verboseArg());
-    print "$comment\n" if (!&quietArg() && $r);
-    print "okay\n" if (!&quietArg() && !$r);
+    print "$license\n" if ($verbose);
+    print "$comment\n" if (!$quiet && $r);
+    print "okay\n" if (!$quiet && !$r);
     exit $r;
 }
 
 my $had_error = 0;
 foreach my $f (@ARGV) {
     my ($r, $license, $comment) = &checkOneFile($f);
-    print "$f: " if (&verboseArg() || (!&quietArg() && $r));
-    print "$license\n"  if (&verboseArg());
-    print "\t$comment\n" if (!&quietArg() && $r);
+    print "$f: " if ($verbose || (!$quiet && $r));
+    print "$license\n"  if ($verbose);
+    print "\t$comment\n" if (!$quiet && $r);
     $had_error |= $r;
 }
 
 exit 1 if $had_error;
 
-print "okay\n" if (!&quietArg());
+print "okay\n" if ($#ARGV == 0 && !$quiet);
 exit 0;
 
 sub checkLicense($)
@@ -154,7 +159,7 @@ sub checkLicense($)
    if ( !$license && length($text) < 128 ) {
       $license = "Trivial file.";
    }
-   if ( $license && !&verboseArg() ) { return "$license"; }
+   if ( $license && !$verbose ) { return "$license"; }
 
 
    $gl = " (v2)" if ($text =~ /version 2(?:\.0)? .{0,40}as published by the Free Software Foundation/i);
@@ -182,37 +187,37 @@ sub checkLicense($)
    $license="LGPL$gl$wrong $license" if ($text =~ /[Tt]he LGPL as published by the Free Software Foundation/i);
    $license="LGPL$gl$wrong $license" if ($text =~ /LGPL with the following explicit clarification/i);
    $license = "GPL$gl$qte$wrong $license" if ($text =~ /under (the terms of )?(version 2 of )?the GNU (General Public License|GENERAL PUBLIC LICENSE)/i);
-   if ( $license && !&verboseArg() ) { return "$license"; }
+   if ( $license && !$verbose ) { return "$license"; }
 
    # QPL
    $license = "QPL $license" if ($text =~ /may be distributed under the terms of the Q Public License as defined by Trolltech AS/i);
-   if ( $license && !&verboseArg() ) { return "$license"; }
+   if ( $license && !$verbose ) { return "$license"; }
 
    # X11, BSD-like
    $license = "X11 (BSD like) $license" if ($text =~ /Permission is hereby granted free of charge to any person obtaining a copy of this software and associated documentation files/i);
-   if ( $license && !&verboseArg() ) { return "$license"; }
+   if ( $license && !$verbose ) { return "$license"; }
 
    # MIT license
    $license = "MIT $license" if ($text =~ /Permission to use copy modify (and )?distribute(and sell)? this software and its documentation for any purpose/i);
-   if ( $license && !&verboseArg() ) { return "$license"; }
+   if ( $license && !$verbose ) { return "$license"; }
 
    # BSD
    $license="BSD $license" if ($text =~ /MERCHANTABILITY( AND|| or) FITNESS FOR A PARTICULAR PURPOSE/i) and ($license !~ /GPL/);
-   if ( $license && !&verboseArg() ) { return "$license"; }
+   if ( $license && !$verbose ) { return "$license"; }
 
    # MPL
    $license = "MPL 1.1 $license" if ($text =~ /subject to the Mozilla Public License Version 1.1/i);
    $license="MPL 1.0 $license" if ($text =~ /Mozilla Public License Version 1\.0/i);
-   if ( $license && !&verboseArg() ) { return "$license"; }
+   if ( $license && !$verbose ) { return "$license"; }
 
    # Artistic license
    $license = "Artistic $license" if ($text =~ /under the Artistic License/i);
-   if ( $license && !&verboseArg() ) { return "$license"; }
+   if ( $license && !$verbose ) { return "$license"; }
 
    # Public domain
    $license = "Public Domain $license" if ($text =~ /Public Domain/i);
    $license = "Public Domain $license" if ($text =~ / disclaims [Cc]opyright/i);
-   if ( $license && !&verboseArg() ) { return "$license"; }
+   if ( $license && !$verbose ) { return "$license"; }
 
    if ( !$license ) {
       #About every license has this clause; but we've failed to detect which type it is.
