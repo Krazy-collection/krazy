@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "syscalls";
-my($Version) = "1.1";
+my($Version) = "1.2";
 
 &parseArgs();
 
@@ -103,6 +103,9 @@ while ($linecnt < $#lines) {
   &doIt($line,"sendfile","KDE_sendfile");
   &doIt($line,"signal","KDE_signal");
   &doIt($line,"getenv","qgetenv");
+
+  &doIt2($line,'struct\s*stat',"struct stat","KDE_struct_stat");
+  &doIt2($line,'struct\s*dirent',"struct dirent","KDE_struct_dirent");
 }
 
 if (!$cnt) {
@@ -128,6 +131,20 @@ sub doIt() {
   }
 }
 
+sub doIt2() {
+  my($line,$regex,$systype,$kname) = @_;
+  if (&sysType($line,$regex)) {
+    $cnt++;
+    if ($cnt == 1) {
+      $lstr = "line\#" . $linecnt;
+    } else {
+      $lstr = $lstr . "," . $linecnt;
+    }
+    $lstr .= " $systype" . "[$kname]";
+    print "=> $line\n" if (&verboseArg());
+  }
+}
+
 sub sysCall() {
   my($l,$syscall) = @_;
   if ($l =~ m/[\(,;=:]\s*$syscall[[:space:]]*\(/ ||
@@ -136,6 +153,15 @@ sub sysCall() {
 	$l !~ m/open.*\"\s*\)/ && $l !~ m/close\s*\(\s*\"/) {
       return 1;
     }
+  } else {
+    return 0;
+  }
+}
+
+sub sysType() {
+  my($l,$systype) = @_;
+  if ($l =~ m/^\s*$systype/) {
+    return 1;
   } else {
     return 0;
   }
