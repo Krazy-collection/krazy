@@ -103,7 +103,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.3';    #split line so MakeMaker can find the version here
+ $VERSION = '2.4';    #split line so MakeMaker can find the version here
 
 my ($help)     = '';
 my ($version)  = '';
@@ -386,7 +386,7 @@ if ( $nprogs == 0 ) {
 #####################################################################
 
 # Options to pass to the checker programs
-my ($opts) = "";
+my ($opts) = "--krazy "; #always passed
 $opts .= "--priority $priority " if ($priority);
 $opts .= "--strict $strict " if ($strict);
 $opts .= "--quiet " if ($quiet);

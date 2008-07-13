@@ -60,6 +60,7 @@ use POSIX qw{floor ceil};
 my($Prog) = "i18ncheckarg";
 my($Version) = "1.1";
 
+my($krazy) = ''; #swallowed
 my($help) = '';
 my($version) = '';
 my($explain) = '';
@@ -75,7 +76,7 @@ my($priority) = '';
 my($strict) = 'all';
 
 exit 1
-if (!GetOptions('help' => \$help, 'version' => \$version,
+if (!GetOptions('krazy' => \$krazy, 'help' => \$help, 'version' => \$version,
                 'explain' => \$explain, 'installed' => \$installed,
                 'verbose' => \$verbose, 'quiet' => \$quiet,
                 'allsources' => \$allsources, 'ctxmark' => \$ctxmark,

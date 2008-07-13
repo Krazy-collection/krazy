@@ -87,7 +87,7 @@ if (!&validateExportType($export)) {
   die "Unsupported export type \"$export\"... exiting\n";
 }
 
-# Options to pass to the checker programs
+# Options to pass to Krazy
 my ($opts) = "";
 $opts .= "--dry-run "            if ($dryrun);
 $opts .= "--ignorerc "           if ($ignorerc);

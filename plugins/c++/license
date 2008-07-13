@@ -70,6 +70,7 @@ sub checkOneFile($)
       $absf =~ m+/kdelibs/cmake/automoc/+ ||
       $absf =~ m+/kdelibs/phonon/kcm/+ ||
       $absf =~ m+/kdelibs/knotify/daemon/+ ||
+      $absf =~ m+/kdelibs/kded/+ ||
       $absf =~ m+/kdelibs/kioslave/+ ||
       $absf =~ m+/kdelibs/kio/misc/kwalletd/+ ||
       $absf =~ m+/kdelibs/kio/misc/kssld/+ ||
@@ -107,14 +108,26 @@ sub checkOneFile($)
 }
 
 # krazy compat mode
-if ($#ARGV == 0) {
+my $krazy = 0;
+foreach my $a (@ARGV) {
+  if ($a eq "--krazy") {
+    $krazy=1;
+    last;
+  }
+  if ($a eq "--help") {
+    &Help(); exit 0;
+  }
+  if ($a eq "--version") {
+    &Version(); exit 0;
+  }
+  if ($a eq "--explain") {
+    &Explain(); exit 0;
+  }
+}
+if ($krazy == 1) {
     &parseArgs();
 
-    &Help() if &helpArg();
-    &Version() if &versionArg();
-    &Explain() if &explainArg();
     if ($#ARGV < 0){ &Help(); exit 0; }
-
     $verbose = &verboseArg();
     $quiet = &quietArg();
 

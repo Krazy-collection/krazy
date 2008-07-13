@@ -29,7 +29,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.11;
+$VERSION = 1.12;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topModule topSubdir deDupe fileType findFiles asOf
@@ -136,6 +136,7 @@ sub asOf {
   return strftime( "%B %d %Y %H:%M:%S", localtime( time() ) );
 }
 
+my($krazy) = '';
 my($help) = '';
 my($version) = '';
 my($priority) = 'all';
@@ -148,10 +149,16 @@ my($verbose) = '';
 sub parseArgs {
 
   exit 1
-  if (!GetOptions('help' => \$help, 'version' => \$version,
+  if (!GetOptions('krazy' => \$krazy, 'help' => \$help, 'version' => \$version,
 		  'priority=s' => \$priority, 'strict=s' => \$strict,
 		  'explain' => \$explain, 'installed' => \$installed,
 		  'verbose' => \$verbose, 'quiet' => \$quiet));
+
+  if (!$help && !$version && !$explain) {
+    if (!$krazy) {
+      die "Checker not called as part of Krazy... exiting\n";
+    }
+  }
 
   if (!&validatePriorityType($priority)) {
     die "Bad priority level \"$priority\" specified... exiting\n";
