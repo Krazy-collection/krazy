@@ -83,8 +83,8 @@ foreach $line (@lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
   $line =~ s+//.*++;  #skip C++ comments
-  if ($line =~ m/[_0-9A-za-z::space::]*=\s*QString::[Nn]ull/ ||
-      $line =~ m/[_0-9A-za-z::space::]*=\s*QString\s*\(\s*\)\s*;/ ||
+  if ($line =~ m/[_0-9A-za-z\s]+=\s*QString::[Nn]ull/ ||
+      $line =~ m/[_0-9A-za-z\s]+=\s*QString\s*\(\s*\)\s*;/ ||
       $line =~ m/return[[:space:]].*[:]*QString::[Nn]ull/ ||
       $line =~ m/QString::[Nn]ull,/ ||
       $line =~ m/QString::[Nn]ull\s*\)/ ||
