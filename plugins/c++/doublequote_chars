@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "doublequote_chars";
-my($Version) = "1.9";
+my($Version) = "1.10";
 
 &parseArgs();
 
@@ -74,16 +74,18 @@ my($cnt) = 0;
 my($scnt) = 0; #QString::startsWith(), QString::endsWith() issues
 my($rcnt) = 0; #QString::replace() issues
 my($xcnt) = 0; #QString::remove() issues
+my($spcnt) = 0; #QString::split() issues
 my($linecnt) = 0;
 my($line);
 my($lstr) = "";
 my($slstr) = "";
 my($rlstr) = "";
 my($xlstr) = "";
+my($splstr) = "";
 foreach $line (@lines) {
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
-    $cnt = $scnt = $rcnt = $xcnt = 0;
+    $cnt = $scnt = $rcnt = $xcnt = $spcnt = 0;
     last;
   }
 
@@ -190,9 +192,25 @@ foreach $line (@lines) {
     print "=> $line\n" if (&verboseArg());
     next;
   }
+
+  #QString::split() checks
+  if ($pline =~ m/split[[:space:]]*\([[:space:]]*\"[[:print:]]\"/ ||
+      $pline =~ m/split[[:space:]]*\([[:space:]]*\"\\n\"/ ||
+      $pline =~ m/split[[:space:]]*\([[:space:]]*\"\\t\"/ ||
+      $pline =~ m/split[[:space:]]*\([[:space:]]*\"\\r\"/ ||
+      $pline =~ m/split[[:space:]]*\([[:space:]]*\"\\\"\"/) {
+    $spcnt++;
+    if ($spcnt == 1) {
+      $splstr = "split issues line\#" . $linecnt;
+    } else {
+      $splstr = $splstr . "," . $linecnt;
+    }
+    print "=> $line\n" if (&verboseArg());
+    next;
+  }
 }
 
-my($total_count) = $cnt + $scnt + $rcnt + $xcnt;
+my($total_count) = $cnt + $scnt + $rcnt + $xcnt + $spcnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   exit 0;
@@ -202,6 +220,7 @@ if (!$total_count) {
     print "$slstr ($scnt)\n" if ($scnt);
     print "$rlstr ($rcnt)\n" if ($rcnt);
     print "$xlstr ($xcnt)\n" if ($xcnt);
+    print "$splstr ($spcnt)\n" if ($spcnt);
   }
   exit $total_count;
 }
@@ -217,6 +236,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Adding single characters to a QString is faster if the characters are QChars and not QStrings.  For example: QString path = oldpath + \"/\" + base is better written as QString path = oldpath + \'/\' + base. Same holds for arguments to QString::startsWith(), QString::endsWith() and QString::remove(). Use QString::remove() instead of QString::replace(foo,\"\")\n";
+  print "Adding single characters to a QString is faster if the characters are QChars and not QStrings.  For example: QString path = oldpath + \"/\" + base is better written as QString path = oldpath + \'/\' + base. Same holds for arguments to QString::startsWith(), QString::endsWith(), QString::remove() and QString::split(). Use QString::remove() instead of QString::replace(foo,\"\")\n";
   exit 0 if &explainArg();
 }
