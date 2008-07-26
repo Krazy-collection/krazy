@@ -92,6 +92,12 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/\(\s*(::)?(Types)::\w+\s\w+\s*,/);
     next if ($line =~ m/\(\s*[:\w]+::List\s\w+\s*,/);
 
+    # see if the iterator variable is declared a pointer a couple lines above
+    if ($line =~ m/(foreach|Q_FOREACH)\s*\(\s*(\w+)\s*,/) {
+      my($pat) = "\\s*\\*\\s*" . $2 . "\\s*;";
+      next if(&searchBack($pat,$linecnt,10));
+    }
+
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
@@ -109,6 +115,19 @@ if (!$cnt) {
   $lstr =~ s/,$//;
   print "$lstr ($cnt)\n" if (!&quietArg());
   exit $cnt;
+}
+
+# search the previous $n lines for a pattern $p
+sub searchBack {
+  my($p,$l,$n) = @_;
+  my($i);
+  $n = $#lines if ($#lines < $n);
+  for($i=1; $i<=$n; $i++) {
+    if ($lines[$l-$i] =~ $p) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 sub Help {
