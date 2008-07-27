@@ -43,6 +43,14 @@ Do not process any file that maches the specified perl regular expression.
 See the perlreftut(1) man page for a description of how to write
 a perl regular expression.
  
+=item PRIORITY priority
+
+Set the priority value. Must be one of "low", "normal", "high", "important", "all".
+
+=item STRICT strict
+
+Set the strict value. Must be one of "normal", "super", "all".
+
 =item IGNORESUBS subdir1[,subdir2,...]
 
 Do not run Krazy on the specified list of subdirectories.

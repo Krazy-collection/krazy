@@ -29,7 +29,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.3';    #split line so MakeMaker can find the version here
+ $VERSION = '2.5';    #split line so MakeMaker can find the version here
 
 my ($help)     = '';
 my ($version)  = '';
@@ -38,8 +38,8 @@ my ($verbose)  = '';
 my ($ignorerc) = '';
 my ($dryrun)   = '';
 my ($quiet)    = '';
-my ($priority) = 'all';
-my ($strict)   = 'all';
+my ($priority) = '';
+my ($strict)   = '';
 my ($check)    = '';
 my ($exclude)  = '';
 my ($extra)    = '';
@@ -75,15 +75,15 @@ if ($list) {
   exit 0;
 }
 
-if (!&validatePriorityType($priority)) {
+if ($priority && !&validatePriorityType($priority)) {
   die "Bad priority level \"$priority\" specified... exiting\n";
 }
 
-if (!&validateStrictType($strict)) {
+if ($strict && !&validateStrictType($strict)) {
   die "Bad strictness level \"$strict\" specified... exiting\n";
 }
 
-if (!&validateExportType($export)) {
+if ($export && !&validateExportType($export)) {
   die "Unsupported export type \"$export\"... exiting\n";
 }
 

@@ -29,7 +29,7 @@ use Cwd;
 use Krazy::Utils;
 
 use Exporter;
-$VERSION = 1.00;
+$VERSION = 1.10;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(ParseKrazyRC);
@@ -46,6 +46,8 @@ $VERSION = 1.00;
 # CHECK plugin1[,plugin2,...] <regexp>
 # EXTRA plugin1[,plugin2,...] <regexp>
 # SKIP regexp
+# PRIORITY <low|normal|high|important|all>
+# STRICT <normal|super|all>
 # IGNORESUBS subdir1[,subdir2,...]
 # IGNOREMODS module1[,module2,...]
 #
@@ -55,7 +57,7 @@ $VERSION = 1.00;
 # The directive is case-insensitive.
 #==============================================================================
 
-my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,@rcIgSubsList,@rcIgModsList);
+my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,$rcPriority,$rcStrict,@rcIgSubsList,@rcIgModsList);
 my($CWD);
 
 sub ParseKrazyRC {
@@ -69,6 +71,8 @@ sub ParseKrazyRC {
   $rcOnly       = "";
   $rcExtra      = "";
   $rcSkipRegex  = "";
+  $rcPriority   = "";
+  $rcStrict     = "";
   @rcIgSubsList = ();
   @rcIgModsList = ();
 
@@ -93,6 +97,10 @@ sub ParseKrazyRC {
       &ignoreMods($arg);
     } elsif ( $directive eq "SKIP" ) {
       &skips($arg);
+    } elsif ( $directive eq "PRIORITY" ) {
+      &priority($arg);
+    } elsif ( $directive eq "STRICT" ) {
+      &strict($arg);
     } else {
       print "Invalid directive $directive, line $linecnt, $rcfile... exiting\n";
       close(F);
@@ -107,6 +115,8 @@ sub ParseKrazyRC {
   $directives{'CHECK'}      = $rcOnly;
   $directives{'EXTRA'}      = $rcExtra;
   $directives{'SKIPREGEX'}  = $rcSkipRegex;
+  $directives{'PRIORITY'}   = $rcPriority;
+  $directives{'STRICT'}     = $rcStrict;
   @{$directives{'IGSUBSLIST'}} = deDupe(@rcIgSubsList);
   @{$directives{'IGMODSLIST'}} = deDupe(@rcIgModsList);
   return %directives;
@@ -182,6 +192,34 @@ sub skips {
   } else {
     $rcSkipRegex .= "|" . $args;
   }
+}
+
+sub priority {
+  my ($args) = @_;
+  if ( !defined($args) ) {
+    print "missing PRIORITY argument in .krazy...exiting\n";
+    exit 1;
+  }
+  $args=lc($args);
+  if ( !&validatePriorityType($args) ) {
+    print "invalid PRIORITY argument \"$args\" in .krazy... exiting\n";
+    exit 1;
+  }
+  $rcPriority = $args;
+}
+
+sub strict {
+  my ($args) = @_;
+  if ( !defined($args) ) {
+    print "missing STRICT argument in .krazy...exiting\n";
+    exit 1;
+  }
+  $args=lc($args);
+  if ( !&validateStrictType($args) ) {
+    print "invalid STRICT argument \"$args\" in .krazy... exiting\n";
+    exit 1;
+  }
+  $rcStrict = $args;
 }
 
 1;
