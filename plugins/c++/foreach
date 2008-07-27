@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "foreach";
-my($Version) = "1.0";
+my($Version) = "1.1";
 
 &parseArgs();
 
@@ -83,11 +83,11 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  if ($line =~ m/(foreach|Q_FOREACH)/) {
+  if ($line =~ m/(foreach|Q_FOREACH)\s*\(/) {
     next if ($line =~ m/\(\s*const\s[:\w]+\s*&\s*\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?[:\w]+\s*\*(\s*const\s)?\s*\w+\s*,/);
-    next if ($line =~ m/\(\s*(const\s)?(T|int|uint|unsigned int|long|double|unsigned char)\s\w+\s*,/);
-    next if ($line =~ m/\(\s*(const\s)?(QList|QPointer|shared_ptr)<[\s\w\*]+>\s*[&]?\s*[:\w]+\s*,/);
+    next if ($line =~ m/\(\s*(const\s)?(T|int|uint|unsigned int|long|float|double|qreal|unsigned char)\s\w+\s*,/);
+    next if ($line =~ m/\(\s*(const\s)?(QList|QLinkedList|QPointer|QVector|QMap|QSet|shared_ptr)\s*<[\s\w\*]+>\s*[&]?\s*[:\w]+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?[:\w]+(Ptr|Info|Information|Error|Type|Id)\s\w+\s*,/);
     next if ($line =~ m/\(\s*(::)?(Types)::\w+\s\w+\s*,/);
     next if ($line =~ m/\(\s*[:\w]+::List\s\w+\s*,/);
