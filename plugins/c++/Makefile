@@ -40,6 +40,7 @@ qobject \
 qbytearray \
 sigsandslots \
 syscalls \
+typedefs \
 
 # links to general purpose plugins
 PLUGINLNS = \
