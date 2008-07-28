@@ -30,6 +30,7 @@
 #        --priority:  print issues with the specified priority only
 #        --strict:    print issues according to the specified strictness
 #        --explain:   print an explanation with solving instructions
+#        --brief:     print only checks with at least 1 issue
 #        --quiet:     suppress all output messages
 #        --verbose:   print the offending content for each file processed
 #        --installed: file is to be installed.
@@ -82,6 +83,7 @@
 #   --rev:         subversion revision number
 #   --ignorerc:    ignore .krazy files
 #   --dry-run:     don't execute the checks; only show what would be run
+#   --brief:       print only checks with at least 1 issue
 #   --quiet:       suppress all output messages
 #   --verbose:     print the offending content for each file processed
 #
@@ -103,12 +105,13 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.5';    #split line so MakeMaker can find the version here
+ $VERSION = '2.6';    #split line so MakeMaker can find the version here
 
 my ($help)     = '';
 my ($version)  = '';
 my ($explain)  = '';
 my ($list)     = '';
+my ($brief)    = '';
 my ($quiet)    = '';
 my ($verbose)  = '';
 my ($dryrun)   = '';
@@ -133,6 +136,7 @@ exit 1
 		   'dry-run'   => \$dryrun,
 		   'ignorerc'  => \$ignorerc,
 		   'verbose'   => \$verbose,
+		   'brief'     => \$brief,
 		   'quiet'     => \$quiet,
 		   'check=s'   => \$only,
 		   'exclude=s' => \$exclude,
@@ -500,19 +504,19 @@ for $ftype (@types) {
 	      unless ( $_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+ );
 	  }
 	  close(SANE);
-	  $status{$p} += $? >> 8;
+	  $status{$p} += $? >> 8;  #TODO:invent another way to get #issues
 	} else {
 	  print "$p $opts $insopt $f\n";
 	}
 	print STDERR "." unless ( $nf % 10 || $quiet );
-      }    # foreach file to process
+      } # foreach file to process
       if ( $nf > 0 ) {
 	$overall_status += $status{$p} if ( defined( $status{$p} ) );
 	print STDERR "done\n" unless ($quiet);
       }
-    }    # foreach Checker of this type
-  }  # if any Checker is defined for file of this type
-}    # foreach type of file
+    } # foreach Checker of this type
+  } # if any Checker is defined for file of this type
+} # foreach type of file
 
 ###############################
 # This section prints results #
@@ -541,11 +545,10 @@ if ( !$quiet ) {
         $rline = "OOPS! $status{$p} $si found!";
       } else {
         $rline = "okay!";
+	$cline = "" if ($brief); #so printCheck() will print nothing
       }
       &printCheck( $cline, $rline );
-      if ( defined( $status{$p} ) &&
-        $status{$p} > 0 &&
-        length( $result{$p} ) > 0 ) {
+      if (defined($status{$p}) && $status{$p} > 0 && length($result{$p}) > 0) {
         printOOPS( $result{$p}, $cline );
         if ($explain) {
           my ($use) = `$p --explain 2>/dev/null`;
@@ -554,7 +557,7 @@ if ( !$quiet ) {
           &printExplain( wrap( "        ", "        ", $use ) );
         }
       }
-      print "\n" if ( $export ne "textlist" && $export ne "textedit" );
+      print "\n" if ($cline ne "" && $export ne "textlist" && $export ne "textedit");
     }
     print "</ol>\n<br>\n" if ( $export !~ "text" );
   }
@@ -611,6 +614,7 @@ sub Help {
   print "  --rev:    subversion revision number\n";
   print "  --ignorerc: ignore .krazy files\n";
   print "  --dry-run don't execute the checks; only show what would be run\n";
+  print "  --brief:  print only checks with at least 1 issue\n";
   print "  --quiet   suppress all output messages\n";
   print "  --verbose print the offending content for each file processed\n";
   print "\n";
@@ -888,7 +892,8 @@ sub printFooter {
 # printCheck function: print the "check" and "result" strings, according
 # to export type.
 sub printCheck() {
-  my ( $check, $result ) = @_;
+  my ($check, $result) = @_;
+  return if ($check eq "");
   if ( $export eq "text" ) {
     print "$check $result\n";
   } else {
@@ -1206,6 +1211,10 @@ component, module, and subdir which is being scanned.
 =item B<--rev>
 
 Subversion revision number to be printed on the output report, if provided.
+
+=item B<--brief>
+
+Only print the output for checkers that have at least 1 issue.
 
 =item B<--quiet>
 

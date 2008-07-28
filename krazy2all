@@ -29,7 +29,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.5';    #split line so MakeMaker can find the version here
+ $VERSION = '2.6';    #split line so MakeMaker can find the version here
 
 my ($help)     = '';
 my ($version)  = '';
@@ -37,6 +37,7 @@ my ($list)     = '';
 my ($verbose)  = '';
 my ($ignorerc) = '';
 my ($dryrun)   = '';
+my ($brief)    = '';
 my ($quiet)    = '';
 my ($priority) = '';
 my ($strict)   = '';
@@ -55,6 +56,7 @@ exit 1
 		   'dry-run'   => \$dryrun,
 		   'ignorerc'  => \$ignorerc,
 		   'verbose'   => \$verbose,
+		   'brief'     => \$brief,
 		   'quiet'     => \$quiet,
 		   'priority=s'=> \$priority,
 		   'strict=s'  => \$strict,
@@ -91,6 +93,7 @@ if ($export && !&validateExportType($export)) {
 my ($opts) = "";
 $opts .= "--dry-run "            if ($dryrun);
 $opts .= "--ignorerc "           if ($ignorerc);
+$opts .= "--brief "              if ($brief);
 $opts .= "--quiet "              if ($quiet);
 $opts .= "--verbose "            if ($verbose);
 $opts .= "--check=$check "       if ($check);
@@ -156,6 +159,7 @@ sub Help {
   print "  --cms     component/module/subdir triple for html and ebn exports\n";
   print "  --ignorerc: ignore .krazy files\n";
   print "  --dry-run don't execute the checks; only show what would be run\n";
+  print "  --brief:  print only checks with at least 1 issue\n";
   print "  --quiet   suppress all output messages\n";
   print "  --verbose print the offending content for each file processed\n";
   print "\n";
@@ -267,6 +271,10 @@ Give the output report a project title.
 An acronym for "component/module/subdir".  Used to write the breadcrumbs line
 in the ebn and html export.  Must be a slash-delimited triple containing the
 component, module, and subdir which is being scanned.
+
+=item B<--brief>
+
+Only print the output for checkers that have at least 1 issue.
 
 =item B<--quiet>
 
