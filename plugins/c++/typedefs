@@ -56,7 +56,7 @@ if ($#ARGV != 0){ &Help(); exit 0; }
 my($f) = $ARGV[0];
 
 # open file and slurp it in (C++ only)
-if (&fileType($f) eq "c++" && $f !~ /\.c/) {
+if (&fileType($f) eq "c++" && $f !~ /\.c$/) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
