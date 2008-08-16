@@ -60,7 +60,7 @@ Exempting lines, files and directories from the checks:
   Provide a .krazy file in the topmost directory and use
   regular expressions to specify the files that should not
   be checked. For example to exclude kcal/libical, kcal/versit
-  and kcal/fred.c in the kdepimlibs module but this .krazy file
+  and kcal/fred.c in the kdepimlibs module put this .krazy file
   into kdepimlib/kcal
   SKIP /libical/\|/versit/\|fred\.c
 
