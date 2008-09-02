@@ -98,6 +98,12 @@ make install INSTALL_ROOT=$TOP && \
 make distclean
 cd ..
 
+#install share stuff
+mkdir -p $TOP/share/dtd
+cd share && \
+cp kpartgui.dtd $TOP/share/dtd
+cd ..
+
 #build and install extra docs
 cd doc && \
 make install PREFIX=$TOP && \
