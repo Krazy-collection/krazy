@@ -17,7 +17,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # list of all plugins to install
-PLUGINS = fixuifiles \
+PLUGINS = \
+fixuifiles \
 
 # links to general purpose plugins
 PLUGINLNS = \

@@ -23,7 +23,8 @@ kdebug \
 multiclasses \
 null \
 qenums \
-style
+style \
+tipsandthis \
 
 # links to general purpose extras
 EXTRALNS = \

@@ -1,0 +1,163 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2008 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for missing ToolTips or WhatsThis in a KConfigXT file.
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::Utils;
+
+my($Prog) = "tipsandthis";
+my($Version) = "1.0";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+
+# open file and slurp it in (KConfigXT only)
+if (&fileType($f) eq "kconfigxt") {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  exit 0;
+}
+my(@lines) = <F>;
+close(F);
+
+my($tcnt) = 0;
+my($tlstr) = "";
+my($wcnt) = 0;
+my($wlstr) = "";
+
+my($line,$sline);
+my($type,$name);
+my($linecnt) = 0;
+my($slinecnt);
+my($hasToolTip,$hasWhatsThis);
+while ($linecnt < $#lines) {
+  $line = $lines[$linecnt++];
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $tcnt = $wcnt = 0;
+    last;
+  }
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
+  if ($line =~ m/<\s*entry\s/) {
+    $hasToolTip=0;
+    $hasWhatsThis=0;
+
+    $sline = $line;
+    $slinecnt = $linecnt;
+
+    $name = $line;
+    chomp($name);
+    $name =~ s/^.*name=\"//;
+    $name =~ s/\".*$//;
+    if ( $name =~ m/key\s*=/ || $name =~ m/type\s*=/) {
+      $name = $line;
+      chomp($name);
+      $name =~ s/^.*key=\"//;
+      $name =~ s/\".*$//;
+    }
+
+    $type = $line;
+    chomp($type);
+    $type =~ s/^.*type=\"//;
+    $type =~ s/\".*$//;
+
+    while ($linecnt < $#lines) {
+      $line = $lines[$linecnt++];
+      $hasToolTip = 1 if ($line =~ m/<\s*tooltip\s*>/);
+      $hasWhatsThis = 1 if ($line =~ m/<\s*whatsthis\s*>/);
+      last if ($line =~ m+</entry>+);
+    }
+    if ( !$hasToolTip) {
+      $tcnt++;
+      if ($tcnt == 1) {
+	$tlstr = "toolTip missing line\#" . $slinecnt;
+      } else {
+	$tlstr = $tlstr . "," . $slinecnt;
+      }
+      $tlstr .= " [$type $name]";
+      print "=> $sline" if (&verboseArg());
+    }
+    if ( !$hasWhatsThis) {
+      $wcnt++;
+      if ($wcnt == 1) {
+	$wlstr = "whatsThis missing line\#" . $slinecnt;
+      } else {
+	$wlstr = $wlstr . "," . $slinecnt;
+      }
+      $wlstr .= " [$type $name]";
+      print "=> $sline" if (&verboseArg());
+    }
+  }
+}
+
+my ($total_count) = $tcnt + $wcnt;
+if (!$total_count) {
+  print "okay\n" if (!&quietArg());
+  exit 0;
+} else {
+  if (!&quietArg()) {
+    print "$tlstr ($tcnt)\n" if ($tcnt);
+    print "$wlstr ($wcnt)\n" if ($wcnt);
+  }
+  exit $total_count;
+}
+
+sub Help {
+  print "Check for missing tooltips or whatsThis\n";
+  exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Please provide tooltips and whatsThis strings to help the user make informed choices.\n";
+  exit 0 if &explainArg();
+}
