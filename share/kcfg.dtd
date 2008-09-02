@@ -26,7 +26,7 @@
 <!ELEMENT group (entry*)>
   <!ATTLIST group name CDATA #REQUIRED>
 
-<!ELEMENT entry (parameter?,label?,whatsthis?,choices?,code?,default*,min?,max?)>
+<!ELEMENT entry (parameter?,label?,whatsthis?,tooltip?,choices?,code?,default*,min?,max?)>
   <!ATTLIST entry 
                   name CDATA #IMPLIED
 		  type (String|StringList|Font|Rect|Size|Color|
@@ -44,9 +44,10 @@
 
 <!ELEMENT label (#PCDATA)>
 <!ELEMENT whatsthis (#PCDATA)>
+<!ELEMENT tooltip (#PCDATA)>
 
 <!ELEMENT choices (choice+)>
-<!ELEMENT choice (label?,whatsthis?)>
+<!ELEMENT choice (label?,whatsthis?,tooltip?)>
   <!ATTLIST choice name CDATA #REQUIRED>
 
 <!ELEMENT code (#PCDATA)>
