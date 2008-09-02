@@ -45,15 +45,19 @@ V=`perl -e 'printf "%vd", $^V'`
 if ( test -d $TOP/lib/perl5/site_perl ) then
   (cd $TOP/lib; rm -f Krazy; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy Krazy)
 else
-  if ( test -d $TOP/share/perl ) then
-    (cd $TOP/lib; rm -f Krazy; rm -f Krazy; ln -s $TOP/share/perl/$V/Krazy Krazy)
+  if ( test -d $TOP/lib64/perl5/site_perl ) then
+    (cd $TOP/lib; rm -f Krazy; rm -f Krazy; ln -s $TOP/lib64/perl5/site_perl/$V/Krazy Krazy)
   else
-    echo
-    echo "==================================================================="
-    echo "Unknown perl installation issue encountered. Aborting installation."
-    echo "Please contact winter@kde.org about this."
-    echo "==================================================================="
-    exit 1
+    if ( test -d $TOP/share/perl ) then
+	(cd $TOP/lib; rm -f Krazy; rm -f Krazy; ln -s $TOP/share/perl/$V/Krazy Krazy)
+    else
+	echo
+	echo "==================================================================="
+	echo "Unknown perl installation issue encountered. Aborting installation."
+	echo "Please contact winter@kde.org about this."
+	echo "==================================================================="
+	exit 1
+    fi
   fi
 fi
 
