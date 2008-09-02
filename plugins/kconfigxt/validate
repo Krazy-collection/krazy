@@ -107,7 +107,7 @@ sub processFile() {
   my($in) = @_;
   my($line,$result);
   my($cnt)=0;
-  open(VAL, "$valp --noout --dtdvalid $dtd $in 2>&1 | ") || print STDERR "Cannot run: xmllint\n";
+  open(VAL, "$valp --noout --debugent --dtdvalid $dtd $in 2>&1 | ") || print STDERR "Cannot run: xmllint\n";
   while($line = <VAL>) {
     chomp($line);
     $result = &analyze($line);
