@@ -102,6 +102,7 @@ cd ..
 mkdir -p $TOP/share/dtd
 cd share && \
 cp kpartgui.dtd $TOP/share/dtd
+cp kcfg.dtd $TOP/share/dtd
 cd ..
 
 #build and install extra docs
