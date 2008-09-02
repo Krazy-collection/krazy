@@ -18,6 +18,7 @@
 
 # list of all plugins to install
 PLUGINS = \
+validate \
 
 # links to general purpose plugins
 PLUGINLNS = \

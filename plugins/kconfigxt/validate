@@ -1,0 +1,137 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2008 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# KConfigXT file validator using xmllint
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::Utils;
+
+my($Prog) = "validate";
+my($Version) = "1.0";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+
+my($valp) = "$Bin/../../krazy-helpers/xmllint";
+if ( ! -x $valp ) {
+  $valp = "/usr/local/bin/xmllint";
+  if ( ! -x $valp ) {
+    $valp = "xmllint";
+  }
+}
+
+#look for krazy directives in the file
+open(F, "$f") || die "Couldn't open $f";
+my($line);
+my($isa)=0;
+while ($line = <F>) {
+  exit 0
+    if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
+        $line =~ m+#.*[Kk]razy:skip+);
+
+  $isa=1 if ($line =~ m+^\s*<!\s*DOCTYPE\skcfg+);
+}
+close(F);
+exit 0 if (!$isa); #exit if not a true kconfigxt file
+
+my($dtd)="$Bin/../../../../share";
+$dtd .= "/dtd/kcfg.dtd";
+
+#now process the file
+my($cnt) = &processFile($f);
+if (!$cnt) {
+  print "okay\n" if (!&quietArg());
+  exit 0;
+} else {
+  exit $cnt;
+}
+
+sub Help {
+  print "Validates KConfigXT files using 'xmllint'\n";
+  exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Please make sure your .kcfg files conform to the dtd\n";
+  exit 0 if &explainArg();
+}
+
+sub processFile() {
+  my($in) = @_;
+  my($line,$result);
+  my($cnt)=0;
+  open(VAL, "$valp --noout --dtdvalid $dtd $in 2>&1 | ") || print STDERR "Cannot run: xmllint\n";
+  while($line = <VAL>) {
+    chomp($line);
+    $result = &analyze($line);
+    if ($result && $line) {
+      next if ($line =~ m/(xmlns|schemaLocation)/);
+
+      $cnt++;
+      $line =~ s+^$f:\s*++;
+      $line =~ s+^warning:\s*++;
+      $line =~ s+^error:\s*++;
+      print "$line\n" if (!&quietArg());
+    }
+  }
+  close(VAL);
+  return $cnt;
+}
+
+sub analyze() {
+  my($line) = @_;
+  if ($line =~ m+error\s*:+) {
+    return "ERROR";
+  }
+  if ($line =~ m+warning\s*:+) {
+    return "WARNING";
+  }
+  return "";
+}
