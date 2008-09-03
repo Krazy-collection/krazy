@@ -118,7 +118,7 @@ foreach my $w (keys %Widgets) {
   $hasToolTip=0;
   $hasWhatsThis=0;
 
-  $linecnt = $Widgets{$w}{'linecnt'} + 1;
+  $linecnt = $Widgets{$w}{'linecnt'};
   while ($linecnt < $#lines) {
     $line = $lines[$linecnt++];
     $line =~ s/\[\w+]/ARRAY/;
@@ -171,7 +171,7 @@ sub widgetName {
   $name =~ s/^\s*[:\w]+\s//;
   $name =~ s/\s*=.*$//;
   $name =~ s/^\s*//;
-  $name =~ s/^\*//;
+  $name =~ s/^.*\*\s*//;
   if ($name eq "") {
     $name = $l;
     $name =~ s/\s*=.*//;
