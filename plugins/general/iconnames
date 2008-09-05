@@ -1115,7 +1115,7 @@ while ($linecnt < $#lines) {
 
     # does this cover everything? without any filtering we get too much noise
     if ( $pline =~ m/Icon\s*\(/ || $pline =~ m/iconPath\s*\(/ ||
-	 $pline =~ m/[Pp]ixmap/ ) {
+	 $pline =~ m/[Pp]ixmap\s*\(/ ) {
       # FIXME: this fails for quoted quotes and god knows what else...
       my @strings = split( /\"/, $pline );
       for ( my $i = 1; $i < $#strings; $i = $i + 2 ) {
