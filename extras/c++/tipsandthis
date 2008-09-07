@@ -102,6 +102,7 @@ while ($linecnt < $#lines) {
     $name = &widgetName($line);
     $name = &widgetName($lline) if ($name eq "");
     next if ($name eq "");
+    next if ($name =~ m/^kcfg_/);  # skip kcfg names
     $type = &widgetType($line);
     $key = $name . $slinecnt;
 #    print "key=[$key], type=[$type], name=[$name]\n";
