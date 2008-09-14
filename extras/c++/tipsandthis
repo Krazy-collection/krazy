@@ -92,8 +92,8 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  if ($line =~ m/=\s*new\sQ\w+/ || $line =~ m/=\s*new\sK(ComboBox|LineEdit|TabBar|TextEdit)/) {
-    next if ($line =~ m/(Application|Widget|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|Dialog|Drag|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem)/);
+  if ($line =~ m/new\sQ\w+/ || $line =~ m/new\sK(ComboBox|LineEdit|TabBar|TextEdit)/) {
+    next if ($line =~ m/(Application|Widget|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|Dialog|Drag|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem)/);
     next if ($line =~ m/\(\s*new\s/ || $line =~ m/^\s*return\snew/);
 
     $sline = $line;
@@ -124,7 +124,6 @@ foreach my $w (keys %Widgets) {
     $line = $lines[$linecnt++];
     $line =~ s/\[\w+]/ARRAY/;
 
-print "w is $w\n";
     $hasToolTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
     $hasWhatsThis = 1 if ($line =~ m/$Widgets{$w}{'name'}->setWhatsThis/);
   }
