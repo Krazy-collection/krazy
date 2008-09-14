@@ -166,14 +166,13 @@ sub widgetName {
   my($name);
 
   return "" if ($l =~ m/^\s*=/ || $l =~ m/^\s*new/);
-
   chomp($l);
   $name = $l;
   $name =~ s/^\s*[:\w]+\s//;
   $name =~ s/\s*=.*$//;
   $name =~ s/^\s*//;
   $name =~ s/^.*\*\s*//;
-  $name =~ s/^.*\(\s*//;
+  $name =~ s/^\s*\w+\s*\(\s*//;
   if ($name eq "") {
     $name = $l;
     $name =~ s/\s*=.*//;
@@ -183,7 +182,7 @@ sub widgetName {
   if ($name =~ m/->/ || $name =~ m/^\s*[{}\(\)]/) {
     $name = "";
   }
-  $name =~ s/\[\w+\]/ARRAY/;
+  $name =~ s/\[[%\-\+\(\)\w\s]+\]/ARRAY/;
   return $name;
 }
 
