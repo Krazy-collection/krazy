@@ -94,7 +94,7 @@ while ($linecnt < $#lines) {
 
     # see if the iterator variable is declared a pointer a couple lines above
     if ($line =~ m/(foreach|Q_FOREACH)\s*\(\s*(\w+)\s*,/) {
-      my($pat) = "\\s*\\*\\s*" . $2 . "\\s*;";
+      my($pat) = "\\s*\\*\\s*" . $2 . "\\s*";
       next if(&searchBack($pat,$linecnt,10));
     }
 
