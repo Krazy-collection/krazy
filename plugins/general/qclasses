@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.7";
+my($Version) = "1.8";
 
 &parseArgs();
 
@@ -137,6 +137,8 @@ sub qClass() {
   if ($filetype eq "c++") {
     if ($l =~ m/new[[:space:]]$qname[[:space:]]*\(/ ||
 	$l =~ m/$qname\::[[:alnum:]]+[[:space:]]*\(/ ||
+	$l =~ m/$qname[[:space:]]*\*[[:space:]]*[[:alnum:]]+/ ||
+	$l =~ m/\s*:\s*public\s$qname/ ||
 	(($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/) && ($l !~ m/==/ && $l !~ m/\!=/))) {
       return 0 if ($nregexp ne "" && $l =~ m/$nregexp/);
       return 1 if (!&whiteList($l));
