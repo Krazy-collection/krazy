@@ -171,14 +171,16 @@ foreach $line (@lines) {
       $pline =~ m/replace\s*\(\s*\"\\t\"/ ||
       $pline =~ m/replace\s*\(\s*\"\\r\"/ ||
       $pline =~ m/replace\s*\(\s*\"\\\"\"/) {
-    $rcnt++;
-    if ($rcnt == 1) {
-      $rlstr = "replace issues line\#" . $linecnt;
-    } else {
-      $rlstr = $rlstr . "," . $linecnt;
+    if ($pline !~ m/:replace/) {
+      $rcnt++;
+      if ($rcnt == 1) {
+	$rlstr = "replace issues line\#" . $linecnt;
+      } else {
+	$rlstr = $rlstr . "," . $linecnt;
+      }
+      print "=> $line\n" if (&verboseArg());
+      next;
     }
-    print "=> $line\n" if (&verboseArg());
-    next;
   }
 
   #QString::remove() checks
@@ -187,14 +189,16 @@ foreach $line (@lines) {
       $pline =~ m/remove\s*\(\s*\"\\t\"/ ||
       $pline =~ m/remove\s*\(\s*\"\\r\"/ ||
       $pline =~ m/remove\s*\(\s*\"\\\"\"/) {
-    $xcnt++;
-    if ($xcnt == 1) {
-      $xlstr = "remove issues line\#" . $linecnt;
-    } else {
-      $xlstr = $xlstr . "," . $linecnt;
+    if ($pline !~ m/:remove/) {
+      $xcnt++;
+      if ($xcnt == 1) {
+	$xlstr = "remove issues line\#" . $linecnt;
+      } else {
+	$xlstr = $xlstr . "," . $linecnt;
+      }
+      print "=> $line\n" if (&verboseArg());
+      next;
     }
-    print "=> $line\n" if (&verboseArg());
-    next;
   }
 
   #QString::split() checks
@@ -203,14 +207,16 @@ foreach $line (@lines) {
       $pline =~ m/split\s*\(\s*\"\\t\"/ ||
       $pline =~ m/split\s*\(\s*\"\\r\"/ ||
       $pline =~ m/split\s*\(\s*\"\\\"\"/) {
-    $spcnt++;
-    if ($spcnt == 1) {
-      $splstr = "split issues line\#" . $linecnt;
-    } else {
-      $splstr = $splstr . "," . $linecnt;
+    if ($pline !~ m/:split/) {
+      $spcnt++;
+      if ($spcnt == 1) {
+	$splstr = "split issues line\#" . $linecnt;
+      } else {
+	$splstr = $splstr . "," . $linecnt;
+      }
+      print "=> $line\n" if (&verboseArg());
+      next;
     }
-    print "=> $line\n" if (&verboseArg());
-    next;
   }
 }
 
