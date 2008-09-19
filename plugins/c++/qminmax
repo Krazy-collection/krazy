@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qminmax";
-my($Version) = "1.3";
+my($Version) = "1.4";
 
 &parseArgs();
 
@@ -113,7 +113,6 @@ foreach $line (@lines) {
     }
     print "=> $line" if (&verboseArg());
   }
-  $linecnt++;
 }
 
 my($total_count) = $min_cnt + $max_cnt;
