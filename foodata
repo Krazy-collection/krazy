@@ -40,3 +40,11 @@ TRUE // krazy:exclude=captruefalse
 //qminmax
 fred=QMAX(i,j); // qminmax
 fred=QMAX(i,j); // krazy:exclude=qminmax
+
+// postfix op
+for( int i = 0; i < foo; i++ );
+for( int j = 0; j < foo; j-- );
+someVar++;
+someVar--;
+some = var++ - 3;
+some = var-- + 3;
