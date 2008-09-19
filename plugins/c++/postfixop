@@ -1,0 +1,144 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2008 by Bertjan Broeksema <b.broeksema@kdemail.net>           #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for postfix increment/decrement.
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "postfixop";
+my($Version) = "0.1";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); exit 0; }
+
+my($f) = $ARGV[0];
+
+# open file and slurp it in (C++, non-headers only)
+if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  exit 0;
+}
+my(@data_lines) = <F>;
+close(F);
+
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+
+my($cnt) = 0;
+my($linecnt) = 0;
+my($lstr) = "";
+my($line) = "";
+my($prevline);
+
+while ($linecnt < $#lines) {
+  $prevline = $line;
+  $line = $lines[$linecnt++];
+
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $cnt = 0;
+    last;
+  }
+	
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  if ($line =~ m/\w+(\+\+|\-\-)\s*(;|\))/) {
+    # NOTE: For now we only check in for loops as there is quite a big danger
+    # that when we expose all postfix usage of ++ and -- to the developers
+    # that a great deal of off-by-one-errors and what not more are introduced.
+    # It is (almost?) always safe to change postfix usage in for loops.
+    #
+    if ( &searchBack('^\s*for\s*\(',$linecnt,3) ) {
+      next if ($line =~ m/(\+\+|\-\-)\s*;\s*$/); # no semis in a for loop
+      $cnt++;
+      if ($cnt == 1) {
+	$lstr = "line\#" . $linecnt;
+      } else {
+	$lstr = $lstr . "," . $linecnt;
+      }
+      print "=> $line\n" if (&verboseArg());
+    }
+  }
+}
+
+if (!$cnt) {
+  print "okay\n" if (!&quietArg());
+  exit 0;
+} else {
+  $lstr =~ s/,$//;
+  print "$lstr ($cnt)\n" if (!&quietArg());
+  exit $cnt;
+}
+
+sub Help {
+  print "Check for postfix usage of ++ and --\n";
+  exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "You should use ++ and -- as prefix whenever possible as these are more efficient than postfix operators. Prefix increments first and then uses the variable, postfix uses the actual; the variable is incremented as well. Because of this, the prefix operators are inherently more efficient. *WARNING* Make sure that you don't introduce off-by-one errors when changing i++ to ++i.\n";
+  exit 0 if &explainArg();
+}
+
+# search the previous $n lines for a pattern $p
+sub searchBack {
+  my($p,$l,$n) = @_;
+  my($i);
+  $n = $#lines if ($#lines < $n);
+  for($i=1; $i<=$n; $i++) {
+    if ($lines[$l-$i] =~ $p) {
+      return 1;
+    }
+  }
+  return 0;
+}

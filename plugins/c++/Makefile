@@ -33,6 +33,7 @@ inline \
 license \
 nullstrassign \
 nullstrcompare \
+postfixop \
 qconnect \
 qmethods \
 qminmax \
