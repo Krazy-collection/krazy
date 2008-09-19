@@ -56,3 +56,9 @@ someVar++; // Not a hit. See note in postfixop script.
 someVar--; // Not a hit. See note in postfixop script.
 some = var++ - 3; // Not a hit. See note in postfixop script.
 some = var-- + 3; // Not a hit. See note in postfixop script.
+for (i=0;
+     i<N;
+     i++) { //hit
+	for (i = 0; i < N;
+             i++) // hit
+        { j++; //not a hit
