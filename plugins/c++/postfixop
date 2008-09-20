@@ -97,9 +97,9 @@ while ($linecnt < $#lines) {
       next if ($line =~ m/(\+\+|\-\-)\s*;\s*$/); # no semis in a for loop
       $cnt++;
       if ($cnt == 1) {
-	$lstr = "line\#" . $linecnt;
+        $lstr = "line\#" . $linecnt;
       } else {
-	$lstr = $lstr . "," . $linecnt;
+        $lstr = $lstr . "," . $linecnt;
       }
       print "=> $line\n" if (&verboseArg());
     }
