@@ -1,0 +1,10 @@
+TODO: Make this a usefull document =:).
+
+quickstart: # saxon8 -im krazy2ebn ../path/to/xml/output/of/krazy.xml krazy-main.xsl
+
+Other modes can be added by adding lines similar as:
+
+  <!-- Mode: krazy2ebn -->
+  <xsl:import href="krazy2ebn.xsl" />
+  
+to krazy-main.xml. But of course another mode name should be used.
