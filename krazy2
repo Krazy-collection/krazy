@@ -545,7 +545,7 @@ if ( !$quiet ) {
         $rline = "OOPS! $status{$p} $si found!";
       } else {
         $rline = "okay!";
-	$cline = "" if ($brief); #so printCheck() will print nothing
+        $cline = "" if ($brief); #so printCheck() will print nothing
       }
       &printCheck( $cline, $rline );
       if (defined($status{$p}) && $status{$p} > 0 && length($result{$p}) > 0) {
@@ -558,8 +558,14 @@ if ( !$quiet ) {
         }
       }
       print "\n" if ($cline ne "" && $export ne "textlist" && $export ne "textedit");
+      print "      </check>\n" if ( $export eq "xml" );
     }
-    print "</ol>\n<br>\n" if ( $export !~ "text" );
+    
+    if ( $export eq "xml" ) {
+      print "    </file-type>\n";
+    } elsif ( $export !~ "text" ) {
+      print "</ol>\n<br>\n"
+    }
   }
   &printFooter();
 }
@@ -603,6 +609,7 @@ sub Help {
   print "              text (default)\n";
   print "              textlist -> plain old text, 1 offending file-per-line\n";
   print "              textedit -> text formatted for IDEs, 1 issue-per-line\n";
+	print "              xml -> XML formatted\n";
   print "              ebn -> English Breakfast Network style\n";
   print "              ebnlxr -> English Breakfast Network style,\n";
   print "                        with links to lxr.kde.org\n";
@@ -687,6 +694,8 @@ sub List {
   $title = "Available KDE source code sanitizer checks";
   if ( $export =~ "ebn" ) {
     &printEbnHeader();
+	} elsif ( $export =~ "xml" ) {
+		&printXmlHeader();
   } elsif ( $export =~ "html" ) {
     &printHtmlHeader();
   }
@@ -742,6 +751,12 @@ sub printEbnHeader {
   print "</div>\n";
   print "<div id=\"content\">\n";
   print "<div class=\"inside\">\n";
+}
+
+# printXmlHeader function: print the header string for the XML export type.
+sub printXmlHeader {
+  print "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+	print "<krazy>\n";
 }
 
 # printEbnBreadcrumbs function: print breadcrumbs for EBN navigation
@@ -817,6 +832,14 @@ sub printHeader {
     print " (SVN revision $rev)" if ($rev);
     print "</p>\n";
     print "<ul>\n";
+  } elsif ($export =~ "xml") {
+    &printXmlHeader();
+    
+    print "  <global>\n";
+    print "    <date value=\"", asOf(), "\">\n";
+    print "    <svn-rev value=\"$rev\">\n" if ($rev);
+    print "  </global>\n";
+    print "  <file-types>\n";
   } else {
     if ( $export eq "html" ) {
       &printHtmlHeader();
@@ -876,7 +899,10 @@ sub printHtmlFooter {
 # printFooter function: print the footer string, according to export type.
 sub printFooter {
 
-  if ( $export =~ "ebn" ) {
+  if ( $export eq "xml" ) {
+    print "  </file-types>\n";
+    print "</krazy>\n";
+  } elsif ( $export =~ "ebn" ) {
     &printEbnFooter();
   } else {
     if ( $export eq "html" ) {
@@ -896,15 +922,17 @@ sub printCheck() {
   return if ($check eq "");
   if ( $export eq "text" ) {
     print "$check $result\n";
-  } else {
-    if ( $export =~ "ebn" || $export =~ "html" ) {
-
-      # export is "ebn" or "html"
-      print "<li>";
-      print "<span class=\"toolmsg\">" if ( $export =~ "ebn" );
-      print "$check\n<b>$result</b>";
-      print "</span>" if ( $export =~ "ebn" );
-    }
+  } elsif ( $export eq "xml" ) {
+    # Would be nice maybe to have the checker name in here.
+    # something like:
+    # <check name="foo" desc="checks for foo">
+    print "      <check desc=\"", &htmlify( $check ), "\">\n";
+  } elsif ( $export =~ "ebn" || $export =~ "html" ) {
+    # export is "ebn" or "html"
+    print "<li>";
+    print "<span class=\"toolmsg\">" if ( $export =~ "ebn" );
+    print "$check\n<b>$result</b>";
+    print "</span>" if ( $export =~ "ebn" );
   }
 }
 
@@ -931,7 +959,9 @@ sub printFType {
 
   my ($desc) = &ftypeDescription($pth);
   $desc = "For File Type $ftype" if ( $desc eq "" );
-  if ( $export !~ "text" ) {
+  if ( $export eq "xml" ) {
+    print "    <file-type value=\"$ftype\">\n";
+  } elsif ( $export !~ "text" ) {
     print "<li><b><u>$desc\n</u></b>\n<ol>\n";
   } else {
     print "==>$desc<==\n";
@@ -946,10 +976,11 @@ sub printOOPS {
   $subdir    = "" if ( !defined($subdir) );
 
   my ($o);
-  print "\n<ul>\n" if ( $export !~ "text" );
+  print "\n<ul>\n" if ( $export !~ "text" && $export !~ "xml" );
   for $o ( split( "\n", $_[0] ) ) {
     chomp($o);
-    print "<li>" if ( $export !~ "text" );
+    print "<li>" if ( $export !~ "text" && $export ne "xml" );
+    
     if ( $export eq "textlist" ) {
       my ($t) = split( ":", $o );
       $t =~ s+^\s++;
@@ -981,18 +1012,64 @@ sub printOOPS {
       for $l (@ls) {
         print "$f:$l:$subissue$issue\n";
       }
+    } elsif ( $export eq "xml" ) {
+        # We need to think about this. The output of the checkers should be made
+        # consitent.
+        my ( $ls1, $ls2, $ls3 ) = ( "", "", "" );
+        my ( $file );
+        ( $file, $ls1, $ls2, $ls3 ) = split( ":", $o );
+        
+        # Remove leading whitespace and ./
+        $file =~ s+^[[:space:]]*\./++;
+        $ls1 =~ s+^[[:space:]]*++;
+        
+        # Ugly due to inconsitent output of checkers and my total lack of perl and
+        # re skills.
+        my( $lines );
+        my( $message );
+        if ( $ls1 =~ m/line#/ ) {
+          $lines = $ls1;
+          $message = $ls1;
+        } elsif ( $ls2 =~ m/line#/ ) {
+          $lines = $ls2;
+          $message = $ls2;
+        } elsif ( $ls3 =~ m/line#/ ) {
+          $lines = $ls3;
+          $message = $ls3;
+        } else {
+          $lines = "";
+          $message = "";
+        }
+        
+        $message =~ s/\s*line\#[\d,]+//; # remove the lines#123,345 part
+        $message =~ s/^[[:space:]]*//;   # remove leading spaces.
+        $message =~ s/\(\d+\)//;           # remove the number of issues if it's there.
+        $lines =~ s/^.*line#//;          # only keep the numbers
+        $lines =~ s/\(\d+\)//;           # remove the number of issues if it's there.
+        $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
+        
+        print "        <file name=\"$file\">\n";
+        if ($message) {
+          print "          <message>", encode_entities( $message ), "</message>\n";
+        }
+        if ( $lines ) {
+          print "          <issues>\n";
+          print $lines;
+          print "          </issues>\n";
+        }
+        print "        </file>\n";
     } else {
       if ( $export =~ "lxr" ) {
         my ($url);
         if ( $component eq "kde-4.x" ) {
-	  $module =~ s+kdebase-apps+kdebase/apps+;
-	  $module =~ s+kdebase-runtime+kdebase/runtime+;
-	  $module =~ s+kdebase-workspace+kdebase/workspace+;
+          $module =~ s+kdebase-apps+kdebase/apps+;
+          $module =~ s+kdebase-runtime+kdebase/runtime+;
+          $module =~ s+kdebase-workspace+kdebase/workspace+;
           $url = "http://lxr.kde.org/source/KDE/";
-	  if ($module) {
-	    $url .= "$module/";
-	    $url .= "$subdir/" if ($subdir);
-	  }
+          if ($module) {
+            $url .= "$module/";
+            $url .= "$subdir/" if ($subdir);
+          }
         } elsif ( $component eq "bundled-apps" && $module eq "koffice" ) {
           $url = "http://lxr.kde.org/source/koffice/$subdir/";
         } elsif ( $component eq "bundled-apps" &&
@@ -1028,9 +1105,9 @@ sub printOOPS {
       }
     }
   here:
-    print "</li>\n" if ( $export !~ "text" );
+    print "</li>\n" if ( $export !~ "text" && $export ne "xml" );
   }
-  print "</ul>\n" if ( $export !~ "text" );
+  print "</ul>\n" if ( $export !~ "text" && $export ne "xml" );
 }
 
 # printExplain function: print the explanation lines, according to export type.
@@ -1039,17 +1116,16 @@ sub printExplain {
     print "<p class=\"explanation\">";
     print &htmlify( $_[0] );
     print "</p>\n</li>\n";
-  } else {
-    if ( $export eq "html" ) {
+  } elsif ( $export eq "html" ) {
       print "<p>";
       print "<p><p><b>Why should I care?</b>";
       print &htmlify( $_[0] );
       print "</p>\n</li>\n";
-    } else {
-
-      # text export
-      print "$_[0]\n";
-    }
+  } elsif ( $export eq "xml" ) {
+    print "        <explanation>", &htmlify( $_[0] ), "</explanation>";
+  } else {
+    # text export
+    print "$_[0]\n";
   }
 }
 

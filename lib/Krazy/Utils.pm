@@ -185,6 +185,7 @@ sub validateExportType {
     if ( ( $export eq "text" ) ||
 	 ( $export eq "textlist" ) ||
 	 ( $export eq "textedit" ) ||
+	 ( $export eq "xml" ) ||
 	 ( $export eq "ebn" ) ||
 	 ( $export eq "ebnlxr" ) ||
 	 ( $export eq "html" ) ||
