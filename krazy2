@@ -836,7 +836,7 @@ sub printHeader {
     &printXmlHeader();
     
     print "  <global>\n";
-    print "    <date value=\"", asOf(), "\">\n";
+    print "    <date value=\"", asOf(), "\" />\n";
     print "    <svn-rev value=\"$rev\">\n" if ($rev);
     print "  </global>\n";
     print "  <file-types>\n";
