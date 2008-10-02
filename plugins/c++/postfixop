@@ -87,14 +87,19 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  if ($line =~ m/\w+(\+\+|\-\-)\s*(;|\))/) {
+  if ($line =~ m/(\w+)(\+\+|\-\-)\s*(;|\))/) {
     # NOTE: For now we only check in for loops as there is quite a big danger
     # that when we expose all postfix usage of ++ and -- to the developers
     # that a great deal of off-by-one-errors and what not more are introduced.
     # It is (almost?) always safe to change postfix usage in for loops.
     #
-    if ( &searchBack('^\s*for\s*\(',$linecnt,3) ) {
+    my($identifier) = $1;
+    
+    if (&searchBack( '^\s*for\s*\(', $linecnt, 3 )) {
+      # Don't complain when the type of the iterator is of an elementary type.
+      next if (&searchBack( '(int|uint|long|unsigned\sint|ulong)\s'.$identifier, $linecnt, 3));
       next if ($line =~ m/(\+\+|\-\-)\s*;\s*$/); # no semis in a for loop
+     
       $cnt++;
       if ($cnt == 1) {
         $lstr = "line\#" . $linecnt;
@@ -134,6 +139,7 @@ sub Explain {
 sub searchBack {
   my($p,$l,$n) = @_;
   my($i);
+  
   $n = $#lines if ($#lines < $n);
   for($i=1; $i<=$n; $i++) {
     if ($lines[$l-$i] =~ $p) {
@@ -142,3 +148,5 @@ sub searchBack {
   }
   return 0;
 }
+
+# kate: space-indent on;
