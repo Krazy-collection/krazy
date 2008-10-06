@@ -76,12 +76,12 @@ my($slinecnt);
 my($hasToolTip,$hasWhatsThis);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ($line =~ m+[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+[Kk]razy:skip+) {
     $tcnt = $wcnt = 0;
     last;
   }
-  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  next if ($line =~ m+[Kk]razy:exclude=.*$Prog+);
 
   if ($line =~ m/<\s*entry\s/) {
     $hasToolTip=0;
