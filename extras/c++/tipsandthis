@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "tipsandthis";
-my($Version) = "1.1";
+my($Version) = "1.2";
 
 &parseArgs();
 
@@ -71,8 +71,12 @@ my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
 
 my($tcnt) = 0;
 my($tlstr) = "";
+my($tKcnt) = 0;
+my($tKlstr) = "";
 my($wcnt) = 0;
 my($wlstr) = "";
+my($wKcnt) = 0;
+my($wKlstr) = "";
 
 my(%Widgets);
 tie %Widgets, "Tie::IxHash";
@@ -102,7 +106,6 @@ while ($linecnt < $#lines) {
     $name = &widgetName($line);
     $name = &widgetName($lline) if ($name eq "");
     next if ($name eq "");
-    next if ($name =~ m/^kcfg_/);  # skip kcfg names
     $type = &widgetType($line);
     $key = $name . $slinecnt;
 #    print "key=[$key], type=[$type], name=[$name]\n";
@@ -114,10 +117,13 @@ while ($linecnt < $#lines) {
   }
 }
 
-# for each widget, skip to its starting line and search for stuff.
+# for each non-kcfg widget, skip to its starting line and search for stuff.
 foreach my $w (keys %Widgets) {
   $hasToolTip=0;
   $hasWhatsThis=0;
+
+  # skip kcfg stuff, as we do the inverse check for them separately
+  next if ($Widgets{$w}{'name'} =~ m/^kcfg_/);
 
   $linecnt = $Widgets{$w}{'linecnt'};
   while ($linecnt < $#lines) {
@@ -149,7 +155,45 @@ foreach my $w (keys %Widgets) {
   }
 }
 
-my ($total_count) = $tcnt + $wcnt;
+# for each kcfg widget, skip to its starting line and search for stuff.
+foreach my $w (keys %Widgets) {
+  $hasToolTip=0;
+  $hasWhatsThis=0;
+
+  next if ($Widgets{$w}{'name'} !~ m/^kcfg_/);
+
+  $linecnt = $Widgets{$w}{'linecnt'};
+
+  while ($linecnt < $#lines) {
+    $line = $lines[$linecnt++];
+    $line =~ s/\[\w+]/ARRAY/;
+
+    $hasToolTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
+    $hasWhatsThis = 1 if ($line =~ m/$Widgets{$w}{'name'}->setWhatsThis/);
+  }
+  if ($hasToolTip) {
+    $tKcnt++;
+    if ($tKcnt == 1) {
+      $tKlstr = "kcfg has toolTip line\#" . $Widgets{$w}{'linecnt'};
+    } else {
+      $tKlstr = $tKlstr . "," . $Widgets{$w}{'linecnt'};
+    }
+    $tKlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
+    print "=> $Widgets{$w}{'line'}" if (&verboseArg());
+  }
+  if ($hasWhatsThis) {
+    $wKcnt++;
+    if ($wKcnt == 1) {
+      $wKlstr = "kcfg has whatsThis line\#" . $Widgets{$w}{'linecnt'};
+    } else {
+      $wKlstr = $wKlstr . "," . $Widgets{$w}{'linecnt'};
+    }
+    $wKlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
+    print "=> $Widgets{$w}{'line'}" if (&verboseArg());
+  }
+}
+
+my ($total_count) = $tcnt + $tKcnt + $wcnt + $wKcnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   exit 0;
@@ -157,6 +201,8 @@ if (!$total_count) {
   if (!&quietArg()) {
     print "$tlstr ($tcnt)\n" if ($tcnt);
     print "$wlstr ($wcnt)\n" if ($wcnt);
+    print "$tKlstr ($tKcnt)\n" if ($tKcnt);
+    print "$wKlstr ($wKcnt)\n" if ($wKcnt);
   }
   exit $total_count;
 }
