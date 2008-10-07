@@ -8,3 +8,4 @@ Other modes can be added by adding lines similar as:
   <xsl:import href="krazy2ebn.xsl" />
   
 to krazy-main.xml. But of course another mode name should be used.
+
