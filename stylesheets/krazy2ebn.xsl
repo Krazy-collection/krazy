@@ -42,7 +42,8 @@
     <html xml:lang="en" lang="en">
       <head>
         <title>krazy2 Analysis</title>
-        <link rel="stylesheet" type="text/css" title="Normal" href="/style.css" />
+        <link rel="stylesheet" type="text/css" title="Normal" 
+          href="http://www.englishbreakfastnetwork.org/style.css" />
       </head>
       <body>
         <div id="title">
@@ -52,10 +53,19 @@
             <p><a href="/">Almost, but not quite, entirely unlike tea.</a></p>
           </div>
         </div>
-        <xsl:apply-templates select="global" mode="krazy2ebn" />
-        <ul>
-          <xsl:apply-templates select="file-types" mode="krazy2ebn" />
-        </ul>
+        <div id="content">
+          <div class="inside">
+            <p style="font-size: x-small;font-style: sans-serif;">
+              <a href="/index.php">Home</a>&nbsp;&gt;&nbsp;
+              <a href="/krazy2/index.php">Krazy Code Checker</a>&nbsp;&gt;&nbsp;
+              <a href="/krazy2/index.php?component=KDE">KDE</a>&nbsp;&gt;&nbsp;
+            </p>
+            <xsl:apply-templates select="global" mode="krazy2ebn" />
+            <ul>
+              <xsl:apply-templates select="file-types" mode="krazy2ebn" />
+            </ul>
+          </div>
+        </div>
       </body>
      </html>
   </xsl:template>
