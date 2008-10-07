@@ -95,14 +95,13 @@ foreach $line (@lines) {
     next if ($line =~ m/QT/);
     next if ($line =~ m/KDE/);
     next if ($line =~ m/EXPORT/);
-    if (&osMacros($line,$lines[$linecnt]) ||
-	&compilerMacros($line,$lines[$linecnt])){
+    if (&osMacros($line,$lines[$linecnt]) || &compilerMacros($line,$lines[$linecnt])) {
       my($res) = &haves($line);
       $cnt++;
       if ($cnt == 1) {
-	$lstr = "O/S or Compiler specific macro line\#" . $linecnt . "[$res]";
+        $lstr = "O/S or Compiler specific macro line\#" . $linecnt . "[$res]";
       } else {
-	$lstr = $lstr . "," . $linecnt . "[$res]";
+        $lstr = $lstr . "," . $linecnt . "[$res]";
       }
       print "=> $line\n" if (&verboseArg());
     }
@@ -113,9 +112,9 @@ foreach $line (@lines) {
     if (!&searchBack('\s*#\s*ifdef\s__GNUC__',$linecnt-1,2)) {
       $wcnt++;
       if ($wcnt == 1) {
-	$wstr = "Guard #warning with '#ifdef __GNUC__' line\#" . $linecnt;
+        $wstr = "Guard #warning with '#ifdef __GNUC__' line\#" . $linecnt;
       } else {
-	$wstr = $wstr . "," . $linecnt;
+        $wstr = $wstr . "," . $linecnt;
       }
       print "=> $line\n" if (&verboseArg());
     }
@@ -164,28 +163,28 @@ sub osMacros() {
   my($l,$lp1) = @_;
   return 1
       if (
-	  $l =~ m/Q_OS_/ ||
-	  $l =~ m/USE_SOLARIS/ ||
-	  $l =~ m/USE_NETBSD/ ||
-	  $l =~ m/USE_FREEBSD/ ||
-	  $l =~ m/_WIN32/ ||
-	  $l =~ m/_WIN64/ ||
-	  $l =~ m/__APPLE__/ ||
-	  $l =~ m/__svr4__/ ||
-	  $l =~ m/__linux__/ ||
-	  $l =~ m/__bsdi__/ ||
-          $l =~ m/__FreeBSD__/ ||
-	  $l =~ m/__NetBSD__/ ||
-	  $l =~ m/__OpenBSD__/ ||
-	  $l =~ m/__DragonFly__/ ||
-	  $l =~ m/__GNU__/ ||
-	  $l =~ m/__osf__/ ||
-	  $l =~ m/__hpux/ ||
-	  $l =~ m/__sun/ ||
-	  $l =~ m/__sgi/ ||
-	  $l =~ m/_AIX/ ||
-	  $l =~ m/__CYGWIN__/
-	  );
+        $l =~ m/Q_OS_/ ||
+        $l =~ m/USE_SOLARIS/ ||
+        $l =~ m/USE_NETBSD/ ||
+        $l =~ m/USE_FREEBSD/ ||
+        $l =~ m/_WIN32/ ||
+        $l =~ m/_WIN64/ ||
+        $l =~ m/__APPLE__/ ||
+        $l =~ m/__svr4__/ ||
+        $l =~ m/__linux__/ ||
+        $l =~ m/__bsdi__/ ||
+        $l =~ m/__FreeBSD__/ ||
+        $l =~ m/__NetBSD__/ ||
+        $l =~ m/__OpenBSD__/ ||
+        $l =~ m/__DragonFly__/ ||
+        $l =~ m/__GNU__/ ||
+        $l =~ m/__osf__/ ||
+        $l =~ m/__hpux/ ||
+        $l =~ m/__sun/ ||
+        $l =~ m/__sgi/ ||
+        $l =~ m/_AIX/ ||
+        $l =~ m/__CYGWIN__/
+      );
   return 0;
 }
 
@@ -193,10 +192,10 @@ sub compilerMacros() {
   my($l,$lp1) = @_;
   return 1
       if (
-	  $l =~ m/__BORLANDC__/ ||
-	  $l =~ m/__INTEL_COMPILER/ ||
-	  $l =~ m/Q_CC_/
-	  );
+        $l =~ m/__BORLANDC__/ ||
+        $l =~ m/__INTEL_COMPILER/ ||
+        $l =~ m/Q_CC_/
+      );
   return 1 if ($l =~ m/__GNUC__/ && $lp1 !~ /warning/);
   return 0;
 }
