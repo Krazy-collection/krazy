@@ -837,6 +837,7 @@ sub printHeader {
     
     print "  <global>\n";
     print "    <date value=\"", asOf(), "\" />\n";
+    print "    <processed-files value=\"$num_files\" />\n";
     print "    <svn-rev value=\"$rev\">\n" if ($rev);
     print "  </global>\n";
     print "  <file-types>\n";
@@ -1041,12 +1042,21 @@ sub printOOPS {
           $message = "";
         }
         
-        $message =~ s/\s*line\#[\d,]+//; # remove the lines#123,345 part
+        $message =~ s/\s*line\#.*$//; # remove the lines#123,345 part
         $message =~ s/^[[:space:]]*//;   # remove leading spaces.
-        $message =~ s/\(\d+\)//;           # remove the number of issues if it's there.
+        $message =~ s/\(\d+\)//;         # remove the number of issues if it's there.
+        
         $lines =~ s/^.*line#//;          # only keep the numbers
         $lines =~ s/\(\d+\)//;           # remove the number of issues if it's there.
-        $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
+        
+        # Sometimes a check returns per line the issue like:
+        # utils/input.cpp: line#155[Couldn't],184[Couldn't],200[Couldn't],258[Couldn't] (4)
+        # $lines = "            <line>$lines<\/line>\n";
+        if ($lines =~ /(\d+)\[[\w']*\],?/) {
+          $lines =~ s/(\d+)\[([\w']*)\],?/            <line issue="$2">$1<\/line>\n/g;
+        } elsif ($lines =~ /(\d+),?/) {
+           $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
+        }
         
         print "        <file name=\"$file\">\n";
         if ($message) {
