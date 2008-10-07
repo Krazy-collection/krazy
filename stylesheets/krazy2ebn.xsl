@@ -16,7 +16,18 @@
               omit-xml-declaration="yes"
               version="1.0" />
   
+  <xsl:template name="file-type" >
+    <li>
+      <b><u>For File Type <xsl:value-of select="@value" /></u></b>
+      <ol>
+      </ol>
+    </li>
+  </xsl:template>
+  
   <xsl:template match="file-types" mode="krazy2ebn" >
+    <xsl:for-each select="file-type">
+      <xsl:call-template name="file-type"/>
+    </xsl:for-each>
   </xsl:template>
   
   <xsl:template match="global" mode="krazy2ebn" >
@@ -42,7 +53,9 @@
           </div>
         </div>
         <xsl:apply-templates select="global" mode="krazy2ebn" />
-        <xsl:apply-templates select="file-types" mode="krazy2ebn" />
+        <ul>
+          <xsl:apply-templates select="file-types" mode="krazy2ebn" />
+        </ul>
       </body>
      </html>
   </xsl:template>
