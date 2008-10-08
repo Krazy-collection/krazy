@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "foreach";
-my($Version) = "1.2";
+my($Version) = "1.3";
 
 &parseArgs();
 
@@ -90,6 +90,7 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/\(\s*(const\s)?(QList|QLinkedList|QPointer|QVector|QMap|QSet|shared_ptr)\s*<[\s\w\*]+>\s*[&]?\s*[:\w]+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?[:\w]+(Ptr|Info|Information|Error|Type|Id)\s\w+\s*,/);
     next if ($line =~ m/\(\s*(::)?(Types)::\w+\s\w+\s*,/);
+    next if ($line =~ m/\(\s*(const\s)?typename\sT/);
     next if ($line =~ m/\(\s*[:\w]+::List\s\w+\s*,/);
 
     # see if the iterator variable is declared a pointer a couple lines above
