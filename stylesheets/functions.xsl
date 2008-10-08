@@ -36,10 +36,30 @@
 
   <xsl:function name="ebn:issueCount" as="xsd:integer">
     <xsl:param name="fileType" as="xsd:string" />
-    <xsl:sequence 
-      select="if ($fileType eq 'all')
-              then count( $global.doc/krazy/file-types/file-type/check/file/issues/line )
-              else count( $global.doc/krazy/file-types/file-type[@value=$fileType]/check/file/issues/line )" />
+    <xsl:param name="check" as="xsd:string" />
+    
+    <xsl:message select="concat( 'FileType: ', $fileType )" />
+    <xsl:message select="concat( 'Check: ', $check )" />
+    
+    <xsl:choose>
+      <xsl:when test="$fileType ne 'all' and $check eq 'all'" >
+        <xsl:sequence 
+          select="count( $global.doc/krazy/file-types/file-type[@value=$fileType]/check/file/issues/line )" />
+      </xsl:when>
+      <xsl:when test="$fileType eq 'all' and $check ne 'all'" >
+        <xsl:sequence
+          select="count( $global.doc/krazy/file-types/file-type/check[@desc=$check]/file/issues/line )" />
+      </xsl:when>
+      <xsl:when test="$fileType ne 'all' and $check ne 'all'" >
+        <xsl:sequence 
+          select="count( $global.doc/krazy/file-types/file-type[@value=$fileType]
+                           /check[@desc=$check]/file/issues/line )" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence
+          select="count( $global.doc/krazy/file-types/file-type/check/file/issues/line )" />
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:function>
 
   <!--
