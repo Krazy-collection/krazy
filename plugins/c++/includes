@@ -148,7 +148,9 @@ while ($linecnt < $#lines) {
     }
     $qincpath = &qPath($incpath);
     if(!defined($Incs{$qincpath})) {
-      $Incs{$qincpath}{'nth'} = $nth++;       #cardinality, first instance
+      if(!&configH($qincpath)){
+	$Incs{$qincpath}{'nth'} = $nth++;       #cardinality, first instance
+      }
       $Incs{$qincpath}{'sep'} = $sep;         #separator used, first instance
     }
     $Incs{$qincpath}{'count'}++;              #how many times we've seen it
@@ -318,7 +320,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Use <..> to include installed headers; <QtModule/QClass> to include Qt headers from installed headers; cpp file should include their own headers first; other rules apply, see <http://techbase.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriatedly encoded macro names.";
+  print "Use <..> to include installed headers; <QtModule/QClass> to include Qt headers from installed headers; cpp file should include their own headers first (but below config.h); other rules apply, see <http://techbase.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriatedly encoded macro names.";
   exit 0 if &explainArg();
 }
 
@@ -478,7 +480,9 @@ sub qNotClasses{
 # determine if $1 is a config.h type file
 sub configH {
   my($p) = @_;
-  if($p eq "config.h" || $p =~ m+config-[[:alpha:]]*\.h+) {
+  if($p eq "config.h" ||
+     $p =~ m+config-[[:alpha:]]*\.h+ ||
+     $p =~ m+version-[[:alpha:]]*\.h+) {
     return 1;
   } else {
     return 0;
