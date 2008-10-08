@@ -125,6 +125,9 @@ make install PREFIX=$TOP && \
 make realclean
 cd ..
 
+#remove old checkers no longer in use
+rm -f $TOP/lib/krazy2/krazy-plugins/*/contractions
+
 #permissions
 if ( test $EBN -eq 1 ) then
   chmod ug+w $TOP/bin/*

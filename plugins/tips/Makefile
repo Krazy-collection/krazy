@@ -21,7 +21,6 @@ PLUGINS = \
 
 # links to general purpose plugins
 PLUGINLNS = \
-contractions \
 endswithnewline \
 spelling
 

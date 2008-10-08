@@ -20,7 +20,11 @@
 SUBDIRS = \
 c++ \
 designer \
+desktop \
+general \
 kconfigxt \
+kpartgui \
+tips \
 
 #default installation location
 PREFIX=/usr/local

@@ -18,7 +18,6 @@
 
 # list of all plugins to install
 PLUGINS = \
-contractions \
 endswithnewline \
 iconnames \
 i18ncheckarg \

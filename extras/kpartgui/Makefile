@@ -1,4 +1,4 @@
-# krazy extras/kconfigxt Makefile
+# krazy extras/kpartgui Makefile
 #
 # Copyright 2008 by Allen Winter <winter@kde.org>
 #
@@ -18,7 +18,6 @@
 
 # list of all extras to install
 EXTRAS = \
-tipsandthis \
 
 # links to general purpose extras
 EXTRALNS = \
@@ -26,7 +25,7 @@ contractions \
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/kconfigxt
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/kpartgui
 
 all:
 

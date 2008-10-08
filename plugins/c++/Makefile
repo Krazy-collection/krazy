@@ -45,7 +45,6 @@ typedefs \
 
 # links to general purpose plugins
 PLUGINLNS = \
-contractions \
 endswithnewline \
 i18ncheckarg \
 iconnames \

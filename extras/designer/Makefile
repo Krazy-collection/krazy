@@ -22,6 +22,7 @@ tipsandthis \
 
 # links to general purpose extras
 EXTRALNS = \
+contractions \
 
 #default installation location
 PREFIX=/usr/local
