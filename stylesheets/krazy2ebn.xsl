@@ -35,6 +35,11 @@
           </xsl:otherwise>
         </xsl:choose>
       </span>
+      <ol>
+      </ol>
+      <xsl:if test="$issueCount > 0" >
+        <p class="explanation"><xsl:value-of select="explanation" /></p>
+      </xsl:if>
     </li>
   </xsl:template>
   
