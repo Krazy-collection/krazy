@@ -38,9 +38,6 @@
     <xsl:param name="fileType" as="xsd:string" />
     <xsl:param name="check" as="xsd:string" />
     
-    <xsl:message select="concat( 'FileType: ', $fileType )" />
-    <xsl:message select="concat( 'Check: ', $check )" />
-    
     <xsl:choose>
       <xsl:when test="$fileType ne 'all' and $check eq 'all'" >
         <xsl:sequence 
