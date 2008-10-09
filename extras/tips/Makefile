@@ -42,7 +42,7 @@ install::
 	done
 	list="$(EXTRALNS)"; for extra in $$list; do \
 		echo "Installing extra link $$extra"; \
-		ln -s ../general/$$extra $(DESTDIR)$(INSTDIR)/$$extra; \
+		ln -sf ../general/$$extra $(DESTDIR)$(INSTDIR)/$$extra; \
 	done
 
 clean:
