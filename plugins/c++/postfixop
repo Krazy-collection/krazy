@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "postfixop";
-my($Version) = "0.1";
+my($Version) = "1.1";
 
 &parseArgs();
 
@@ -94,12 +94,12 @@ while ($linecnt < $#lines) {
     # It is (almost?) always safe to change postfix usage in for loops.
     #
     my($identifier) = $1;
-    
+
     if (&searchBack( '^\s*for\s*\(', $linecnt, 3 )) {
       # Don't complain when the type of the iterator is of an elementary type.
-      next if (&searchBack( '(int|uint|long|unsigned\sint|ulong|short|\*)\s?'.$identifier, $linecnt, 6));
+      next if (&searchBack( '(int|uint|long|unsigned\sint|ulong|short|qint32|quint32|\*)\s?'.$identifier, $linecnt, 6));
       next if ($line =~ m/(\+\+|\-\-)\s*;\s*$/); # no semis in a for loop
-     
+
       $cnt++;
       if ($cnt == 1) {
         $lstr = "line\#" . $linecnt;
