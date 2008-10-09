@@ -104,8 +104,8 @@ while ($linecnt < $#lines) {
   &doIt($line,"signal","KDE_signal");
   &doIt($line,"getenv","qgetenv");
 
-  &doIt2($line,'struct\s*stat',"struct stat","KDE_struct_stat");
-  &doIt2($line,'struct\s*dirent',"struct dirent","KDE_struct_dirent");
+  &doIt2($line,'struct\s*stat[\s\*]',"struct stat","KDE_struct_stat");
+  &doIt2($line,'struct\s*dirent[\s\*]',"struct dirent","KDE_struct_dirent");
 }
 
 if (!$cnt) {
