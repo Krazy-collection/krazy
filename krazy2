@@ -47,6 +47,7 @@
 #   --help:        display help message and exit
 #   --version:     display version information and exit
 #   --list:        list all the checker programs
+#   --list-types:  list all the supported file types
 #   --explain:     if issues found, print an explanation along with
 #                  solving instructions at the end of each test
 #   --check <prog[,prog1,prog2,...,progN]>:
@@ -105,27 +106,28 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.6';    #split line so MakeMaker can find the version here
+ $VERSION = '2.7';    #split line so MakeMaker can find the version here
 
-my ($help)     = '';
-my ($version)  = '';
-my ($explain)  = '';
-my ($list)     = '';
-my ($brief)    = '';
-my ($quiet)    = '';
-my ($verbose)  = '';
-my ($dryrun)   = '';
-my ($ignorerc) = '';
-my ($only)     = '';
-my ($exclude)  = '';
-my ($extra)    = '';
-my ($priority) = '';
-my ($strict)   = '';
-my ($skip)     = "/////";            # hopefully a regex that matches nothing
-my ($export)   = 'text';
-my ($title)    = "$Prog Analysis";
-my ($cms)      = "KDE";
-my ($rev)      = '';
+my ($help)      = '';
+my ($version)   = '';
+my ($explain)   = '';
+my ($list)      = '';
+my ($listtypes) = '';
+my ($brief)     = '';
+my ($quiet)     = '';
+my ($verbose)   = '';
+my ($dryrun)    = '';
+my ($ignorerc)  = '';
+my ($only)      = '';
+my ($exclude)   = '';
+my ($extra)     = '';
+my ($priority)  = '';
+my ($strict)    = '';
+my ($skip)      = "/////";            # hopefully a regex that matches nothing
+my ($export)    = 'text';
+my ($title)     = "$Prog Analysis";
+my ($cms)       = "KDE";
+my ($rev)       = '';
 
 exit 1
   if ( !GetOptions(
@@ -133,6 +135,7 @@ exit 1
 		   'version'   => \$version,
 		   'explain'   => \$explain,
 		   'list'      => \$list,
+		   'list-types'=> \$listtypes,
 		   'dry-run'   => \$dryrun,
 		   'ignorerc'  => \$ignorerc,
 		   'verbose'   => \$verbose,
@@ -151,7 +154,7 @@ exit 1
      );
 
 &Help() if ($help);
-if ( !$list && $#ARGV < 0 ) { &Help(); exit 0; }
+if ( !$list && !$listtypes && $#ARGV < 0 ) { &Help(); exit 0; }
 &Version() if ($version);
 
 if ($priority && !&validatePriorityType($priority)) {
@@ -253,6 +256,9 @@ foreach $type ( keys %xCheckers ) {
 
 # Print the list of available checker programs and exit.
 &List() if $list;
+
+# Print the list of supported file types and exit.
+&ListTypes() if $listtypes;
 
 ### Follow the commands in a .krazy file is one exists in this directory.
 my (%ds);
@@ -583,6 +589,7 @@ sub Help {
   print "  --help    display help message and exit\n";
   print "  --version display version information and exit\n";
   print "  --list    list all the checker programs\n";
+  print "  --list-types list all the supported file types\n";
   print "  --priority <low|normal|high|important|all>\n";
   print "            report only issues with the specified priorities:\n";
   print "              low -> print low priority issues only\n";
@@ -694,8 +701,8 @@ sub List {
   $title = "Available KDE source code sanitizer checks";
   if ( $export =~ "ebn" ) {
     &printEbnHeader();
-	} elsif ( $export =~ "xml" ) {
-		&printXmlHeader();
+  } elsif ( $export =~ "xml" ) {
+    &printXmlHeader();
   } elsif ( $export =~ "html" ) {
     &printHtmlHeader();
   }
@@ -727,6 +734,40 @@ sub List {
 
   &printFooter();
   exit 0 if $list;
+}
+
+# ListTypes function: print a list of supported file types.
+sub ListTypes {
+  my ( $prog, $use, $type );
+
+  $title = "Supported file types";
+  if ( $export =~ "ebn" ) {
+    &printEbnHeader();
+  } elsif ( $export =~ "xml" ) {
+    &printXmlHeader();
+  } elsif ( $export =~ "html" ) {
+    &printHtmlHeader();
+  }
+
+  if ( $export !~ "text" ) {
+    print "<ul>\n";
+    print "<h2>$title</h2>\n";
+  } else {
+    print "$title:\n";
+  }
+
+  foreach $type ( keys %Checkers ) {
+    my($desc) = &fileTypeDesc($type);
+    printf( "%12.12s: %s", $type, $desc );
+    if ( $export !~ "text" ) {
+      print "</ol>\n<br>\n";
+    } else {
+      print "\n";
+    }
+  }
+
+  &printFooter();
+  exit 0 if $listtypes;
 }
 
 # printEbnHeader function: print the header string for the EBN export type.
@@ -1220,6 +1261,10 @@ Print version information and exit.
 
 Print a list of all available checker programs and exit.
 
+=item B<--list-types>
+
+Print a list of the support file types and exit.
+
 =item B<--priority> <low|normal|high|important|all>
 
 Tell each checker program to report issues with the specified priority only.
@@ -1505,8 +1550,8 @@ of issues encountered during processing.
 If a command line option was incorrectly provided, krazy2 exits with
 status=1.
 
-If krazy2 was envoked with the B<--help>, B<--version>, or B<--list>
-options it will exit with status=0.
+If krazy2 was envoked with the B<--help>, B<--version>, B<--list>
+or B<--list-types> options it will exit with status=0.
 
 =head1 COPYRIGHT
 

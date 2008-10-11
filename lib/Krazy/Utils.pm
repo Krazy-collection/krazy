@@ -32,7 +32,7 @@ use Exporter;
 $VERSION = 1.12;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(topModule topSubdir deDupe fileType findFiles asOf
+@EXPORT = qw(topModule topSubdir deDupe fileType fileTypeDesc findFiles asOf
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
              validateExportType validatePriorityType validateStrictType);
@@ -107,6 +107,27 @@ sub fileType {
     return "kpartgui";
   } elsif ( $f =~ m/tips$/ ) {
     return "tips";
+  }
+  return "";
+}
+
+sub fileTypeDesc {
+  my ($t) = @_;
+
+  if ($t eq "c++") {
+    return "C/C++ source code";
+  } elsif ($t eq "desktop") {
+    return "Freedesktop.org desktop files";
+  } elsif ($t eq "designer") {
+    return "Qt Designer files";
+  } elsif ($t eq "kconfigxt") {
+    return "KConfigXT XML files";
+  } elsif ($t eq "messages") {
+    return "Messages.sh files";
+  } elsif ($t eq "kpartgui") {
+    return "KPartGUI files";
+  } elsif ($t eq "tips") {
+    return "Tips files";
   }
   return "";
 }

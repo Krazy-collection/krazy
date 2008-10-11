@@ -29,30 +29,32 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.6';    #split line so MakeMaker can find the version here
+ $VERSION = '2.7';    #split line so MakeMaker can find the version here
 
-my ($help)     = '';
-my ($version)  = '';
-my ($list)     = '';
-my ($verbose)  = '';
-my ($ignorerc) = '';
-my ($dryrun)   = '';
-my ($brief)    = '';
-my ($quiet)    = '';
-my ($priority) = '';
-my ($strict)   = '';
-my ($check)    = '';
-my ($exclude)  = '';
-my ($extra)    = '';
-my ($export)   = 'text';
-my ($title)    = '';
-my ($cms)      = '';
+my ($help)      = '';
+my ($version)   = '';
+my ($list)      = '';
+my ($listtypes) = '';
+my ($verbose)   = '';
+my ($ignorerc)  = '';
+my ($dryrun)    = '';
+my ($brief)     = '';
+my ($quiet)     = '';
+my ($priority)  = '';
+my ($strict)    = '';
+my ($check)     = '';
+my ($exclude)   = '';
+my ($extra)     = '';
+my ($export)    = 'text';
+my ($title)     = '';
+my ($cms)       = '';
 
 exit 1
   if ( !GetOptions(
 		   'help'      => \$help,
 		   'version'   => \$version,
 		   'list'      => \$list,
+		   'list-types'=> \$listtypes,
 		   'dry-run'   => \$dryrun,
 		   'ignorerc'  => \$ignorerc,
 		   'verbose'   => \$verbose,
@@ -74,6 +76,11 @@ exit 1
 
 if ($list) {
   system("krazy2 --list");
+  exit 0;
+}
+
+if ($listtypes) {
+  system("krazy2 --list-types");
   exit 0;
 }
 
@@ -124,6 +131,7 @@ sub Help {
   print "  --help    display help message and exit\n";
   print "  --version display version information and exit\n";
   print "  --list    list all the checker programs and exit\n";
+  print "  --list-types list all the supported file types and exit\n";
   print "  --priority <low|normal|high|important|all>\n";
   print "            report only issues with the specified priorities:\n";
   print "              low -> print low priority issues only\n";
@@ -205,6 +213,10 @@ Print version information and exit.
 =item B<--list>
 
 Print a list of all available checker programs and exit.
+
+=item B<--list-types>
+
+Print a list of the support file types and exit.
 
 =item B<--ignorerc>
 
@@ -305,8 +317,8 @@ In normal operation, krazy2all exits with a status 0.
 If a command line option was incorrectly provided, krazy2all exits with
 status=1.
 
-If krazy2all was envoked with the B<--help>, B<--version>, or B<--list>
-options it will exit with status=0.
+If krazy2all was envoked with the B<--help>, B<--version>  B<--list>
+or B<--list-types> options it will exit with status=0.
 
 =head1 COPYRIGHT
 
