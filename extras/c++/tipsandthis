@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "tipsandthis";
-my($Version) = "1.2";
+my($Version) = "1.3";
 
 &parseArgs();
 
@@ -97,7 +97,7 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;  #skip C++ comments
 
   if ($line =~ m/new\sQ\w+/ || $line =~ m/new\sK(ComboBox|LineEdit|TabBar|TextEdit)/) {
-    next if ($line =~ m/(Application|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|Dialog|Drag|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem)/);
+    next if ($line =~ m/(Application|Buffer|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem|QPersistantModelIndex|QGraphicsItemAnimation)/);
     next if ($line =~ m/\(\s*new\s/ || $line =~ m/^\s*return\snew/);
 
     $sline = $line;
