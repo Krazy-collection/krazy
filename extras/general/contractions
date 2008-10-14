@@ -86,6 +86,7 @@ foreach $line (@lines) {
 
   next if (fileType($f) eq "c++" &&
 	   (&searchBack('kDebug\(.*\)',$linecnt,3) ||
+	    &searchBack('debug\(.*\)',$linecnt,3) ||
 	    &searchBack('kWarning\(.*\)',$linecnt,3) ||
 	    &searchBack('kError\(.*\)',$linecnt,3) ||
 	    &searchBack('kFatal\(.*\)',$linecnt,3) ||
