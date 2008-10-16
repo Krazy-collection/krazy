@@ -9,6 +9,9 @@
   <xsl:import href="functions.xsl" />
   <xsl:import href="globalvars.xsl" />
   
+  <xsl:param name="module" as="xsd:string"/>
+  <xsl:param name="submodule" as="xsd:string" />
+  
   <xsl:output doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"
               doctype-system="DTD/xhtml1-transitional.dtd"
               encoding="UTF-8" 
@@ -17,28 +20,61 @@
               omit-xml-declaration="yes"
               version="1.0" />
   
+  <xsl:function name="ebn:createLexerLink" as="xsd:string">
+    <xsl:param name="file" as="xsd:string"/>
+    <xsl:param name="line" as="xsd:integer" />
+    
+    <xsl:choose>
+      <xsl:when test="$line eq -1" >
+        <xsl:value-of select="concat('http://lxr.kde.org/source/KDE/', $module, '/', $submodule, '/', $file)" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of 
+          select="concat('http://lxr.kde.org/source/KDE/', $module, '/', $submodule, '/', $file, '#', $line)" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <xsl:template name="file">
+    <xsl:variable name="lxrlink" select="ebn:createLexerLink(@name, -1)" />
+    <xsl:variable name="filename" select="@name" />
+    <xsl:variable name="count" select="count(issues/line)" />
+    
+    <li><a href="{$lxrlink}"><xsl:value-of select="@name"/></a>: 
+      line#<xsl:for-each select="issues/line">
+        <xsl:variable name="lxrlinelink" select="ebn:createLexerLink($filename, .)" />
+        
+        <a href="{$lxrlinelink}"><xsl:value-of select="."/></a>
+        <xsl:if test="@issue ne ''" >[<xsl:value-of select="@issue" />]</xsl:if>
+        <xsl:if test="position() ne $count">,</xsl:if></xsl:for-each>
+      (<xsl:value-of select="count(issues/line)" />)
+    </li>
+  </xsl:template>
+  
   <xsl:template name="check">
     <xsl:param name="fileType" as="xsd:string" />
-    
     <xsl:variable name="issueCount" as="xsd:integer" select="ebn:issueCount($fileType, @desc)" />
     
     <li>
       <span class="toolmsg">
         <xsl:choose>
           <xsl:when test="$issueCount > 0">
-            <xsl:value-of select="@desc" /><b>OOPS! 
-            <xsl:value-of select="$issueCount"/>
-            issues found!</b>
+            <xsl:value-of select="@desc" />
+            <b>OOPS! <xsl:value-of select="$issueCount"/> issues found!</b>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="@desc" /><b>okay!</b>
           </xsl:otherwise>
         </xsl:choose>
       </span>
-      <ol>
-      </ol>
       <xsl:if test="$issueCount > 0" >
-        <p class="explanation"><xsl:value-of select="explanation" /></p>
+      <ul>
+        <xsl:for-each select="file">
+          <xsl:call-template name="file">
+          </xsl:call-template>
+        </xsl:for-each>
+      </ul>
+      <p class="explanation"><xsl:value-of select="explanation" /></p>
       </xsl:if>
     </li>
   </xsl:template>
