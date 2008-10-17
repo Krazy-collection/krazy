@@ -1,1 +1,11 @@
 See http://wiki.kde.org/tiki-index.php?page=English+Breakfast+Network
+
+ROADMAP TO CONQUER THE WORLD:
+1. Test the stylesheets a bit more.
+2. install saxon8 on the ebn machine
+3. Patch krazy2ebn.pl to let it output xml and transform that to ebn-html.
+4. Make all above work.
+5. Remove all (ebn)html stuff from krazy2.
+6. (Re)design the database.
+7. Create another stylesheets which does xml -> sql
+8. Write some html reports showing statistics retrieved from the db.
