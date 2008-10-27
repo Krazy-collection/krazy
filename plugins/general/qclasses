@@ -95,6 +95,11 @@ while ($linecnt < $#lines) {
     $line =~ s+//.*++;  #skip C++ comments
   }
 
+  # Don't use Qt 4 classes that got deprecated.
+  &doIt($line,"QHttp","QNetworkAccessManager",'');
+  &doIt($line,"QWorkspace","QMdiArea",'');
+
+  # use KDE classes instead of Qt classes where possible 
   &doIt($line,"QColorDialog","KColorDialog",'');
   &doIt($line,"QComboBox","KComboBox",'');
   &doIt($line,"QMessageBox","KMessageBox",'');
@@ -179,6 +184,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. <http://techbase.kde.org/Policies/API_to_Avoid> *Please* *refer* *to* *the* *API* *documentation* *for* *details* *before* *porting* *to* *the* *K* *classes*.\n";
+  print "Don't use Qt 4 classes that are deprecated. Additionally make sure to use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. <http://techbase.kde.org/Policies/API_to_Avoid> *Please* *refer* *to* *the* *API* *documentation* *for* *details* *before* *porting* *to* *the* *K* *classes*.\n";
   exit 0 if &explainArg();
 }

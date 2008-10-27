@@ -62,3 +62,8 @@ for (i=0;
 	for (i = 0; i < N;
              i++) // hit
         { j++; //not a hit
+
+// Deprecated Qt classes
+
+QHttp *http = new QHttp( "www.kde.org" );
+
