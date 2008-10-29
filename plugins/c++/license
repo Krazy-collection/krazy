@@ -49,7 +49,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "license";
-my($Version) = "1.5";
+my($Version) = "1.6";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -72,6 +72,7 @@ sub checkOneFile($)
       $absf =~ m+/kdelibs/knotify/daemon/+ ||
       $absf =~ m+/kdelibs/kded/+ ||
       $absf =~ m+/kdelibs/kioslave/+ ||
+      $absf =~ m+/kdelibs/nepomuk/rcgen/+ ||
       $absf =~ m+/kdelibs/kio/misc/kwalletd/+ ||
       $absf =~ m+/kdelibs/kio/misc/kssld/+ ||
       $absf =~ m+/kdelibs/kio/misc/ksendbugmail/+ ||
