@@ -154,7 +154,7 @@ sub findFiles {
 
 # asOf function: return nicely formatted string containing the current time
 sub asOf {
-  return strftime( "%B %d %Y %H:%M:%S", localtime( time() ) );
+  return strftime( "%B %d %Y %H:%M:%S %Z", localtime( time() ) );
 }
 
 my($krazy) = '';
