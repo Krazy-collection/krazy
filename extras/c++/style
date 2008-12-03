@@ -69,10 +69,12 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/ ||
   exit 0;
 }
 
+my($MODE)="kde";
 my($MAXLEN)=100; #default max line length
 my($OFFSET)=4; #default indent offset
 my($absf) = abs_path($f);
 if ($absf =~ m/kdepim/) {
+  $MODE="pim";
   $OFFSET=2;
 }
 
@@ -156,22 +158,42 @@ foreach $line (@lines) {
   $pline =~ s/\(BerValue \*\*\)//g;
   $pline =~ s/\(sasl_conn_t \*\)//g;
 
-  if ($pline =~ m/\(/ && $pline =~ m/\([[:alnum:]"'\(]/ || $line =~ m/\( {2,}/) {
+  if ($MODE eq "pim" && $pline =~ m/\(/ && $pline =~ m/\([[:alnum:]"'\(]/ || $line =~ m/\( {2,}/) {
     $Issues{'PARENSPACE'}{'count'}++;
     if ($Issues{'PARENSPACE'}{'count'} == 1) {
       $Issues{'PARENSPACE'}{'lines'} = "line\#" . $linecnt;
     } else {
       $Issues{'PARENSPACE'}{'lines'} .= "," . $linecnt;
     }
+    print "$linecnt (missing 1 space after '\(') => $line\n" if (&verboseArg());
+  }
+
+  if ($MODE eq "kde" && $pline =~ m/\(/ && $line =~ m/\(\s/) {
+    $Issues{'PARENNOSPACE'}{'count'}++;
+    if ($Issues{'PARENNOSPACE'}{'count'} == 1) {
+      $Issues{'PARENNOSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'PARENNOSPACE'}{'lines'} .= "," . $linecnt;
+    }
     print "$linecnt (no space after '\(') => $line\n" if (&verboseArg());
   }
 
-  if ($pline =~ m/\)/ && $pline =~ m/[[:alnum:]"'\)]\)/ || $line =~ m/ {2,}\)/) {
+  if ($MODE eq "pim" && $pline =~ m/\)/ && $pline =~ m/[[:alnum:]"'\)]\)/ || $line =~ m/ {2,}\)/) {
     $Issues{'SPACEPAREN'}{'count'}++;
     if ($Issues{'SPACEPAREN'}{'count'} == 1) {
       $Issues{'SPACEPAREN'}{'lines'} = "line\#" . $linecnt;
     } else {
       $Issues{'SPACEPAREN'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (put 1 space before '\)') => $line\n" if (&verboseArg());
+  }
+
+  if ($MODE eq "kde" && $pline =~ m/\)/ && $line =~ m/\s\)/) {
+    $Issues{'NOSPACEPAREN'}{'count'}++;
+    if ($Issues{'NOSPACEPAREN'}{'count'} == 1) {
+      $Issues{'NOSPACEPAREN'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'NOSPACEPAREN'}{'lines'} .= "," . $linecnt;
     }
     print "$linecnt (no space before '\)') => $line\n" if (&verboseArg());
   }
@@ -541,18 +563,19 @@ foreach $line (@lines) {
 	}
       }
   }
-  if (($line =~ m/^\s*public\s*:/ && $line !~ m/\s{2}public/) ||
-      ($line =~ m/^\s*private\s*:/ && $line !~ m/\s{2}private/) ||
-      ($line =~ m/^\s*protected\s*:/ && $line !~ m/\s{2}protected/) ||
-      ($line =~ m/^\s*public\sslots\s*:/ && $line !~ m/\s{2}public/) ||
-      ($line =~ m/^\s*public\sQ_SLOTS\s*:/ && $line !~ m/\s{2}public/) ||
-      ($line =~ m/^\s*private\sslots\s*:/ && $line !~ m/\s{2}private/) ||
-      ($line =~ m/^\s*private\sQ_SLOTS\s*:/ && $line !~ m/\s{2}private/) ||
-      ($line =~ m/^\s*protected\sslots\s*:/ && $line !~ m/\s{2}protected/) ||
-      ($line =~ m/^\s*protected\sQ_SLOTS\s*:/ && $line !~ m/\s{2}protected/) ||
-      ($line =~ m/^\s*signals\s*:/ && $line !~ m/\s{2}signals/) ||
-      ($line =~ m/^\s*k_dcop_signals\s*:/ && $line !~ m/\s{2}k_dcop_signals/) ||
-      ($line =~ m/^\s*Q_SIGNALS\s*:/ && $line !~ m/\s{2}Q_SIGNALS/)
+  if ($MODE eq "pim" &&
+      (($line =~ m/^\s*public\s*:/ && $line !~ m/\s{2}public/) ||
+       ($line =~ m/^\s*private\s*:/ && $line !~ m/\s{2}private/) ||
+       ($line =~ m/^\s*protected\s*:/ && $line !~ m/\s{2}protected/) ||
+       ($line =~ m/^\s*public\sslots\s*:/ && $line !~ m/\s{2}public/) ||
+       ($line =~ m/^\s*public\sQ_SLOTS\s*:/ && $line !~ m/\s{2}public/) ||
+       ($line =~ m/^\s*private\sslots\s*:/ && $line !~ m/\s{2}private/) ||
+       ($line =~ m/^\s*private\sQ_SLOTS\s*:/ && $line !~ m/\s{2}private/) ||
+       ($line =~ m/^\s*protected\sslots\s*:/ && $line !~ m/\s{2}protected/) ||
+       ($line =~ m/^\s*protected\sQ_SLOTS\s*:/ && $line !~ m/\s{2}protected/) ||
+       ($line =~ m/^\s*signals\s*:/ && $line !~ m/\s{2}signals/) ||
+       ($line =~ m/^\s*k_dcop_signals\s*:/ && $line !~ m/\s{2}k_dcop_signals/) ||
+       ($line =~ m/^\s*Q_SIGNALS\s*:/ && $line !~ m/\s{2}Q_SIGNALS/))
      ) {
     $Issues{'BADINDENT'}{'count'}++;
     if ($Issues{'BADINDENT'}{'count'} == 1) {
@@ -637,9 +660,17 @@ sub initIssues() {
   $Issues{'SPACEPAREN'}{'count'} = 0;
   $Issues{'SPACEPAREN'}{'lines'} = '';
 
+  $Issues{'NOSPACEPAREN'}{'issue'} = 'Do not put spaces before a closing paren';
+  $Issues{'NOSPACEPAREN'}{'count'} = 0;
+  $Issues{'NOSPACEPAREN'}{'lines'} = '';
+
   $Issues{'PARENSPACE'}{'issue'} = 'Put 1 space after an opening paren';
   $Issues{'PARENSPACE'}{'count'} = 0;
   $Issues{'PARENSPACE'}{'lines'} = '';
+
+  $Issues{'PARENNOSPACE'}{'issue'} = 'Do not put spaces after an opening paren';
+  $Issues{'PARENNOSPACE'}{'count'} = 0;
+  $Issues{'PARENNOSPACE'}{'lines'} = '';
 
   $Issues{'COMMASPACE'}{'issue'} = 'Bad spacing after a comma';
   $Issues{'COMMASPACE'}{'count'} = 0;
