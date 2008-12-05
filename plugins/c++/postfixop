@@ -97,7 +97,7 @@ while ($linecnt < $#lines) {
 
     if (&searchBack( '^\s*for\s*\(', $linecnt, 3 )) {
       # Don't complain when the type of the iterator is of an elementary type.
-      next if (&searchBack( '(int|uint|long|unsigned\sint|ulong|short|size_t|qint32|quint32|\*)\s?'.$identifier, $linecnt, 6));
+      next if (&searchBack( '(int|uint|long|unsigned\sint|ulong|short|size_t|qint32|quint32|double|\*)\s?'.$identifier, $linecnt, 6));
       next if ($line =~ m/(\+\+|\-\-)\s*;\s*$/); # no semis in a for loop
       next if ($line =~ m/^\s*for\s*\(\s*;/); # loops that don't init the counter
       $cnt++;
