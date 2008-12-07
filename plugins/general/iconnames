@@ -696,7 +696,6 @@ misc
 misc2
 mldonkey
 moc-src
-modem
 mo_mount
 monop_board
 mo_unmount
@@ -824,7 +823,6 @@ powertweak
 presentation
 previous
 print_class
-printer
 printer1
 printer2
 printing_section
@@ -882,7 +880,6 @@ samba-server
 save
 saveall
 save_all
-scanner
 schedule
 sd_mmc_mount
 sd-mmc-mount
