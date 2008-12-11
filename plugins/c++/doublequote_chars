@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "doublequote_chars";
-my($Version) = "1.11";
+my($Version) = "1.12";
 
 &parseArgs();
 
@@ -165,7 +165,8 @@ foreach $line (@lines) {
   }
 
   #QString::replace() checks
-  if (($pline =~ m/replace\s*\(.*,\s*\"\"/ && $pline !~ m/\(.*,\s*\d*,.*\)/) ||
+  if ((($pline =~ m/replace\s*\(.*,\s*\"\"/ || $pline =~ m/replace\s*\(.*,\s*QString\(\s*\)/ ) &&
+       $pline !~ m/\(.*,\s*\d*,.*\)/) ||
       $pline =~ m/replace\s*\(\s*\"[[:print:]]\"/ ||
       $pline =~ m/replace\s*\(\s*\"\\n\"/ ||
       $pline =~ m/replace\s*\(\s*\"\\t\"/ ||
