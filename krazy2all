@@ -115,6 +115,7 @@ $opts .= "--explain"             if ($export ne "textlist" && $export ne "texted
 
 my($files) = &findFiles();
 my($cwd) = getcwd;
+$cwd =~ s:\+:\\\+:g;  #escape '+'
 $files =~ s+$cwd+\.+g;
 $files =~ s+\\n+\'\\n\'+g;
 open(P, "| krazy2 $opts -");
