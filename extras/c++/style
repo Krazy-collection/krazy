@@ -650,7 +650,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Please follow the coding style guidelines at <http://korganizer.kde.org/develop/hacking.html>\n";
+  print "Please follow the coding style guidelines at <http://pim.kde.org/development/coding-korganizer.php>\n";
   exit 0 if &explainArg();
 }
 
