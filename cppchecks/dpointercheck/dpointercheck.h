@@ -32,16 +32,16 @@ class DPointerCheck : public Check
     /**
      * Creates a new check engine. Caller must take ownership of the pointer.
      */
-    virtual CheckEngine * createCheckEngine();
+    CheckEngine * createCheckEngine();
 
     /**
      * Creates a new OutputFormatter. Caller must take ownership of the pointer.
      */
-    virtual OutputFormatter * createOutputFormatter();
+    OutputFormatter * createOutputFormatter();
 
-    virtual void printExplanation() const;
-
-    virtual void printVersion() const;
+    void printHelp() const;
+    void printExplanation() const;
+    void printVersion() const;
 
   private:
     QString const m_version;

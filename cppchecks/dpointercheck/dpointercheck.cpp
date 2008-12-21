@@ -31,7 +31,7 @@ using namespace std;
 
 #define VERSION "0.1"
 
-DPointerCheck::DPointerCheck(int argc, char **argv) 
+DPointerCheck::DPointerCheck(int argc, char **argv)
 : Check(argc,argv),
   m_version(VERSION)
 {}
@@ -49,10 +49,15 @@ DPointerCheck::~DPointerCheck()
   return new DPointerCheckOutputFormatter();
 }
 
+/* virtual */ void DPointerCheck::printHelp() const
+{
+  cout << "Check public classes with private members or d-pointer issues";
+}
+
 /* virtual */ void DPointerCheck::printExplanation() const
 {
   cout << "In order to more easily maintain binary compatibility, a public class "
-       << "in an installed header should not contain private members -- use" 
+       << "in an installed header should not contain private members -- use"
        << "d-pointers instead. Application headers should not mix d-pointers and "
        << "private members. Also ensure  that the d-pointer is \'const\' to "
        << "avoid modifying it by mistake. Please follow the guidelines in the "
