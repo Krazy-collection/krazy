@@ -11,3 +11,5 @@ target_link_libraries(shared
     ${KDE4_LIB_DIR}/libkdev4cppparser.so
     ${KDE4_LIB_DIR}/libkdev4cpprpp.so
 )
+set_target_properties(shared PROPERTIES VERSION 1 SOVERSION 1.0)
+install(TARGETS shared DESTINATION ${CMAKE_PREFIX_PATH}/lib)
