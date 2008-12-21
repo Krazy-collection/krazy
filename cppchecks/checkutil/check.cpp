@@ -28,7 +28,7 @@
 
 using namespace std;
 
-Check::Check(int argc, char **argv) 
+Check::Check(int argc, char **argv)
 : m_action(RUN_CHECK),
   m_installed(false),
   m_isValid(false),
@@ -90,10 +90,16 @@ bool Check::parseArguments(int argc, char **argv)
     return false;
   }
 
+  //TODO: validate and set priority
+  //TODO: validate and set strict
+
+  bool isKrazy = false;
   for( --argc, ++argv; argc; --argc, ++argv )
   {
+    if(!strcmp( *argv, "--krazy"))
+      isKrazy = true;
     // Output mode
-    if (!strcmp(*argv, "--verbose"))
+    else if (!strcmp(*argv, "--verbose"))
       m_mode = VERBOSE;
     else if (!strcmp( *argv, "--quiet"))
       m_mode = QUIET;
@@ -121,6 +127,12 @@ bool Check::parseArguments(int argc, char **argv)
       m_fileName = QString::fromLatin1( *argv );
       break;
     }
+  }
+
+  if ( !isKrazy )
+  {
+    cout << "Checker is not called as part of Krazy... exiting" << endl;
+    return false;
   }
 
   QFile f(m_fileName);
@@ -157,4 +169,32 @@ void Check::runCheck()
 
   delete engine;
   engine = 0;
+}
+
+bool Check::validatePriorityType( const QString &priority )
+{
+  if (!priority.isEmpty()) {
+    QString p = priority.toLower();
+    if ((p == "all") ||        // low+normal+high
+        (p == "low") ||        // low only
+        (p == "normal") ||     // normal only
+        (p == "important") ||  // low+normal
+        (p == "high")) {       // high only
+      return true;
+    }
+  }
+  return false;
+}
+
+bool Check::validateStrictType(const QString &strict)
+{
+  if (!strict.isEmpty()) {
+    QString s = strict.toLower();
+    if ((s == "all") ||        // super+normal
+        (s == "super") ||      // super only
+        (s == "normal")) {     // normal only
+      return true;
+    }
+  }
+  return false;
 }

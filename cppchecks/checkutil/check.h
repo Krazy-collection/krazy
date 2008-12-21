@@ -63,7 +63,7 @@ class KDE_EXPORT Check
      * Creates a new check engine. Caller must take ownership of the pointer.
      */
     virtual CheckEngine * createCheckEngine() = 0;
- 
+
     /**
      * Creates a new OutputFormatter. Caller must take ownership of the pointer.
      */
@@ -77,6 +77,8 @@ class KDE_EXPORT Check
 
   private: // Functions
     bool parseArguments(int argc, char **argv);
+    bool validatePriorityType(const QString &priority);
+    bool validateStrictType(const QString &strict);
 
     void runCheck();
 
