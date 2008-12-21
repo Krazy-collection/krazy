@@ -13,8 +13,8 @@ include_directories(
     ${KDE4_INCLUDE_DIR}/KDE
     ${KDevPlatform_INCLUDE_DIR}
     include
-    shared
+    checkutil
 )
 
-add_subdirectory(shared)
+add_subdirectory(checkutil)
 add_subdirectory(dpointercheck)
