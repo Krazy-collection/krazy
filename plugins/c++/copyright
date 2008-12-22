@@ -155,7 +155,7 @@ while ($line = <F>) {
 close(F);
 
 #ignore small files.
-if ( !$found && $lcnt <= 5 ) {
+if ( !$found && $lcnt <= 8 ) {
   $found = 1;
 }
 
