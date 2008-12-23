@@ -105,7 +105,6 @@ make realclean
 cd ..
 
 #build and install (non-cppchecks) binary plugins
-if (
 cd src && \
 $QMAKE && \
 make && \
@@ -115,7 +114,7 @@ cd ..
 
 # build and install cppcheck plugins
 cd cppchecks && \
-mkdir build && \
+mkdir -p build && \
 cd build && \
 cmake -DCMAKE_PREFIX_PATH=$TOP .. && \
 make && \
