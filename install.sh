@@ -104,12 +104,24 @@ make install PREFIX=$TOP && \
 make realclean
 cd ..
 
-#build and install binary plugins
+#build and install (non-cppchecks) binary plugins
+if (
 cd src && \
 $QMAKE && \
 make && \
 make install INSTALL_ROOT=$TOP && \
 make distclean
+cd ..
+
+# build and install cppcheck plugins
+cd cppchecks && \
+mkdir build && \
+cd build && \
+cmake -DCMAKE_PREFIX_PATH=$TOP .. && \
+make && \
+make install && \
+cd .. && \
+rm -rf build
 cd ..
 
 #install share stuff
