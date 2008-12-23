@@ -106,10 +106,13 @@ class DPointerCheckASTVisitor : public CheckVisitor
         // a dpointer declared. We don't look in the public section though,
         // because a private class shouldn't be public.
         bool hasDPointer = false;
-        if (fwdDecls.contains(privateName))
+        kDebug() << vclass.name() << fwdDecls;
+        if (fwdDecls.contains(privateName) || fwdDecls.contains("Private"))
         {
           // Next step is to see if there is a variable defined in the proteced or
-          // private section that is of the type ClassNamePrivate*.
+          // private section that is of the type ClassNamePrivate* or Private*.
+          // NOTE: Should we issue a warning if the Type is Private and not
+          //       ClassPrivate?
           QList<Class::Scope> scopes;
           scopes << Class::PRIVATE << Class::PROTECTED;
           QList<TypeDef> typeDefs = vclass.typeDefenitions(scopes, privateName);
@@ -117,8 +120,8 @@ class DPointerCheckASTVisitor : public CheckVisitor
           {
             foreach (TypeDef const &typeDef, typeDefs)
             {
-              // If the variable is not named d at this point should we add a 
-              // warning to the resultlist then?
+              // NOTE: If the variable is not named d at this point should we
+              // add a warning to the resultlist then?
 
               if (typeDef.defenitionType() == TypeDef::CONST_POINTER_TO_VALUE)
                 // evidence++
@@ -252,6 +255,9 @@ class DPointerCheckASTVisitor : public CheckVisitor
       if (symbolForTokenId(node->start_token - 1) == "explicit")
         return; // This is a constructor.
 
+      if (symbolForTokenId(node->end_token) == "(")
+        return; // Function call
+
       if (symbolForTokenId(node->start_token - 1) == "class"
           && symbolForTokenId(node->end_token) == ";")
         if (m_classStack.isEmpty())
@@ -265,8 +271,8 @@ class DPointerCheckASTVisitor : public CheckVisitor
             name += "::" + symbolForTokenId(node->unqualified_name->id);
           else
             name = symbolForTokenId(node->unqualified_name->id);
-
-          m_classStack.top().addForwardDeclaration(m_mode, symbolForTokenId(node->start_token));
+          kDebug() << "ADDING FORWARD DECLARATION:" << name << m_mode;
+          m_classStack.top().addForwardDeclaration(m_mode, name);
         }
       else if (!m_classNameRegistered)
       {
@@ -281,6 +287,7 @@ class DPointerCheckASTVisitor : public CheckVisitor
       else if(symbolForTokenId(node->start_token) != m_varType)
       {
         m_varName = symbolForTokenId(node->start_token);
+        m_varLine = sourceLineForTokenId(node->start_token);
         TypeDef typeDef(m_varType, m_defType, m_varName);
         typeDef.setLine(sourceLineForTokenId(node->start_token));
         m_classStack.top().addTypeDef(m_mode, typeDef);
@@ -289,8 +296,22 @@ class DPointerCheckASTVisitor : public CheckVisitor
 
     void visitTypedef(TypedefAST *)
     {
-      // Don't visit typedefs;
-      return;
+      // Don't visit typedefs.
+    }
+
+    void visitParameterDeclaration(ParameterDeclarationAST *)
+    {
+      // Don't visit parameter declarations.
+    }
+
+    void visitCompoundStatement(CompoundStatementAST *)
+    {
+      // Don't visit compount statements in header files. This prevents that
+      // lines like:
+      //
+      // const Private * impl() const { return d; }
+      // 
+      // get reported.
     }
 };
 
