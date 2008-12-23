@@ -48,6 +48,7 @@ $VERSION = 1.10;
 # SKIP regexp
 # PRIORITY <low|normal|high|important|all>
 # STRICT <normal|super|all>
+# OUTPUT <quiet|brief|normal>
 # IGNORESUBS subdir1[,subdir2,...]
 # IGNOREMODS module1[,module2,...]
 #
@@ -57,7 +58,7 @@ $VERSION = 1.10;
 # The directive is case-insensitive.
 #==============================================================================
 
-my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,$rcPriority,$rcStrict,@rcIgSubsList,@rcIgModsList);
+my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,@rcIgSubsList,@rcIgModsList);
 my($CWD);
 
 sub ParseKrazyRC {
@@ -73,6 +74,7 @@ sub ParseKrazyRC {
   $rcSkipRegex  = "";
   $rcPriority   = "";
   $rcStrict     = "";
+  $rcOutput     = "";
   @rcIgSubsList = ();
   @rcIgModsList = ();
 
@@ -101,6 +103,8 @@ sub ParseKrazyRC {
       &priority($arg);
     } elsif ( $directive eq "STRICT" ) {
       &strict($arg);
+    } elsif ( $directive eq "OUTPUT" ) {
+      &output($arg);
     } else {
       print "Invalid directive $directive, line $linecnt, $rcfile... exiting\n";
       close(F);
@@ -117,6 +121,7 @@ sub ParseKrazyRC {
   $directives{'SKIPREGEX'}  = $rcSkipRegex;
   $directives{'PRIORITY'}   = $rcPriority;
   $directives{'STRICT'}     = $rcStrict;
+  $directives{'OUTPUT'}     = $rcOutput;
   @{$directives{'IGSUBSLIST'}} = deDupe(@rcIgSubsList);
   @{$directives{'IGMODSLIST'}} = deDupe(@rcIgModsList);
   return %directives;
@@ -220,6 +225,20 @@ sub strict {
     exit 1;
   }
   $rcStrict = $args;
+}
+
+sub output {
+  my ($args) = @_;
+  if ( !defined($args) ) {
+    print "missing OUTPUT argument in .krazy...exiting\n";
+    exit 1;
+  }
+  $args=lc($args);
+  if ( !&validateOutputType($args) ) {
+    print "invalid OUTPUT argument \"$args\" in .krazy... exiting\n";
+    exit 1;
+  }
+  $rcOutput = $args;
 }
 
 1;

@@ -35,7 +35,7 @@ $VERSION = 1.12;
 @EXPORT = qw(topModule topSubdir deDupe fileType fileTypeDesc findFiles asOf
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
-             validateExportType validatePriorityType validateStrictType);
+             validateExportType validatePriorityType validateStrictType validateOutputType);
 @EXPORT_OK = qw();
 
 my(@tmp);
@@ -239,6 +239,19 @@ sub validateStrictType {
     if ( ( $strict eq "all" ) ||          # super+normal
 	 ( $strict eq "super" ) ||        # super only
 	 ( $strict eq "normal" ) ) {      # normal only
+      return 1;
+    }
+  }
+  return 0;
+}
+
+sub validateOutputType { #output type doesn't consider verbosity (except in the 'quiet' case)
+  my ($output) = @_;
+  if ($output) {
+    $output = lc($output);
+    if ( ( $output eq "normal" ) ||       # standard stuff (default)
+	 ( $output eq "brief" ) ||        # only checks with issues
+	 ( $output eq "quiet" ) ) {       # no output, even if verbosity turned-on
       return 1;
     }
   }

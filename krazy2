@@ -19,12 +19,24 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
 #                                                                             #
 ###############################################################################
+
+# TODO:
+#  <D> print the checker name associated line in the output report
+#  <D> --check=foo should be enough to run extra 'foo' (shouldn't need --extra=foo too)
+#  --types=type1,type2,..typeN  <- only process these file types
+#  --exclude-types=type1,type2,..typeN <- exclude these file types
+#  support TYPES and EXCLUDE-TYPES in .krazy files
+#  support more command line options in .krazy files (like <D>brief, <D>quiet, verbose,...)
+#  fix textedit export (for kate usage)
+#  "sets/classes" of checks? eg, KDE; KDEPIM; Qt; Gnome???
+
 # Plugin-based: simply put your checker somewhere in $KRAZY_PLUGIN_PATH.
 # the checker program can be written in the language of your choice,
 # but it must follow the following rules:
 #
 # Plugin Rules:
 #   1. must accept the following optional command line args:
+#        --krazy:     a flag indicating the plugin was called by this krazy.
 #        --help:      print one-line help message and exit
 #        --version:   print one-line version information and exit
 #        --priority:  print issues with the specified priority only
@@ -70,7 +82,7 @@
 #                    super -> print super strict issues only
 #                    all -> print all issues (default)
 #                  use strictness to help filter out issues of less importance
-#   --export <text|textlist|textedit|ebn|ebnlxr|html|htmllxr>
+#   --export <text|textlist|textedit|ebn|ebnlxr|html|htmllxr|xml>
 #                  output in one of the following formats:
 #                    text (default)
 #                    textlist -> plain old text, 1 offending file-per-line
@@ -79,6 +91,7 @@
 #                    ebnlxr -> English Breakfast Network style + lxr.kde.org
 #                    html -> plain old html
 #                    htmllxr -> plain old html + lxr.kde.org
+#                    xml -> XML formatted
 #   --title:       give the output a project title.
 #   --cms:         component/module/subdir triple for html and ebn exports
 #   --rev:         subversion revision number
@@ -106,7 +119,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.7';    #split line so MakeMaker can find the version here
+ $VERSION = '2.8';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -123,6 +136,7 @@ my ($exclude)   = '';
 my ($extra)     = '';
 my ($priority)  = '';
 my ($strict)    = '';
+my ($output)    = '';
 my ($skip)      = "/////";            # hopefully a regex that matches nothing
 my ($export)    = 'text';
 my ($title)     = "$Prog Analysis";
@@ -198,7 +212,6 @@ $KRAZY_EXTRA_PATH =
   if ( !$KRAZY_EXTRA_PATH );
 
 my (@sanity_paths);
-my (@sanity_types);
 
 # Generate an array of paths to search for plugins
 my ($sp);
@@ -277,6 +290,9 @@ $exclude = $ds{'EXCLUDE'} if ( !$exclude && defined( $ds{'EXCLUDE'} ) );
 $skip = $ds{'SKIPREGEX'}  if ( defined( $ds{'SKIPREGEX'} ) && $ds{'SKIPREGEX'} );
 $priority = $ds{'PRIORITY'} if ( !$priority && defined( $ds{'PRIORITY'} ) );
 $strict = $ds{'STRICT'}     if ( !$strict && defined( $ds{'STRICT'} ) );
+$output = $ds{'OUTPUT'} if ( defined( $ds{'OUTPUT'} ) );
+$quiet = 1 if ( !$quiet && $output eq "quiet" );
+$brief = 1 if ( !$brief && $output eq "brief" );
 
 # if ($verbose) {
 #   print "\nDirectives:\n";
@@ -330,6 +346,18 @@ if ($only) {
           push( @{ $oCheckers{$type} }, $p );
           last;
         }
+      }
+    }
+    if (!$found) {
+      # ok, maybe an extra checker was specified
+      foreach $type ( keys %xCheckers ) {
+	for $p ( sort @{ $xCheckers{$type} } ) {
+	  if ( &basename($p) eq $o ) {
+	    $found = 1;
+	    push( @{ $oCheckers{$type} }, $p );
+	    last;
+	  }
+	}
       }
     }
     if ( !$found ) {
@@ -531,8 +559,8 @@ if ( !$quiet ) {
 
   &printHeader( $overall_status, $num_checkers, $#allfiles + 1 );
 
-  my ($st);
-  my ( $cline, $rline );
+  my ($st,$bp);
+  my ($cline, $rline);
   for $ftype (@types) {
     next unless ( $#{ $pCheckers{$ftype} } >= 0 );
     $st = 0;
@@ -545,12 +573,13 @@ if ( !$quiet ) {
       $use = "no description available" if ( length($use) < 4 );
       $cline = '';
       $cline .= "$st. " if ( $export eq "text" );
-      $cline .= "$use... ";
+      $bp = &basename($p);
+      $cline .= "$use [$bp]...";
       if ( defined( $status{$p} ) && $status{$p} > 0 ) {
         my ($si) = ( $status{$p} > 1 ? "issues" : "issue" );
-        $rline = "OOPS! $status{$p} $si found!";
+        $rline = "$status{$p} $si found";
       } else {
-        $rline = "okay!";
+        $rline = "Ok!";
         $cline = "" if ($brief); #so printCheck() will print nothing
       }
       &printCheck( $cline, $rline );
@@ -566,7 +595,7 @@ if ( !$quiet ) {
       print "\n" if ($cline ne "" && $export ne "textlist" && $export ne "textedit");
       print "      </check>\n" if ( $export eq "xml" );
     }
-    
+
     if ( $export eq "xml" ) {
       print "    </file-type>\n";
     } elsif ( $export !~ "text" ) {
@@ -611,18 +640,18 @@ sub Help {
   print "            do NOT run the specified checker program(s)\n";
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
   print "         add the specified \"extra\" program(s) to the checker list\n";
-  print "  --export <text|textlist|textedit|ebn|ebnlxr|html|htmllxr>\n";
+  print "  --export <text|textlist|textedit|ebn|ebnlxr|html|htmllxr|xml>\n";
   print "            output in one of the following formats:\n";
   print "              text (default)\n";
   print "              textlist -> plain old text, 1 offending file-per-line\n";
   print "              textedit -> text formatted for IDEs, 1 issue-per-line\n";
-	print "              xml -> XML formatted\n";
   print "              ebn -> English Breakfast Network style\n";
   print "              ebnlxr -> English Breakfast Network style,\n";
   print "                        with links to lxr.kde.org\n";
   print "              html -> plain old html\n";
   print "              htmllxr -> plain old html,\n";
   print "                         with links to lxr.kde.org\n";
+  print "              xml -> XML formatted\n";
   print "  --title   give the output a project title\n";
   print "  --cms     component/module/subdir triple for html and ebn exports\n";
   print "  --rev:    subversion revision number\n";
@@ -875,7 +904,7 @@ sub printHeader {
     print "<ul>\n";
   } elsif ($export =~ "xml") {
     &printXmlHeader();
-    
+
     print "  <global>\n";
     print "    <date value=\"", asOf(), "\" />\n";
     print "    <processed-files value=\"$num_files\" />\n";
@@ -1022,7 +1051,7 @@ sub printOOPS {
   for $o ( split( "\n", $_[0] ) ) {
     chomp($o);
     print "<li>" if ( $export !~ "text" && $export ne "xml" );
-    
+
     if ( $export eq "textlist" ) {
       my ($t) = split( ":", $o );
       $t =~ s+^\s++;
@@ -1060,11 +1089,11 @@ sub printOOPS {
         my ( $ls1, $ls2, $ls3 ) = ( "", "", "" );
         my ( $file );
         ( $file, $ls1, $ls2, $ls3 ) = split( ":", $o );
-        
+
         # Remove leading whitespace and ./
         $file =~ s+^[[:space:]]*\./++;
         $ls1 =~ s+^[[:space:]]*++;
-        
+
         # Ugly due to inconsitent output of checkers and my total lack of perl and
         # re skills.
         my( $lines );
@@ -1082,14 +1111,14 @@ sub printOOPS {
           $lines = "";
           $message = "";
         }
-        
-        $message =~ s/\s*line\#.*$//; # remove the lines#123,345 part
+
+        $message =~ s/\s*line\#.*$//;    # remove the lines#123,345 part
         $message =~ s/^[[:space:]]*//;   # remove leading spaces.
         $message =~ s/\(\d+\)//;         # remove the number of issues if it's there.
-        
+
         $lines =~ s/^.*line#//;          # only keep the numbers
         $lines =~ s/\(\d+\)//;           # remove the number of issues if it's there.
-        
+
         # Sometimes a check returns per line the issue like:
         # utils/input.cpp: line#155[Couldn't],184[Couldn't],200[Couldn't],258[Couldn't] (4)
         # $lines = "            <line>$lines<\/line>\n";
@@ -1098,7 +1127,7 @@ sub printOOPS {
         } elsif ($lines =~ /(\d+),?/) {
            $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
         }
-        
+
         print "        <file name=\"$file\">\n";
         if ($message) {
           print "          <message>", encode_entities( $message ), "</message>\n";
@@ -1317,7 +1346,7 @@ Add the specified "extra" program(s) to the list of checkers to run.
 Use the --list option to show the list of available "extra" checkers; they
 will be marked with the tag [EXTRA] by the checker description line.
 
-=item B<--export> <text|textlist|textedit|ebn|ebnlxr|html|htmllxr>
+=item B<--export> <text|textlist|textedit|ebn|ebnlxr|html|htmllxr|xml>
 
 Output in one of the following formats:
      text (default)
@@ -1328,6 +1357,7 @@ Output in one of the following formats:
      ebnlxr -> English Breakfast Network style, with links to lxr.kde.org
      html -> plain old html
      htmllxr -> plain old html, with links to lxr.kde.org
+     xml -> XML formatted
 
 =item B<--title>
 

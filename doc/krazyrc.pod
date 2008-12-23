@@ -51,6 +51,16 @@ Set the priority value. Must be one of "low", "normal", "high", "important", "al
 
 Set the strict value. Must be one of "normal", "super", "all".
 
+=item OUTPUT output
+
+Set the output level. Must be one of "quiet", "brief", "all".
+
+"quiet" means no output is printed, even if --verbose is passed on the command line.
+
+"brief" will only print checker summaries if the check has at least 1 issue.
+
+"all" is the normal mode and prints all checker summaries
+
 =item IGNORESUBS subdir1[,subdir2,...]
 
 Do not run Krazy on the specified list of subdirectories.
