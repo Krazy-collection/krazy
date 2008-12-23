@@ -19,6 +19,7 @@
 #include "check.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QStringList>
 #include <QtCore/QUrl>
 
 #include <iostream>
@@ -47,6 +48,12 @@ bool Check::argumentsValid() const
 
 void Check::run()
 {
+  if (!m_isValid)
+  {
+    printUsage();
+    return;
+  }
+
   switch (m_action)
   {
     case RUN_CHECK:
@@ -64,7 +71,7 @@ void Check::run()
   }
 }
 
-/* virtual */ void Check::printHelp() const
+/* virtual */ void Check::printUsage() const
 {
   cout << "usage:" << qPrintable(m_checkName) << " <options> <source-file>" << endl;
   cout << "Where options is contains one or more of the following items:" << endl;
@@ -75,6 +82,12 @@ void Check::run()
   cout << "    --explain   Print the reason behind this check" << endl;
   cout << "    --help      Print this help" << endl;
   cout << "  Other:" << endl;
+  cout << "    --strict=STRICTNESS" << endl;
+  cout << "                This determines how strict the checker should be for finding " << endl;
+  cout << "                issues. Supported for values are: normal, super, all" << endl;
+  cout << "    --priority=PRIORITY" << endl;
+  cout << "                This determines the issues that should be reported" << endl;
+  cout << "                Supported values for PRIORITY are: low, normal, important, high, all" << endl;
   cout << "    --installed This is to let the test know whether the source-file " << endl;
   cout << "                is installed by the buildsystem." << endl;
 }
@@ -90,13 +103,23 @@ bool Check::parseArguments(int argc, char **argv)
     return false;
   }
 
-  //TODO: validate and set priority
-  //TODO: validate and set strict
-
   bool isKrazy = false;
   for( --argc, ++argv; argc; --argc, ++argv )
   {
-    if(!strcmp( *argv, "--krazy"))
+    QString value(*argv);
+    if (value.startsWith("--strict"))
+    {
+      if (validateStrictType(value))
+        setStrictType(value);
+      else
+        return false;
+    }
+    else if (value.startsWith("--priority"))
+      if (validatePriorityType(*argv))
+        setPriorityType(value);
+      else
+        return false;
+    else if(!strcmp( *argv, "--krazy"))
       isKrazy = true;
     // Output mode
     else if (!strcmp(*argv, "--verbose"))
@@ -171,30 +194,71 @@ void Check::runCheck()
   engine = 0;
 }
 
-bool Check::validatePriorityType( const QString &priority )
+void Check::setPriorityType(QString const &priority)
 {
-  if (!priority.isEmpty()) {
-    QString p = priority.toLower();
-    if ((p == "all") ||        // low+normal+high
-        (p == "low") ||        // low only
-        (p == "normal") ||     // normal only
-        (p == "important") ||  // low+normal
-        (p == "high")) {       // high only
-      return true;
-    }
-  }
+  // We assume a string in the form of --priority=all|low|normal|important|high
+  // and thus that validateStrictType(priority) returns true.
+  QString prior = priority.split('=').last().toLower();
+
+  if (prior == "low")
+    m_priority = PT_LOW;
+  else if (prior == "normal")
+    m_priority = PT_NORMAL;
+  else if (prior == "important")
+    m_priority = PT_IMPORTANT;
+  else if (prior == "high")
+    m_priority = PT_HIGH;
+  else
+    m_priority = PT_ALL;
+}
+
+void Check::setStrictType(QString const &strict)
+{
+  // We assume a string in the form of --strict=all|super|normal
+  QString prior = strict.split('=').last().toLower();
+
+  if (prior == "normal")
+    m_strictness = ST_NORMAL;
+  else if (prior == "super")
+    m_strictness = ST_SUPER;
+  else
+    m_strictness = ST_ALL;
+}
+
+bool Check::validatePriorityType(QString const &priority) const
+{
+  if (priority.isEmpty())
+    return false;
+
+  QStringList list = priority.split('=');
+  if (list.size() != 2)
+    return false;
+
+  QString p = list.last().toLower();
+  if ((p == "all") ||        // low+normal+high
+      (p == "low") ||        // low only
+      (p == "normal") ||     // normal only
+      (p == "important") ||  // low+normal
+      (p == "high"))         // high only
+    return true;
+
   return false;
 }
 
-bool Check::validateStrictType(const QString &strict)
+bool Check::validateStrictType(QString const &strict) const
 {
-  if (!strict.isEmpty()) {
-    QString s = strict.toLower();
-    if ((s == "all") ||        // super+normal
-        (s == "super") ||      // super only
-        (s == "normal")) {     // normal only
-      return true;
-    }
-  }
+  if (strict.isEmpty())
+    return false;
+
+  QStringList list = strict.split('=');
+  if (list.size() != 2)
+    return false;
+
+  QString s = list.last().toLower();
+  if ((s == "all") ||        // super+normal
+      (s == "super") ||      // super only
+      (s == "normal"))       // normal only
+    return true;
+
   return false;
 }

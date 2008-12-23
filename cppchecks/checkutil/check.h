@@ -28,6 +28,14 @@ class OutputFormatter;
 
 class KDE_EXPORT Check
 {
+  enum Action
+  {
+    PRINT_VERSION,
+    PRINT_HELP,
+    PRINT_EXPLANATION,
+    RUN_CHECK,
+  };
+
   enum Mode
   {
     QUIET,
@@ -35,12 +43,20 @@ class KDE_EXPORT Check
     VERBOSE
   };
 
-  enum Action
+  enum PriorityType
   {
-    PRINT_VERSION,
-    PRINT_HELP,
-    PRINT_EXPLANATION,
-    RUN_CHECK,
+    PT_ALL,       // low+normal+high
+    PT_LOW,       // low only
+    PT_NORMAL,    // normal only
+    PT_IMPORTANT, // low+normal
+    PT_HIGH       // high only
+  };
+
+  enum StrictType
+  {
+    ST_ALL,
+    ST_SUPER,
+    ST_NORMAL
   };
 
   public:
@@ -71,24 +87,34 @@ class KDE_EXPORT Check
 
     virtual void printExplanation() const = 0;
 
-    virtual void printHelp() const;
+    virtual void printHelp() const = 0;
+
+    void printUsage() const;
 
     virtual void printVersion() const = 0;
 
   private: // Functions
     bool parseArguments(int argc, char **argv);
-    bool validatePriorityType(const QString &priority);
-    bool validateStrictType(const QString &strict);
 
     void runCheck();
 
+    void setPriorityType(QString const &priority);
+
+    void setStrictType(QString const &priority);
+
+    bool validatePriorityType(QString const &priority) const;
+
+    bool validateStrictType(QString const &strict) const;
+
   private: // Members
-    Action  m_action;
-    QString m_checkName;
-    QString m_fileName;
-    bool    m_installed;
-    bool    m_isValid;
-    Mode    m_mode;
+    Action       m_action;
+    QString      m_checkName;
+    QString      m_fileName;
+    bool         m_installed;
+    bool         m_isValid;
+    Mode         m_mode;
+    PriorityType m_priority;
+    StrictType   m_strictness;
 };
 
 #endif // CHECK_H
