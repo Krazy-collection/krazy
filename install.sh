@@ -118,8 +118,8 @@ mkdir -p build && \
 cd build && \
 cmake -DCMAKE_PREFIX_PATH=$TOP .. && \
 make && \
-make install && \
-cd .. && \
+make install
+cd ..
 rm -rf build
 cd ..
 
