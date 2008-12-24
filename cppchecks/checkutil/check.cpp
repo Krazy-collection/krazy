@@ -34,7 +34,9 @@ Check::Check(int argc, char **argv)
   m_installed(false),
   m_issueCount(0),
   m_isValid(false),
-  m_mode(NORMAL)
+  m_mode(NORMAL),
+  m_priority(PT_ALL),
+  m_strictness(ST_ALL)
 {
   m_isValid = parseArguments(argc, argv);
 }
