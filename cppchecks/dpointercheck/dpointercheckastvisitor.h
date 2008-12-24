@@ -177,7 +177,10 @@ class DPointerCheckASTVisitor : public CheckVisitor
       m_classNameRegistered = false;
       m_mode = Class::PRIVATE; // By default members of a class are private.
 
-      DefaultVisitor::visitClassSpecifier(node);
+      visit(node->win_decl_specifiers);
+      visit(node->name);
+//       visit(node->base_clause); // Don't visit base class defenitions.
+      visitNodes(this, node->member_specs);
 
       m_classes.append(m_classStack.pop());
       m_classNameRegistered = m_classStack.isEmpty() ? false : true;
