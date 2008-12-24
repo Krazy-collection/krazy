@@ -132,9 +132,7 @@ bool Check::parseArguments(int argc, char **argv)
         return false;
     }
     else if (!strcmp(*argv,"--strict"))
-    {
       strictArgPassed = true;
-    }
     else if (!strcmp(*argv,"--priority"))
       priorArgPassed = true;
     else if(!strcmp(*argv, "--krazy"))
@@ -192,7 +190,7 @@ void Check::runCheck()
   m_issueCount = results.size();
 
   if (results.empty() && m_mode != QUIET)
-    cout << "okay!" << endl;
+    cout << "okay" << endl;
   else
   {
     OutputFormatter *formatter = createOutputFormatter();
