@@ -86,7 +86,7 @@ while ($linecnt < $#lines) {
   if ($line =~ m/(foreach|Q_FOREACH)\s*\(/) {
     next if ($line =~ m/\(\s*const\s[:\w]+\s*&\s*\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?[:\w]+\s*\*(\s*const\s)?\s*\w+\s*,/);
-    next if ($line =~ m/\(\s*(const\s)?(T|int|uint|uint32_t|quint64|qint64|unsigned int|long|float|double|qreal|unsigned char|char)\s\w+\s*,/);
+    next if ($line =~ m/\(\s*(const\s)?(T|int|uint|uint32_t|quint64|qint64|unsigned int|GLint|GLuint|long|float|double|qreal|unsigned char|char)\s\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?(QList|QLinkedList|QPointer|QVector|QMap|QSet|shared_ptr)\s*<[\s\w\*]+>\s*[&]?\s*[:\w]+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?[:\w]+(Ptr|Info|Information|Error|Type|Id)\s\w+\s*,/);
     next if ($line =~ m/\(\s*(::)?(Types)::\w+\s\w+\s*,/);
