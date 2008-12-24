@@ -51,7 +51,7 @@ DPointerCheck::~DPointerCheck()
 
 /* virtual */ void DPointerCheck::printHelp() const
 {
-  cout << "Check public classes with private members or d-pointer issues";
+  cout << "Check public classes with private members or d-pointer issues" << endl;
 }
 
 /* virtual */ void DPointerCheck::printExplanation() const
@@ -67,7 +67,7 @@ DPointerCheck::~DPointerCheck()
 
 /* virtual */ void DPointerCheck::printVersion() const
 {
-  cout << "DPointerCheck version " << m_version.data() << endl;
+  cout << "DPointerCheck version " << qPrintable(m_version) << endl;
 }
 
 /* virtual */ bool DPointerCheck::processInstalledFilesOnly() const
