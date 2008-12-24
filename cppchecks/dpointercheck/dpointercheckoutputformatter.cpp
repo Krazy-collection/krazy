@@ -49,7 +49,7 @@ using namespace std;
       linesStr.append(',' + QString::number(line));
 
     linesStr.remove(0,1); // Remove the first comma
-    cout << qPrintable(issue) << "#" << qPrintable(linesStr) << " (";
+    cout << qPrintable(issue) << " line#" << qPrintable(linesStr) << " (";
     cout << lines.size() << ')' << endl;
   }
 
