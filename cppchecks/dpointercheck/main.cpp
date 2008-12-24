@@ -36,7 +36,5 @@ int main(int argc, char** argv)
     *   should be in the d-pointer.
     */
   DPointerCheck check(argc, argv);
-  check.run();
-
-  return 0;
+  return check.run();
 }

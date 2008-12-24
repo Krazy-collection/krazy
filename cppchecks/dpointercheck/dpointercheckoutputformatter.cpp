@@ -50,7 +50,7 @@ using namespace std;
 
     linesStr.remove(0,1); // Remove the first comma
     cout << qPrintable(issue) << "#" << qPrintable(linesStr) << " (";
-    cout << lines.size() << ')' <<  endl;
+    cout << lines.size() << ')' << endl;
   }
 
   foreach (QString const &issue, generalIssues.keys())

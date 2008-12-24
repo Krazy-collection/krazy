@@ -70,9 +70,9 @@ class KDE_EXPORT Check
     bool argumentsValid() const;
 
     /**
-     * Run the check.
+     * Run the check. Returns the total number of issues found.
      */
-    void run();
+    int run();
 
   protected:
     /**
@@ -117,6 +117,7 @@ class KDE_EXPORT Check
     QString      m_checkName;
     QString      m_fileName;
     bool         m_installed;
+    uint         m_issueCount;
     bool         m_isValid;
     Mode         m_mode;
     PriorityType m_priority;

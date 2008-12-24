@@ -106,7 +106,6 @@ class DPointerCheckASTVisitor : public CheckVisitor
         // a dpointer declared. We don't look in the public section though,
         // because a private class shouldn't be public.
         bool hasDPointer = false;
-        kDebug() << vclass.name() << fwdDecls;
         if (fwdDecls.contains(privateName) || fwdDecls.contains("Private"))
         {
           // Next step is to see if there is a variable defined in the proteced or
@@ -271,7 +270,6 @@ class DPointerCheckASTVisitor : public CheckVisitor
             name += "::" + symbolForTokenId(node->unqualified_name->id);
           else
             name = symbolForTokenId(node->unqualified_name->id);
-          kDebug() << "ADDING FORWARD DECLARATION:" << name << m_mode;
           m_classStack.top().addForwardDeclaration(m_mode, name);
         }
       else if (!m_classNameRegistered)

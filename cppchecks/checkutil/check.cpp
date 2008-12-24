@@ -32,6 +32,7 @@ using namespace std;
 Check::Check(int argc, char **argv)
 : m_action(RUN_CHECK),
   m_installed(false),
+  m_issueCount(0),
   m_isValid(false),
   m_mode(NORMAL)
 {
@@ -46,28 +47,28 @@ bool Check::argumentsValid() const
   return m_isValid;
 }
 
-void Check::run()
+int Check::run()
 {
   if (!m_isValid)
   {
     printUsage();
-    return;
+    return 0;
   }
 
   switch (m_action)
   {
     case RUN_CHECK:
       runCheck();
-      break;
+      return m_issueCount;
     case PRINT_VERSION:
       printVersion();
-      break;
+      return 0;
     case PRINT_EXPLANATION:
       printExplanation();
-      break;
+      return 0;
     default:
       printHelp();
-      break;
+      return 0;
   }
 }
 
@@ -180,16 +181,13 @@ bool Check::parseArguments(int argc, char **argv)
 void Check::runCheck()
 {
   if (processInstalledFilesOnly() && !m_installed)
-  {
-    cerr << "SKIPPING FILE: " << qPrintable(m_fileName) << endl;
     return;
-  }
-  cerr << "CHECKING FILE: " << qPrintable(m_fileName) << endl;
 
   CheckEngine *engine = createCheckEngine();
   engine->process(QUrl(m_fileName));
 
   QList<Result> results = engine->results();
+  m_issueCount = results.size();
 
   if (results.empty() && m_mode != QUIET)
     cout << "okay!" << endl;
@@ -249,7 +247,6 @@ void Check::setStrictType(QString const &strict)
 
 bool Check::validatePriorityType(QString const &priority) const
 {
-  cerr << "Check::validatePriorityType() " << qPrintable(priority) << endl;
   if (priority.isEmpty())
     return false;
 
