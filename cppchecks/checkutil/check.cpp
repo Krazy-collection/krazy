@@ -82,10 +82,10 @@ void Check::run()
   cout << "    --explain   Print the reason behind this check" << endl;
   cout << "    --help      Print this help" << endl;
   cout << "  Other:" << endl;
-  cout << "    --strict=STRICTNESS" << endl;
+  cout << "    --strict STRICTNESS" << endl;
   cout << "                This determines how strict the checker should be for finding " << endl;
   cout << "                issues. Supported for values are: normal, super, all" << endl;
-  cout << "    --priority=PRIORITY" << endl;
+  cout << "    --priority PRIORITY" << endl;
   cout << "                This determines the issues that should be reported" << endl;
   cout << "                Supported values for PRIORITY are: low, normal, important, high, all" << endl;
   cout << "    --installed This is to let the test know whether the source-file " << endl;
