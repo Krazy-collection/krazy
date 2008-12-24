@@ -142,11 +142,15 @@ class DPointerCheckASTVisitor : public CheckVisitor
           // Less evidence that it has a private d-pointer. For now we just asume
           // that there is no d-pointer at all, although this might not be accurate
           // engough.
-          Result res;
-          res.line = -1; // We don't care.
-          res.longMessage = "missing dpointer in classes";
-          res.shortMessage = vclass.name();
-          results.append(res);
+          if (vclass.typeDefenitions(Class::PRIVATE).size() > 0)
+          {
+            // Only add this one if we have private members.
+            Result res;
+            res.line = -1; // We don't care.
+            res.longMessage = "missing dpointer in classes";
+            res.shortMessage = vclass.name();
+            results.append(res);
+          }
         }
 
         // Nest step: See if there are other private members defined which should
