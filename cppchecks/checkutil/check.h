@@ -93,6 +93,12 @@ class KDE_EXPORT Check
 
     virtual void printVersion() const = 0;
 
+    /**
+     * Indicates wheter or not the check is only mentioned for files that are
+     * installed.
+     */
+    virtual bool processInstalledFilesOnly() const = 0;
+
   private: // Functions
     bool parseArguments(int argc, char **argv);
 

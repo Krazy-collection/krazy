@@ -26,22 +26,26 @@ class DPointerCheck : public Check
   public:
     DPointerCheck(int argc, char **argv);
 
-    virtual ~DPointerCheck();
+    /* virtual */ ~DPointerCheck();
 
   protected:
     /**
      * Creates a new check engine. Caller must take ownership of the pointer.
      */
-    CheckEngine * createCheckEngine();
+    /* virtual */ CheckEngine * createCheckEngine();
 
     /**
      * Creates a new OutputFormatter. Caller must take ownership of the pointer.
      */
-    OutputFormatter * createOutputFormatter();
+    /* virtual */ OutputFormatter * createOutputFormatter();
 
-    void printHelp() const;
-    void printExplanation() const;
-    void printVersion() const;
+    /* virtual */ void printHelp() const;
+
+    /* virtual */ void printExplanation() const;
+
+    /* virtual */ void printVersion() const;
+
+    /* virtual */ bool processInstalledFilesOnly() const;
 
   private:
     QString const m_version;

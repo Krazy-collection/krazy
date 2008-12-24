@@ -104,22 +104,37 @@ bool Check::parseArguments(int argc, char **argv)
   }
 
   bool isKrazy = false;
+  bool strictArgPassed = false;
+  bool priorArgPassed = false;
   for( --argc, ++argv; argc; --argc, ++argv )
   {
-    QString value(*argv);
-    if (value.startsWith("--strict"))
+    if (strictArgPassed)
     {
-      if (validateStrictType(value))
-        setStrictType(value);
+      if (validateStrictType(*argv))
+      {
+        setStrictType(*argv);
+        strictArgPassed = false;
+      }
       else
         return false;
     }
-    else if (value.startsWith("--priority"))
+    else if (priorArgPassed)
+    {
       if (validatePriorityType(*argv))
-        setPriorityType(value);
+      {
+        setPriorityType(*argv);
+        priorArgPassed = false;
+      }
       else
         return false;
-    else if(!strcmp( *argv, "--krazy"))
+    }
+    else if (!strcmp(*argv,"--strict"))
+    {
+      strictArgPassed = true;
+    }
+    else if (!strcmp(*argv,"--priority"))
+      priorArgPassed = true;
+    else if(!strcmp(*argv, "--krazy"))
       isKrazy = true;
     // Output mode
     else if (!strcmp(*argv, "--verbose"))
@@ -164,6 +179,13 @@ bool Check::parseArguments(int argc, char **argv)
 
 void Check::runCheck()
 {
+  if (processInstalledFilesOnly() && !m_installed)
+  {
+    cerr << "SKIPPING FILE: " << qPrintable(m_fileName) << endl;
+    return;
+  }
+  cerr << "CHECKING FILE: " << qPrintable(m_fileName) << endl;
+
   CheckEngine *engine = createCheckEngine();
   engine->process(QUrl(m_fileName));
 
@@ -198,7 +220,7 @@ void Check::setPriorityType(QString const &priority)
 {
   // We assume a string in the form of --priority=all|low|normal|important|high
   // and thus that validateStrictType(priority) returns true.
-  QString prior = priority.split('=').last().toLower();
+  QString prior = priority.toLower();
 
   if (prior == "low")
     m_priority = PT_LOW;
@@ -215,11 +237,11 @@ void Check::setPriorityType(QString const &priority)
 void Check::setStrictType(QString const &strict)
 {
   // We assume a string in the form of --strict=all|super|normal
-  QString prior = strict.split('=').last().toLower();
+  QString s = strict.toLower();
 
-  if (prior == "normal")
+  if (s == "normal")
     m_strictness = ST_NORMAL;
-  else if (prior == "super")
+  else if (s == "super")
     m_strictness = ST_SUPER;
   else
     m_strictness = ST_ALL;
@@ -227,14 +249,11 @@ void Check::setStrictType(QString const &strict)
 
 bool Check::validatePriorityType(QString const &priority) const
 {
+  cerr << "Check::validatePriorityType() " << qPrintable(priority) << endl;
   if (priority.isEmpty())
     return false;
 
-  QStringList list = priority.split('=');
-  if (list.size() != 2)
-    return false;
-
-  QString p = list.last().toLower();
+  QString p = priority.toLower();
   if ((p == "all") ||        // low+normal+high
       (p == "low") ||        // low only
       (p == "normal") ||     // normal only
@@ -250,11 +269,7 @@ bool Check::validateStrictType(QString const &strict) const
   if (strict.isEmpty())
     return false;
 
-  QStringList list = strict.split('=');
-  if (list.size() != 2)
-    return false;
-
-  QString s = list.last().toLower();
+  QString s = strict.toLower();
   if ((s == "all") ||        // super+normal
       (s == "super") ||      // super only
       (s == "normal"))       // normal only

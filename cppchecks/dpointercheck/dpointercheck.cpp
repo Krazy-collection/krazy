@@ -69,3 +69,8 @@ DPointerCheck::~DPointerCheck()
 {
   cout << "DPointerCheck version " << m_version.data() << endl;
 }
+
+/* virtual */ bool DPointerCheck::processInstalledFilesOnly() const
+{
+  return true;
+}
