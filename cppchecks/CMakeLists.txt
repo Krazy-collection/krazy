@@ -11,7 +11,7 @@ include_directories(
     ${QT_INCLUDES}
     ${KDE4_INCLUDE_DIR}
     ${KDE4_INCLUDE_DIR}/KDE
-    ${KDevPlatform_INCLUDE_DIR}
+    ${KDEVPLATFORM_INCLUDE_DIR}
     include
     checkutil
 )

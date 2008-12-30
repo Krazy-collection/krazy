@@ -261,7 +261,8 @@ class DPointerCheckASTVisitor : public CheckVisitor
       if (symbolForTokenId(node->end_token) == "(")
         return; // Function call
 
-      if (symbolForTokenId(node->start_token - 1) == "class"
+      if ((symbolForTokenId(node->start_token - 1) == "class" 
+           || symbolForTokenId(node->start_token - 1) == "struct")
           && symbolForTokenId(node->end_token) == ";")
         if (m_classStack.isEmpty())
          return;
