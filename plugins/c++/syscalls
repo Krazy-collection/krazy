@@ -151,6 +151,7 @@ sub sysCall() {
       $l =~ m/^\s*$syscall[[:space:]]*\(/) {
     if ($l !~ m/[[:alnum:]]::$syscall/ && $l !~ m/SIGNAL/ && $l !~ m/emit/ &&
 	$l !~ m/open.*\"\s*\)/ && $l !~ m/close\s*\(\s*\"/ &&
+        $l !~ m/open\s*\(\s*\)/ &&
 	$l !~ m/open\s*\(\s*[Ff][Aa][Ll][Ss][Ee]\s*\)/ &&
 	$l !~ m/open\s*\(\s*[Tt][Rr][Uu][Ee]\s*\)/ &&
 	$l !~ m/close\s*\(\s*[Ff][Aa][Ll][Ss][Ee]\s*\)/ &&
