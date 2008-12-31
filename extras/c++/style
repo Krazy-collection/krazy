@@ -110,6 +110,14 @@ my($indent,$lindent) = (0,0);
 &initIssues();
 foreach $line (@lines) {
   chomp($line);
+
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    print "okay\n" if (!&quietArg());
+    exit 0;
+  }
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
   $line =~ s/^\ //;   #the comment stripper leaves a leading space
   $linecnt++;
 
