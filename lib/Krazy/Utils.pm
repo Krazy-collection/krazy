@@ -24,7 +24,7 @@ use strict;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 use Cwd;
 use Cwd 'abs_path';
-use POSIX qw (strftime);
+use POSIX qw (setlocale strftime LC_TIME);
 use File::Find;
 use Getopt::Long;
 
@@ -154,7 +154,11 @@ sub findFiles {
 
 # asOf function: return nicely formatted string containing the current time
 sub asOf {
-  return strftime( "%B %d %Y %H:%M:%S %Z", localtime( time() ) );
+  my $locale = setlocale( LC_TIME );
+  setlocale( LC_TIME, "C" );
+  my $time = strftime( "%B %d %Y %H:%M:%S %Z", localtime( time() ) );
+  setlocale( LC_TIME, $locale );
+  return $time;
 }
 
 my($krazy) = '';
