@@ -51,7 +51,9 @@ class Class
 
     void addTypeDef(Scope scope, TypeDef const &def);
 
-    QStringList forwardDeclarations(Scope scope) const;
+    bool containsForwardDeclaration(QString const &type) const;
+
+    QStringList forwardDeclarations() const;
 
     QString name() const;
 

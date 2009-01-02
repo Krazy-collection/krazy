@@ -40,9 +40,14 @@ void Class::addTypeDef(Scope scope, TypeDef const &def)
   m_typeDefs.insert(scope, def);
 }
 
-QStringList Class::forwardDeclarations(Scope scope) const
+bool Class::containsForwardDeclaration(QString const&type) const
 {
-  return m_forwardDeclarations.values(scope);
+  return m_forwardDeclarations.values().contains(type);
+}
+
+QStringList Class::forwardDeclarations() const
+{
+  return m_forwardDeclarations.values();
 }
 
 QString Class::name() const

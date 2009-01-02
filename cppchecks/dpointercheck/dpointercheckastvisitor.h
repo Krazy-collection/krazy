@@ -39,6 +39,8 @@ class DPointerCheckASTVisitor : public CheckVisitor
     QString          m_className;
     Class::Scope     m_mode;
     TypeDef::DefType m_defType;
+    QStringList      m_globalForwardDecls;
+    QStringList      m_tempArgs;
     QString          m_varType;
     QString          m_varName;
     int              m_varLine;
@@ -97,74 +99,99 @@ class DPointerCheckASTVisitor : public CheckVisitor
 
       foreach (Class const &vclass, m_classes)
       {
-        QStringList fwdDecls = vclass.forwardDeclarations(Class::PRIVATE);
-        fwdDecls += vclass.forwardDeclarations(Class::PROTECTED);
-        QString privateName = QString(vclass.name() + "Private").remove(QRegExp(".*::"));
+//         QStringList fwdDecls = vclass.forwardDeclarations(Class::PRIVATE);
+//         fwdDecls += vclass.forwardDeclarations(Class::PROTECTED);
+//         QString privateName = QString(vclass.name() + "Private").remove(QRegExp(".*::"));
 
         // Finding a forward declaration which has the name ClassNamePrivate in
         // the protected or private section is a strong evidence that there is
         // a dpointer declared. We don't look in the public section though,
         // because a private class shouldn't be public.
-        bool hasDPointer = false;
-        if (fwdDecls.contains(privateName) || fwdDecls.contains("Private"))
-        {
-          // Next step is to see if there is a variable defined in the proteced or
-          // private section that is of the type ClassNamePrivate* or Private*.
-          // NOTE: Should we issue a warning if the Type is Private and not
-          //       ClassPrivate?
-          QList<Class::Scope> scopes;
-          scopes << Class::PRIVATE << Class::PROTECTED;
-          QList<TypeDef> typeDefs = vclass.typeDefenitions(scopes, privateName);
-          if (!vclass.typeDefenitions(scopes, privateName).isEmpty())
-          {
-            foreach (TypeDef const &typeDef, typeDefs)
-            {
-              // NOTE: If the variable is not named d at this point should we
-              // add a warning to the resultlist then?
 
-              if (typeDef.defenitionType() == TypeDef::CONST_POINTER_TO_VALUE)
-                // evidence++
-                hasDPointer = true;
-              else if (typeDef.defenitionType() == TypeDef::POINTER_TO_VALUE)
-              {
-                // evidence++
-                hasDPointer = true;
-                Result res;
-                res.line = typeDef.line();
-                res.longMessage = "non-const dpointer";
-                results.append(res);
-              }
+        // First check the protected members.
+        QList<TypeDef> typeDefs = vclass.typeDefenitions(Class::PROTECTED);
+        bool hasDPointer = false;
+
+        foreach (TypeDef const &typeDef, typeDefs)
+        {
+          if (isDPointer(typeDef, vclass))
+          {
+            hasDPointer = true;
+            if (typeDef.defenitionType() != TypeDef::CONST_POINTER_TO_VALUE)
+            {
+              Result res;
+              res.line = typeDef.line();
+              res.longMessage = "non-const dpointer";
+              results.append(res);
             }
           }
         }
-        else if (vclass.typeDefenitions(Class::PRIVATE).size() > 0)
-        {
-          // Less evidence that it has a private d-pointer. For now we just asume
-          // that there is no d-pointer at all, although this might not be accurate
-          // engough.
-          Result res;
-          res.line = -1; // We don't care.
-          res.longMessage = "missing dpointer in classes";
-          res.shortMessage = vclass.name();
-          results.append(res);
-        }
 
-        // Nest step: See if there are other private members defined which should
-        // be in the Private class.
-        foreach (TypeDef const &typeDef, vclass.typeDefenitions(Class::PRIVATE))
+        // Then check the private members.
+        typeDefs = vclass.typeDefenitions(Class::PRIVATE);
+        int privateMemberCount = 0;
+        foreach (TypeDef const &typeDef, typeDefs)
         {
-          if (typeDef.type() != privateName && typeDef.type() != "Private"
-            && typeDef.name() != "d")
+          if (isDPointer(typeDef, vclass))
           {
+            hasDPointer = true;
+            if (typeDef.defenitionType() == TypeDef::POINTER_TO_VALUE)
+            {
+              Result res;
+              res.line = typeDef.line();
+              res.longMessage = "non-const dpointer";
+              results.append(res);
+            }
+          }
+          else
+          {
+            ++privateMemberCount;
             Result res;
             res.line = typeDef.line();
             res.longMessage = "private members";
             results.append(res);
           }
         }
+
+        if (!hasDPointer && privateMemberCount > 0)
+        {
+          Result res;
+          res.line = -1; // We don't care.
+          res.longMessage = "missing dpointer in classes";
+          res.shortMessage = vclass.name();
+          results.append(res);
+        }
       }
 
       return results;
+    }
+
+    bool isDPointer(TypeDef const&typeDef, Class const &pclass) const
+    {
+      bool isConstPointer = typeDef.defenitionType() == TypeDef::CONST_POINTER_TO_VALUE;
+      bool isPointer = typeDef.defenitionType() == TypeDef::POINTER_TO_VALUE;
+      bool hasGlobalForwardDecl = m_globalForwardDecls.contains(typeDef.type());
+      bool hasForwardDeclInClass = pclass.containsForwardDeclaration(typeDef.type());
+      bool hasTemplateArgForwardDecl = false;
+      bool isNamedD = typeDef.name() == "d";
+      bool containsPrivate = typeDef.type().contains("Private");
+
+      if (typeDef.templateArguments().size() == 1)
+      {
+        hasTemplateArgForwardDecl = 
+          pclass.forwardDeclarations().contains(typeDef.templateArguments().first())
+          || m_globalForwardDecls.contains(typeDef.templateArguments().first());
+        containsPrivate = typeDef.templateArguments().first().contains("Private");
+      }
+
+      int score = 0;
+      if (isConstPointer || isPointer) ++score;
+      if (hasGlobalForwardDecl || hasForwardDeclInClass) ++score;
+      if (hasTemplateArgForwardDecl) ++score;
+      if (isNamedD) ++score;
+      if (containsPrivate) ++score;
+
+      return score >= 3;
     }
 
     ////////////////////////// visit overrides //////////////////////////////
@@ -204,8 +231,11 @@ class DPointerCheckASTVisitor : public CheckVisitor
       QString token = symbolForTokenId(node->start_token);
 
       if (token == "class")
+      {
         // Class definition of forward declaration.
+        m_globalForwardDecls.append(symbolForTokenId(node->start_token + 1));
         DefaultVisitor::visitSimpleDeclaration(node);
+      }
       else
       {
         // Variable defenition
@@ -217,6 +247,7 @@ class DPointerCheckASTVisitor : public CheckVisitor
     void visitSimpleTypeSpecifier(SimpleTypeSpecifierAST *node)
     {
       m_varType = symbolForTokenId(node->start_token);
+      m_tempArgs.clear();
 
       if (symbolForTokenId(node->start_token + 1) == "const"
         || symbolForTokenId(node->start_token - 1) == "const")
@@ -280,7 +311,6 @@ class DPointerCheckASTVisitor : public CheckVisitor
       else if (!m_classNameRegistered)
       {
         m_className = symbolForTokenId(node->start_token);
-
         if (!m_classStack.isEmpty())
           m_className.prepend(m_classStack.top().name() + "::");
 
@@ -293,8 +323,14 @@ class DPointerCheckASTVisitor : public CheckVisitor
         m_varLine = sourceLineForTokenId(node->start_token);
         TypeDef typeDef(m_varType, m_defType, m_varName);
         typeDef.setLine(sourceLineForTokenId(node->start_token));
+        typeDef.setTemplateArguments(m_tempArgs);
+        m_tempArgs.clear();
+
         m_classStack.top().addTypeDef(m_mode, typeDef);
       }
+
+      // Make sure that we visit eventual template arguments.
+      DefaultVisitor::visitName(node);
     }
 
     void visitTypedef(TypedefAST *)
@@ -315,6 +351,27 @@ class DPointerCheckASTVisitor : public CheckVisitor
       // const Private * impl() const { return d; }
       // 
       // get reported.
+    }
+
+    void visitTemplateArgument(TemplateArgumentAST *node)
+    {
+      // Store template arguments.
+      m_tempArgs.append(symbolForTokenId(node->start_token));
+    }
+
+    void visitTemplateParameter(TemplateParameterAST *)
+    {
+      // Don't visit template parameters.
+    }
+    
+    void visitUsing(UsingAST *)
+    {
+      // Don't visit using.
+    }
+    
+    void visitEnumSpecifier(EnumSpecifierAST *)
+    {
+      // Don't visit enum specifiers.
     }
 };
 

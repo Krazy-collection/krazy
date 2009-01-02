@@ -56,7 +56,17 @@ void TypeDef::setName(QString const &name)
   m_name = name;
 }
 
+void TypeDef::setTemplateArguments(QStringList const &arguments)
+{
+  m_templateArguments = arguments;
+}
+
 void TypeDef::setType(QString const &type)
 {
   m_type = type;
+}
+
+QStringList TypeDef::templateArguments() const
+{
+  return m_templateArguments;
 }

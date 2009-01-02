@@ -20,6 +20,7 @@
 #define TYPEDEF_H
 
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 
 /**
  * Representation of a type defenition in a class.
@@ -67,13 +68,18 @@ class TypeDef
 
     void setName(QString const &name);
 
+    void setTemplateArguments(QStringList const &arguments);
+
     void setType(QString const &type);
 
+    QStringList templateArguments() const;
+
   private:
-    DefType m_defType;
-    int     m_line;
-    QString m_name;
-    QString m_type;
+    DefType     m_defType;
+    int         m_line;
+    QString     m_name;
+    QStringList m_templateArguments;
+    QString     m_type;
 };
 
 #endif
