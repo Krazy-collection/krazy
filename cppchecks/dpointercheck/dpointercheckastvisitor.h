@@ -37,6 +37,7 @@ class DPointerCheckASTVisitor : public CheckVisitor
 
     bool             m_classNameRegistered;
     QString          m_className;
+    bool             m_inTemplateDeclaration;
     Class::Scope     m_mode;
     TypeDef::DefType m_defType;
     QStringList      m_globalForwardDecls;
@@ -48,7 +49,7 @@ class DPointerCheckASTVisitor : public CheckVisitor
     ////////////////////////// Constructor / Destructor //////////////////////
 
     DPointerCheckASTVisitor()
-    : m_classNameRegistered(false)
+    : m_classNameRegistered(false), m_inTemplateDeclaration(false)
     {}
 
     virtual ~DPointerCheckASTVisitor()
@@ -308,7 +309,7 @@ class DPointerCheckASTVisitor : public CheckVisitor
             name = symbolForTokenId(node->unqualified_name->id);
           m_classStack.top().addForwardDeclaration(m_mode, name);
         }
-      else if (!m_classNameRegistered)
+      else if (!m_classNameRegistered && !m_inTemplateDeclaration)
       {
         m_className = symbolForTokenId(node->start_token);
         if (!m_classStack.isEmpty())
@@ -317,7 +318,7 @@ class DPointerCheckASTVisitor : public CheckVisitor
         m_classNameRegistered = true;
         m_classStack.push(Class(m_className));
       }
-      else if(symbolForTokenId(node->start_token) != m_varType)
+      else if(symbolForTokenId(node->start_token) != m_varType && !m_inTemplateDeclaration)
       {
         m_varName = symbolForTokenId(node->start_token);
         m_varLine = sourceLineForTokenId(node->start_token);
@@ -363,7 +364,14 @@ class DPointerCheckASTVisitor : public CheckVisitor
     {
       // Don't visit template parameters.
     }
-    
+
+    void visitTemplateDeclaration(TemplateDeclarationAST *node)
+    {
+      m_inTemplateDeclaration = true;
+      DefaultVisitor::visitTemplateDeclaration(node);
+      m_inTemplateDeclaration = false;
+    }
+
     void visitUsing(UsingAST *)
     {
       // Don't visit using.
