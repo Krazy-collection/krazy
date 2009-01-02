@@ -20,9 +20,11 @@
 #                                                                             #
 ###############################################################################
 
+# FOR KDAB:
+# if in a non-KDE project (i.e. no /kdefoo/ in pwd), then use the pwd/.krazy
+
 # TODO:
-#  <D> print the checker name associated line in the output report
-#  <D> --check=foo should be enough to run extra 'foo' (shouldn't need --extra=foo too)
+#  --config=foo, read config file foo (and no other .krazy files)
 #  --types=type1,type2,..typeN  <- only process these file types
 #  --exclude-types=type1,type2,..typeN <- exclude these file types
 #  support TYPES and EXCLUDE-TYPES in .krazy files
@@ -530,7 +532,7 @@ for $ftype (@types) {
 
 	# run the checker, concatentating the output
 	if ( !$dryrun ) {
-	  $pid = open( SANE, "$p $opts $insopt \'$f\' |" )
+	  $pid = open( SANE, "$p $opts $insopt \'$f\' 2>/dev/null |" )
 	    or print STDERR "Cannot run: &basename($p)\n";
 	  while (<SANE>) {
 	    chomp($_);
@@ -568,7 +570,7 @@ if ( !$quiet ) {
     &printFType( $pth, $ftype );
     for $p ( sort @{ $pCheckers{$ftype} } ) {
       $st++;
-      $use = `$p --help`;
+      $use = `$p --help 2>/dev/null`;
       chomp($use);
       $use = "no description available" if ( length($use) < 4 );
       $cline = '';
@@ -706,7 +708,7 @@ sub printList {
   for $prog ( sort @list ) {
     $use = "";
     $use = "[EXTRA] " if ($isextra);
-    $use .= `$prog --help`;
+    $use .= `$prog --help 2>/dev/null`;
     chomp($use);
     $use = "(no description available)" if ( length($use) < 4 );
     if ( $export !~ "text" ) {
