@@ -492,7 +492,13 @@ for $ftype (@types) {
   if ( defined( $pCheckers{$ftype} ) ) {
     for $p ( sort @{ $pCheckers{$ftype} } ) {
       my ($bp) = &basename($p);
-      print STDERR "=>$ftype/$bp test in-progress." unless ($quiet);
+      if(!$quiet) {
+        if(!$brief) {
+          print STDERR "=>$ftype/$bp test in-progress.";
+        } else {
+          print STDERR ".";
+        }
+      }
       $result{$p} = "";
       my ($nf) = 0;
       $num_checkers++;
@@ -548,7 +554,7 @@ for $ftype (@types) {
       } # foreach file to process
       if ( $nf > 0 ) {
 	$overall_status += $status{$p} if ( defined( $status{$p} ) );
-	print STDERR "done\n" unless ($quiet);
+	print STDERR "done\n" unless ($quiet || $brief);
       }
     } # foreach Checker of this type
   } # if any Checker is defined for file of this type
@@ -567,7 +573,7 @@ if ( !$quiet ) {
     next unless ( $#{ $pCheckers{$ftype} } >= 0 );
     $st = 0;
     my ($pth) = ${ $pCheckers{$ftype} }[0];
-    &printFType( $pth, $ftype );
+    &printFType( $pth, $ftype ) if (!$brief);
     for $p ( sort @{ $pCheckers{$ftype} } ) {
       $st++;
       $use = `$p --help 2>/dev/null`;
