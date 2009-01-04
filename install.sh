@@ -46,6 +46,12 @@ if ( test -d $TOP/bin/perlbin/site ) then
   rm -rf $TOP/bin/perlbin
 fi
 
+#followig is needed on Mandriva
+if ( test -d $TOP/local/bin ) then
+  (cd $TOP/local/bin; mv * ../../bin)
+  rm -rf $TOP/local/bin
+fi
+
 #create a symlink to the perl modules so we can find them
 V=`perl -e 'printf "%vd", $^V'`
 if ( test -d $TOP/share/perl5/site_perl ) then
