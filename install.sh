@@ -48,6 +48,7 @@ fi
 
 #followig is needed on Mandriva
 if ( test -d $TOP/local/bin ) then
+  mkdir -p $TOP/bin
   (cd $TOP/local/bin; mv * ../../bin)
   rm -rf $TOP/local/bin
 fi
