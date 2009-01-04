@@ -46,7 +46,7 @@ if ( test -d $TOP/bin/perlbin/site ) then
   rm -rf $TOP/bin/perlbin
 fi
 
-#followig is needed on Mandriva
+#following is needed on Mandriva
 if ( test -d $TOP/local/bin ) then
   mkdir -p $TOP/bin
   (cd $TOP/local/bin; mv * ../../bin)
