@@ -21,7 +21,6 @@ PLUGINS = validate \
 
 # links to general purpose plugins
 PLUGINLNS = \
-contractions \
 iconnames \
 endswithnewline \
 spelling \
