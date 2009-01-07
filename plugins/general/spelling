@@ -255,7 +255,9 @@ adapater               adapter
 adatper                adapter
 addded                 added
 adddress               address
-addressbook            address book
+# Enable this one when the checker gets smarter. Currently addressbook finds a
+# huge amount of false positives in C++ code -> AddressBook is a class name.
+# addressbook            address book
 additinoally           additionally
 additionaly            additionally
 additionaly            additionally
