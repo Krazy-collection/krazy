@@ -606,6 +606,8 @@ $lline = '';
 foreach $line (@data_lines) {
   $linecnt++;
   chomp($line);
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
   if ($line =~ m/[[:space:]]$/) {
     $Issues{'TRAILWHITE'}{'count'}++;
     if ($Issues{'TRAILWHITE'}{'count'} == 1) {
