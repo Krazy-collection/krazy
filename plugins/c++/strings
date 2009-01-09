@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2008 by Allen Winter <winter@kde.org>                         #
+# Copyright (C) 2008-2009 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -90,8 +90,9 @@ foreach $line (@lines) {
   $pline =~ s/\'\"\'//g;
 
   if ($pline =~ m:\":) {
-    next if (&searchBack('[\s\(](QLatin1String|QString)\s*\(',$linecnt,10));
-    next if (&searchBack('[\s\(](tr|i18n|i18nc|i18np|i18ncp)\s*\(',$linecnt,10));
+    next if ($line =~ m+[\s\(](QLatin1String|QString)\s*\(+);
+    next if ($line =~ m+[\s\(](tr|i18n|i18nc|i18np|i18ncp)\s*\(+);
+
     next if ($line =~ m+[\s\(](ki18n|ki18nc|ki18np|ki18ncp)\s*\(+);
     next if ($line =~ m+[\s\(](qFatal|qError|qWarning|qDebug)\s*\(+);
     next if ($line =~ m+[\s\(](kFatal|kError|kWarning|kDebug)\s*\(+);
@@ -112,8 +113,13 @@ foreach $line (@lines) {
     # methods that have const char * as arg1
     next if ($line =~ m/(addAction|QPixmap|setObjectName|inherits|fromAscii|fromLatin1|fromLocal8Bit|readEntry|readPathEntry|writeEntry|writePathEntry|setCodec|locateLocal|fromUtf8|fromUtf16|[Ii]con|[Gg]roup)\s*\(\s*\"/);
 
+    # Even thought append/prepend would be faster with QLatin1String's, this
+    # would lead to thousands and thousands of issues. We'd also need to
+    # check +=, <<, and >> operators.
+    next if ($line =~ m/(append|prepend)\s*\(\s*\"/);
+
     # For now, we really only care about a few QString methods
-    next unless ($line =~ m/(startsWith|endsWith|append|prepend)\s*\(\s*\"/);
+    next unless ($line =~ m/(startsWith|endsWith)\s*\(\s*\"/);
 
     # TODO: find cases where i18n() should be used
 
@@ -162,6 +168,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Some QString methods (like startsWith() and endsWith()) are more efficient if they are passed a QString instead of a const char *, while others (like append() and prepend()) can have their const char * overload disabled with the QT_NO_CAST_FROM_ASCII define; so passing QLatin1String's to those functions is advisable.\n";
+  print "Some QString methods (like startsWith() and endsWith()) are more efficient if they are passed a QString instead of a const char *.\n";
   exit 0 if &explainArg();
 }
