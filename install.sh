@@ -2,6 +2,16 @@
 
 # install krazy
 
+#bootstrap by checking that the MakeMaker module is installed
+module="ExtUtils::MakeMaker"
+perl -M$module -e 1 2> /dev/null
+status=$?
+if ( test $status -ne 0 ) then
+  echo "Cannot locate the $module perl module"
+  echo "Please install this module... exiting"
+  exit 1
+fi
+
 #change TOP to whatever you like for your top-level installation directory
 if ( test `hostname | egrep -c englishbreakfast` -gt 0 ) then
   EBN=1
