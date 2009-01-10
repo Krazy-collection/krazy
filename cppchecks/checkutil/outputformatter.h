@@ -21,11 +21,11 @@
 
 #include <QtCore/QList>
 
-#include <kdemacros.h>
+#include <krazymacros.h>
 
 #include "checkvisitor.h"
 
-class KDE_EXPORT OutputFormatter
+class KRAZY_EXPORT OutputFormatter
 {
   public:
     virtual ~OutputFormatter()

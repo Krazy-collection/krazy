@@ -19,13 +19,11 @@
 #include "checkengine.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QUrl>
 
-#include <control.h>
-#include <parser.h>
-#include <parsesession.h>
-#include <rpp/pp-engine.h>
-#include <rpp/preprocessor.h>
+#include "Control.h"
+#include "TranslationUnit.h"
 
 CheckEngine::CheckEngine(CheckVisitor *vtr) : m_visitor(vtr)
 {}
@@ -38,20 +36,12 @@ CheckEngine::~CheckEngine()
 void CheckEngine::process(QUrl const &file)
 {
   QByteArray contents = readAll(file);
-
-  ParseSession session;
-  rpp::Preprocessor preprocessor;
-  rpp::pp pp(&preprocessor);
-  PreprocessedContents ppContents;
-  ppContents= pp.processFile(file.path(), contents);
-  session.setContentsAndGenerateLocationTable(ppContents);
-
+  QFileInfo fileInfo(file.path());
   Control control;
-  Parser parzer(&control);
-  TranslationUnitAST *ast = parzer.parse(&session);
-  m_visitor->setParseSession(&session);
-  m_visitor->visit(ast);
-  m_results = m_visitor->analyze();
+  StringLiteral *fileId = control.findOrInsertFileName(fileInfo.fileName().toLatin1());
+  TranslationUnit *unit = new TranslationUnit(&control, fileId);
+  unit->setSource(contents, contents.length());
+  unit->parse(TranslationUnit::ParseTranlationUnit);
 }
 
 QList<Result> CheckEngine::results() const

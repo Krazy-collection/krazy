@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2008 Bertjan Broeksema <b.broeksema@kdemail.net>
+    Copyright (c) 2002-2003 KDE Team
+    Copyright (C) 2009 Bertjan Broeksema <b.broeksema@kdemail.net>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -16,35 +17,28 @@
     the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
     Boston, MA 02110-1301, USA.
 */
-#ifndef CHECK_VISITOR_H
-#define CHECK_VISITOR_H
+/*
+  This file is for the most of it a copy of kdemacros.h adjusted to be suitable
+  for krazy.
 
-#include <krazymacros.h>
+  -- Bertjan, jan 2009
+*/
 
-#include "ASTVisitor.h"
+#ifndef KRAZY_EXPORT_H
+#define KRAZY_EXPORT_H
 
-class Control;
-
-struct Result
-{
-  int line;
-  QString longMessage;
-  QString shortMessage; // Will be used to form lines like: file.cpp lines#123[shortMessage],125[issue]
-};
-
-class KRAZY_EXPORT CheckVisitor : public ASTVisitor
-{
-  public:
-    CheckVisitor(Control *control);
-
-    virtual ~CheckVisitor() 
-    {}
-
-    /**
-     * Analyzes the information gathered during the visit and generates a list
-     * with the final results of the check.
-     */
-    virtual QList<Result> analyze() const = 0;
-};
-
+#ifdef __KRAZY_HAVE_GCC_VISIBILITY
+#define KRAZY_NO_EXPORT __attribute__ ((visibility("hidden")))
+#define KRAZY_EXPORT __attribute__ ((visibility("default")))
+#define KRAZY_IMPORT __attribute__ ((visibility("default")))
+#elif defined(_WIN32) || defined(_WIN64)
+#define KRAZY_NO_EXPORT
+#define KRAZY_EXPORT __declspec(dllexport)
+#define KRAZY_IMPORT __declspec(dllimport)
+#else
+#define KRAZY_NO_EXPORT
+#define KRAZY_EXPORT
+#define KRAZY_IMPORT
 #endif
+
+#endif // KRAZY_EXPORT

@@ -1,20 +1,24 @@
 project(cppchecks)
 cmake_minimum_required(VERSION 2.6)
+
+include(CheckCXXCompilerFlag)
+
 find_package(Qt4 REQUIRED)
-find_package(KDE4 REQUIRED)
-find_package(KDevPlatform REQUIRED)
 
 set(CMAKE_INSTALL_RPATH ${CMAKE_PREFIX_PATH}/lib)
+check_cxx_compiler_flag(-fvisibility=hidden __KRAZY_HAVE_GCC_VISIBILITY)
+set( __KRAZY_HAVE_GCC_VISIBILITY ${__KDE_HAVE_GCC_VISIBILITY} CACHE BOOL "GCC support for hidden visibility")
+
+configure_file(krazymacros.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/krazymacros.h)
 
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${QT_INCLUDES}
-    ${KDE4_INCLUDE_DIR}
-    ${KDE4_INCLUDE_DIR}/KDE
-    ${KDEVPLATFORM_INCLUDE_DIR}
-    include
+    c++parser
     checkutil
 )
 
+# This is the cplusplus parser from QtCreator which can be found at
+add_subdirectory(c++parser)
 add_subdirectory(checkutil)
-add_subdirectory(dpointercheck)
+#add_subdirectory(dpointercheck)

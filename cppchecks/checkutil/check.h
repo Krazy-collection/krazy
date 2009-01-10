@@ -21,12 +21,12 @@
 
 #include <QtCore/QString>
 
-#include <kdemacros.h>
+#include <krazymacros.h>
 
 class CheckEngine;
 class OutputFormatter;
 
-class KDE_EXPORT Check
+class KRAZY_EXPORT Check
 {
   enum Action
   {

@@ -23,7 +23,7 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 
-#include <kdemacros.h>
+#include <krazymacros.h>
 
 #include "checkvisitor.h"
 
@@ -33,7 +33,7 @@ class QUrl;
  * Small class which collects the results of the checks executed by the passed
  * visitor.
  */
-class KDE_EXPORT CheckEngine
+class KRAZY_EXPORT CheckEngine
 {
   public:
     /**
