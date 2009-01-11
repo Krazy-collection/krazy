@@ -97,7 +97,7 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;  #skip C++ comments
 
   if ($line =~ m/new\sQ\w+/ || $line =~ m/new\sK(UrlRequester|ComboBox|LineEdit|TabBar|TextEdit)/) {
-    next if ($line =~ m/(Application|Buffer|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation)/ && $line !~ m/UrlRequester/);
+    next if ($line =~ m/(Application|Buffer|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation)/ && $line !~ m/(UrlRequester|LineEdit)/);
     next if ($line =~ m/\(\s*new\s/ || $line =~ m/^\s*return\snew/);
 
     $sline = $line;
