@@ -13,6 +13,7 @@ set(cplusplus_SRCS
     CheckStatement.cpp
     Control.cpp
     CoreTypes.cpp
+    DefaultVisitor.cpp
     DiagnosticClient.cpp
     FullySpecifiedType.cpp
     Keywords.cpp
