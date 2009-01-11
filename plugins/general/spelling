@@ -299,7 +299,8 @@ analagous              analogous
 analizer               analyzer
 analogue               analog
 analyse                analyze
-analyses               analyzes
+#allow analyses. because we like vandenoever :)
+#analyses               analyzes
 anfer                  after
 angainst               against
 annoucement            announcement
