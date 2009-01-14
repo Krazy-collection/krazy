@@ -96,8 +96,8 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  if ($line =~ m/new\sQ\w+/ || $line =~ m/new\sK(UrlRequester|ComboBox|LineEdit|TabBar|TextEdit)/) {
-    next if ($line =~ m/(Application|Buffer|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation)/ && $line !~ m/(UrlRequester|LineEdit)/);
+  if ($line =~ m/new\sQ\w+/ || $line =~ m/new\s(KPIM::)*K(UrlRequester|ComboBox|LineEdit|TabBar|TextEdit|TimeEdit|DateEdit)/) {
+    next if ($line =~ m/(Application|Buffer|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation)/ && $line !~ m/(UrlRequester|LineEdit|ComboBox|TimeEdit|DateEdit)/);
     next if ($line =~ m/\(\s*new\s/ || $line =~ m/^\s*return\snew/);
 
     $sline = $line;
