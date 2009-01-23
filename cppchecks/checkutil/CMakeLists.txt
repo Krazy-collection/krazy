@@ -11,4 +11,4 @@ target_link_libraries(checkutil
     c++parser
 )
 set_target_properties(checkutil PROPERTIES VERSION 1 SOVERSION 1.0)
-install(TARGETS checkutil DESTINATION ${CMAKE_PREFIX_PATH}/lib)
+install(TARGETS checkutil DESTINATION ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
