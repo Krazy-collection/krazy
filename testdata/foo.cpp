@@ -70,3 +70,10 @@ for (i=0;
 
 QHttp *http = new QHttp( "www.kde.org" );
 
+
+//foreach
+foreach(const ptr<HeveaElement> &e, m_lstElts) {
+ foo(e);
+}
+foreach(str,stringList){ dothis(str); } //foreach
+
