@@ -41,4 +41,4 @@ set(cplusplus_SRCS
 
 add_library(c++parser SHARED ${cplusplus_SRCS})
 set_target_properties(c++parser PROPERTIES VERSION 1 SOVERSION 1.0)
-install(TARGETS c++parser DESTINATION ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
+install(TARGETS c++parser DESTINATION ${CMAKE_PREFIX_PATH}/lib${LIB_SUFFIX})
