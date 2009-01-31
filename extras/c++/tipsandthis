@@ -83,6 +83,8 @@ my($wAcnt) = 0;
 my($wAlstr) = "";
 my($sAcnt) = 0;
 my($sAlstr) = "";
+my($hAcnt) = 0;
+my($hAlstr) = "";
 
 my(%Widgets);
 tie %Widgets, "Tie::IxHash";
@@ -90,7 +92,7 @@ my($line,$lline,$sline);
 my($type,$name,$key);
 my($linecnt) = 0;
 my($slinecnt);
-my($hasToolTip,$hasWhatsThis,$hasStatusTip);
+my($hasToolTip,$hasWhatsThis,$hasStatusTip,$hasHelpText);
 while ($linecnt < $#lines) {
   $lline = $line;
   $line = $lines[$linecnt++];
@@ -203,10 +205,18 @@ foreach my $w (keys %Widgets) {
 }
 
 # for each KAction, skip to its starting line and search for stuff.
+# dfaure says:
+#   "Ignore setWhatsThis - if it's called explicitely then it has a longer text,
+#   that's fine. A krazy check could look for a variable of type KAction* that
+#   is used like action->setToolTip(). If there is no action->setStatusTip(),
+#   then this would be better off with setHelpText in order to provide both
+#   in one go. ... it doesn't hurt to port setToolTip to setHelpText in all
+#   cases where setStatusTip isn't called explicitly."
 foreach my $w (keys %Widgets) {
   $hasToolTip=0;
   $hasWhatsThis=0;
   $hasStatusTip=0;
+  $hasHelpText=0;
 
   next if ($Widgets{$w}{'type'} !~ m/KAction/);
 
@@ -219,40 +229,66 @@ foreach my $w (keys %Widgets) {
     $hasToolTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
     $hasWhatsThis = 1 if ($line =~ m/$Widgets{$w}{'name'}->setWhatsThis/);
     $hasStatusTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setStatusTip/);
+    $hasHelpText = 1 if ($line =~ m/$Widgets{$w}{'name'}->setHelpText/);
   }
-  if ($hasToolTip) {
-    $tAcnt++;
-    if ($tAcnt == 1) {
-      $tAlstr = "KAction has toolTip line\#" . $Widgets{$w}{'linecnt'};
-    } else {
-      $tAlstr = $tAlstr . "," . $Widgets{$w}{'linecnt'};
-    }
-    $tAlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
-    print "=> $Widgets{$w}{'line'}" if (&verboseArg());
-  }
+
   if ($hasWhatsThis) {
     $wAcnt++;
     if ($wAcnt == 1) {
-      $wAlstr = "KAction has whatsThis line\#" . $Widgets{$w}{'linecnt'};
+      $wAlstr = "KAction missing whatsThis line\#" . $Widgets{$w}{'linecnt'};
     } else {
       $wAlstr = $wAlstr . "," . $Widgets{$w}{'linecnt'};
     }
     $wAlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
     print "=> $Widgets{$w}{'line'}" if (&verboseArg());
   }
-  if (!$hasStatusTip) {
-    $sAcnt++;
-    if ($sAcnt == 1) {
-      $sAlstr = "KAction missing statusTip line\#" . $Widgets{$w}{'linecnt'};
+
+  next if ($hasHelpText);
+
+  if ($hasToolTip) {
+    if (!$hasStatusTip) {
+      #port setToolTip to setHelpText
+      $sAcnt++;
+      if ($sAcnt == 1) {
+        $sAlstr = "KAction toolTip should be ported to helpText line\#" . $Widgets{$w}{'linecnt'};
+      } else {
+        $sAlstr = $sAlstr . "," . $Widgets{$w}{'linecnt'};
+      }
+      $sAlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
+      print "=> $Widgets{$w}{'line'}" if (&verboseArg());
     } else {
-      $sAlstr = $sAlstr . "," . $Widgets{$w}{'linecnt'};
+      #aok
     }
-    $sAlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
-    print "=> $Widgets{$w}{'line'}" if (&verboseArg());
+  } else {
+    if (!$hasStatusTip){
+      #missing setHelpText
+      $hAcnt++;
+      if ($hAcnt == 1) {
+        $hAlstr = "KAction missing helpText line\#" . $Widgets{$w}{'linecnt'};
+      } else {
+        $hAlstr = $hAlstr . "," . $Widgets{$w}{'linecnt'};
+      }
+      $hAlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
+      print "=> $Widgets{$w}{'line'}" if (&verboseArg());
+    } else {
+      #missing setToolTip
+      $tAcnt++;
+      if ($tAcnt == 1) {
+        $tAlstr = "KAction missing toolTip (or convert statusTip to helpText) line\#" . $Widgets{$w}{'linecnt'};
+      } else {
+        $tAlstr = $tAlstr . "," . $Widgets{$w}{'linecnt'};
+      }
+      $tAlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
+      print "=> $Widgets{$w}{'line'}" if (&verboseArg());
+    }
   }
 }
 
-my ($total_count) = $tcnt + $tKcnt + + $tAcnt + $wcnt + $wKcnt + $wAcnt + $sAcnt;
+my ($total_count) =
+  $tcnt + $wcnt +
+  $tKcnt + $wKcnt +
+  $tAcnt + $sAcnt + $hAcnt + $wAcnt;
+
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   exit 0;
@@ -260,11 +296,14 @@ if (!$total_count) {
   if (!&quietArg()) {
     print "$tlstr ($tcnt)\n" if ($tcnt);
     print "$wlstr ($wcnt)\n" if ($wcnt);
+
     print "$tKlstr ($tKcnt)\n" if ($tKcnt);
     print "$wKlstr ($wKcnt)\n" if ($wKcnt);
+
     print "$tAlstr ($tAcnt)\n" if ($tAcnt);
-    print "$wAlstr ($wAcnt)\n" if ($wAcnt);
     print "$sAlstr ($sAcnt)\n" if ($sAcnt);
+    print "$hAlstr ($hAcnt)\n" if ($hAcnt);
+    print "$wAlstr ($wAcnt)\n" if ($wAcnt);
   }
   exit $total_count;
 }
