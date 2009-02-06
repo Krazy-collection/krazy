@@ -23,7 +23,7 @@
 
 #include <krazymacros.h>
 
-#include "checkvisitor.h"
+#include "analyzer.h"
 
 class KRAZY_EXPORT OutputFormatter
 {

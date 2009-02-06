@@ -20,39 +20,62 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+#include <QtCore/QtDebug>
 #include <QtCore/QUrl>
 
+#include "AST.h"
 #include "Control.h"
+#include "Scope.h"
+#include "Semantic.h"
 #include "TranslationUnit.h"
 
-CheckEngine::CheckEngine(CheckVisitor *vtr) : m_visitor(vtr)
+CheckEngine::CheckEngine(Analyzer *analyzer) : m_analyzer(analyzer)
 {}
 
 CheckEngine::~CheckEngine()
 {
-  delete m_visitor;
+  delete m_analyzer;
 }
 
 void CheckEngine::process(QUrl const &file)
 {
-  QByteArray contents = readAll(file);
-  QFileInfo fileInfo(file.path());
+  // Preproces the file
+  QProcess preprocessor;
+  preprocessor.start("cpp", QStringList() << file.path());
+
+  if (!preprocessor.waitForFinished())
+  {
+    qDebug() << "Preprocessing failed:" << preprocessor.errorString();
+    return;
+  }
+
+  // Parse the file
   Control control;
-  StringLiteral *fileId = control.findOrInsertFileName(fileInfo.fileName().toLatin1());
-  TranslationUnit *unit = new TranslationUnit(&control, fileId);
-  unit->setSource(contents, contents.length());
-  unit->parse(TranslationUnit::ParseTranlationUnit);
+  StringLiteral *fileId = control.findOrInsertFileName(file.path().toUtf8());
+  TranslationUnit unit(&control, fileId);
+  unit.setQtMocRunEnabled(true);
+
+  QByteArray contents = preprocessor.readAll();
+  unit.setSource(contents, contents.length());
+  unit.parse();
+
+  // Get semantic information out of it
+  Semantic semantic(&control);
+  TranslationUnitAST *ast = unit.ast()->asTranslationUnit();
+
+  Scope globalScope;
+  Semantic sem(&control);
+  for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) 
+  {
+    sem.check(decl, &globalScope);
+  }
+
+  // Now lets see if we can find any issue.
+  m_results = m_analyzer->analyze(globalScope);
 }
 
 QList<Result> CheckEngine::results() const
 {
   return m_results;
 }
-
-QByteArray CheckEngine::readAll(QUrl const &filename)
-{
-  QFile f(filename.path());
-  f.open(QIODevice::ReadOnly);
-  return f.readAll();
-}
-

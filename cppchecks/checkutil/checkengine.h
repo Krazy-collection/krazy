@@ -25,7 +25,7 @@
 
 #include <krazymacros.h>
 
-#include "checkvisitor.h"
+#include "analyzer.h"
 
 class QUrl;
 
@@ -40,7 +40,7 @@ class KRAZY_EXPORT CheckEngine
      * Creates a new CheckEngine object. This object takes ownership of the
      * visitor.
      */
-    CheckEngine(CheckVisitor *vtr);
+    CheckEngine(Analyzer *analyzer);
 
     ~CheckEngine();
 
@@ -54,17 +54,11 @@ class KRAZY_EXPORT CheckEngine
      */
     QList<Result> results() const;
 
-  protected: // Functions
-    /**
-     * Reads the data from the given file.
-     */
-    QByteArray readAll(QUrl const &filename);
-
   protected: // Members
     QList<Result> m_results;
 
   private:
-    CheckVisitor *m_visitor;
+    Analyzer *m_analyzer;
 };
 
 #endif // CHECK_ENGINE_H

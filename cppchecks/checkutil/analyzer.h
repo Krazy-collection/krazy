@@ -16,14 +16,13 @@
     the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
     Boston, MA 02110-1301, USA.
 */
-#ifndef CHECK_VISITOR_H
-#define CHECK_VISITOR_H
+#ifndef ANALYZER_H
+#define ANALYZER_H
 
 #include <krazymacros.h>
 
-#include "ASTVisitor.h"
-
 class Control;
+class Scope;
 
 struct Result
 {
@@ -32,19 +31,17 @@ struct Result
   QString shortMessage; // Will be used to form lines like: file.cpp lines#123[shortMessage],125[issue]
 };
 
-class KRAZY_EXPORT CheckVisitor : public ASTVisitor
+class KRAZY_EXPORT Analyzer
 {
   public:
-    CheckVisitor(Control *control);
-
-    virtual ~CheckVisitor() 
+    virtual ~Analyzer() 
     {}
 
     /**
-     * Analyzes the information gathered during the visit and generates a list
-     * with the final results of the check.
+     * Analyzes the semantic information gathered during parsing and generates a
+     * list with the final results of the check.
      */
-    virtual QList<Result> analyze() const = 0;
+    virtual QList<Result> analyze(Scope const &globalScope) const = 0;
 };
 
-#endif
+#endif // ANALYZER_H
