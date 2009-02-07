@@ -24,7 +24,7 @@
 #include <iostream>
 
 #include "checkengine.h"
-#include "dpointercheckastvisitor.h"
+#include "dpointeranalyzer.h"
 #include "dpointercheckoutputformatter.h"
 
 using namespace std;
@@ -41,7 +41,7 @@ DPointerCheck::~DPointerCheck()
 
 /* virtual */ CheckEngine * DPointerCheck::createCheckEngine()
 {
-  return new CheckEngine(new DPointerCheckASTVisitor());
+  return new CheckEngine(new DPointerAnalyzer());
 }
 
 /*virtual*/ OutputFormatter * DPointerCheck::createOutputFormatter()

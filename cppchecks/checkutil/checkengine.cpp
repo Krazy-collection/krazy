@@ -30,6 +30,8 @@
 #include "Semantic.h"
 #include "TranslationUnit.h"
 
+using namespace CPlusPlus;
+
 CheckEngine::CheckEngine(Analyzer *analyzer) : m_analyzer(analyzer)
 {}
 

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2008 Bertjan Broeksema <b.broeksema@kdemail.net>
+    Copyright (C) 2009 Bertjan Broeksema <b.broeksema@kdemail.net>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -16,36 +16,30 @@
     the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
     Boston, MA 02110-1301, USA.
 */
-#ifndef ANALYZER_H
-#define ANALYZER_H
+#ifndef DPOINTER_ANALYZER_H
+#define DPOINTER_ANALYZER_H
 
-#include <krazymacros.h>
-
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include "analyzer.h"
 
 namespace CPlusPlus {
+  class Class;
   class Scope;
 }
 
-struct Result
-{
-  int line;
-  QString longMessage;
-  QString shortMessage; // Will be used to form lines like: file.cpp lines#123[shortMessage],125[issue]
-};
-
-class KRAZY_EXPORT Analyzer
+class DPointerAnalyzer : public Analyzer
 {
   public:
-    virtual ~Analyzer() 
-    {}
+    ~DPointerAnalyzer() {}
 
-    /**
-     * Analyzes the semantic information gathered during parsing and generates a
-     * list with the final results of the check.
-     */
-    virtual QList<Result> analyze(CPlusPlus::Scope const &globalScope) = 0;
+    /* virtual */ QList<Result> analyze(CPlusPlus::Scope const &globalScope);
+
+  private: // Methods
+    void analyzeClass(CPlusPlus::Class const * const cls);
+
+    void analyzeScope(CPlusPlus::Scope const * const ns);
+
+  private: // Members
+    QList<Result> m_issues;
 };
 
-#endif // ANALYZER_H
+#endif // DPOINTER_ANALYZER_H

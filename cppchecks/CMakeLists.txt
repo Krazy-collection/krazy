@@ -11,14 +11,17 @@ set( __KRAZY_HAVE_GCC_VISIBILITY ${__KDE_HAVE_GCC_VISIBILITY} CACHE BOOL "GCC su
 
 configure_file(krazymacros.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/krazymacros.h)
 
+add_definitions(-DCPLUSPLUS_WITH_NAMESPACE=1)
+
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${QT_INCLUDES}
-    c++parser
+    cplusplus/parser
+    cplusplus/lib
     checkutil
 )
 
 # This is the cplusplus parser from QtCreator which can be found at
-add_subdirectory(c++parser)
+add_subdirectory(cplusplus)
 add_subdirectory(checkutil)
-#add_subdirectory(dpointercheck)
+add_subdirectory(dpointercheck)
