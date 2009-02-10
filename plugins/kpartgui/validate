@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2008 by Allen Winter <winter@kde.org>                         #
+# Copyright (C) 2008-2009 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "validate";
-my($Version) = "1.0";
+my($Version) = "1.1";
 
 &parseArgs();
 
@@ -77,7 +77,7 @@ close(F);
 exit 0 if (!$isa); #exit if not a true kpartgui file
 
 my($dtd)="$Bin/../../../../share";
-$dtd .= "/dtd/kpartgui.dtd";
+$dtd .= "/dtd/kxmlgui.xsd";
 
 #now process the file
 my($cnt) = &processFile($f);
@@ -99,7 +99,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Please make sure your .rc files conform to the dtd found in kdelibs/kdeui/xmlgui/kpartgui.dtd\n";
+  print "Please make sure your .rc files conform to the XSD schema found in kdelibs/kdeui/xmlgui/kxmlgui.xsd\n";
   exit 0 if &explainArg();
 }
 
@@ -107,7 +107,7 @@ sub processFile() {
   my($in) = @_;
   my($line,$result);
   my($cnt)=0;
-  open(VAL, "$valp --noout --debugent --dtdvalid $dtd $in 2>&1 | ") || print STDERR "Cannot run: xmllint\n";
+  open(VAL, "$valp --noout --debugent --schema $dtd $in 2>&1 | ") || print STDERR "Cannot run: xmllint\n";
   while($line = <VAL>) {
     chomp($line);
     $result = &analyze($line);
