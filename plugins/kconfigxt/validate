@@ -71,7 +71,7 @@ while ($line = <F>) {
     if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
         $line =~ m+#.*[Kk]razy:skip+);
 
-  $isa=1 if ($line =~ m+^\s*<!\s*DOCTYPE\skcfg+);
+  $isa=1 if ($line =~ m+^\s*<\?xml+);
 }
 close(F);
 exit 0 if (!$isa); #exit if not a true kconfigxt file
