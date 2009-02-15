@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2008 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2009 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -250,14 +250,16 @@ foreach $line (@lines) {
     }
   }
 
-  if ($pline =~ m/\(/ && $line =~ m/[[:space:]]if[[:space:]]*\(/ && $line !~ m/\{$/ && $line !~ m/\(\s*$/ && $line !~ m/,\s*$/ && $line !~ m/\.\s*$/ && !&isOKCond($line)) {
-    $Issues{'IFBRACE'}{'count'}++;
-    if ($Issues{'IFBRACE'}{'count'} == 1) {
-      $Issues{'IFBRACE'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'IFBRACE'}{'lines'} .= "," . $linecnt;
+  if ($pline =~ m/\(/ && $line =~ m/[[:space:]]if[[:space:]]*\(/ && $line !~ m/\{$/ && $line !~ m/\(\s*$/ && $line !~ m/,\s*$/ && $line !~ m/\.\s*$/ && !&endOkCond($line)) {
+    if (!&searchForward('\)\s*{\s*$',$linecnt,2)) {
+      $Issues{'IFBRACE'}{'count'}++;
+      if ($Issues{'IFBRACE'}{'count'} == 1) {
+        $Issues{'IFBRACE'}{'lines'} = "line\#" . $linecnt;
+      } else {
+        $Issues{'IFBRACE'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (missing if '{')=> $line\n" if (&verboseArg());
     }
-    print "$linecnt (missing if '{')=> $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/[[:space:]]*else[[:space:]]*/  && $line !~ m/else if/ && $line !~ m/} else {/) {
@@ -280,7 +282,7 @@ foreach $line (@lines) {
     print "$linecnt (missing for '{')=> $line\n" if (&verboseArg());
   }
 
-  if ($line =~ m/[[:space:]]*while[[:space:]]\(/ && $line !~ m/\{$/ && !&isOKCond($line) && $line !~ m/\;$/) {
+  if ($line =~ m/[[:space:]]*while[[:space:]]\(/ && $line !~ m/\{$/ && !&endOkCond($line) && $line !~ m/\;$/) {
     if ($line !~ m/\}[[:space:]]*while/) { # exclude the do-while
       $Issues{'WHILEBRACE'}{'count'}++;
       if ($Issues{'WHILEBRACE'}{'count'} == 1) {
@@ -332,7 +334,7 @@ foreach $line (@lines) {
     print "$linecnt (put {' on line after default:)=> $line\n" if (&verboseArg());
   }
 
-  if ($line =~ m/[[:alnum:]]::[[:alnum:]].*\(.*{/) {
+  if ($pline =~ m/[[:alnum:]]::[[:alnum:]].*\(.*{/) {
     if ($line !~ m/,/ && $line !~ m/\(\)->/ && !&isCond($line) && !&isCond($lline) && !&isLoop($line) && !&isLoop($lline) && $lline !~ m/,$/) {
       if ($line !~ m/\{\s*\}$/) {
 	$Issues{'FUNCBRACE'}{'count'}++;
@@ -525,7 +527,7 @@ foreach $line (@lines) {
   $tline =~ s/^\s+//;
   $indent = length($line) - length($tline);
   if ($indent % $OFFSET) {
-    if (!&isOKEnd($lline)) {
+    if (!&isOkEnd($lline)) {
       $Issues{'BADINDENTOFF'}{'count'}++;
       if ($Issues{'BADINDENTOFF'}{'count'} == 1) {
 	$Issues{'BADINDENTOFF'}{'lines'} = "line\#" . $linecnt;
@@ -537,7 +539,7 @@ foreach $line (@lines) {
   }
   if ($indent != $lindent) {
     if (($indent-$OFFSET) != $lindent && ($indent+$OFFSET) != $lindent) {
-      if ($line !~ m/^{/ && $line !~ m/};$/ && $line !~ m/^\s*<</ && !&isClVi($line) && $line !~ m/^\s*$/ && !&isOKEnd($lline) && $lline !~ /break;$/ && $lline !~ /return;$/) {
+      if ($line !~ m/^{/ && $line !~ m/};$/ && $line !~ m/^\s*<</ && !&isClVi($line) && $line !~ m/^\s*$/ && !&isOkEnd($lline) && $lline !~ /break;$/ && $lline !~ /return;$/) {
 	$Issues{'BADINDENTOFF'}{'count'}++;
 	if ($Issues{'BADINDENTOFF'}{'count'} == 1) {
 	  $Issues{'BADINDENTOFF'}{'lines'} = "line\#" . $linecnt;
@@ -549,8 +551,8 @@ foreach $line (@lines) {
     }
   }
   if (($indent > 0) && ($indent < $lindent)) {
-    if ($line !~ m/^\s*}/ && $line !~ m/^\s*case/ && !&isClVi($line) && $lline !~ m/{\s*}$/ && !&isOKEnd($lline) && $lline !~ m/break/) { # legit reduce indent conditions
-      if(! ($lline =~ m/{$/ && $lline !~ m/^[[:space:]]for/ && $lline !~ m/^[[:space:]]while/ && $lline !~ m/^[[:space:]]if/)) { # last is continue if,while,for
+    if ($line !~ m/^\s*}/ && $line !~ m/^\s*case/ && !&isClVi($line) && $lline !~ m/{\s*}$/ && !&isOkEnd($lline) && $lline !~ m/break/) { # legit reduce indent conditions
+      if(! ($lline =~ m/{$/ && $lline !~ m/^[[:space:]]if/ && $lline !~ m/^[[:space:]]for/ && $lline !~ m/^[[:space:]]while/ && $lline !~ m/^[[:space:]]if/)) { # last is continue if,while,for
 	$Issues{'BADINDENT'}{'count'}++;
 	if ($Issues{'BADINDENT'}{'count'} == 1) {
 	  $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
@@ -562,7 +564,7 @@ foreach $line (@lines) {
     }
   }
   if ($indent > $lindent) {
-    if (!&isOKStart($line) && $lline !~ m/{$/ && $lline !~ m/,$/ && $lline !~ m/\($/ && $lline !~ m/:$/ && $lline !~ m/=$/ && $lline !~ m+\\$+ && $line !~ m+\\$+ && $lline !~ m/^\s*return/ && !&isOKCond($lline) && !&isLoop($lline) && !&isOper($lline)) {
+    if (!&isOkStart($line) && $lline !~ m/{$/ && $lline !~ m/,$/ && $lline !~ m/\($/ && $lline !~ m/:$/ && $lline !~ m/=$/ && $lline !~ m+\\$+ && $line !~ m+\\$+ && $lline !~ m/^\s*return/ && !&endOkCond($lline) && !&isLoop($lline) && !&isOper($lline)) {
 	$Issues{'BADINDENT'}{'count'}++;
 	if ($Issues{'BADINDENT'}{'count'} == 1) {
 	  $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
@@ -839,8 +841,8 @@ sub isClVi() {
   return 0;
 }
 
-# isOKStart function: return 1 if the string starts with ok stuff
-sub isOKStart() {
+# isOkStart function: return 1 if the string starts with ok stuff
+sub isOkStart() {
   my($l) = @_;
   return 1
     if ($l =~ m/^\s*<</ ||
@@ -850,18 +852,18 @@ sub isOKStart() {
   return 0;
 }
 
-# isOKEnd function: return 1 if the string ends with ok stuff
-sub isOKEnd() {
+# isOkEnd function: return 1 if the string ends with ok stuff
+sub isOkEnd() {
   my($l) = @_;
   return 1
     if ($l =~ m/,\s*$/ ||
 	$l =~ m/\"\s*$/ ||
-	&isOKCond($l));
+	&endOkCond($l));
   return 1;
 }
 
-# isOKCond function: return 1 if the string ends with a conditional op
-sub isOKCond() {
+# endOkCond function: return 1 if the string ends with a conditional op
+sub endOkCond() {
   my($l) = @_;
   return 1
     if ($l =~ m/&&\s*$/ ||
@@ -871,7 +873,24 @@ sub isOKCond() {
         $l =~ m/<\s*$/ ||
         $l =~ m/>\s*$/ ||
         $l =~ m/==\s*$/ ||
+        $l =~ m/!=\s*$/ ||
 	$l =~ m/\?\s*$/);
+  return 0;
+}
+
+# beginOkCond function: return 1 if the string begins with a conditional op
+sub beginOkCond() {
+  my($l) = @_;
+  return 1
+    if ($l =~ m/^\s*&&/ ||
+	$l =~ m/^\s*&/ ||
+	$l =~ m/^\s*\|\|/ ||
+	$l =~ m/^\s*\|/ ||
+        $l =~ m/^\s*</ ||
+        $l =~ m/^\s*>/ ||
+        $l =~ m/^\s*==/ ||
+        $l =~ m/^\s*!=/ ||
+	$l =~ m/^\s*\?/);
   return 0;
 }
 
@@ -906,3 +925,16 @@ sub isOper() {
   return 0;
 }
 
+# search the next $n lines for a pattern $p
+sub searchForward {
+  my($p,$l,$n) = @_;
+  my($i);
+  $n = $#lines if ($#lines < $n);
+  for($i=0; $i<$n; $i++) {
+    my $s = $lines[$l+$i];
+    if ($lines[$l+$i] =~ $p) {
+      return 1;
+    }
+  }
+  return 0;
+}
