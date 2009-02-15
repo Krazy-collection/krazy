@@ -65,16 +65,12 @@ if ( ! -x $valp ) {
 #look for krazy directives in the file
 open(F, "$f") || die "Couldn't open $f";
 my($line);
-my($isa)=0;
 while ($line = <F>) {
   exit 0
     if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
         $line =~ m+#.*[Kk]razy:skip+);
-
-  $isa=1 if ($line =~ m+^\s*<\?xml+);
 }
 close(F);
-exit 0 if (!$isa); #exit if not a true kpartgui file
 
 my($dtd)="$Bin/../../../../share";
 $dtd .= "/dtd/kxmlgui.xsd";
