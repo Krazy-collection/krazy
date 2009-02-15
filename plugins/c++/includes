@@ -173,7 +173,7 @@ while ($linecnt < $#lines) {
       print "=> $line\n" if (&verboseArg());
     }
     # every Qt file it includes must be of the form <QtModule/QFoo>
-    if ($incpath =~ m+^(Q[A-Z]|Qt[A-Z]|Q3|q).*$+) {
+    if ($incpath =~ m+^(Q[A-Z]|Qt[A-Z]|Q3|q).*$+ && $incpath !~ m+qtest_kde+) {
       if ($incpath !~ m+^Qt.*/Q.*$+ && !&qModule($incpath) && !&qNotClasses($incpath)) {
         $Issues{'QINC'}{'count'}++;
         $Issues{'QINC'}{'lines'} .= "$linecnt,";
