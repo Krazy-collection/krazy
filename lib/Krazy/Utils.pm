@@ -91,7 +91,7 @@ sub deDupe {
 sub fileType {
   my ($f) = @_;
 
-  if ( $f =~ m/\.(?:cpp|cc|cxx|c|C|tcc|h|hxx|H\+\+)$/ ) {
+  if ( $f =~ m/\.(?:cpp|cc|cxx|c|C|tcc|h|hxx|hpp|H\+\+)$/ ) {
     return "c++";
   } elsif ( $f =~ m/\.desktop$/ ) {
     return "desktop";
