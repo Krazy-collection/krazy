@@ -34,15 +34,14 @@
 #ifndef CPPDOCUMENT_H
 #define CPPDOCUMENT_H
 
-#include <CPlusPlusForwardDeclarations.h>
-#include "Macro.h"
+#include <QtCore/QByteArray>
+#include <QtCore/QList>
+#include <QtCore/QMap>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 
-#include <QByteArray>
-#include <QList>
-#include <QMap>
-#include <QSharedPointer>
-#include <QString>
-#include <QStringList>
+#include "Macro.h"
 
 namespace CPlusPlus {
 
@@ -51,6 +50,7 @@ class Macro;
 class CPLUSPLUS_EXPORT Document
 {
     Document(const Document &other);
+
     void operator =(const Document &other);
 
     Document(const QString &fileName);
@@ -58,68 +58,30 @@ class CPLUSPLUS_EXPORT Document
 public:
     typedef QSharedPointer<Document> Ptr;
 
-public:
-    ~Document();
-
-    QString fileName() const;
-
-    QStringList includedFiles() const;
-    void addIncludeFile(const QString &fileName, unsigned line);
-
-    void appendMacro(const Macro &macro);
-    void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
-
-    Control *control() const;
-    TranslationUnit *translationUnit() const;
-
-    bool skipFunctionBody() const;
-    void setSkipFunctionBody(bool skipFunctionBody);
-
-    unsigned globalSymbolCount() const;
-    Symbol *globalSymbolAt(unsigned index) const;
-    Scope *globalSymbols() const; // ### deprecate?
-    Namespace *globalNamespace() const;
-
-    QList<Macro> definedMacros() const
-    { return _definedMacros; }
-
-    Symbol *findSymbolAt(unsigned line, unsigned column) const;
-
-    void setSource(const QByteArray &source);
-    void startSkippingBlocks(unsigned offset);
-    void stopSkippingBlocks(unsigned offset);
-
-    enum ParseMode { // ### keep in sync with CPlusPlus::TranslationUnit
-        ParseTranlationUnit,
-        ParseDeclaration,
-        ParseExpression,
-        ParseStatement
-    };
-
-    bool parse(ParseMode mode = ParseTranlationUnit);
-    void check();
-    void releaseTranslationUnit();
-
-    static Ptr create(const QString &fileName);
-
     class DiagnosticMessage
     {
-    public:
+      int _level;
+      QString _fileName;
+      unsigned _line;
+      unsigned _column;
+      QString _text;
+
+      public:
         enum Level {
             Warning,
             Error,
             Fatal
         };
 
-    public:
+      public:
         DiagnosticMessage(int level, const QString &fileName,
                           int line, int column,
                           const QString &text)
-            : _level(level),
-              _fileName(fileName),
-              _line(line),
-              _column(column),
-              _text(text)
+          : _level(level),
+            _fileName(fileName),
+            _line(line),
+            _column(column),
+            _text(text)
         { }
 
         int level() const
@@ -145,27 +107,14 @@ public:
 
         QString text() const
         { return _text; }
-
-    private:
-        int _level;
-        QString _fileName;
-        unsigned _line;
-        unsigned _column;
-        QString _text;
     };
-
-    void addDiagnosticMessage(const DiagnosticMessage &d)
-    { _diagnosticMessages.append(d); }
-
-    QList<DiagnosticMessage> diagnosticMessages() const
-    { return _diagnosticMessages; }
 
     class Block
     {
-        unsigned _begin;
-        unsigned _end;
+      unsigned _begin;
+      unsigned _end;
 
-    public:
+      public:
         inline Block(unsigned begin = 0, unsigned end = 0)
             : _begin(begin), _end(end)
         { }
@@ -181,10 +130,10 @@ public:
     };
 
     class Include {
-        QString _fileName;
-        unsigned _line;
+      QString _fileName;
+      unsigned _line;
 
-    public:
+      public:
         Include(const QString &fileName, unsigned line)
             : _fileName(fileName), _line(line)
         { }
@@ -197,52 +146,69 @@ public:
     };
 
     class MacroUse: public Block {
-        Macro _macro;
+      Macro _macro;
 
-    public:
+      public:
         inline MacroUse(const Macro &macro,
                         unsigned begin = 0,
                         unsigned end = 0)
-            : Block(begin, end),
-              _macro(macro)
-        { }
+          : Block(begin, end),
+            _macro(macro)
+        {}
 
         const Macro &macro() const
         { return _macro; }
     };
 
+public:
+    void addDiagnosticMessage(const DiagnosticMessage &d)
+    { _diagnosticMessages.append(d); }
+
+    void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
+
+    void addIncludeFile(const QString &fileName, unsigned line);
+
+    void appendMacro(const Macro &macro);
+
+    static Ptr create(const QString &fileName);
+
+    QList<Macro> definedMacros() const
+    { return _definedMacros; }
+
+    QList<DiagnosticMessage> diagnosticMessages() const
+    { return _diagnosticMessages; }
+
+    /**
+     * Returns the name of this document.
+     */
+    QString fileName() const;
+
     QList<Include> includes() const
     { return _includes; }
 
+    void setSource(const QByteArray &source);
+
+    QByteArray source() const
+    { return _source; }
+
     QList<Block> skippedBlocks() const
     { return _skippedBlocks; }
+
+    void startSkippingBlocks(unsigned offset);
+
+    void stopSkippingBlocks(unsigned offset);
 
     QList<MacroUse> macroUses() const
     { return _macroUses; }
 
 private:
-    Symbol *findSymbolAt(unsigned line, unsigned column, Scope *scope) const;
-
-private:
     QString _fileName;
-    Control *_control;
-    TranslationUnit *_translationUnit;
-    Namespace *_globalNamespace;
+    QList<Macro> _definedMacros;
     QList<DiagnosticMessage> _diagnosticMessages;
     QList<Include> _includes;
-    QList<Macro> _definedMacros;
-    QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
-};
-
-class CPLUSPLUS_EXPORT Snapshot: public QMap<QString, Document::Ptr>
-{
-public:
-    Snapshot()
-    { }
-
-    ~Snapshot()
-    { }
+    QList<Block> _skippedBlocks;
+    QByteArray _source;
 };
 
 } // end of namespace CPlusPlus

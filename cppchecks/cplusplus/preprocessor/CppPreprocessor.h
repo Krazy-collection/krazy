@@ -47,23 +47,30 @@ namespace CPlusPlus {
 class CppPreprocessor: public CPlusPlus::Client
 {
 public:
-    CppPreprocessor(/*QPointer<CppModelManager> modelManager*/);
+    CppPreprocessor();
 
-    void setWorkingCopy(const QMap<QString, QByteArray> &workingCopy);
+    /**
+     * Preprocesses the given file and creates Document objects for each inlcuded
+     * file that is encountered during preprocessing.
+     * 
+     * @param fileName The initial file which must be preprocessed.
+     * @return A list of documents containing preprocessed code.
+     */
+    QList<CPlusPlus::Document::Ptr> run(QString &fileName);
+
+    /**
+     * Set the include paths where the preprocessor should look for header files.
+     *
+     * @param includePaths The paths where the preprocessor should look for 
+     *                     header files.
+     */
     void setIncludePaths(const QStringList &includePaths);
-    void setFrameworkPaths(const QStringList &frameworkPaths);
-    void setProjectFiles(const QStringList &files);
-    void run(QString &fileName);
-    void operator()(QString &fileName);
 
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
 
     bool includeFile(const QString &absoluteFilePath, QByteArray *result);
     QByteArray tryIncludeFile(QString &fileName, CPlusPlus::Client::IncludeType type);
-
-    void mergeEnvironment(CPlusPlus::Document::Ptr doc);
-    void mergeEnvironment(CPlusPlus::Document::Ptr doc, QSet<QString> *processed);
 
     virtual void macroAdded(const Macro &macro);
     virtual void startExpandingMacro(unsigned offset,
@@ -76,17 +83,12 @@ protected:
                               unsigned line);
 
 private:
-    //QPointer<CppModelManager> m_modelManager;
-    Snapshot m_snapshot;
     CPlusPlus::Environment env;
     CPlusPlus::Preprocessor m_proc;
     QStringList m_includePaths;
-    QStringList m_systemIncludePaths;
-    QMap<QString, QByteArray> m_workingCopy;
-    QStringList m_projectFiles;
-    QStringList m_frameworkPaths;
     QSet<QString> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;
+    QList<CPlusPlus::Document::Ptr> m_documents;
 };
 
 } // namespace CPlusPlus

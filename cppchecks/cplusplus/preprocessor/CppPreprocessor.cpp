@@ -3,7 +3,6 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
-#include <QtCore/QtDebug>
 #include <QtCore/QTextStream>
 
 #include <TranslationUnit.h>
@@ -12,39 +11,24 @@ using namespace CPlusPlus;
 
 static const char pp_configuration_file[] = "<configuration>";
 
-CppPreprocessor::CppPreprocessor(/*QPointer<CppModelManager> modelManager*/)
+CppPreprocessor::CppPreprocessor()
   : m_proc(this, env)
-{
-}
-
-void CppPreprocessor::setWorkingCopy(const QMap<QString, QByteArray> &workingCopy)
-{ m_workingCopy = workingCopy; }
+{}
 
 void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
-{ m_includePaths = includePaths; }
+{ 
+  m_includePaths = includePaths; 
+}
 
-void CppPreprocessor::setFrameworkPaths(const QStringList &frameworkPaths)
-{ m_frameworkPaths = frameworkPaths; }
-
-void CppPreprocessor::setProjectFiles(const QStringList &files)
-{ m_projectFiles = files; }
-
-void CppPreprocessor::run(QString &fileName)
-{ sourceNeeded(fileName, IncludeGlobal, /*line = */ 0); }
-
-void CppPreprocessor::operator()(QString &fileName)
-{ run(fileName); }
+QList<CPlusPlus::Document::Ptr> CppPreprocessor::run(QString &fileName)
+{ 
+  sourceNeeded(fileName, IncludeGlobal, /*line = */ 0);
+  return m_documents;
+}
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
 {
-    qDebug() << "CppPreprocessor::includeFile() " << absoluteFilePath;
     if (absoluteFilePath.isEmpty() || m_included.contains(absoluteFilePath)) {
-        return true;
-    }
-
-    if (m_workingCopy.contains(absoluteFilePath)) {
-        m_included.insert(absoluteFilePath);
-        *result = m_workingCopy.value(absoluteFilePath);
         return true;
     }
 
@@ -54,6 +38,7 @@ bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *r
 
     QFile file(absoluteFilePath);
     if (file.open(QFile::ReadOnly)) {
+        // qDebug() << "CppPreprocessor::includeFile() including" << absoluteFilePath;
         m_included.insert(absoluteFilePath);
         QTextStream stream(&file);
         const QString contents = stream.readAll();
@@ -67,7 +52,6 @@ bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *r
 
 QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
 {
-    qDebug() << "CppPreprocessor::tryIncludeFile() " << fileName;
     QFileInfo fileInfo(fileName);
     if (fileName == QLatin1String(pp_configuration_file) || fileInfo.isAbsolute()) {
         QByteArray contents;
@@ -100,52 +84,8 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         }
     }
 
-    // look in the system include paths
-    foreach (const QString &includePath, m_systemIncludePaths) {
-        QString path = includePath;
-        path += QLatin1Char('/');
-        path += fileName;
-        path = QDir::cleanPath(path);
-        QByteArray contents;
-        if (includeFile(path, &contents)) {
-            fileName = path;
-            return contents;
-        }
-    }
-
-    int index = fileName.indexOf(QLatin1Char('/'));
-    if (index != -1) {
-        QString frameworkName = fileName.left(index);
-        QString name = fileName.mid(index + 1);
-
-        foreach (const QString &frameworkPath, m_frameworkPaths) {
-            QString path = frameworkPath;
-            path += QLatin1Char('/');
-            path += frameworkName;
-            path += QLatin1String(".framework/Headers/");
-            path += name;
-            QByteArray contents;
-            if (includeFile(path, &contents)) {
-                fileName = path;
-                return contents;
-            }
-        }
-    }
-
-    QString path = fileName;
-    if (path.at(0) != QLatin1Char('/'))
-        path.prepend(QLatin1Char('/'));
-
-    foreach (const QString &projectFile, m_projectFiles) {
-        if (projectFile.endsWith(path)) {
-            fileName = projectFile;
-            QByteArray contents;
-            includeFile(fileName, &contents);
-            return contents;
-        }
-    }
-
-    qDebug() << "**** file" << fileName << "not found!";
+    // TODO: Maybe store a list of files that could not be found.
+    // qDebug() << "**** file" << fileName << "not found!";
     return QByteArray();
 }
 
@@ -176,33 +116,6 @@ void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
     //qDebug() << "stop expanding:" << macro.name;
 }
 
-void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
-{
-    QSet<QString> processed;
-    mergeEnvironment(doc, &processed);
-}
-
-void CppPreprocessor::mergeEnvironment(Document::Ptr doc, QSet<QString> *processed)
-{
-    if (! doc)
-        return;
-
-    const QString fn = doc->fileName();
-
-    if (processed->contains(fn))
-        return;
-
-    processed->insert(fn);
-
-    foreach (QString includedFile, doc->includedFiles()) {
-        mergeEnvironment(m_snapshot.value(includedFile), processed);
-    }
-
-    foreach (const Macro macro, doc->definedMacros()) {
-        env.bind(macro);
-    }
-}
-
 void CppPreprocessor::startSkippingBlocks(unsigned offset)
 {
     //qDebug() << "start skipping blocks:" << offset;
@@ -220,13 +133,12 @@ void CppPreprocessor::stopSkippingBlocks(unsigned offset)
 void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
                                    unsigned line)
 {
-    qDebug() << "CppPreprocessor::sourceNeeded() " << fileName;
     if (fileName.isEmpty())
         return;
 
     QByteArray contents = tryIncludeFile(fileName, type);
 
-    if (m_currentDoc) {
+    if (m_currentDoc) { // We're reading an #include of the current document.
         m_currentDoc->addIncludeFile(fileName, line);
         if (contents.isEmpty() && ! QFileInfo(fileName).isAbsolute()) {
             QString msg;
@@ -237,39 +149,28 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
                                           env.currentLine, /*column = */ 0,
                                           msg);
             m_currentDoc->addDiagnosticMessage(d);
-            //qWarning() << "file not found:" << fileName << m_currentDoc->fileName() << env.current_line;
         }
     }
 
-    if (! contents.isEmpty()) {
-        Document::Ptr cachedDoc = m_snapshot.value(fileName);
-        if (cachedDoc && m_currentDoc) {
-            mergeEnvironment(cachedDoc);
-        } else {
-            Document::Ptr previousDoc = switchDocument(Document::create(fileName));
+    if (!contents.isEmpty()) {
+        Document::Ptr previousDoc = switchDocument(Document::create(fileName));
 
-            const QByteArray previousFile = env.currentFile;
-            const unsigned previousLine = env.currentLine;
+        const QByteArray previousFile = env.currentFile;
+        const unsigned previousLine = env.currentLine;
 
-            env.currentFile = QByteArray(m_currentDoc->translationUnit()->fileName(),
-                                         m_currentDoc->translationUnit()->fileNameLength());
+        env.currentFile = m_currentDoc->fileName().toUtf8();
 
-            QByteArray preprocessedCode;
-            m_proc(contents, &preprocessedCode);
-            //qDebug() << preprocessedCode;
+        // Preprocess and parse the documents included in the current document.
+        QByteArray preprocessedCode;
+        m_proc(contents, &preprocessedCode);
 
-            env.currentFile = previousFile;
-            env.currentLine = previousLine;
+        env.currentFile = previousFile;
+        env.currentLine = previousLine;
 
-            m_currentDoc->setSource(preprocessedCode);
-            m_currentDoc->parse();
-            m_currentDoc->check();
-            m_currentDoc->releaseTranslationUnit(); // release the AST and the token stream.
+        m_currentDoc->setSource(preprocessedCode);
+        m_documents.append(m_currentDoc);
 
-//            if (m_modelManager)
-//              m_modelManager->emitDocumentUpdated(m_currentDoc);
-            (void) switchDocument(previousDoc);
-        }
+        (void) switchDocument(previousDoc);
     }
 }
 
