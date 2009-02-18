@@ -38,4 +38,4 @@ set(cplusplus_SRCS
     PrettyPrinter.cpp
 )
 
-add_library(c++parser SHARED ${cplusplus_SRCS})
+add_library(cpp_parser SHARED ${cplusplus_SRCS})

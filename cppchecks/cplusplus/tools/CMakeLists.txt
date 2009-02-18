@@ -11,4 +11,4 @@ set(cpptools_SRCS
 )
 
 add_library(cpptools SHARED ${cpptools_SRCS})
-target_link_libraries(cpptools c++parser)
+target_link_libraries(cpptools cpp_parser ${QT_QTCORE_LIBRARY})
