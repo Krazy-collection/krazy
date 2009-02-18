@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 
 include(CheckCXXCompilerFlag)
 
+set(QT_MIN_VERSION "4.5.0")
 find_package(Qt4 REQUIRED)
 
 set(CMAKE_INSTALL_RPATH ${CMAKE_PREFIX_PATH}/lib)
