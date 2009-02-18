@@ -81,10 +81,8 @@ void CheckEngine::process(QUrl const &file)
     }
   }
 
-/*
   // Now lets see if we can find any issue.
   m_results = m_analyzer->analyze(globalScope);
-  */
 }
 
 QList<Result> CheckEngine::results() const

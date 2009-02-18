@@ -33,18 +33,18 @@
 
 #include "CppDocument.h"
 
-#include <Control.h>
-#include <TranslationUnit.h>
-#include <DiagnosticClient.h>
-#include <Semantic.h>
-#include <Literals.h>
-#include <Symbols.h>
 #include <AST.h>
+#include <Control.h>
+#include <DiagnosticClient.h>
+#include <Literals.h>
 #include <Scope.h>
+#include <Semantic.h>
+#include <Symbols.h>
+#include <TranslationUnit.h>
 
-#include <QByteArray>
-#include <QFile>
-#include <QtDebug>
+#include <QtCore/QByteArray>
+#include <QtCore/QFile>
+#include <QtCore/QtDebug>
 
 using namespace CPlusPlus;
 

@@ -58,7 +58,7 @@
 #include "pp-macro-expander.h"
 
 #include <Token.h>
-#include <QVector>
+#include <QtCore/QVector>
 
 namespace CPlusPlus {
     class Token;

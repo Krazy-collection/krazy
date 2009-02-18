@@ -33,9 +33,10 @@
 #ifndef TYPEPRETTYPRINTER_H
 #define TYPEPRETTYPRINTER_H
 
+#include <QtCore/QString>
+#include <QtCore/QList>
+
 #include "TypeVisitor.h"
-#include <QString>
-#include <QList>
 
 namespace CPlusPlus {
 

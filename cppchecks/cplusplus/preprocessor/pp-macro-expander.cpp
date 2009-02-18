@@ -32,9 +32,11 @@
 ***************************************************************************/
 
 #include "pp.h"
+
+#include <QtCore/QDateTime>
+
 #include "pp-cctype.h"
 #include "pp-macro-expander.h"
-#include <QDateTime>
 
 using namespace CPlusPlus;
 

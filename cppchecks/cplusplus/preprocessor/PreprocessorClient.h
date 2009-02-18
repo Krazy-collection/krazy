@@ -35,7 +35,7 @@
 #define CPLUSPLUS_PP_CLIENT_H
 
 #include <CPlusPlusForwardDeclarations.h>
-#include <QtGlobal>
+#include <QtCore/QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;

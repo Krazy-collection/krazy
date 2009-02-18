@@ -54,7 +54,6 @@
 
 #include <Lexer.h>
 #include <Token.h>
-#include <QtDebug>
 #include <algorithm>
 
 using namespace CPlusPlus;

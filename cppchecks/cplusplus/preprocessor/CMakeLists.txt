@@ -1,5 +1,7 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-message(${CMAKE_SOURCE_DIR} STATUS)
+include_directories(
+  ${QT_INCLUDE_DIR}
+  ${CPP_PARSER_SOURCE_DIR}
+)
 
 set(preproc_SRCS
     CppDocument.cpp
@@ -12,5 +14,5 @@ set(preproc_SRCS
     PreprocessorEnvironment.cpp
 )
 
-add_library(preproc SHARED ${preproc_SRCS})
- 
+add_library(preprocessor SHARED ${preproc_SRCS})
+target_link_libraries(preprocessor ${QT_QTCORE_LIBRARY})
