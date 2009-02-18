@@ -16,8 +16,9 @@ add_definitions(-DCPLUSPLUS_WITH_NAMESPACE=1)
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${QT_INCLUDES}
-    cplusplus/parser
     cplusplus/lib
+    cplusplus/parser
+    cplusplus/preprocessor
     checkutil
 )
 

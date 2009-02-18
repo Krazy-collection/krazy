@@ -3,6 +3,7 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QtDebug>
 #include <QtCore/QTextStream>
 
 #include <TranslationUnit.h>
@@ -10,6 +11,11 @@
 using namespace CPlusPlus;
 
 static const char pp_configuration_file[] = "<configuration>";
+
+CppPreprocessor::CppPreprocessor(/*QPointer<CppModelManager> modelManager*/)
+  : m_proc(this, env)
+{
+}
 
 void CppPreprocessor::setWorkingCopy(const QMap<QString, QByteArray> &workingCopy)
 { m_workingCopy = workingCopy; }
@@ -31,6 +37,7 @@ void CppPreprocessor::operator()(QString &fileName)
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
 {
+    qDebug() << "CppPreprocessor::includeFile() " << absoluteFilePath;
     if (absoluteFilePath.isEmpty() || m_included.contains(absoluteFilePath)) {
         return true;
     }
@@ -60,6 +67,7 @@ bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *r
 
 QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
 {
+    qDebug() << "CppPreprocessor::tryIncludeFile() " << fileName;
     QFileInfo fileInfo(fileName);
     if (fileName == QLatin1String(pp_configuration_file) || fileInfo.isAbsolute()) {
         QByteArray contents;
@@ -137,7 +145,7 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         }
     }
 
-    //qDebug() << "**** file" << fileName << "not found!";
+    qDebug() << "**** file" << fileName << "not found!";
     return QByteArray();
 }
 
@@ -212,6 +220,7 @@ void CppPreprocessor::stopSkippingBlocks(unsigned offset)
 void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
                                    unsigned line)
 {
+    qDebug() << "CppPreprocessor::sourceNeeded() " << fileName;
     if (fileName.isEmpty())
         return;
 

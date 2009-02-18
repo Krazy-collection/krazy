@@ -47,7 +47,7 @@ namespace CPlusPlus {
 class CppPreprocessor: public CPlusPlus::Client
 {
 public:
-    //CppPreprocessor(QPointer<CppModelManager> modelManager);
+    CppPreprocessor(/*QPointer<CppModelManager> modelManager*/);
 
     void setWorkingCopy(const QMap<QString, QByteArray> &workingCopy);
     void setIncludePaths(const QStringList &includePaths);

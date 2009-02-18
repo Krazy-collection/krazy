@@ -25,6 +25,7 @@
 #include <QtCore/QUrl>
 
 #include "AST.h"
+#include "CppPreprocessor.h"
 #include "Control.h"
 #include "Scope.h"
 #include "Semantic.h"
@@ -43,16 +44,36 @@ CheckEngine::~CheckEngine()
 void CheckEngine::process(QUrl const &file)
 {
   // Preproces the file
-  QProcess preprocessor;
-  preprocessor.start("cpp", QStringList() << file.path());
+//   QProcess preprocessor;
+//   preprocessor.start("cpp", QStringList() << file.path());
+// 
+//   if (!preprocessor.waitForFinished())
+//   {
+//     qDebug() << "Preprocessing failed:" << preprocessor.errorString();
+//     return;
+//   }
 
-  if (!preprocessor.waitForFinished())
-  {
-    qDebug() << "Preprocessing failed:" << preprocessor.errorString();
-    return;
-  }
+  // TODO Make this configurable or read from commandline.
+  QStringList includePaths;
+  includePaths << ".";
+  includePaths << "../../build/";
+  includePaths << "/usr/include/";
+  includePaths << "/usr/include/qt4";
+  includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include/";
+  includePaths << "/usr/lib/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4";
+  includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4/x86_64-pc-linux-gnu";
+
+  qDebug() << "Start preprocessing: " << file.path();
+  CppPreprocessor preproc; // = new CppPreprocessor(this);
+  preproc.setProjectFiles(QStringList() << file.path());
+  preproc.setIncludePaths(includePaths);
+  //preproc->setFrameworkPaths(frameworkPaths());
+  //preproc->setWorkingCopy(workingCopy);
+  QString path = file.path();
+  preproc.run(path);
 
   // Parse the file
+  /*
   Control control;
   StringLiteral *fileId = control.findOrInsertFileName(file.path().toUtf8());
   TranslationUnit unit(&control, fileId);
@@ -75,6 +96,7 @@ void CheckEngine::process(QUrl const &file)
 
   // Now lets see if we can find any issue.
   m_results = m_analyzer->analyze(globalScope);
+  */
 }
 
 QList<Result> CheckEngine::results() const
