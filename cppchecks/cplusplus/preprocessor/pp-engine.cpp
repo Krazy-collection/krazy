@@ -726,6 +726,7 @@ void Preprocessor::processDirective(TokenIterator firstToken, TokenIterator last
 
         case PP_INCLUDE:
         case PP_INCLUDE_NEXT:
+        case PP_IMPORT:
             if (! skipping())
                 processInclude(d == PP_INCLUDE_NEXT, firstToken, lastToken);
             break;
@@ -775,7 +776,7 @@ QVector<Token> Preprocessor::tokenize(const QByteArray &text) const
     return tokens;
 }
 
-void Preprocessor::processInclude(bool skipCurentPath,
+void Preprocessor::processInclude(bool,
                         TokenIterator firstToken, TokenIterator lastToken,
                         bool acceptMacros)
 {
@@ -784,6 +785,7 @@ void Preprocessor::processInclude(bool skipCurentPath,
     ++tk; // skip `include|nclude_next'
 
     if (acceptMacros && tk->is(T_IDENTIFIER)) {
+        // ### TODO: implement me
 #if 0
         QByteArray name;
         name.reserve(256);
@@ -1068,6 +1070,8 @@ Preprocessor::PP_DIRECTIVE_TYPE Preprocessor::classifyDirective (const QByteArra
     case 6:
         if (__directive[0] == 'i' && __directive == "ifndef")
             return PP_IFNDEF;
+        else if (__directive[0] == 'i' && __directive == "import")
+            return PP_IMPORT;
         else if (__directive[0] == 'd' && __directive == "define")
             return PP_DEFINE;
         break;
