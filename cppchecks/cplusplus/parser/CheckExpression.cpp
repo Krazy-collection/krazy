@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -212,10 +212,11 @@ bool CheckExpression::visit(TemplateIdAST *ast)
     return false;
 }
 
-bool CheckExpression::visit(NewExpressionAST *ast)
+bool CheckExpression::visit(NewExpressionAST *)
 {
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
-    FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
+    // ### FIXME
+    //FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
+    //FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
     // ### process new-typeid
     // ### process new-initializer
     return false;
@@ -319,7 +320,7 @@ bool CheckExpression::visit(QtMethodAST *ast)
     Scope dummy;
     FullySpecifiedType methTy = semantic()->check(ast->declarator, FullySpecifiedType(),
                                                   &dummy, &name);
-    Function *fty = methTy->asFunction();
+    Function *fty = methTy->asFunctionType();
     if (! fty)
         translationUnit()->warning(ast->firstToken(), "expected a function declarator");
     else {
@@ -330,6 +331,13 @@ bool CheckExpression::visit(QtMethodAST *ast)
                                            "argument should be anonymous");
         }
     }
+    return false;
+}
+
+bool CheckExpression::visit(CompoundLiteralAST *ast)
+{
+    /*FullySpecifiedType exprTy = */ semantic()->check(ast->type_id, _scope);
+    /*FullySpecifiedType initTy = */ semantic()->check(ast->initializer, _scope);
     return false;
 }
 

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -66,6 +66,7 @@ protected:
     virtual bool visit(CastExpressionAST *ast);
     virtual bool visit(CatchClauseAST *ast);
     virtual bool visit(ClassSpecifierAST *ast);
+    virtual bool visit(CompoundLiteralAST *ast);
     virtual bool visit(CompoundStatementAST *ast);
     virtual bool visit(ConditionAST *ast);
     virtual bool visit(ConditionalExpressionAST *ast);
@@ -105,7 +106,8 @@ protected:
     virtual bool visit(NestedDeclaratorAST *ast);
     virtual bool visit(NestedExpressionAST *ast);
     virtual bool visit(NestedNameSpecifierAST *ast);
-    virtual bool visit(NewDeclaratorAST *ast);
+    virtual bool visit(NewArrayDeclaratorAST *ast);
+    virtual bool visit(NewPlacementAST *ast);
     virtual bool visit(NewExpressionAST *ast);
     virtual bool visit(NewInitializerAST *ast);
     virtual bool visit(NewTypeIdAST *ast);

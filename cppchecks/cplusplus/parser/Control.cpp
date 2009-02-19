@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -51,7 +51,6 @@
 // THE SOFTWARE.
 
 #include "Control.h"
-#include "MemoryPool.h"
 #include "Literals.h"
 #include "LiteralTable.h"
 #include "TranslationUnit.h"
@@ -125,6 +124,7 @@ public:
         delete_array_entries(usingNamespaceDirectives);
         delete_array_entries(enums);
         delete_array_entries(usingDeclarations);
+        delete_array_entries(classForwardDeclarations);
     }
 
     NameId *findOrInsertNameId(Identifier *id)
@@ -323,6 +323,14 @@ public:
         return u;
     }
 
+    ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, Name *name)
+    {
+        ForwardClassDeclaration *c = new ForwardClassDeclaration(translationUnit,
+                                                                 sourceLocation, name);
+        classForwardDeclarations.push_back(c);
+        return c;
+    }
+
     Enum *newEnum(unsigned sourceLocation, Name *name)
     {
         Enum *e = new Enum(translationUnit,
@@ -478,6 +486,7 @@ public:
     std::vector<UsingNamespaceDirective *> usingNamespaceDirectives;
     std::vector<Enum *> enums;
     std::vector<UsingDeclaration *> usingDeclarations;
+    std::vector<ForwardClassDeclaration *> classForwardDeclarations;
 };
 
 Control::Control()
@@ -632,5 +641,10 @@ UsingNamespaceDirective *Control::newUsingNamespaceDirective(unsigned sourceLoca
 
 UsingDeclaration *Control::newUsingDeclaration(unsigned sourceLocation, Name *name)
 { return d->newUsingDeclaration(sourceLocation, name); }
+
+ForwardClassDeclaration *Control::newForwardClassDeclaration(unsigned sourceLocation,
+                                                             Name *name)
+{ return d->newForwardClassDeclaration(sourceLocation, name); }
+
 
 CPLUSPLUS_END_NAMESPACE

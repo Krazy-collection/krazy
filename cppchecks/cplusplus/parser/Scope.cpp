@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -148,27 +148,45 @@ Scope *Scope::enclosingBlockScope() const
 }
 
 bool Scope::isNamespaceScope() const
-{ return dynamic_cast<const Namespace *>(_owner) != 0; }
+{
+    if (_owner)
+        return _owner->isNamespace();
+    return false;
+}
 
 bool Scope::isClassScope() const
-{ return dynamic_cast<const Class *>(_owner) != 0; }
+{
+    if (_owner)
+        return _owner->isClass();
+    return false;
+}
 
 bool Scope::isEnumScope() const
-{ return dynamic_cast<const Enum *>(_owner) != 0; }
+{
+    if (_owner)
+        return _owner->isEnum();
+    return false;
+}
 
 bool Scope::isBlockScope() const
-{ return dynamic_cast<const Block *>(_owner) != 0; }
+{
+    if (_owner)
+        return _owner->isBlock();
+    return false;
+}
 
 bool Scope::isPrototypeScope() const
 {
-    if (const Function *f = dynamic_cast<const Function *>(_owner))
+    Function *f = 0;
+    if (_owner && 0 != (f = _owner->asFunction()))
         return f->arguments() == this;
     return false;
 }
 
 bool Scope::isFunctionScope() const
 {
-    if (const Function *f = dynamic_cast<const Function *>(_owner))
+    Function *f = 0;
+    if (_owner && 0 != (f = _owner->asFunction()))
         return f->arguments() != this;
     return false;
 }
@@ -199,14 +217,16 @@ void Scope::enterSymbol(Symbol *symbol)
 
 Symbol *Scope::lookat(Identifier *id) const
 {
-    if (! _hash)
+    if (! _hash || ! id)
         return 0;
 
     const unsigned h = id->hashCode() % _hashSize;
     Symbol *symbol = _hash[h];
     for (; symbol; symbol = symbol->_next) {
         Name *identity = symbol->identity();
-        if (NameId *nameId = identity->asNameId()) {
+        if (! identity) {
+            continue;
+        } else if (NameId *nameId = identity->asNameId()) {
             if (nameId->identifier()->isEqualTo(id))
                 break;
         } else if (TemplateNameId *t = identity->asTemplateNameId()) {
@@ -304,6 +324,9 @@ void Scope::addUse(unsigned sourceOffset, Name *name)
     else
         lastVisibleSymbol = _symbols[_symbolCount];
     _uses[_useCount].init(sourceOffset, name, lastVisibleSymbol);
+#else
+    (void) sourceOffset;
+    (void) name;
 #endif
 }
 

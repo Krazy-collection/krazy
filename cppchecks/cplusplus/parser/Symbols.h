@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -71,6 +71,12 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
+    virtual const UsingNamespaceDirective *asUsingNamespaceDirective() const
+    { return this; }
+
+    virtual UsingNamespaceDirective *asUsingNamespaceDirective()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 };
@@ -83,6 +89,12 @@ public:
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
+
+    virtual const UsingDeclaration *asUsingDeclaration() const
+    { return this; }
+
+    virtual UsingDeclaration *asUsingDeclaration()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -104,6 +116,12 @@ public:
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
+
+    virtual const Declaration *asDeclaration() const
+    { return this; }
+
+    virtual Declaration *asDeclaration()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -127,6 +145,12 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
+    virtual const Argument *asArgument() const
+    { return this; }
+
+    virtual Argument *asArgument()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 
@@ -146,6 +170,12 @@ public:
     Scope *members() const;
     void addMember(Symbol *member);
 
+    virtual const ScopedSymbol *asScopedSymbol() const
+    { return this; }
+
+    virtual ScopedSymbol *asScopedSymbol()
+    { return this; }
+
 private:
     Scope *_members;
 };
@@ -159,8 +189,50 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
+    virtual const Block *asBlock() const
+    { return this; }
+
+    virtual Block *asBlock()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ForwardClassDeclaration: public Symbol, public Type
+{
+public:
+    ForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ForwardClassDeclaration();
+
+    unsigned templateParameterCount() const;
+    Symbol *templateParameterAt(unsigned index) const;
+
+    Scope *templateParameters() const;
+    void setTemplateParameters(Scope *templateParameters);
+
+    virtual FullySpecifiedType type() const;
+
+    virtual bool isEqualTo(const Type *other) const;
+
+    virtual const ForwardClassDeclaration *asForwardClassDeclaration() const
+    { return this; }
+
+    virtual ForwardClassDeclaration *asForwardClassDeclaration()
+    { return this; }
+
+    virtual const ForwardClassDeclaration *asForwardClassDeclarationType() const
+    { return this; }
+
+    virtual ForwardClassDeclaration *asForwardClassDeclarationType()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+    virtual void accept0(TypeVisitor *visitor);
+
+private:
+    Scope *_templateParameters;
 };
 
 class CPLUSPLUS_EXPORT Enum: public ScopedSymbol, public Type
@@ -174,6 +246,18 @@ public:
 
     // Type's interface
     virtual bool isEqualTo(const Type *other) const;
+
+    virtual const Enum *asEnum() const
+    { return this; }
+
+    virtual Enum *asEnum()
+    { return this; }
+
+    virtual const Enum *asEnumType() const
+    { return this; }
+
+    virtual Enum *asEnumType()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -230,12 +314,23 @@ public:
     // Type's interface
     virtual bool isEqualTo(const Type *other) const;
 
+    virtual const Function *asFunction() const
+    { return this; }
+
+    virtual Function *asFunction()
+    { return this; }
+
+    virtual const Function *asFunctionType() const
+    { return this; }
+
+    virtual Function *asFunctionType()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
 
 private:
-    Name *_name;
     Scope *_templateParameters;
     FullySpecifiedType _returnType;
     union {
@@ -264,6 +359,18 @@ public:
     // Type's interface
     virtual bool isEqualTo(const Type *other) const;
 
+    virtual const Namespace *asNamespace() const
+    { return this; }
+
+    virtual Namespace *asNamespace()
+    { return this; }
+
+    virtual const Namespace *asNamespaceType() const
+    { return this; }
+
+    virtual Namespace *asNamespaceType()
+    { return this; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
@@ -280,6 +387,12 @@ public:
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
+
+    virtual const BaseClass *asBaseClass() const
+    { return this; }
+
+    virtual BaseClass *asBaseClass()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -321,6 +434,18 @@ public:
 
     // Type's interface
     virtual bool isEqualTo(const Type *other) const;
+
+    virtual const Class *asClass() const
+    { return this; }
+
+    virtual Class *asClass()
+    { return this; }
+
+    virtual const Class *asClassType() const
+    { return this; }
+
+    virtual Class *asClassType()
+    { return this; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);

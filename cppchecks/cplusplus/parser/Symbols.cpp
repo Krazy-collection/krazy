@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -188,7 +188,7 @@ void Function::setTemplateParameters(Scope *templateParameters)
 
 bool Function::isEqualTo(const Type *other) const
 {
-    const Function *o = other->asFunction();
+    const Function *o = other->asFunctionType();
     if (! o)
         return false;
     Name *l = identity();
@@ -323,7 +323,7 @@ FullySpecifiedType Enum::type() const
 
 bool Enum::isEqualTo(const Type *other) const
 {
-    const Enum *o = other->asEnum();
+    const Enum *o = other->asEnumType();
     if (! o)
         return false;
     Name *l = identity();
@@ -356,7 +356,7 @@ Namespace::~Namespace()
 
 bool Namespace::isEqualTo(const Type *other) const
 {
-    const Namespace *o = other->asNamespace();
+    const Namespace *o = other->asNamespaceType();
     if (! o)
         return false;
     Name *l = identity();
@@ -399,6 +399,53 @@ void BaseClass::setVirtual(bool isVirtual)
 { _isVirtual = isVirtual; }
 
 void BaseClass::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+ForwardClassDeclaration::ForwardClassDeclaration(TranslationUnit *translationUnit,
+                                                 unsigned sourceLocation, Name *name)
+    : Symbol(translationUnit, sourceLocation, name),
+      _templateParameters(0)
+{ }
+
+ForwardClassDeclaration::~ForwardClassDeclaration()
+{ delete _templateParameters; }
+
+unsigned ForwardClassDeclaration::templateParameterCount() const
+{
+    if (! _templateParameters)
+        return 0;
+    return _templateParameters->symbolCount();
+}
+
+Symbol *ForwardClassDeclaration::templateParameterAt(unsigned index) const
+{ return _templateParameters->symbolAt(index); }
+
+Scope *ForwardClassDeclaration::templateParameters() const
+{ return _templateParameters; }
+
+void ForwardClassDeclaration::setTemplateParameters(Scope *templateParameters)
+{ _templateParameters = templateParameters; }
+
+FullySpecifiedType ForwardClassDeclaration::type() const
+{ return FullySpecifiedType(const_cast<ForwardClassDeclaration *>(this)); }
+
+bool ForwardClassDeclaration::isEqualTo(const Type *other) const
+{
+    if (const ForwardClassDeclaration *otherClassFwdTy = other->asForwardClassDeclarationType()) {
+        if (name() == otherClassFwdTy->name())
+            return true;
+        else if (name() && otherClassFwdTy->name())
+            return name()->isEqualTo(otherClassFwdTy->name());
+
+        return false;
+    }
+    return false;
+}
+
+void ForwardClassDeclaration::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+void ForwardClassDeclaration::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
 Class::Class(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
@@ -458,7 +505,7 @@ FullySpecifiedType Class::type() const
 
 bool Class::isEqualTo(const Type *other) const
 {
-    const Class *o = other->asClass();
+    const Class *o = other->asClassType();
     if (! o)
         return false;
     Name *l = identity();

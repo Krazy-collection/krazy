@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -101,10 +101,8 @@ bool PrettyPrinter::visit(ArrayInitializerAST *ast)
 bool PrettyPrinter::visit(AsmDefinitionAST *ast)
 {
     out << spell(ast->asm_token);
-    for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
-        out << ' ';
-        accept(it);
-    }
+    if (ast->volatile_token)
+        out << ' ' << spell(ast->volatile_token) << ' ';
     out << '(';
     out << "/* ### implement me */";
     out << ");";
@@ -766,15 +764,11 @@ bool PrettyPrinter::visit(NestedNameSpecifierAST *ast)
     return false;
 }
 
-bool PrettyPrinter::visit(NewDeclaratorAST *ast)
+bool PrettyPrinter::visit(NewArrayDeclaratorAST *ast)
 {
-    for (PtrOperatorAST *it = ast->ptr_operators; it; it = it->next) {
-        accept(it);
-        if (it->next)
-            out << ' ';
-    }
-    if (ast->declarator)
-        accept(ast->declarator);
+    out << '[';
+    accept(ast->expression);
+    out << ']';
     return false;
 }
 
@@ -784,22 +778,29 @@ bool PrettyPrinter::visit(NewExpressionAST *ast)
         out << "::";
     out << "new";
     out << ' ';
-    if (ast->expression) {
-        accept(ast->expression);
-        if (ast->type_id)
-            out << ' ';
-    }
-    if (ast->type_id) {
+    accept(ast->new_placement);
+    if (ast->new_placement)
+        out << ' ';
+    if (ast->lparen_token) {
+        out << '(';
         accept(ast->type_id);
-        if (ast->new_type_id)
-            out << ' ';
-    }
-    if (ast->new_type_id) {
+        out << ')';
+    } else {
         accept(ast->new_type_id);
-        if (ast->new_initializer)
-            out << ' ';
     }
     accept(ast->new_initializer);
+    return false;
+}
+
+bool PrettyPrinter::visit(NewPlacementAST *ast)
+{
+    out << '(';
+    for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
+        accept(it->expression);
+        if (it->next)
+            out << ", ";
+    }
+    out << ')';
     return false;
 }
 
@@ -814,18 +815,16 @@ bool PrettyPrinter::visit(NewInitializerAST *ast)
 bool PrettyPrinter::visit(NewTypeIdAST *ast)
 {
     for (SpecifierAST *it = ast->type_specifier; it; it = it->next) {
+        if (it != ast->type_specifier)
+            out << ' ';
         accept(it);
-        if (it->next)
-            out << ' ';
     }
-    if (ast->type_specifier)
-        out << ' ';
-    if (ast->new_initializer) {
-        accept(ast->new_initializer);
-        if (ast->new_declarator)
-            out << ' ';
+    for (PtrOperatorAST *it = ast->ptr_operators; it; it = it->next) {
+        accept(it);
     }
-    accept(ast->new_declarator);
+    for (NewArrayDeclaratorAST *it = ast->new_array_declarators; it; it = it->next) {
+        accept(it);
+    }
     return false;
 }
 
@@ -1279,5 +1278,15 @@ bool PrettyPrinter::visit(QtMethodAST *ast)
     out << '(';
     accept(ast->declarator);
     out << ')';
+    return false;
+}
+
+bool PrettyPrinter::visit(CompoundLiteralAST *ast)
+{
+    out << '(';
+    accept(ast->type_id);
+    out << ')';
+    out << ' ';
+    accept(ast->initializer);
     return false;
 }

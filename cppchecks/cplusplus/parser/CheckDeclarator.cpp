@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -135,9 +135,12 @@ bool CheckDeclarator::visit(DeclaratorAST *ast)
     // ### check the initializer
     // FullySpecifiedType exprTy = semantic()->check(ast->initializer, _scope);
 
-    if (ast->initializer && _fullySpecifiedType->isFunction()) {
-        _fullySpecifiedType->asFunction()->setPureVirtual(true);
+    if (ast->initializer && _fullySpecifiedType) {
+        if (Function *funTy = _fullySpecifiedType->asFunctionType()) {
+            funTy->setPureVirtual(true);
+        }
     }
+
     return false;
 }
 
@@ -158,6 +161,7 @@ bool CheckDeclarator::visit(NestedDeclaratorAST *ast)
 bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
 {
     Function *fun = control()->newFunction(ast->firstToken());
+    ast->symbol = fun;
     fun->setReturnType(_fullySpecifiedType);
 
     if (ast->parameters) {

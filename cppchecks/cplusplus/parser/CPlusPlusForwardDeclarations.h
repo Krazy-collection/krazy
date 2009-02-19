@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -108,6 +108,7 @@ class QualifiedNameId;
 class FullySpecifiedType;
 class TypeVisitor;
 class Type;
+class UndefinedType;
 class VoidType;
 class IntegerType;
 class FloatType;
@@ -131,6 +132,7 @@ class BaseClass;
 class Block;
 class Class;
 class Enum;
+class ForwardClassDeclaration;
 
 class Use;
 

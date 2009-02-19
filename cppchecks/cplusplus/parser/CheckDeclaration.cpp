@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -130,18 +130,37 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     FullySpecifiedType ty = semantic()->check(ast->decl_specifier_seq, _scope);
     FullySpecifiedType qualTy = ty.qualifiedType();
 
-    if (_templateParameters) {
-        if (Class *klass = ty->asClass()) {
+    if (_templateParameters && ty) {
+        if (Class *klass = ty->asClassType()) {
             klass->setTemplateParameters(_templateParameters);
         }
     }
 
+    if (! ast->declarators && ast->decl_specifier_seq && ! ast->decl_specifier_seq->next) {
+        if (ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_seq->asElaboratedTypeSpecifier()) {
+            Name *name = semantic()->check(elab_type_spec->name, _scope);
+            ForwardClassDeclaration *symbol =
+                    control()->newForwardClassDeclaration(elab_type_spec->firstToken(),
+                                                          name);
+
+            if (_templateParameters) {
+                symbol->setTemplateParameters(_templateParameters);
+                _templateParameters = 0;
+            }
+
+            _scope->enterSymbol(symbol);
+            return false;
+        }
+    }
+
+    List<Declaration *> **decl_it = &ast->symbols;
     for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
         Name *name = 0;
         FullySpecifiedType declTy = semantic()->check(it->declarator, qualTy,
                                                       _scope, &name);
 
-        if (Function *fun = declTy->asFunction()) {
+        Function *fun = 0;
+        if (declTy && 0 != (fun = declTy->asFunctionType())) {
             fun->setScope(_scope);
             fun->setName(name);
             fun->setMethodKey(semantic()->currentMethodKey());
@@ -161,7 +180,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         symbol->setType(control()->integerType(IntegerType::Int));
         symbol->setType(declTy);
 
-        if (_templateParameters && it == ast->declarators && ! ty->asClass())
+        if (_templateParameters && it == ast->declarators && ty && ! ty->isClassType())
             symbol->setTemplateParameters(_templateParameters);
 
         symbol->setVisibility(semantic()->currentVisibility());
@@ -178,6 +197,10 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             symbol->setStorage(Symbol::Mutable);
         else if (ty.isTypedef())
             symbol->setStorage(Symbol::Typedef);
+
+        *decl_it = new (translationUnit()->memoryPool()) List<Declaration *>();
+        (*decl_it)->value = symbol;
+        decl_it = &(*decl_it)->next;
 
         _scope->enterSymbol(symbol);
     }
@@ -220,13 +243,13 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     Name *name = 0;
     FullySpecifiedType funTy = semantic()->check(ast->declarator, qualTy,
                                                  _scope, &name);
-    Function *fun = funTy->asFunction();
-    if (! fun) {
+    if (! (funTy && funTy->isFunctionType())) {
         translationUnit()->error(ast->firstToken(),
                                  "expected a function prototype");
         return false;
     }
 
+    Function *fun = funTy->asFunctionType();
     fun->setName(name);
     fun->setTemplateParameters(_templateParameters);
     fun->setVisibility(semantic()->currentVisibility());
@@ -234,6 +257,7 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 
     checkFunctionArguments(fun);
 
+    ast->symbol = fun;
     _scope->enterSymbol(fun);
 
     if (ast->ctor_initializer) {
@@ -286,6 +310,7 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
     Identifier *id = identifier(ast->identifier_token);
     Name *namespaceName = control()->nameId(id);
     Namespace *ns = control()->newNamespace(ast->firstToken(), namespaceName);
+    ast->symbol = ns;
     _scope->enterSymbol(ns);
     semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
 
@@ -310,6 +335,7 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
                                                  _scope, &argName);
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
     Argument *arg = control()->newArgument(ast->firstToken(), argName);
+    ast->symbol = arg;
     if (ast->expression)
         arg->setInitializer(true);
     arg->setType(argTy);
@@ -319,15 +345,6 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 
 bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 {
-/*
-    Template *templ = control()->newTemplate(ast->firstToken());
-
-    for (DeclarationAST *param = ast->template_parameters; param;
-            param = param->next) {
-       semantic()->check(param, templ->members());
-    }
-*/
-
     Scope *previousScope = switchScope(new Scope(_scope->owner()));
     for (DeclarationAST *param = ast->template_parameters; param;
             param = param->next) {
@@ -343,6 +360,7 @@ bool CheckDeclaration::visit(TypenameTypeParameterAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     Argument *arg = control()->newArgument(ast->firstToken(), name); // ### new template type
+    ast->symbol = arg;
     _scope->enterSymbol(arg);
     return false;
 }
@@ -351,6 +369,7 @@ bool CheckDeclaration::visit(TemplateTypeParameterAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     Argument *arg = control()->newArgument(ast->firstToken(), name); // ### new template type
+    ast->symbol = arg;
     _scope->enterSymbol(arg);
     return false;
 }
@@ -359,6 +378,7 @@ bool CheckDeclaration::visit(UsingAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     UsingDeclaration *u = control()->newUsingDeclaration(ast->firstToken(), name);
+    ast->symbol = u;
     _scope->enterSymbol(u);
     return false;
 }
@@ -367,6 +387,7 @@ bool CheckDeclaration::visit(UsingDirectiveAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     UsingNamespaceDirective *u = control()->newUsingNamespaceDirective(ast->firstToken(), name);
+    ast->symbol = u;
     _scope->enterSymbol(u);
     return false;
 }

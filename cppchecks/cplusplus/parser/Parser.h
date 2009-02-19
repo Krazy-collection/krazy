@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -85,6 +85,9 @@ public:
     bool parseAdditiveExpression(ExpressionAST *&node);
     bool parseAndExpression(ExpressionAST *&node);
     bool parseAsmDefinition(DeclarationAST *&node);
+    bool parseAsmOperandList();
+    bool parseAsmOperand();
+    bool parseAsmClobberList();
     bool parseAssignmentExpression(ExpressionAST *&node);
     bool parseBaseClause(BaseSpecifierAST *&node);
     bool parseBaseSpecifier(BaseSpecifierAST *&node);
@@ -141,13 +144,15 @@ public:
     bool parseMultiplicativeExpression(ExpressionAST *&node);
     bool parseTemplateId(NameAST *&node);
     bool parseClassOrNamespaceName(NameAST *&node);
+    bool parseNameId(NameAST *&node);
     bool parseName(NameAST *&node, bool acceptTemplateId = true);
     bool parseNestedNameSpecifier(NestedNameSpecifierAST *&node, bool acceptTemplateId);
     bool parseNestedNameSpecifierOpt(NestedNameSpecifierAST *&name, bool acceptTemplateId);
     bool parseNamespace(DeclarationAST *&node);
     bool parseNamespaceAliasDefinition(DeclarationAST *&node);
-    bool parseNewDeclarator(NewDeclaratorAST *&node);
+    bool parseNewArrayDeclarator(NewArrayDeclaratorAST *&node);
     bool parseNewExpression(ExpressionAST *&node);
+    bool parseNewPlacement(NewPlacementAST *&node);
     bool parseNewInitializer(NewInitializerAST *&node);
     bool parseNewTypeId(NewTypeIdAST *&node);
     bool parseOperator(OperatorAST *&node);
@@ -206,45 +211,45 @@ public:
     bool parseUsingDirective(DeclarationAST *&node);
     bool parseWhileStatement(StatementAST *&node);
 
+    // Qt MOC run
+    bool parseQtMethod(ExpressionAST *&node);
+
     // ObjC++
-    bool parseObjCClassImplementation(DeclarationAST *&node);
-    bool parseObjCClassDeclaration(DeclarationAST *&node);
-    bool parseObjCInterfaceDeclaration(DeclarationAST *&node);
-    bool parseObjCProtocolDeclaration(DeclarationAST *&node);
-    bool parseObjCEndDeclaration(DeclarationAST *&node);
-    bool parseObjCAliasDeclaration(DeclarationAST *&node);
-    bool parseObjCPropertySynthesize(DeclarationAST *&node);
-    bool parseObjCPropertyDynamic(DeclarationAST *&node);
-
-    bool parseObjCIdentifierList(IdentifierListAST *&node);
-
-    bool parseObjCPropertyDeclaration(DeclarationAST *&node);
-    bool parseObjCProtocolRefs();
-    bool parseObjCClassInstanceVariables();
-    bool parseObjCInterfaceMemberDeclaration();
-    bool parseObjCInterfaceDeclList();
-    bool parseObjCMethodPrototype();
-
     bool parseObjCExpression(ExpressionAST *&node);
-    bool parseObjCMessageExpression(ExpressionAST *&node);
-    bool parseObjCStringLiteral(ExpressionAST *&node);
+    bool parseObjCClassDeclaration(DeclarationAST *&node);
+    bool parseObjCInterface(DeclarationAST *&node,
+                            SpecifierAST *attributes = 0);
+    bool parseObjCProtocol(DeclarationAST *&node,
+                           SpecifierAST *attributes = 0);
+
     bool parseObjCEncodeExpression(ExpressionAST *&node);
     bool parseObjCProtocolExpression(ExpressionAST *&node);
     bool parseObjCSelectorExpression(ExpressionAST *&node);
-
-    bool parseObjCMessageReceiver(ExpressionAST *&node);
-    bool parseObjCMessageArguments();
-
+    bool parseObjCStringLiteral(ExpressionAST *&node);
     bool parseObjCMethodSignature();
+    bool parseObjCMessageExpression(ExpressionAST *&node);
+    bool parseObjCMessageReceiver();
+    bool parseObjCMessageArguments();
+    bool parseObjCSelectorArgs();
     bool parseObjCMethodDefinitionList();
-    bool parseObjCAtProperty();
+    bool parseObjCMethodDefinition();
+
+    bool parseObjCProtocolRefs();
+    bool parseObjClassInstanceVariables();
+    bool parseObjCInterfaceMemberDeclaration();
+    bool parseObjCInstanceVariableDeclaration(DeclarationAST *&node);
+    bool parseObjCPropertyDeclaration(DeclarationAST *&node,
+                                      SpecifierAST *attributes = 0);
+    bool parseObjCImplementation(DeclarationAST *&node);
+    bool parseObjCMethodPrototype();
+    bool parseObjCPropertyAttribute();
     bool parseObjCTypeName();
-    bool parseObjCProtocolQualifiers();
+    bool parseObjCSelector();
+    bool parseObjCKeywordDeclaration();
+    bool parseObjCTypeQualifiers();
+    bool parseObjCEnd(DeclarationAST *&node);
 
     bool lookAtObjCSelector() const;
-
-    // Qt MOC run
-    bool parseQtMethod(ExpressionAST *&node);
 
     bool skipUntil(int token);
     bool skipUntilDeclaration();

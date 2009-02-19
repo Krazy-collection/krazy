@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -77,6 +77,7 @@ class CaseStatementAST;
 class CastExpressionAST;
 class CatchClauseAST;
 class ClassSpecifierAST;
+class CompoundLiteralAST;
 class CompoundStatementAST;
 class ConditionAST;
 class ConditionalExpressionAST;
@@ -120,8 +121,9 @@ class NamespaceAliasDefinitionAST;
 class NestedDeclaratorAST;
 class NestedExpressionAST;
 class NestedNameSpecifierAST;
-class NewDeclaratorAST;
+class NewArrayDeclaratorAST;
 class NewExpressionAST;
+class NewPlacementAST;
 class NewInitializerAST;
 class NewTypeIdAST;
 class NumericLiteralAST;

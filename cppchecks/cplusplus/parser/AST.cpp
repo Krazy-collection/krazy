@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -66,321 +66,6 @@ AST::AST()
 AST::~AST()
 { assert(0); }
 
-AccessDeclarationAST *AST::asAccessDeclaration()
-{ return dynamic_cast<AccessDeclarationAST *>(this); }
-
-ArrayAccessAST *AST::asArrayAccess()
-{ return dynamic_cast<ArrayAccessAST *>(this); }
-
-ArrayDeclaratorAST *AST::asArrayDeclarator()
-{ return dynamic_cast<ArrayDeclaratorAST *>(this); }
-
-ArrayInitializerAST *AST::asArrayInitializer()
-{ return dynamic_cast<ArrayInitializerAST *>(this); }
-
-AsmDefinitionAST *AST::asAsmDefinition()
-{ return dynamic_cast<AsmDefinitionAST *>(this); }
-
-AttributeAST *AST::asAttribute()
-{ return dynamic_cast<AttributeAST *>(this); }
-
-AttributeSpecifierAST *AST::asAttributeSpecifier()
-{ return dynamic_cast<AttributeSpecifierAST *>(this); }
-
-BaseSpecifierAST *AST::asBaseSpecifier()
-{ return dynamic_cast<BaseSpecifierAST *>(this); }
-
-QtMethodAST *AST::asQtMethod()
-{ return dynamic_cast<QtMethodAST *>(this); }
-
-BinaryExpressionAST *AST::asBinaryExpression()
-{ return dynamic_cast<BinaryExpressionAST *>(this); }
-
-BoolLiteralAST *AST::asBoolLiteral()
-{ return dynamic_cast<BoolLiteralAST *>(this); }
-
-BreakStatementAST *AST::asBreakStatement()
-{ return dynamic_cast<BreakStatementAST *>(this); }
-
-CallAST *AST::asCall()
-{ return dynamic_cast<CallAST *>(this); }
-
-CaseStatementAST *AST::asCaseStatement()
-{ return dynamic_cast<CaseStatementAST *>(this); }
-
-CastExpressionAST *AST::asCastExpression()
-{ return dynamic_cast<CastExpressionAST *>(this); }
-
-CatchClauseAST *AST::asCatchClause()
-{ return dynamic_cast<CatchClauseAST *>(this); }
-
-ClassSpecifierAST *AST::asClassSpecifier()
-{ return dynamic_cast<ClassSpecifierAST *>(this); }
-
-CompoundStatementAST *AST::asCompoundStatement()
-{ return dynamic_cast<CompoundStatementAST *>(this); }
-
-ConditionAST *AST::asCondition()
-{ return dynamic_cast<ConditionAST *>(this); }
-
-ConditionalExpressionAST *AST::asConditionalExpression()
-{ return dynamic_cast<ConditionalExpressionAST *>(this); }
-
-ContinueStatementAST *AST::asContinueStatement()
-{ return dynamic_cast<ContinueStatementAST *>(this); }
-
-ConversionFunctionIdAST *AST::asConversionFunctionId()
-{ return dynamic_cast<ConversionFunctionIdAST *>(this); }
-
-CoreDeclaratorAST *AST::asCoreDeclarator()
-{ return dynamic_cast<CoreDeclaratorAST *>(this); }
-
-CppCastExpressionAST *AST::asCppCastExpression()
-{ return dynamic_cast<CppCastExpressionAST *>(this); }
-
-CtorInitializerAST *AST::asCtorInitializer()
-{ return dynamic_cast<CtorInitializerAST *>(this); }
-
-DeclarationAST *AST::asDeclaration()
-{ return dynamic_cast<DeclarationAST *>(this); }
-
-DeclarationStatementAST *AST::asDeclarationStatement()
-{ return dynamic_cast<DeclarationStatementAST *>(this); }
-
-DeclaratorAST *AST::asDeclarator()
-{ return dynamic_cast<DeclaratorAST *>(this); }
-
-DeclaratorIdAST *AST::asDeclaratorId()
-{ return dynamic_cast<DeclaratorIdAST *>(this); }
-
-DeclaratorListAST *AST::asDeclaratorList()
-{ return dynamic_cast<DeclaratorListAST *>(this); }
-
-DeleteExpressionAST *AST::asDeleteExpression()
-{ return dynamic_cast<DeleteExpressionAST *>(this); }
-
-DestructorNameAST *AST::asDestructorName()
-{ return dynamic_cast<DestructorNameAST *>(this); }
-
-DoStatementAST *AST::asDoStatement()
-{ return dynamic_cast<DoStatementAST *>(this); }
-
-ElaboratedTypeSpecifierAST *AST::asElaboratedTypeSpecifier()
-{ return dynamic_cast<ElaboratedTypeSpecifierAST *>(this); }
-
-EmptyDeclarationAST *AST::asEmptyDeclaration()
-{ return dynamic_cast<EmptyDeclarationAST *>(this); }
-
-EnumSpecifierAST *AST::asEnumSpecifier()
-{ return dynamic_cast<EnumSpecifierAST *>(this); }
-
-EnumeratorAST *AST::asEnumerator()
-{ return dynamic_cast<EnumeratorAST *>(this); }
-
-ExceptionDeclarationAST *AST::asExceptionDeclaration()
-{ return dynamic_cast<ExceptionDeclarationAST *>(this); }
-
-ExceptionSpecificationAST *AST::asExceptionSpecification()
-{ return dynamic_cast<ExceptionSpecificationAST *>(this); }
-
-ExpressionAST *AST::asExpression()
-{ return dynamic_cast<ExpressionAST *>(this); }
-
-ExpressionListAST *AST::asExpressionList()
-{ return dynamic_cast<ExpressionListAST *>(this); }
-
-ExpressionOrDeclarationStatementAST *AST::asExpressionOrDeclarationStatement()
-{ return dynamic_cast<ExpressionOrDeclarationStatementAST *>(this); }
-
-ExpressionStatementAST *AST::asExpressionStatement()
-{ return dynamic_cast<ExpressionStatementAST *>(this); }
-
-ForStatementAST *AST::asForStatement()
-{ return dynamic_cast<ForStatementAST *>(this); }
-
-FunctionDeclaratorAST *AST::asFunctionDeclarator()
-{ return dynamic_cast<FunctionDeclaratorAST *>(this); }
-
-FunctionDefinitionAST *AST::asFunctionDefinition()
-{ return dynamic_cast<FunctionDefinitionAST *>(this); }
-
-GotoStatementAST *AST::asGotoStatement()
-{ return dynamic_cast<GotoStatementAST *>(this); }
-
-IfStatementAST *AST::asIfStatement()
-{ return dynamic_cast<IfStatementAST *>(this); }
-
-LabeledStatementAST *AST::asLabeledStatement()
-{ return dynamic_cast<LabeledStatementAST *>(this); }
-
-LinkageBodyAST *AST::asLinkageBody()
-{ return dynamic_cast<LinkageBodyAST *>(this); }
-
-LinkageSpecificationAST *AST::asLinkageSpecification()
-{ return dynamic_cast<LinkageSpecificationAST *>(this); }
-
-MemInitializerAST *AST::asMemInitializer()
-{ return dynamic_cast<MemInitializerAST *>(this); }
-
-MemberAccessAST *AST::asMemberAccess()
-{ return dynamic_cast<MemberAccessAST *>(this); }
-
-NameAST *AST::asName()
-{ return dynamic_cast<NameAST *>(this); }
-
-NamedTypeSpecifierAST *AST::asNamedTypeSpecifier()
-{ return dynamic_cast<NamedTypeSpecifierAST *>(this); }
-
-NamespaceAST *AST::asNamespace()
-{ return dynamic_cast<NamespaceAST *>(this); }
-
-NamespaceAliasDefinitionAST *AST::asNamespaceAliasDefinition()
-{ return dynamic_cast<NamespaceAliasDefinitionAST *>(this); }
-
-NestedDeclaratorAST *AST::asNestedDeclarator()
-{ return dynamic_cast<NestedDeclaratorAST *>(this); }
-
-NestedExpressionAST *AST::asNestedExpression()
-{ return dynamic_cast<NestedExpressionAST *>(this); }
-
-NestedNameSpecifierAST *AST::asNestedNameSpecifier()
-{ return dynamic_cast<NestedNameSpecifierAST *>(this); }
-
-NewDeclaratorAST *AST::asNewDeclarator()
-{ return dynamic_cast<NewDeclaratorAST *>(this); }
-
-NewExpressionAST *AST::asNewExpression()
-{ return dynamic_cast<NewExpressionAST *>(this); }
-
-NewInitializerAST *AST::asNewInitializer()
-{ return dynamic_cast<NewInitializerAST *>(this); }
-
-NewTypeIdAST *AST::asNewTypeId()
-{ return dynamic_cast<NewTypeIdAST *>(this); }
-
-NumericLiteralAST *AST::asNumericLiteral()
-{ return dynamic_cast<NumericLiteralAST *>(this); }
-
-OperatorAST *AST::asOperator()
-{ return dynamic_cast<OperatorAST *>(this); }
-
-OperatorFunctionIdAST *AST::asOperatorFunctionId()
-{ return dynamic_cast<OperatorFunctionIdAST *>(this); }
-
-ParameterDeclarationAST *AST::asParameterDeclaration()
-{ return dynamic_cast<ParameterDeclarationAST *>(this); }
-
-ParameterDeclarationClauseAST *AST::asParameterDeclarationClause()
-{ return dynamic_cast<ParameterDeclarationClauseAST *>(this); }
-
-PointerAST *AST::asPointer()
-{ return dynamic_cast<PointerAST *>(this); }
-
-PointerToMemberAST *AST::asPointerToMember()
-{ return dynamic_cast<PointerToMemberAST *>(this); }
-
-PostIncrDecrAST *AST::asPostIncrDecr()
-{ return dynamic_cast<PostIncrDecrAST *>(this); }
-
-PostfixAST *AST::asPostfix()
-{ return dynamic_cast<PostfixAST *>(this); }
-
-PostfixDeclaratorAST *AST::asPostfixDeclarator()
-{ return dynamic_cast<PostfixDeclaratorAST *>(this); }
-
-PostfixExpressionAST *AST::asPostfixExpression()
-{ return dynamic_cast<PostfixExpressionAST *>(this); }
-
-PtrOperatorAST *AST::asPtrOperator()
-{ return dynamic_cast<PtrOperatorAST *>(this); }
-
-QualifiedNameAST *AST::asQualifiedName()
-{ return dynamic_cast<QualifiedNameAST *>(this); }
-
-ReferenceAST *AST::asReference()
-{ return dynamic_cast<ReferenceAST *>(this); }
-
-ReturnStatementAST *AST::asReturnStatement()
-{ return dynamic_cast<ReturnStatementAST *>(this); }
-
-SimpleDeclarationAST *AST::asSimpleDeclaration()
-{ return dynamic_cast<SimpleDeclarationAST *>(this); }
-
-SimpleNameAST *AST::asSimpleName()
-{ return dynamic_cast<SimpleNameAST *>(this); }
-
-SimpleSpecifierAST *AST::asSimpleSpecifier()
-{ return dynamic_cast<SimpleSpecifierAST *>(this); }
-
-SizeofExpressionAST *AST::asSizeofExpression()
-{ return dynamic_cast<SizeofExpressionAST *>(this); }
-
-SpecifierAST *AST::asSpecifier()
-{ return dynamic_cast<SpecifierAST *>(this); }
-
-StatementAST *AST::asStatement()
-{ return dynamic_cast<StatementAST *>(this); }
-
-StringLiteralAST *AST::asStringLiteral()
-{ return dynamic_cast<StringLiteralAST *>(this); }
-
-SwitchStatementAST *AST::asSwitchStatement()
-{ return dynamic_cast<SwitchStatementAST *>(this); }
-
-TemplateArgumentListAST *AST::asTemplateArgumentList()
-{ return dynamic_cast<TemplateArgumentListAST *>(this); }
-
-TemplateDeclarationAST *AST::asTemplateDeclaration()
-{ return dynamic_cast<TemplateDeclarationAST *>(this); }
-
-TemplateIdAST *AST::asTemplateId()
-{ return dynamic_cast<TemplateIdAST *>(this); }
-
-TemplateTypeParameterAST *AST::asTemplateTypeParameter()
-{ return dynamic_cast<TemplateTypeParameterAST *>(this); }
-
-ThisExpressionAST *AST::asThisExpression()
-{ return dynamic_cast<ThisExpressionAST *>(this); }
-
-ThrowExpressionAST *AST::asThrowExpression()
-{ return dynamic_cast<ThrowExpressionAST *>(this); }
-
-TranslationUnitAST *AST::asTranslationUnit()
-{ return dynamic_cast<TranslationUnitAST *>(this); }
-
-TryBlockStatementAST *AST::asTryBlockStatement()
-{ return dynamic_cast<TryBlockStatementAST *>(this); }
-
-TypeConstructorCallAST *AST::asTypeConstructorCall()
-{ return dynamic_cast<TypeConstructorCallAST *>(this); }
-
-TypeIdAST *AST::asTypeId()
-{ return dynamic_cast<TypeIdAST *>(this); }
-
-TypeidExpressionAST *AST::asTypeidExpression()
-{ return dynamic_cast<TypeidExpressionAST *>(this); }
-
-TypenameCallExpressionAST *AST::asTypenameCallExpression()
-{ return dynamic_cast<TypenameCallExpressionAST *>(this); }
-
-TypenameTypeParameterAST *AST::asTypenameTypeParameter()
-{ return dynamic_cast<TypenameTypeParameterAST *>(this); }
-
-TypeofSpecifierAST *AST::asTypeofSpecifier()
-{ return dynamic_cast<TypeofSpecifierAST *>(this); }
-
-UnaryExpressionAST *AST::asUnaryExpression()
-{ return dynamic_cast<UnaryExpressionAST *>(this); }
-
-UsingAST *AST::asUsing()
-{ return dynamic_cast<UsingAST *>(this); }
-
-UsingDirectiveAST *AST::asUsingDirective()
-{ return dynamic_cast<UsingDirectiveAST *>(this); }
-
-WhileStatementAST *AST::asWhileStatement()
-{ return dynamic_cast<WhileStatementAST *>(this); }
-
 void AST::accept(ASTVisitor *visitor)
 {
     if (visitor->preVisit(this))
@@ -427,6 +112,7 @@ void AttributeSpecifierAST::accept0(ASTVisitor *visitor)
         for (AttributeAST *attr = attributes; attr; attr = attr->next)
             accept(attr, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned AttributeAST::firstToken() const
@@ -475,6 +161,7 @@ void AttributeAST::accept0(ASTVisitor *visitor)
         for (ExpressionListAST *it = expression_list; it; it = it->next)
             accept(it->expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 AccessDeclarationAST *AccessDeclarationAST::clone(MemoryPool *pool) const
@@ -490,6 +177,7 @@ void AccessDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned AccessDeclarationAST::firstToken() const
@@ -521,6 +209,7 @@ void ArrayAccessAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ArrayAccessAST::firstToken() const
@@ -552,6 +241,7 @@ void ArrayDeclaratorAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(this->expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ArrayDeclaratorAST::firstToken() const
@@ -584,6 +274,7 @@ void ArrayInitializerAST::accept0(ASTVisitor *visitor)
         for (ExpressionListAST *expr = expression_list; expr; expr = expr->next)
             accept(expr->expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ArrayInitializerAST::firstToken() const
@@ -608,8 +299,7 @@ AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
 {
     AsmDefinitionAST *ast = new (pool) AsmDefinitionAST;
     ast->asm_token = asm_token;
-    if (cv_qualifier_seq)
-        ast->cv_qualifier_seq = cv_qualifier_seq->clone(pool);
+    ast->volatile_token = volatile_token;
     ast->lparen_token = lparen_token;
     ast->rparen_token = rparen_token;
     ast->semicolon_token = semicolon_token;
@@ -619,10 +309,9 @@ AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
 void AsmDefinitionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (SpecifierAST *spec = cv_qualifier_seq; spec;
-                 spec = spec->next)
-            accept(spec, visitor);
+        // ### accept the asm operand list.
     }
+    visitor->endVisit(this);
 }
 
 unsigned AsmDefinitionAST::firstToken() const
@@ -638,11 +327,8 @@ unsigned AsmDefinitionAST::lastToken() const
         return rparen_token + 1;
     else if (lparen_token)
         return lparen_token + 1;
-    for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
-
+    else if (volatile_token)
+        return volatile_token + 1;
     return asm_token + 1;
 }
 
@@ -663,6 +349,7 @@ void BaseSpecifierAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(name, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned BaseSpecifierAST::firstToken() const
@@ -716,6 +403,7 @@ void QtMethodAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(declarator, visitor);
     }
+    visitor->endVisit(this);
 }
 
 BinaryExpressionAST *BinaryExpressionAST::clone(MemoryPool *pool) const
@@ -735,6 +423,7 @@ void BinaryExpressionAST::accept0(ASTVisitor *visitor)
         accept(left_expression, visitor);
         accept(right_expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned BinaryExpressionAST::firstToken() const
@@ -762,6 +451,7 @@ void BoolLiteralAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned BoolLiteralAST::firstToken() const
@@ -772,6 +462,43 @@ unsigned BoolLiteralAST::firstToken() const
 unsigned BoolLiteralAST::lastToken() const
 {
     return token + 1;
+}
+
+CompoundLiteralAST *CompoundLiteralAST::clone(MemoryPool *pool) const
+{
+    CompoundLiteralAST *ast = new (pool) CompoundLiteralAST;
+    ast->lparen_token = lparen_token;
+    if (type_id)
+        ast->type_id = type_id->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (initializer)
+        ast->initializer = initializer->clone(pool);
+    return ast;
+}
+
+void CompoundLiteralAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(type_id, visitor);
+        accept(initializer, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+unsigned CompoundLiteralAST::firstToken() const
+{
+    return lparen_token;
+}
+
+unsigned CompoundLiteralAST::lastToken() const
+{
+    if (initializer)
+        return initializer->lastToken();
+    else if (rparen_token)
+        return rparen_token + 1;
+    else if (type_id)
+        return type_id->lastToken();
+    return lparen_token + 1;
 }
 
 BreakStatementAST *BreakStatementAST::clone(MemoryPool *pool) const
@@ -786,6 +513,7 @@ void BreakStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned BreakStatementAST::firstToken() const
@@ -817,6 +545,7 @@ void CallAST::accept0(ASTVisitor *visitor)
                  expr; expr = expr->next)
             accept(expr->expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned CallAST::firstToken() const
@@ -850,7 +579,10 @@ CaseStatementAST *CaseStatementAST::clone(MemoryPool *pool) const
 void CaseStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(expression, visitor);
+        accept(statement, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned CaseStatementAST::firstToken() const
@@ -885,6 +617,7 @@ void CastExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned CastExpressionAST::firstToken() const
@@ -924,6 +657,7 @@ void CatchClauseAST::accept0(ASTVisitor *visitor)
         accept(exception_declaration, visitor);
         accept(statement, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned CatchClauseAST::firstToken() const
@@ -976,6 +710,7 @@ void ClassSpecifierAST::accept0(ASTVisitor *visitor)
         for (DeclarationAST *decl = member_specifiers; decl; decl = decl->next)
             accept(decl, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ClassSpecifierAST::firstToken() const
@@ -1031,6 +766,7 @@ void CompoundStatementAST::accept0(ASTVisitor *visitor)
         for (StatementAST *stmt = statements; stmt; stmt = stmt->next)
             accept(stmt, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned CompoundStatementAST::firstToken() const
@@ -1068,6 +804,7 @@ void ConditionAST::accept0(ASTVisitor *visitor)
             accept(spec, visitor);
         accept(declarator, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ConditionAST::firstToken() const
@@ -1113,6 +850,7 @@ void ConditionalExpressionAST::accept0(ASTVisitor *visitor)
         accept(left_expression, visitor);
         accept(right_expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ConditionalExpressionAST::firstToken() const
@@ -1148,6 +886,7 @@ void ContinueStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned ContinueStatementAST::firstToken() const
@@ -1182,6 +921,7 @@ void ConversionFunctionIdAST::accept0(ASTVisitor *visitor)
                  ptr_op = static_cast<PtrOperatorAST *>(ptr_op->next))
             accept(ptr_op, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ConversionFunctionIdAST::firstToken() const
@@ -1225,6 +965,7 @@ void CppCastExpressionAST::accept0(ASTVisitor *visitor)
         accept(type_id, visitor);
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned CppCastExpressionAST::firstToken() const
@@ -1265,6 +1006,7 @@ void CtorInitializerAST::accept0(ASTVisitor *visitor)
                  mem_init; mem_init = mem_init->next)
             accept(mem_init, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned CtorInitializerAST::firstToken() const
@@ -1310,6 +1052,7 @@ void DeclaratorAST::accept0(ASTVisitor *visitor)
         accept(attributes, visitor);
         accept(initializer, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned DeclaratorAST::firstToken() const
@@ -1368,6 +1111,7 @@ void DeclarationStatementAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(declaration, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned DeclarationStatementAST::firstToken() const
@@ -1393,6 +1137,7 @@ void DeclaratorIdAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(name, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned DeclaratorIdAST::firstToken() const
@@ -1421,6 +1166,7 @@ void DeclaratorListAST::accept0(ASTVisitor *visitor)
         for (DeclaratorListAST *it = this; it; it = it->next)
             accept(it->declarator, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned DeclaratorListAST::firstToken() const
@@ -1432,7 +1178,7 @@ unsigned DeclaratorListAST::lastToken() const
 {
     for (const DeclaratorListAST *it = this; it; it = it->next) {
         if (! it->next)
-            return it->lastToken();
+            return it->declarator->lastToken();
     }
     return 0;
 }
@@ -1454,6 +1200,7 @@ void DeleteExpressionAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned DeleteExpressionAST::firstToken() const
@@ -1488,6 +1235,7 @@ void DestructorNameAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned DestructorNameAST::firstToken() const
@@ -1523,6 +1271,7 @@ void DoStatementAST::accept0(ASTVisitor *visitor)
         accept(statement, visitor);
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned DoStatementAST::firstToken() const
@@ -1561,6 +1310,7 @@ void ElaboratedTypeSpecifierAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(name, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ElaboratedTypeSpecifierAST::firstToken() const
@@ -1586,6 +1336,7 @@ void EmptyDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned EmptyDeclarationAST::firstToken() const
@@ -1619,6 +1370,7 @@ void EnumSpecifierAST::accept0(ASTVisitor *visitor)
                  enumerator = enumerator->next)
             accept(enumerator, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned EnumSpecifierAST::firstToken() const
@@ -1661,6 +1413,7 @@ void EnumeratorAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned EnumeratorAST::firstToken() const
@@ -1695,6 +1448,7 @@ void ExceptionDeclarationAST::accept0(ASTVisitor *visitor)
             accept(spec, visitor);
         accept(declarator, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ExceptionDeclarationAST::firstToken() const
@@ -1738,6 +1492,7 @@ void ExceptionSpecificationAST::accept0(ASTVisitor *visitor)
                  type_id = type_id->next)
             accept(type_id->expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ExceptionSpecificationAST::firstToken() const
@@ -1775,9 +1530,12 @@ ExpressionListAST *ExpressionListAST::clone(MemoryPool *pool) const
 
 void ExpressionListAST::accept0(ASTVisitor *visitor)
 {
-    for (const ExpressionListAST *it = this; it; it = it->next) {
-        accept(it->expression, visitor);
+    if (visitor->visit(this)) {
+        for (const ExpressionListAST *it = this; it; it = it->next) {
+            accept(it->expression, visitor);
+        }
     }
+    visitor->endVisit(this);
 }
 
 unsigned ExpressionListAST::firstToken() const
@@ -1810,6 +1568,7 @@ void ExpressionOrDeclarationStatementAST::accept0(ASTVisitor *visitor)
         accept(declaration, visitor);
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ExpressionOrDeclarationStatementAST::firstToken() const
@@ -1836,6 +1595,7 @@ void ExpressionStatementAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ExpressionStatementAST::firstToken() const
@@ -1881,6 +1641,7 @@ void ForStatementAST::accept0(ASTVisitor *visitor)
         accept(expression, visitor);
         accept(statement, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ForStatementAST::firstToken() const
@@ -1926,6 +1687,7 @@ void FunctionDeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned FunctionDeclaratorAST::firstToken() const
@@ -1975,6 +1737,7 @@ void FunctionDefinitionAST::accept0(ASTVisitor *visitor)
         accept(ctor_initializer, visitor);
         accept(function_body, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned FunctionDefinitionAST::firstToken() const
@@ -2019,6 +1782,7 @@ void GotoStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned GotoStatementAST::firstToken() const
@@ -2060,6 +1824,7 @@ void IfStatementAST::accept0(ASTVisitor *visitor)
         accept(statement, visitor);
         accept(else_statement, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned IfStatementAST::firstToken() const
@@ -2099,6 +1864,7 @@ void LabeledStatementAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(statement, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned LabeledStatementAST::firstToken() const
@@ -2132,6 +1898,7 @@ void LinkageBodyAST::accept0(ASTVisitor *visitor)
                  decl = decl->next)
             accept(decl, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned LinkageBodyAST::firstToken() const
@@ -2167,6 +1934,7 @@ void LinkageSpecificationAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(declaration, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned LinkageSpecificationAST::firstToken() const
@@ -2202,6 +1970,7 @@ void MemInitializerAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned MemInitializerAST::firstToken() const
@@ -2235,6 +2004,7 @@ void MemberAccessAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(member_name, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned MemberAccessAST::firstToken() const
@@ -2264,6 +2034,7 @@ void NamedTypeSpecifierAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(name, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned NamedTypeSpecifierAST::firstToken() const
@@ -2296,6 +2067,7 @@ void NamespaceAST::accept0(ASTVisitor *visitor)
         }
         accept(linkage_body, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned NamespaceAST::firstToken() const
@@ -2336,6 +2108,7 @@ void NamespaceAliasDefinitionAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(name, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned NamespaceAliasDefinitionAST::firstToken() const
@@ -2371,6 +2144,7 @@ void NestedDeclaratorAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(declarator, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned NestedDeclaratorAST::firstToken() const
@@ -2402,6 +2176,7 @@ void NestedExpressionAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned NestedExpressionAST::firstToken() const
@@ -2435,6 +2210,7 @@ void NestedNameSpecifierAST::accept0(ASTVisitor *visitor)
         accept(class_or_namespace_name, visitor);
         accept(next, visitor); // ### I'm not 100% sure about this.
     }
+    visitor->endVisit(this);
 }
 
 unsigned NestedNameSpecifierAST::firstToken() const
@@ -2449,55 +2225,79 @@ unsigned NestedNameSpecifierAST::lastToken() const
     return class_or_namespace_name->lastToken();
 }
 
-NewDeclaratorAST *NewDeclaratorAST::clone(MemoryPool *pool) const
+NewPlacementAST *NewPlacementAST::clone(MemoryPool *pool) const
 {
-    NewDeclaratorAST *ast = new (pool) NewDeclaratorAST;
-    if (ptr_operators)
-        ast->ptr_operators = ptr_operators->clone(pool);
-    if (declarator)
-        ast->declarator = declarator->clone(pool);
+    NewPlacementAST *ast = new (pool) NewPlacementAST;
+    ast->lparen_token = lparen_token;
+    if (expression_list)
+        ast->expression_list = expression_list->clone(pool);
+    ast->rparen_token = rparen_token;
     return ast;
 }
 
-void NewDeclaratorAST::accept0(ASTVisitor *visitor)
+void NewPlacementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (PtrOperatorAST *ptr_op = ptr_operators; ptr_op;
-                 ptr_op = static_cast<PtrOperatorAST *>(ptr_op->next)) {
-            accept(ptr_op, visitor);
+        for (ExpressionListAST *it = expression_list; it; it = it->next) {
+            accept(it->expression, visitor);
         }
-
-        accept(declarator, visitor);
     }
+    visitor->endVisit(this);
 }
 
-unsigned NewDeclaratorAST::firstToken() const
+unsigned NewPlacementAST::firstToken() const
 {
-    return ptr_operators->firstToken();
+    return lparen_token;
 }
 
-unsigned NewDeclaratorAST::lastToken() const
+unsigned NewPlacementAST::lastToken() const
 {
-    if (declarator)
-        return declarator->lastToken();
+    return rparen_token + 1;
+}
 
-    for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
+NewArrayDeclaratorAST *NewArrayDeclaratorAST::clone(MemoryPool *pool) const
+{
+    NewArrayDeclaratorAST *ast = new (pool) NewArrayDeclaratorAST;
+    ast->lbracket_token = lbracket_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rbracket_token = rbracket_token;
+    if (next)
+        ast->next = next->clone(pool);
+    return ast;
+}
+
+void NewArrayDeclaratorAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(expression, visitor);
+        accept(next, visitor);
     }
+    visitor->endVisit(this);
+}
 
-    return 0;
+unsigned NewArrayDeclaratorAST::firstToken() const
+{
+    return lbracket_token;
+}
+
+unsigned NewArrayDeclaratorAST::lastToken() const
+{
+    return rbracket_token + 1;
 }
 
 NewExpressionAST *NewExpressionAST::clone(MemoryPool *pool) const
 {
     NewExpressionAST *ast = new (pool) NewExpressionAST;
+
     ast->scope_token = scope_token;
     ast->new_token = new_token;
-    if (expression)
-        ast->expression = expression->clone(pool);
+    if (new_placement)
+        ast->new_placement = new_placement->clone(pool);
+    ast->lparen_token = lparen_token;
     if (type_id)
         ast->type_id = type_id->clone(pool);
+    ast->rparen_token = rparen_token;
     if (new_type_id)
         ast->new_type_id = new_type_id->clone(pool);
     if (new_initializer)
@@ -2508,11 +2308,12 @@ NewExpressionAST *NewExpressionAST::clone(MemoryPool *pool) const
 void NewExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(expression, visitor);
+        accept(new_placement, visitor);
         accept(type_id, visitor);
         accept(new_type_id, visitor);
         accept(new_initializer, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned NewExpressionAST::firstToken() const
@@ -2524,15 +2325,8 @@ unsigned NewExpressionAST::firstToken() const
 
 unsigned NewExpressionAST::lastToken() const
 {
-    if (new_initializer)
-        return new_initializer->lastToken();
-    else if (new_type_id)
-        return new_type_id->lastToken();
-    else if (type_id)
-        return type_id->lastToken();
-    else if (expression)
-        return expression->lastToken();
-    else if (new_token)
+    // ### FIXME
+    if (new_token)
         return new_token + 1;
     else if (scope_token)
         return scope_token + 1;
@@ -2555,6 +2349,7 @@ void NewInitializerAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned NewInitializerAST::firstToken() const
@@ -2584,12 +2379,13 @@ TypeIdAST *TypeIdAST::clone(MemoryPool *pool) const
 NewTypeIdAST *NewTypeIdAST::clone(MemoryPool *pool) const
 {
     NewTypeIdAST *ast = new (pool) NewTypeIdAST;
+
     if (type_specifier)
         ast->type_specifier = type_specifier->clone(pool);
-    if (new_initializer)
-        ast->new_initializer = new_initializer->clone(pool);
-    if (new_declarator)
-        ast->new_declarator = new_declarator->clone(pool);
+    if (ptr_operators)
+        ast->ptr_operators = ptr_operators->clone(pool);
+    if (new_array_declarators)
+        ast->new_array_declarators = new_array_declarators->clone(pool);
     return ast;
 }
 
@@ -2598,9 +2394,15 @@ void NewTypeIdAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         for (SpecifierAST *spec = type_specifier; spec; spec = spec->next)
             accept(spec, visitor);
-        accept(new_initializer, visitor);
-        accept(new_declarator, visitor);
+
+        for (PtrOperatorAST *it = ptr_operators; it; it = it->next)
+            accept(it, visitor);
+
+        for (NewArrayDeclaratorAST *it = new_array_declarators; it; it = it->next)
+            accept(it, visitor);
+
     }
+    visitor->endVisit(this);
 }
 
 unsigned NewTypeIdAST::firstToken() const
@@ -2610,14 +2412,18 @@ unsigned NewTypeIdAST::firstToken() const
 
 unsigned NewTypeIdAST::lastToken() const
 {
-    if (new_declarator)
-        return new_declarator->lastToken();
-    else if (new_initializer)
-        return new_initializer->lastToken();
-    for (SpecifierAST *it = type_specifier; it; it = it->next) {
+    for (NewArrayDeclaratorAST *it = new_array_declarators; it; it = it->next) {
         if (! it->next)
             return it->lastToken();
     }
+
+    for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
+        if (it->next)
+            return it->lastToken();
+    }
+
+    if (type_specifier)
+        return type_specifier->lastToken();
 
     // ### assert?
     return 0;
@@ -2634,6 +2440,7 @@ void NumericLiteralAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned NumericLiteralAST::firstToken() const
@@ -2659,6 +2466,7 @@ void OperatorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned OperatorAST::firstToken() const
@@ -2689,6 +2497,7 @@ void OperatorFunctionIdAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(op, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned OperatorFunctionIdAST::firstToken() const
@@ -2724,6 +2533,7 @@ void ParameterDeclarationAST::accept0(ASTVisitor *visitor)
         accept(declarator, visitor);
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ParameterDeclarationAST::firstToken() const
@@ -2763,6 +2573,7 @@ void ParameterDeclarationClauseAST::accept0(ASTVisitor *visitor)
                 param = param->next)
             accept(param, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ParameterDeclarationClauseAST::firstToken() const
@@ -2795,6 +2606,7 @@ void PointerAST::accept0(ASTVisitor *visitor)
                  spec = spec->next)
             accept(spec, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned PointerAST::firstToken() const
@@ -2831,6 +2643,7 @@ void PointerToMemberAST::accept0(ASTVisitor *visitor)
                  spec = spec->next)
             accept(spec, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned PointerToMemberAST::firstToken() const
@@ -2874,6 +2687,7 @@ void PostIncrDecrAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned PostIncrDecrAST::firstToken() const
@@ -2903,6 +2717,7 @@ void PostfixExpressionAST::accept0(ASTVisitor *visitor)
         for (PostfixAST *fx = postfix_expressions; fx; fx = fx->next)
             accept(fx, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned PostfixExpressionAST::firstToken() const
@@ -2936,6 +2751,7 @@ void QualifiedNameAST::accept0(ASTVisitor *visitor)
         accept(nested_name_specifier, visitor);
         accept(unqualified_name, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned QualifiedNameAST::firstToken() const
@@ -2974,6 +2790,7 @@ void ReferenceAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned ReferenceAST::firstToken() const
@@ -3001,6 +2818,7 @@ void ReturnStatementAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ReturnStatementAST::firstToken() const
@@ -3036,6 +2854,7 @@ void SimpleDeclarationAST::accept0(ASTVisitor *visitor)
             accept(spec, visitor);
         accept(declarators, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned SimpleDeclarationAST::firstToken() const
@@ -3076,6 +2895,7 @@ void SimpleNameAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned SimpleNameAST::firstToken() const
@@ -3092,6 +2912,7 @@ void SimpleSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 SimpleSpecifierAST *SimpleSpecifierAST::clone(MemoryPool *pool) const
@@ -3129,6 +2950,7 @@ void TypeofSpecifierAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TypeofSpecifierAST::firstToken() const
@@ -3157,6 +2979,7 @@ void SizeofExpressionAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned SizeofExpressionAST::firstToken() const
@@ -3185,6 +3008,7 @@ void StringLiteralAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(next, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned StringLiteralAST::firstToken() const
@@ -3218,6 +3042,7 @@ void SwitchStatementAST::accept0(ASTVisitor *visitor)
         accept(condition, visitor);
         accept(statement, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned SwitchStatementAST::firstToken() const
@@ -3254,6 +3079,7 @@ void TemplateArgumentListAST::accept0(ASTVisitor *visitor)
         accept(template_argument, visitor);
         accept(next, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TemplateArgumentListAST::firstToken() const
@@ -3292,6 +3118,7 @@ void TemplateDeclarationAST::accept0(ASTVisitor *visitor)
             accept(param, visitor);
         accept(declaration, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TemplateDeclarationAST::firstToken() const
@@ -3341,6 +3168,7 @@ void TemplateIdAST::accept0(ASTVisitor *visitor)
             accept(it, visitor);
         }
     }
+    visitor->endVisit(this);
 }
 
 unsigned TemplateIdAST::firstToken() const
@@ -3385,6 +3213,7 @@ void TemplateTypeParameterAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned TemplateTypeParameterAST::firstToken() const
@@ -3427,6 +3256,7 @@ void ThisExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned ThisExpressionAST::firstToken() const
@@ -3453,6 +3283,7 @@ void ThrowExpressionAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned ThrowExpressionAST::firstToken() const
@@ -3482,6 +3313,7 @@ void TranslationUnitAST::accept0(ASTVisitor *visitor)
                  decl = decl->next)
             accept(decl, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TranslationUnitAST::firstToken() const
@@ -3515,6 +3347,7 @@ void TryBlockStatementAST::accept0(ASTVisitor *visitor)
         accept(statement, visitor);
         accept(catch_clause_seq, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TryBlockStatementAST::firstToken() const
@@ -3556,6 +3389,7 @@ void TypeConstructorCallAST::accept0(ASTVisitor *visitor)
                  expr = expr->next)
             accept(expr->expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TypeConstructorCallAST::firstToken() const
@@ -3592,6 +3426,7 @@ void TypeIdAST::accept0(ASTVisitor *visitor)
             accept(spec, visitor);
         accept(declarator, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TypeIdAST::firstToken() const
@@ -3628,6 +3463,7 @@ void TypeidExpressionAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TypeidExpressionAST::firstToken() const
@@ -3668,6 +3504,7 @@ void TypenameCallExpressionAST::accept0(ASTVisitor *visitor)
                  expr = expr->next)
             accept(expr->expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TypenameCallExpressionAST::firstToken() const
@@ -3711,6 +3548,7 @@ void TypenameTypeParameterAST::accept0(ASTVisitor *visitor)
         accept(name, visitor);
         accept(type_id, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned TypenameTypeParameterAST::firstToken() const
@@ -3743,6 +3581,7 @@ void UnaryExpressionAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(expression, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned UnaryExpressionAST::firstToken() const
@@ -3773,6 +3612,7 @@ void UsingAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(name, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned UsingAST::firstToken() const
@@ -3807,6 +3647,7 @@ void UsingDirectiveAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(name, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned UsingDirectiveAST::firstToken() const
@@ -3844,6 +3685,7 @@ void WhileStatementAST::accept0(ASTVisitor *visitor)
         accept(condition, visitor);
         accept(statement, visitor);
     }
+    visitor->endVisit(this);
 }
 
 unsigned WhileStatementAST::firstToken() const
@@ -3894,10 +3736,13 @@ void IdentifierListAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }
+    visitor->endVisit(this);
 }
 
 unsigned ObjCClassDeclarationAST::firstToken() const
 {
+    if (attributes)
+        return attributes->firstToken();
     return class_token;
 }
 
@@ -3911,12 +3756,19 @@ unsigned ObjCClassDeclarationAST::lastToken() const
             return it->identifier_token + 1;
     }
 
+    for (SpecifierAST *it = attributes; it; it = it->next) {
+        if (! it->next)
+            return it->lastToken();
+    }
+
     return class_token + 1;
 }
 
 ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
 {
     ObjCClassDeclarationAST *ast = new (pool) ObjCClassDeclarationAST;
+    if (attributes)
+        ast->attributes = attributes->clone(pool);
     ast->class_token = class_token;
     if (identifier_list)
         ast->identifier_list = identifier_list->clone(pool);
@@ -3927,7 +3779,11 @@ ObjCClassDeclarationAST *ObjCClassDeclarationAST::clone(MemoryPool *pool) const
 void ObjCClassDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        for (SpecifierAST *it = attributes; it; it = it->next) {
+            accept(it, visitor);
+        }
     }
+    visitor->endVisit(this);
 }
 
 

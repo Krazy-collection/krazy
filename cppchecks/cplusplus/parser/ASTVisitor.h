@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -104,6 +104,7 @@ public:
     virtual bool visit(CastExpressionAST *) { return true; }
     virtual bool visit(CatchClauseAST *) { return true; }
     virtual bool visit(ClassSpecifierAST *) { return true; }
+    virtual bool visit(CompoundLiteralAST *) { return true; }
     virtual bool visit(CompoundStatementAST *) { return true; }
     virtual bool visit(ConditionAST *) { return true; }
     virtual bool visit(ConditionalExpressionAST *) { return true; }
@@ -143,7 +144,8 @@ public:
     virtual bool visit(NestedDeclaratorAST *) { return true; }
     virtual bool visit(NestedExpressionAST *) { return true; }
     virtual bool visit(NestedNameSpecifierAST *) { return true; }
-    virtual bool visit(NewDeclaratorAST *) { return true; }
+    virtual bool visit(NewPlacementAST *) { return true; }
+    virtual bool visit(NewArrayDeclaratorAST *) { return true; }
     virtual bool visit(NewExpressionAST *) { return true; }
     virtual bool visit(NewInitializerAST *) { return true; }
     virtual bool visit(NewTypeIdAST *) { return true; }
@@ -188,6 +190,111 @@ public:
     // ObjC++
     virtual bool visit(IdentifierListAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
+
+
+
+    virtual void endVisit(AccessDeclarationAST *) { }
+    virtual void endVisit(ArrayAccessAST *) { }
+    virtual void endVisit(ArrayDeclaratorAST *) { }
+    virtual void endVisit(ArrayInitializerAST *) { }
+    virtual void endVisit(AsmDefinitionAST *) { }
+    virtual void endVisit(AttributeSpecifierAST *) { }
+    virtual void endVisit(AttributeAST *) { }
+    virtual void endVisit(BaseSpecifierAST *) { }
+    virtual void endVisit(BinaryExpressionAST *) { }
+    virtual void endVisit(BoolLiteralAST *) { }
+    virtual void endVisit(BreakStatementAST *) { }
+    virtual void endVisit(CallAST *) { }
+    virtual void endVisit(CaseStatementAST *) { }
+    virtual void endVisit(CastExpressionAST *) { }
+    virtual void endVisit(CatchClauseAST *) { }
+    virtual void endVisit(ClassSpecifierAST *) { }
+    virtual void endVisit(CompoundLiteralAST *) { }
+    virtual void endVisit(CompoundStatementAST *) { }
+    virtual void endVisit(ConditionAST *) { }
+    virtual void endVisit(ConditionalExpressionAST *) { }
+    virtual void endVisit(ContinueStatementAST *) { }
+    virtual void endVisit(ConversionFunctionIdAST *) { }
+    virtual void endVisit(CppCastExpressionAST *) { }
+    virtual void endVisit(CtorInitializerAST *) { }
+    virtual void endVisit(DeclaratorAST *) { }
+    virtual void endVisit(DeclarationStatementAST *) { }
+    virtual void endVisit(DeclaratorIdAST *) { }
+    virtual void endVisit(DeclaratorListAST *) { }
+    virtual void endVisit(DeleteExpressionAST *) { }
+    virtual void endVisit(DestructorNameAST *) { }
+    virtual void endVisit(DoStatementAST *) { }
+    virtual void endVisit(ElaboratedTypeSpecifierAST *) { }
+    virtual void endVisit(EmptyDeclarationAST *) { }
+    virtual void endVisit(EnumSpecifierAST *) { }
+    virtual void endVisit(EnumeratorAST *) { }
+    virtual void endVisit(ExceptionDeclarationAST *) { }
+    virtual void endVisit(ExceptionSpecificationAST *) { }
+    virtual void endVisit(ExpressionListAST *) { }
+    virtual void endVisit(ExpressionOrDeclarationStatementAST *) { }
+    virtual void endVisit(ExpressionStatementAST *) { }
+    virtual void endVisit(ForStatementAST *) { }
+    virtual void endVisit(FunctionDeclaratorAST *) { }
+    virtual void endVisit(FunctionDefinitionAST *) { }
+    virtual void endVisit(GotoStatementAST *) { }
+    virtual void endVisit(IfStatementAST *) { }
+    virtual void endVisit(LabeledStatementAST *) { }
+    virtual void endVisit(LinkageBodyAST *) { }
+    virtual void endVisit(LinkageSpecificationAST *) { }
+    virtual void endVisit(MemInitializerAST *) { }
+    virtual void endVisit(MemberAccessAST *) { }
+    virtual void endVisit(NamedTypeSpecifierAST *) { }
+    virtual void endVisit(NamespaceAST *) { }
+    virtual void endVisit(NamespaceAliasDefinitionAST *) { }
+    virtual void endVisit(NestedDeclaratorAST *) { }
+    virtual void endVisit(NestedExpressionAST *) { }
+    virtual void endVisit(NestedNameSpecifierAST *) { }
+    virtual void endVisit(NewPlacementAST *) { }
+    virtual void endVisit(NewArrayDeclaratorAST *) { }
+    virtual void endVisit(NewExpressionAST *) { }
+    virtual void endVisit(NewInitializerAST *) { }
+    virtual void endVisit(NewTypeIdAST *) { }
+    virtual void endVisit(NumericLiteralAST *) { }
+    virtual void endVisit(OperatorAST *) { }
+    virtual void endVisit(OperatorFunctionIdAST *) { }
+    virtual void endVisit(ParameterDeclarationAST *) { }
+    virtual void endVisit(ParameterDeclarationClauseAST *) { }
+    virtual void endVisit(PointerAST *) { }
+    virtual void endVisit(PointerToMemberAST *) { }
+    virtual void endVisit(PostIncrDecrAST *) { }
+    virtual void endVisit(PostfixExpressionAST *) { }
+    virtual void endVisit(QualifiedNameAST *) { }
+    virtual void endVisit(ReferenceAST *) { }
+    virtual void endVisit(ReturnStatementAST *) { }
+    virtual void endVisit(SimpleDeclarationAST *) { }
+    virtual void endVisit(SimpleNameAST *) { }
+    virtual void endVisit(SimpleSpecifierAST *) { }
+    virtual void endVisit(SizeofExpressionAST *) { }
+    virtual void endVisit(StringLiteralAST *) { }
+    virtual void endVisit(SwitchStatementAST *) { }
+    virtual void endVisit(TemplateArgumentListAST *) { }
+    virtual void endVisit(TemplateDeclarationAST *) { }
+    virtual void endVisit(TemplateIdAST *) { }
+    virtual void endVisit(TemplateTypeParameterAST *) { }
+    virtual void endVisit(ThisExpressionAST *) { }
+    virtual void endVisit(ThrowExpressionAST *) { }
+    virtual void endVisit(TranslationUnitAST *) { }
+    virtual void endVisit(TryBlockStatementAST *) { }
+    virtual void endVisit(TypeConstructorCallAST *) { }
+    virtual void endVisit(TypeIdAST *) { }
+    virtual void endVisit(TypeidExpressionAST *) { }
+    virtual void endVisit(TypeofSpecifierAST *) { }
+    virtual void endVisit(TypenameCallExpressionAST *) { }
+    virtual void endVisit(TypenameTypeParameterAST *) { }
+    virtual void endVisit(UnaryExpressionAST *) { }
+    virtual void endVisit(UsingAST *) { }
+    virtual void endVisit(UsingDirectiveAST *) { }
+    virtual void endVisit(WhileStatementAST *) { }
+    virtual void endVisit(QtMethodAST *) { }
+
+    // ObjC++
+    virtual void endVisit(IdentifierListAST *) { }
+    virtual void endVisit(ObjCClassDeclarationAST *) { }
 
 private:
     Control *_control;

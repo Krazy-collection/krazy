@@ -12,7 +12,7 @@ set(cplusplus_SRCS
     CheckStatement.cpp
     Control.cpp
     CoreTypes.cpp
-    DefaultVisitor.cpp
+    #DefaultVisitor.cpp
     DiagnosticClient.cpp
     FullySpecifiedType.cpp
     Keywords.cpp
@@ -24,6 +24,7 @@ set(cplusplus_SRCS
     Name.cpp
     NameVisitor.cpp
     Names.cpp
+    ObjectiveCTypeQualifiers.cpp
     Parser.cpp
     Scope.cpp
     Semantic.cpp

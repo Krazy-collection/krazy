@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
@@ -147,6 +147,9 @@ public:
 
     /// Creates a new UsingDeclaration symbol.
     UsingDeclaration *newUsingDeclaration(unsigned sourceLocation, Name *name = 0);
+
+    /// Creates a new ForwardClassDeclaration symbol.
+    ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, Name *name = 0);
 
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
     Identifier *findOrInsertIdentifier(const char *chars);
