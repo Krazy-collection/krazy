@@ -58,7 +58,7 @@ void CheckEngine::process(QUrl const &file)
   QString path = file.path();
   qDebug() << "TEST 1";
   CPlusPlus::Document::Ptr document = preproc.run(path);
-  qDebug() << "TEST 2";
+  qDebug() << "TEST 2" << document.data();
   document->includes();
   qDebug() << "TEST 3";
   int x = 4;

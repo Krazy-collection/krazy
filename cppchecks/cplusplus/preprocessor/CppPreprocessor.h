@@ -89,6 +89,7 @@ private:
     QStringList m_includePaths;
     QSet<QString> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;
+    CPlusPlus::Document::Ptr m_rootDoc;
 };
 
 } // namespace CPlusPlus

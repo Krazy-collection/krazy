@@ -23,7 +23,7 @@ void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
 CPlusPlus::Document::Ptr CppPreprocessor::run(QString &fileName)
 { 
   sourceNeeded(fileName, IncludeGlobal, /*line = */ 0);
-  return m_currentDoc;
+  return m_rootDoc;
 }
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
@@ -153,8 +153,10 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
                                           msg);
             m_currentDoc->addDiagnosticMessage(d);
         }
-    } else // We're reading the "root" file.
-      previousDoc = switchDocument(Document::create(fileName));
+    } else { // We're reading the "root" file.
+      m_rootDoc = Document::create(fileName);
+      previousDoc = switchDocument(m_rootDoc);
+    }
 
     if (!contents.isEmpty()) {
       // Ath this point m_currentDoc is the document that is include or the root
