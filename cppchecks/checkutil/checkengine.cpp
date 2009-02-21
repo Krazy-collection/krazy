@@ -56,15 +56,12 @@ void CheckEngine::process(QUrl const &file)
   CppPreprocessor preproc;
   preproc.setIncludePaths(includePaths);
   QString path = file.path();
-  qDebug() << "TEST 1";
   CPlusPlus::Document::Ptr document = preproc.run(path);
-  qDebug() << "TEST 2" << document.data();
   document->includes();
-  qDebug() << "TEST 3";
-  int x = 4;
+  int x = 0;
   foreach (Document::Include inc, document->includes())
   {
-    qDebug() << "TEST" << x++;
+    qDebug() << inc.document()->fileName();
   }
   
   // TODO: We now build one big tree for all the files. This is not necessary
