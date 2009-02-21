@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2008 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2005-2009 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -44,7 +44,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "copyright";
-my($Version) = "1.5";
+my($Version) = "1.6";
 
 &parseArgs();
 
@@ -135,11 +135,11 @@ while ($line = <F>) {
 #    next;
 #  }
 
-  if ($line !~ m/copyright[[:space:]].+(\@| at | \@ )[[:alnum:]]/i ) {
+  if ($line !~ m/copyright[[:space:]].+(\@| at |\(at\)| \(at\) |#| # | \@ )[[:alnum:]]/i ) {
     #Always check the next line in case the email address is there.
     $line = <F>;
     $lcnt++;
-    if ($line !~ m/[[:print:]]+(\@| at | \@ )[[:alnum:]]/i ||
+    if ($line !~ m/[[:print:]]+(\@| at |\(at\)| \(at\) |#| # | \@ )[[:alnum:]]/i ||
       $line =~ m/copyright/i) {
 
       #This line didn't yield anything useful, so we need to check it again.
