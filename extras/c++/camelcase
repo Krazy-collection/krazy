@@ -97,6 +97,7 @@ while ($linecnt < $#lines) {
     next if ($sep eq "\"");
     next if ($incpath =~ m:^(lib|kd)\w+/:);
     next if (&isCamelCase($incpath));
+    next if ($incpath =~ m/^c/ && $incpath !~ m/\.h$/);
 
     $cnt++;
     if ($cnt == 1) {
