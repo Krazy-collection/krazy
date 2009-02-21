@@ -95,7 +95,7 @@ while ($linecnt < $#lines) {
       $incpath = &incAnglePath($line);
     }
     next if ($sep eq "\"");
-    next if ($incpath =~ m/^lib/);
+    next if ($incpath =~ m:^(lib|kd)\w+/:);
     next if (&isCamelCase($incpath));
 
     $cnt++;
@@ -134,7 +134,8 @@ sub incAnglePath {
 
 sub isCamelCase {
   my($in) = @_;
-  if ($in =~ m/^[A-Z]/) {
+  if ($in =~ m:^[A-Z]{1,2}\w+[A-Z]{1}: ||
+      $in =~ m:^[A-Z]{1,2}\w+/*:) {
     return 1;
   } else {
     return 0;
@@ -152,6 +153,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Qt4, kdelibs, and kdepimlibs provide CamelCase headers that some people like to use. For example, #include <kfoo.h> can be replaced with #include <KFoo>\n";
+  print "Qt4, kdelibs, and kdepimlibs provide CamelCase headers. For example, #include <kfoo.h> can be replaced with #include <KFoo>. Using CamelCase headers is up to personal taste in most cases.\n";
   exit 0 if &explainArg();
 }
