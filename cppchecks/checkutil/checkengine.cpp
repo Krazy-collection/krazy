@@ -56,17 +56,26 @@ void CheckEngine::process(QUrl const &file)
   CppPreprocessor preproc;
   preproc.setIncludePaths(includePaths);
   QString path = file.path();
-  QList<CPlusPlus::Document::Ptr> documents = preproc.run(path);
-
+  qDebug() << "TEST 1";
+  CPlusPlus::Document::Ptr document = preproc.run(path);
+  qDebug() << "TEST 2";
+  document->includes();
+  qDebug() << "TEST 3";
+  int x = 4;
+  foreach (Document::Include inc, document->includes())
+  {
+    qDebug() << "TEST" << x++;
+  }
+  
   // TODO: We now build one big tree for all the files. This is not necessary
   //       for more simple checks so we might want to make that optional.
   // Parse the files and build the semantic tree
-  Control control;
   Scope globalScope;
-  Semantic sem(&control);
-
+  /* FIXME: This seems the wrong approach, working on a (hopefully) better one.
   foreach(CPlusPlus::Document::Ptr const &doc, documents)
   {
+    Control control;
+    Semantic sem(&control);
     StringLiteral *fileId = control.findOrInsertFileName(file.path().toUtf8());
     TranslationUnit unit(&control, fileId);
     unit.setQtMocRunEnabled(true);
@@ -80,6 +89,7 @@ void CheckEngine::process(QUrl const &file)
       sem.check(decl, &globalScope);
     }
   }
+  */
 
   // Now lets see if we can find any issue.
   m_results = m_analyzer->analyze(globalScope);

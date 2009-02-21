@@ -20,10 +20,10 @@ void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
   m_includePaths = includePaths; 
 }
 
-QList<CPlusPlus::Document::Ptr> CppPreprocessor::run(QString &fileName)
+CPlusPlus::Document::Ptr CppPreprocessor::run(QString &fileName)
 { 
   sourceNeeded(fileName, IncludeGlobal, /*line = */ 0);
-  return m_documents;
+  return m_currentDoc;
 }
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QByteArray *result)
@@ -137,10 +137,13 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
         return;
 
     QByteArray contents = tryIncludeFile(fileName, type);
+    Document::Ptr previousDoc;
 
     if (m_currentDoc) { // We're reading an #include of the current document.
-        m_currentDoc->addIncludeFile(fileName, line);
-        if (contents.isEmpty() && ! QFileInfo(fileName).isAbsolute()) {
+        Document::Ptr includedDoc = m_currentDoc->addIncludeFile(fileName, line);
+        previousDoc = switchDocument(includedDoc);
+
+        if (contents.isEmpty() && !QFileInfo(fileName).isAbsolute()) {
             QString msg;
             msg += fileName;
             msg += QLatin1String(": No such file or directory");
@@ -150,10 +153,12 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
                                           msg);
             m_currentDoc->addDiagnosticMessage(d);
         }
-    }
+    } else // We're reading the "root" file.
+      previousDoc = switchDocument(Document::create(fileName));
 
     if (!contents.isEmpty()) {
-        Document::Ptr previousDoc = switchDocument(Document::create(fileName));
+      // Ath this point m_currentDoc is the document that is include or the root
+      // file if sourceNeeded is called for the first time.
 
         const QByteArray previousFile = env.currentFile;
         const unsigned previousLine = env.currentLine;
@@ -168,7 +173,6 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
         env.currentLine = previousLine;
 
         m_currentDoc->setSource(preprocessedCode);
-        m_documents.append(m_currentDoc);
 
         (void) switchDocument(previousDoc);
     }

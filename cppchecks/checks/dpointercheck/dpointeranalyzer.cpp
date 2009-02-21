@@ -21,6 +21,8 @@
 
 #include <iostream>
 
+#include <QtCore/QtDebug>
+
 #include "NamePrettyPrinter.h"
 #include "Overview.h"
 #include "Scope.h"
@@ -32,6 +34,7 @@ using namespace CPlusPlus;
 
 QList<Result> DPointerAnalyzer::analyze(Scope const &globalScope)
 {
+	qDebug() << "Starting analyze.";
   m_issues.clear();
   analyzeScope(&globalScope);
   return m_issues;

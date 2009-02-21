@@ -130,16 +130,16 @@ public:
     };
 
     class Include {
-      QString _fileName;
+      Ptr _document;
       unsigned _line;
 
       public:
-        Include(const QString &fileName, unsigned line)
-            : _fileName(fileName), _line(line)
+        Include(Ptr &document, unsigned line)
+            : _document(document), _line(line)
         { }
 
-        QString fileName() const
-        { return _fileName; }
+        Ptr document() const
+        { return _document; }
 
         unsigned line() const
         { return _line; }
@@ -166,7 +166,7 @@ public:
 
     void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
 
-    void addIncludeFile(const QString &fileName, unsigned line);
+    Ptr addIncludeFile(const QString &fileName, unsigned line);
 
     void appendMacro(const Macro &macro);
 

@@ -54,9 +54,10 @@ public:
      * file that is encountered during preprocessing.
      * 
      * @param fileName The initial file which must be preprocessed.
-     * @return A list of documents containing preprocessed code.
+     * @return A Document object containing preprocessed code and pointers to
+     *         included documents.
      */
-    QList<CPlusPlus::Document::Ptr> run(QString &fileName);
+    Document::Ptr run(QString &fileName);
 
     /**
      * Set the include paths where the preprocessor should look for header files.
@@ -88,7 +89,6 @@ private:
     QStringList m_includePaths;
     QSet<QString> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;
-    QList<CPlusPlus::Document::Ptr> m_documents;
 };
 
 } // namespace CPlusPlus

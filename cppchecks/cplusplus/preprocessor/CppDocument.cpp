@@ -105,9 +105,11 @@ QString Document::fileName() const
     return _fileName;
 }
 
-void Document::addIncludeFile(const QString &fileName, unsigned line)
+Document::Ptr Document::addIncludeFile(const QString &fileName, unsigned line)
 {
-    _includes.append(Include(fileName, line));
+  Ptr includedDocument = create(fileName);
+  _includes.append(Include(includedDocument, line));
+  return includedDocument;
 }
 
 void Document::appendMacro(const Macro &macro)
