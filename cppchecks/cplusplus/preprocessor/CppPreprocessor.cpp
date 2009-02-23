@@ -151,7 +151,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
                                           m_currentDoc->fileName(),
                                           env.currentLine, /*column = */ 0,
                                           msg);
-            m_currentDoc->addDiagnosticMessage(d);
+            previousDoc->addDiagnosticMessage(d);
         }
     } else { // We're reading the "root" file.
       m_rootDoc = Document::create(Document::Ptr(0), fileName);
