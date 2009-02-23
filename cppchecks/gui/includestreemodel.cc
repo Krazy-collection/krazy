@@ -47,11 +47,11 @@ QVariant IncludesTreeModel::headerData(int section, Qt::Orientation orientation,
 QModelIndex IncludesTreeModel::index(int row, int column, 
                                      const QModelIndex &parent) const
 {
-  CPlusPlus::Document *parentObject;
   if (!parent.isValid())
-    parentObject = m_rootDocument.data();
-  else
-    parentObject = static_cast<CPlusPlus::Document*>(parent.internalPointer());
+    return createIndex(0, 0, m_rootDocument.data());
+
+  CPlusPlus::Document *parentObject;
+  parentObject = static_cast<CPlusPlus::Document*>(parent.internalPointer());
 
   if (row >= 0 && row < parentObject->includes().count())
     return createIndex( row, column, parentObject->includes().at(row).document().data());
@@ -65,10 +65,12 @@ QModelIndex IncludesTreeModel::parent(const QModelIndex &index) const
     return QModelIndex();
 
   CPlusPlus::Document *indexObject = static_cast<CPlusPlus::Document*>(index.internalPointer());
-  CPlusPlus::Document *parentObject = indexObject->parent().data();
-
-  if (parentObject == m_rootDocument.data())
+  if (indexObject == m_rootDocument.data())
     return QModelIndex();
+
+  CPlusPlus::Document *parentObject = indexObject->parent().data();
+  if (parentObject == m_rootDocument.data())
+    return createIndex(0, 0, m_rootDocument.data());
 
   CPlusPlus::Document *grandParentObject = parentObject->parent().data();
 
@@ -87,7 +89,7 @@ int IncludesTreeModel::rowCount(const QModelIndex &parent) const
 {
   CPlusPlus::Document *parentObject;
   if (!parent.isValid())
-    parentObject = m_rootDocument.data();
+    return 1;
   else
     parentObject = static_cast<CPlusPlus::Document*>(parent.internalPointer());
 
