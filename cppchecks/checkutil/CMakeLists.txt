@@ -9,7 +9,6 @@ set(checkutil_SRCS
   checkengine.cpp
   check.cpp
 )
-
 add_library(checkutil SHARED ${checkutil_SRCS})
 
 target_link_libraries(checkutil

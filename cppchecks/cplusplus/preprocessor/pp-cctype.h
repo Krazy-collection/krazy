@@ -59,16 +59,16 @@
 
 namespace CPlusPlus {
 
-inline bool CPLUSPLUS_EXPORT pp_isalpha (int __ch)
+inline bool CPP_PREPROCESSOR_EXPORT pp_isalpha (int __ch)
 { return std::isalpha ((unsigned char) __ch) != 0; }
 
-inline bool CPLUSPLUS_EXPORT pp_isalnum (int __ch)
+inline bool CPP_PREPROCESSOR_EXPORT pp_isalnum (int __ch)
 { return std::isalnum ((unsigned char) __ch) != 0; }
 
-inline bool CPLUSPLUS_EXPORT pp_isdigit (int __ch)
+inline bool CPP_PREPROCESSOR_EXPORT pp_isdigit (int __ch)
 { return std::isdigit ((unsigned char) __ch) != 0; }
 
-inline bool CPLUSPLUS_EXPORT pp_isspace (int __ch)
+inline bool CPP_PREPROCESSOR_EXPORT pp_isspace (int __ch)
 { return std::isspace ((unsigned char) __ch) != 0; }
 
 } // namespace CPlusPlus

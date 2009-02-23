@@ -62,6 +62,16 @@
 #  else
 #    define CPLUSPLUS_EXPORT Q_DECL_IMPORT
 #  endif
+#  if defined(CPLUSPLUSPREPROCESSOR_BUILD_LIB)
+#    define CPP_PREPROCESSOR_EXPORT Q_DECL_EXPORT
+#  else
+#    define CPP_PREPROCESSOR_EXPORT Q_DECL_IMPORT
+#  endif
+#  if defined(CPLUSPLUSTOOLS_BUILD_LIB)
+#    define CPP_TOOLS_EXPORT Q_DECL_EXPORT
+#  else
+#    define CPP_TOOLS_EXPORT Q_DECL_IMPORT
+#  endif
 #else
 #  define CPLUSPLUS_BEGIN_HEADER
 #  define CPLUSPLUS_END_HEADER

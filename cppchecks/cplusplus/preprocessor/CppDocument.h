@@ -47,7 +47,7 @@ namespace CPlusPlus {
 
 class Macro;
 
-class CPLUSPLUS_EXPORT Document
+class CPP_PREPROCESSOR_EXPORT Document
 {
 public:
     typedef QSharedPointer<Document> Ptr;

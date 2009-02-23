@@ -38,5 +38,7 @@ set(cplusplus_SRCS
     TypeVisitor.cpp
     PrettyPrinter.cpp
 )
+include_directories(${QT_INCLUDES})
 
 add_library(cpp_parser SHARED ${cplusplus_SRCS})
+set_target_properties(cpp_parser PROPERTIES DEFINE_SYMBOL CPLUSPLUS_BUILD_LIB)

@@ -16,7 +16,7 @@ set(CPP_TOOLS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/cplusplus/tools)
 
 configure_file(krazymacros.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/krazymacros.h)
 
-add_definitions(-DCPLUSPLUS_WITH_NAMESPACE=1)
+add_definitions(-DCPLUSPLUS_WITH_NAMESPACE=1 -DHAVE_QT)
 
 # This is the cplusplus parser from QtCreator which can be found at
 add_subdirectory(cplusplus)

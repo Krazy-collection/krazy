@@ -39,7 +39,7 @@
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT Overview
+class CPP_TOOLS_EXPORT Overview
 {
     Overview(const Overview &other);
     void operator =(const Overview &other);

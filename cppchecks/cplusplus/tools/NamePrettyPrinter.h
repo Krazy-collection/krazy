@@ -41,7 +41,7 @@ namespace CPlusPlus {
 
 class Overview;
 
-class CPLUSPLUS_EXPORT NamePrettyPrinter: protected NameVisitor
+class CPP_TOOLS_EXPORT NamePrettyPrinter: protected NameVisitor
 {
 public:
     NamePrettyPrinter(const Overview *overview);

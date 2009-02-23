@@ -62,7 +62,7 @@ namespace CPlusPlus {
 
 class Macro;
 
-class CPLUSPLUS_EXPORT Environment
+class CPP_PREPROCESSOR_EXPORT Environment
 {
 public:
     Environment();

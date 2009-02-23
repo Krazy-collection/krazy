@@ -43,7 +43,7 @@ namespace CPlusPlus {
 class Overview;
 class FullySpecifiedType;
 
-class CPLUSPLUS_EXPORT TypePrettyPrinter: protected TypeVisitor
+class CPP_TOOLS_EXPORT TypePrettyPrinter: protected TypeVisitor
 {
 public:
     TypePrettyPrinter(const Overview *overview);

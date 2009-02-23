@@ -44,7 +44,7 @@
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT CppPreprocessor: public CPlusPlus::Client
+class CPP_PREPROCESSOR_EXPORT CppPreprocessor: public CPlusPlus::Client
 {
 public:
     CppPreprocessor();
