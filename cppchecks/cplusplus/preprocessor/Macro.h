@@ -61,7 +61,7 @@
 
 namespace CPlusPlus {
 
-class __declspec(dllexport) Macro
+class CPP_PREPROCESSOR_EXPORT Macro
 {
 public:
     Macro();
