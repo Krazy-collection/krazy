@@ -50,6 +50,13 @@ void ParseResultWidget::onClicked(QModelIndex const &index)
   CPlusPlus::Document *doc = static_cast<CPlusPlus::Document*>(index.internalPointer());
   m_ui->m_messageTable->setModel(new MessageTableModel(doc->diagnosticMessages()));
   m_ui->m_messageTable->setColumnWidth(0, 40);
+
+  QFile header(doc->fileName());
+  if (header.exists() && header.open(QIODevice::ReadOnly))
+  {
+    QString text = header.readAll();
+    m_ui->m_headerView->setPlainText(text);
+  }
 }
 
 void ParseResultWidget::openFile()
