@@ -10,12 +10,14 @@
 #include "ui_parseresultwidget.h"
 
 ParseResultWidget::ParseResultWidget()
-  : m_ui(new Ui::ParseResultWidget())
+  : m_ui(new Ui::ParseResultWidget()), m_selectedDoc(0)
 {
   m_ui->setupUi(this);
   connect(m_ui->m_openFileButton, SIGNAL(clicked()), this, SLOT(openFile()));
   connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
           this, SLOT(onClicked(QModelIndex const &)));
+  connect(m_ui->m_preprocessedCheck, SIGNAL(stateChanged(int)),
+          this, SLOT(onStateChanged(int)));
 
   // TODO: Read from config.
   QStringList includePaths;
@@ -47,15 +49,31 @@ QStringList ParseResultWidget::includePaths() const
 
 void ParseResultWidget::onClicked(QModelIndex const &index)
 {
-  CPlusPlus::Document *doc = static_cast<CPlusPlus::Document*>(index.internalPointer());
-  m_ui->m_messageTable->setModel(new MessageTableModel(doc->diagnosticMessages()));
+  m_selectedDoc = static_cast<CPlusPlus::Document*>(index.internalPointer());
+  m_ui->m_messageTable->setModel(new MessageTableModel(m_selectedDoc->diagnosticMessages()));
   m_ui->m_messageTable->setColumnWidth(0, 40);
 
-  QFile header(doc->fileName());
-  if (header.exists() && header.open(QIODevice::ReadOnly))
+  onStateChanged(m_ui->m_preprocessedCheck->checkState());
+}
+
+void ParseResultWidget::onStateChanged(int state)
+{
+  if (state == Qt::Unchecked)
   {
-    QString text = header.readAll();
-    m_ui->m_headerView->setPlainText(text);
+    QFile header(m_selectedDoc->fileName());
+    if (header.exists() && header.open(QIODevice::ReadOnly))
+    {
+      QString text = header.readAll();
+      m_ui->m_headerView->setPlainText(text);
+    }
+    else
+    {
+      m_ui->m_headerView->setPlainText("<empty file>");
+    }
+  }
+  else
+  {
+    m_ui->m_headerView->setPlainText(m_selectedDoc->source());
   }
 }
 

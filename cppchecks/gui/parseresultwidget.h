@@ -2,6 +2,11 @@
 
 class QModelIndex;
 
+namespace CPlusPlus
+{
+  class Document;
+}
+
 namespace Ui
 {
   class ParseResultWidget;
@@ -17,6 +22,7 @@ class ParseResultWidget : public QWidget
 
   public slots:
     void onClicked(QModelIndex const &);
+    void onStateChanged(int);
     void openFile();
 
   private: // Functions
@@ -24,4 +30,5 @@ class ParseResultWidget : public QWidget
 
   private:
     Ui::ParseResultWidget *m_ui;
+    CPlusPlus::Document *m_selectedDoc;
 };
