@@ -175,9 +175,9 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
         env.currentLine = previousLine;
 
         m_currentDoc->setSource(preprocessedCode);
-
-        (void) switchDocument(previousDoc);
     }
+
+    (void) switchDocument(previousDoc); // We have switched, so switch back
 }
 
 Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
