@@ -18,6 +18,10 @@ configure_file(krazymacros.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/krazymacros.h)
 
 add_definitions(-DCPLUSPLUS_WITH_NAMESPACE=1 -DHAVE_QT)
 
+set(INSTALL_TARGETS_DEFAULT_ARGS RUNTIME DESTINATION bin
+                                 LIBRARY DESTINATION lib${LIB_SUFFIX}
+                                 ARCHIVE DESTINATION lib${LIB_SUFFIX})
+
 # This is the cplusplus parser from QtCreator which can be found at
 add_subdirectory(cplusplus)
 add_subdirectory(checkutil)

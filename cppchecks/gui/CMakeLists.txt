@@ -25,3 +25,7 @@ target_link_libraries(parse_result_analyzer
   ${QT_QTGUI_LIBRARY}
   preprocessor
 )
+
+if(WIN32)
+install(TARGETS parse_result_analyzer ${INSTALL_TARGETS_DEFAULT_ARGS})
+endif(WIN32)

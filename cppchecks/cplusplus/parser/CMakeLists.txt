@@ -42,3 +42,7 @@ include_directories(${QT_INCLUDES})
 
 add_library(cpp_parser SHARED ${cplusplus_SRCS})
 set_target_properties(cpp_parser PROPERTIES DEFINE_SYMBOL CPLUSPLUS_BUILD_LIB)
+
+if(WIN32)
+install(TARGETS cpp_parser ${INSTALL_TARGETS_DEFAULT_ARGS})
+endif(WIN32)
