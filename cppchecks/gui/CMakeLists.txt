@@ -7,6 +7,7 @@ include_directories(
 
 set(APP_SRCS
   includestreemodel.cc
+  messagetablemodel.cc
   parseresultwidget.cc
   main.cc
 )
