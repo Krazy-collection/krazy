@@ -140,7 +140,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     Document::Ptr previousDoc;
 
     if (m_currentDoc) { // We're reading an #include of the current document.
-        Document::Ptr includedDoc = m_currentDoc->addIncludeFile(fileName, line);
+        Document::Ptr includedDoc = m_currentDoc->addIncludeFile(m_currentDoc, fileName, line);
         previousDoc = switchDocument(includedDoc);
 
         if (contents.isEmpty() && !QFileInfo(fileName).isAbsolute()) {
@@ -154,7 +154,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
             m_currentDoc->addDiagnosticMessage(d);
         }
     } else { // We're reading the "root" file.
-      m_rootDoc = Document::create(fileName);
+      m_rootDoc = Document::create(Document::Ptr(0), fileName);
       previousDoc = switchDocument(m_rootDoc);
     }
 

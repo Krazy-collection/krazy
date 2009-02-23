@@ -49,12 +49,6 @@ class Macro;
 
 class CPLUSPLUS_EXPORT Document
 {
-    Document(const Document &other);
-
-    void operator =(const Document &other);
-
-    Document(const QString &fileName);
-
 public:
     typedef QSharedPointer<Document> Ptr;
 
@@ -166,11 +160,11 @@ public:
 
     void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
 
-    Ptr addIncludeFile(const QString &fileName, unsigned line);
+    Ptr addIncludeFile(Ptr parent, const QString &fileName, unsigned line);
 
     void appendMacro(const Macro &macro);
 
-    static Ptr create(const QString &fileName);
+    static Ptr create(Ptr parent, const QString &fileName);
 
     QList<Macro> definedMacros() const
     { return _definedMacros; }
@@ -185,6 +179,9 @@ public:
 
     QList<Include> includes() const
     { return _includes; }
+
+    Ptr parent() const
+    { return _parent; }
 
     void setSource(const QByteArray &source);
 
@@ -201,12 +198,20 @@ public:
     QList<MacroUse> macroUses() const
     { return _macroUses; }
 
-private:
+  private: // Functions
+    Document(const Document &other);
+
+    void operator =(const Document &other);
+
+    Document(const QString &fileName, Ptr parent);
+
+  private: // Members
     QString _fileName;
     QList<Macro> _definedMacros;
     QList<DiagnosticMessage> _diagnosticMessages;
     QList<Include> _includes;
     QList<MacroUse> _macroUses;
+    Ptr _parent;
     QList<Block> _skippedBlocks;
     QByteArray _source;
 };

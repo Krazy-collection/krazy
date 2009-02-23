@@ -96,8 +96,8 @@ public:
 
 } // anonymous namespace
 
-Document::Document(const QString &fileName)
-  : _fileName(fileName)
+Document::Document(const QString &fileName, Ptr parent)
+  : _fileName(fileName), _parent(parent)
 { }
 
 QString Document::fileName() const
@@ -105,9 +105,9 @@ QString Document::fileName() const
     return _fileName;
 }
 
-Document::Ptr Document::addIncludeFile(const QString &fileName, unsigned line)
+Document::Ptr Document::addIncludeFile(Ptr parent, const QString &fileName, unsigned line)
 {
-  Ptr includedDocument = create(fileName);
+  Ptr includedDocument = create(parent, fileName);
   _includes.append(Include(includedDocument, line));
   return includedDocument;
 }
@@ -122,9 +122,9 @@ void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length)
     _macroUses.append(MacroUse(macro, offset, offset + length));
 }
 
-Document::Ptr Document::create(const QString &fileName)
+Document::Ptr Document::create(Ptr parent, const QString &fileName)
 {
-    Document::Ptr doc(new Document(fileName));
+    Document::Ptr doc(new Document(fileName, parent));
     return doc;
 }
 
