@@ -6,6 +6,9 @@ include_directories(
 )
 
 set(APP_SRCS
+  asttreeitem.cc
+  asttreemodel.cc
+  treebuilder.cc
   includestreemodel.cc
   messagetablemodel.cc
   parseresultwidget.cc

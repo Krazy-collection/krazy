@@ -1,12 +1,17 @@
 #include "parseresultwidget.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QModelIndex>
 #include <QtGui/QFileDialog>
 
-#include "CppPreprocessor.h"
+#include <CppPreprocessor.h>
+#include <TranslationUnit.h>
+
+#include "asttreemodel.h"
 #include "includestreemodel.h"
 #include "messagetablemodel.h"
+#include "treebuilder.h"
 #include "ui_parseresultwidget.h"
 
 ParseResultWidget::ParseResultWidget()
@@ -18,6 +23,8 @@ ParseResultWidget::ParseResultWidget()
           this, SLOT(onClicked(QModelIndex const &)));
   connect(m_ui->m_preprocessedCheck, SIGNAL(stateChanged(int)),
           this, SLOT(onStateChanged(int)));
+  connect(m_ui->m_treeCombo, SIGNAL(currentIndexChanged(int)),
+          this, SLOT(onTreeTypeChanged(int)));
 
   // TODO: Read from config.
   QStringList includePaths;
@@ -35,6 +42,19 @@ ParseResultWidget::ParseResultWidget()
 ParseResultWidget::~ParseResultWidget()
 {
   delete m_ui;
+}
+
+QAbstractItemModel *ParseResultWidget::buildASTModel() const
+{
+  ASTTreeModel* model = new ASTTreeModel();
+  model->getRootItem()->setAST(m_selectedDoc->translationUnit()->ast());
+  TreeBuilder builder(m_selectedDoc->translationUnit()->control());
+  builder.setRootItem(model->getRootItem());
+
+  m_selectedDoc->parse();
+  m_selectedDoc->translationUnit()->ast()->asTranslationUnit()->accept(&builder);
+
+  return model;
 }
 
 QStringList ParseResultWidget::includePaths() const
@@ -77,6 +97,23 @@ void ParseResultWidget::onStateChanged(int state)
   }
 }
 
+void ParseResultWidget::onTreeTypeChanged(int index)
+{
+  if (!m_selectedDoc)
+    return;
+
+  switch(index)
+  {
+    case 0:
+      m_ui->m_treeView->setModel(m_includeTreeModel);
+      break;
+    case 1:
+      m_ui->m_treeView->setModel(buildASTModel());
+    default:
+      break;
+  }
+}
+
 void ParseResultWidget::openFile()
 {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
@@ -84,5 +121,6 @@ void ParseResultWidget::openFile()
                                                  tr("C/C++ files (*.h *.hpp *.cc *.cpp)"));
   CPlusPlus::CppPreprocessor preproc;
   preproc.setIncludePaths(includePaths());
-  m_ui->m_treeView->setModel(new IncludesTreeModel(preproc.run(fileName)));
+  m_includeTreeModel = new IncludesTreeModel(preproc.run(fileName));
+  m_ui->m_treeView->setModel(m_includeTreeModel);
 }

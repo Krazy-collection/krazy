@@ -37,10 +37,15 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox">
+          <widget class="QComboBox" name="m_treeCombo">
            <item>
             <property name="text">
              <string>Include Tree</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Abstract Syntax Tree</string>
             </property>
            </item>
           </widget>
@@ -89,7 +94,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QCheckBox" name="m_preprocessedCheck">
