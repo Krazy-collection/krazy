@@ -45,7 +45,9 @@
 
 namespace CPlusPlus {
 
+class Control;
 class Macro;
+class TranslationUnit;
 
 class CPP_PREPROCESSOR_EXPORT Document
 {
@@ -180,8 +182,13 @@ public:
     QList<Include> includes() const
     { return _includes; }
 
+    QList<MacroUse> macroUses() const
+    { return _macroUses; }
+
     Ptr parent() const
     { return _parent; }
+
+    bool parse();
 
     void setSource(const QByteArray &source);
 
@@ -195,8 +202,11 @@ public:
 
     void stopSkippingBlocks(unsigned offset);
 
-    QList<MacroUse> macroUses() const
-    { return _macroUses; }
+    /**
+     * Returns the translation unit of this document.
+     */
+    TranslationUnit * const translationUnit() const
+    { return _translationUnit; }
 
   private: // Functions
     Document(const Document &other);
@@ -206,6 +216,7 @@ public:
     Document(const QString &fileName, Ptr parent);
 
   private: // Members
+    Control* _control;
     QString _fileName;
     QList<Macro> _definedMacros;
     QList<DiagnosticMessage> _diagnosticMessages;
@@ -214,6 +225,7 @@ public:
     Ptr _parent;
     QList<Block> _skippedBlocks;
     QByteArray _source;
+    TranslationUnit* _translationUnit;
 };
 
 } // end of namespace CPlusPlus

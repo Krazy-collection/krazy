@@ -98,7 +98,19 @@ public:
 
 Document::Document(const QString &fileName, Ptr parent)
   : _fileName(fileName), _parent(parent)
-{ }
+{
+  _control = new Control();
+
+  _control->setDiagnosticClient(new DocumentDiagnosticClient(this, &_diagnosticMessages));
+
+  const QByteArray localFileName = fileName.toUtf8();
+  StringLiteral *fileId = _control->findOrInsertFileName(localFileName.constData(),
+                                                          localFileName.size());
+  _translationUnit = new TranslationUnit(_control, fileId);
+  _translationUnit->setQtMocRunEnabled(true);
+  _translationUnit->setObjCEnabled(true);
+  (void) _control->switchTranslationUnit(_translationUnit);
+}
 
 QString Document::fileName() const
 {
@@ -126,6 +138,11 @@ Document::Ptr Document::create(Ptr parent, const QString &fileName)
 {
     Document::Ptr doc(new Document(fileName, parent));
     return doc;
+}
+
+bool Document::parse()
+{
+  return _translationUnit->parse(TranslationUnit::ParseTranlationUnit);
 }
 
 void Document::setSource(const QByteArray &source)
