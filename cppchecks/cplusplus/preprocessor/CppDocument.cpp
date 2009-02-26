@@ -112,6 +112,13 @@ Document::Document(const QString &fileName, Ptr parent)
   (void) _control->switchTranslationUnit(_translationUnit);
 }
 
+Document::~Document()
+{
+  delete _translationUnit;
+  delete _control->diagnosticClient();
+  delete _control;
+}
+
 QString Document::fileName() const
 {
     return _fileName;

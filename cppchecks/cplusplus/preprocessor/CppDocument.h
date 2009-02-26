@@ -157,6 +157,8 @@ public:
     };
 
 public:
+    ~Document();
+
     void addDiagnosticMessage(const DiagnosticMessage &d)
     { _diagnosticMessages.append(d); }
 
