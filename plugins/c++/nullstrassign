@@ -86,8 +86,7 @@ foreach $line (@lines) {
   if ($line =~ m/[_0-9A-za-z\s]+=\s*QString::[Nn]ull/ ||
       $line =~ m/[_0-9A-za-z\s]+=\s*QString\s*\(\s*\)\s*;/ ||
       $line =~ m/return[[:space:]].*[:]*QString::[Nn]ull/ ||
-      $line =~ m/QString::[Nn]ull,/ ||
-      $line =~ m/QString::[Nn]ull\s*\)/ ||
+      $line =~ m/QString::[Nn]ull\s*[,;\)]/ ||
       $line =~ m+^\s*QString.*=\s*QString\s*\(\s*\)\s*;+) {
     $cnt++;
     if ($cnt == 1) {
