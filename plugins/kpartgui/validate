@@ -108,6 +108,8 @@ sub processFile() {
     chomp($line);
     $result = &analyze($line);
     if ($result && $line) {
+      next if ($line =~ m/global declaration available for the validation root/);
+
       $cnt++;
       $line =~ s+^$f:\s*++;
       $line =~ s+^warning:\s*++;
