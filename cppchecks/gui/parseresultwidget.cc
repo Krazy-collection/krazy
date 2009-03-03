@@ -15,7 +15,7 @@
 #include "ui_parseresultwidget.h"
 
 ParseResultWidget::ParseResultWidget()
-  : m_ui(new Ui::ParseResultWidget()), m_selectedDoc(0)
+  : m_includeTreeModel(0), m_ui(new Ui::ParseResultWidget()), m_selectedDoc(0)
 {
   m_ui->setupUi(this);
   connect(m_ui->m_openFileButton, SIGNAL(clicked()), this, SLOT(openFile()));
@@ -31,9 +31,9 @@ ParseResultWidget::ParseResultWidget()
   includePaths << QDir::current().path();
   includePaths << "/usr/include/";
   includePaths << "/usr/include/qt4";
-  includePaths << "/usr/lib/gcc/x86_64-pc-linux-gnu/4.1.2/include";
-  includePaths << "/usr/lib/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4";
-  includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4/x86_64-pc-linux-gnu";
+  includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include";
+  includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include/g++-v4";
+  includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include/g++-v4/i686-pc-linux-gnu/";
 
   m_ui->m_includeDirsList->addItems(includePaths);
   m_ui->m_tabs->setEnabled(true);
@@ -42,6 +42,7 @@ ParseResultWidget::ParseResultWidget()
 ParseResultWidget::~ParseResultWidget()
 {
   delete m_ui;
+  delete m_includeTreeModel;
 }
 
 QAbstractItemModel *ParseResultWidget::buildASTModel() const
@@ -119,8 +120,17 @@ void ParseResultWidget::openFile()
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
                                                  QDir::current().path(),
                                                  tr("C/C++ files (*.h *.hpp *.cc *.cpp)"));
-  CPlusPlus::CppPreprocessor preproc;
-  preproc.setIncludePaths(includePaths());
-  m_includeTreeModel = new IncludesTreeModel(preproc.run(fileName));
-  m_ui->m_treeView->setModel(m_includeTreeModel);
+  if (!fileName.isEmpty())
+  {
+    if (m_includeTreeModel)
+    {
+      delete m_includeTreeModel;
+      m_includeTreeModel = 0;
+    }
+
+    CPlusPlus::CppPreprocessor preproc;
+    preproc.setIncludePaths(includePaths());
+    m_includeTreeModel = new IncludesTreeModel(preproc.run(fileName));
+    m_ui->m_treeView->setModel(m_includeTreeModel);
+  }
 }

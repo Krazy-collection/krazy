@@ -33,12 +33,15 @@ int ASTTreeItem::columnCount() const
 
 QVariant ASTTreeItem::data(int column) const
 {
-if (1 == column)
-  return ast()->firstToken();
-if (2 == column)
-  return ast()->lastToken();
+  qDebug() << column << ast();
+  if (!ast()) return QVariant();
 
-return QVariant();
+  if (1 == column)
+    return ast()->firstToken();
+  if (2 == column)
+    return ast()->lastToken();
+
+  return QVariant();
 }
 
 int ASTTreeItem::row() const

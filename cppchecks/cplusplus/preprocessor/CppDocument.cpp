@@ -152,6 +152,17 @@ bool Document::parse()
   return _translationUnit->parse(TranslationUnit::ParseTranlationUnit);
 }
 
+void Document::release()
+{
+  foreach(Include inc, _includes)
+  {
+    inc.document()->release();
+    inc.document().clear();
+  }
+
+  _parent.clear();
+}
+
 void Document::setSource(const QByteArray &source)
 {
    _source = source;

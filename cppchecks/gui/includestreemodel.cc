@@ -5,6 +5,12 @@ IncludesTreeModel::IncludesTreeModel(CPlusPlus::Document::Ptr document)
 {
 }
 
+IncludesTreeModel::~IncludesTreeModel()
+{
+  m_rootDocument->release();
+  m_rootDocument.clear();
+}
+
 int IncludesTreeModel::columnCount(const QModelIndex &parent) const
 {
   return 1;

@@ -21,7 +21,7 @@ void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
 }
 
 CPlusPlus::Document::Ptr CppPreprocessor::run(QString &fileName)
-{ 
+{
   sourceNeeded(fileName, IncludeGlobal, /*line = */ 0);
   return m_rootDoc;
 }

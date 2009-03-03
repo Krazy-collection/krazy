@@ -192,6 +192,8 @@ public:
 
     bool parse();
 
+    void release();
+
     void setSource(const QByteArray &source);
 
     QByteArray source() const

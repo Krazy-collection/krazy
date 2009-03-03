@@ -12,6 +12,8 @@ class IncludesTreeModel :  public QAbstractItemModel
   public:
     IncludesTreeModel(CPlusPlus::Document::Ptr document);
 
+    ~IncludesTreeModel();
+
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role) const;
