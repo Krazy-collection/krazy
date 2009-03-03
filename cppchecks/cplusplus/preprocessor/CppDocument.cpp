@@ -166,6 +166,7 @@ void Document::release()
 void Document::setSource(const QByteArray &source)
 {
    _source = source;
+   _translationUnit->setSource(_source.constBegin(), _source.size());
 }
 
 void Document::startSkippingBlocks(unsigned start)
