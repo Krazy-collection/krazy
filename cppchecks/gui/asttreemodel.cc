@@ -1,13 +1,12 @@
 #include "asttreemodel.h"
-
-#include "asttreeitem.h"
+#include "astitem.h"
 
 ASTTreeModel::ASTTreeModel()
 {
-    rootItem = new ASTTreeItem();
+    rootItem = new Item();
 }
 
-ASTTreeItem* ASTTreeModel::getRootItem()
+Item* ASTTreeModel::getRootItem()
 {
     return rootItem;
 }
@@ -23,8 +22,10 @@ QVariant ASTTreeModel::data(const QModelIndex &index, int role) const
      if (role == Qt::CheckStateRole)
          return Qt::Checked;
 
-     ASTTreeItem *item = static_cast<ASTTreeItem*>(index.internalPointer());
+     Item *item = static_cast<Item*>(index.internalPointer());
 
+     if (0 == index.column())
+         return item->nameData();
 
     return item->data(index.column());
  }
@@ -52,14 +53,14 @@ QVariant ASTTreeModel::data(const QModelIndex &index, int role) const
      if (!hasIndex(row, column, parent))
          return QModelIndex();
 
-     ASTTreeItem *parentItem;
+     Item *parentItem;
 
      if (!parent.isValid())
          parentItem = rootItem;
      else
-         parentItem = static_cast<ASTTreeItem*>(parent.internalPointer());
+         parentItem = static_cast<Item*>(parent.internalPointer());
 
-     ASTTreeItem *childItem = parentItem->child(row);
+     Item *childItem = parentItem->child(row);
      if (childItem)
          return createIndex(row, column, childItem);
      else
@@ -71,8 +72,8 @@ QVariant ASTTreeModel::data(const QModelIndex &index, int role) const
      if (!index.isValid())
          return QModelIndex();
 
-     ASTTreeItem *childItem = static_cast<ASTTreeItem*>(index.internalPointer());
-     ASTTreeItem *parentItem = childItem->parent();
+     Item *childItem = static_cast<Item*>(index.internalPointer());
+     Item *parentItem = childItem->parent();
 
      if (parentItem == rootItem)
          return QModelIndex();
@@ -82,14 +83,14 @@ QVariant ASTTreeModel::data(const QModelIndex &index, int role) const
 
  int ASTTreeModel::rowCount(const QModelIndex &parent) const
  {
-     ASTTreeItem *parentItem;
+     Item *parentItem;
      if (parent.column() > 0)
          return 0;
 
      if (!parent.isValid())
          parentItem = rootItem;
      else
-         parentItem = static_cast<ASTTreeItem*>(parent.internalPointer());
+         parentItem = static_cast<Item*>(parent.internalPointer());
 
      return parentItem->childCount();
  }
@@ -102,7 +103,7 @@ QVariant ASTTreeModel::data(const QModelIndex &index, int role) const
  int ASTTreeModel::columnCount(const QModelIndex &parent) const
  {
      if (parent.isValid())
-         return static_cast<ASTTreeItem*>(parent.internalPointer())->columnCount();
+         return static_cast<Item*>(parent.internalPointer())->columnCount();
      else
          return rootItem->columnCount();
  }

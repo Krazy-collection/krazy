@@ -11,7 +11,7 @@
 #include "asttreemodel.h"
 #include "includestreemodel.h"
 #include "messagetablemodel.h"
-#include "treebuilder.h"
+#include "asttreebuilder.h"
 #include "ui_parseresultwidget.h"
 
 ParseResultWidget::ParseResultWidget()

@@ -1,11 +1,9 @@
-#include "treebuilder.h"
-
 #include <AST.h>
 #include <QtCore/QDebug>
 #include <QtCore/QString>
 
-
-#include "asttreeitem.h"
+#include "astitem.h"
+#include "asttreebuilder.h"
 
 
 //using namespace CPlusPlus;
@@ -18,132 +16,134 @@ TreeBuilder::~TreeBuilder()
 {
 }
 
- bool TreeBuilder::preVisit(AST* ast)
+bool TreeBuilder::preVisit(AST* ast)
 {
-    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
-    tempItem->setAST(ast);
-    currentItem->appendChild(tempItem);
-    currentItem = tempItem;
+  Item* tempItem = new Item(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
 
-    return true;
+  return true;
 }
 
 
- void TreeBuilder::postVisit(AST* ast)
+void TreeBuilder::postVisit(AST* ast)
 {
-    if (currentItem->parent())
-        currentItem = currentItem->parent();
+  if (currentItem->parent())
+      currentItem = currentItem->parent();
 }
 
 void TreeBuilder::addDummyNode(const char * str)
 {
-    qDebug() << str;
+  qDebug() << str;
 }
 
-void TreeBuilder::setRootItem(ASTTreeItem* item)
+void TreeBuilder::setRootItem(Item* item)
 {
-    rootItem = item;
-    currentItem = rootItem;
+  rootItem = item;
+  currentItem = rootItem;
 }
 
+bool TreeBuilder::visit(TranslationUnitAST *ast)
+{
+  Item* tempItem = new TranslationUnitItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
 
-//
-//bool TreeBuilder::visit(TranslationUnitAST *ast)
-//{
-//    int declNum = 0;
-//
-//    for (DeclarationAST *it = ast->declarations; it; it = it->next) {
-//        accept(it);
-//    }
-//    return false;
-//}
-//
-//bool TreeBuilder::visit(DeclarationStatementAST *ast)
-//{
-//    accept(ast->declaration);
-//    return false;
-//}
-//
-//bool TreeBuilder::visit(AccessDeclarationAST *ast)
-//{
-//    //check
-//
-//    return false;
-//}
-//
+  return true;
+}
+
+bool TreeBuilder::visit(DeclarationStatementAST *ast)
+{
+  Item* tempItem = new DeclarationStatementItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
+
+  return true;
+}
+
+bool TreeBuilder::visit(AccessDeclarationAST *ast)
+{
+  Item* tempItem = new AccessDeclarationItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
+
+  return true;
+}
+
 bool TreeBuilder::visit(SimpleDeclarationAST *ast)
 {
+  Item* tempItem = new SimpleDeclarationItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
 
-
-    for (SpecifierAST *it = ast->decl_specifier_seq; it; it = it->next) {
-        //addDummyNode("SimpleDeclarationAST::SpecifierAST");
-         accept(it);
-    }
-    if (ast->declarators) {
-        if (ast->decl_specifier_seq)
-        {
-            //addDummyNode("SimpleDeclarationAST::decl_specifier_seq");
-        }
-        for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
-             //addDummyNode("SimpleDeclarationAST::DeclaratorListAST");
-            accept(it->declarator);
-        }
-    }
-
-
-    return false;
-
+  return true;
 }
-//
-//bool TreeBuilder::visit(CtorInitializerAST *ast)
-//{
-//
-//    for (MemInitializerAST *it = ast->member_initializers; it; it = it->next) {
-//        accept(it->name);
-//        //out << '(';
-//        accept(it->expression);
-//        //out << ')';
-////        if (it->next)
-////            out << ", ";
-//    }
-//
-//    return false;
-//}
-//
-//bool TreeBuilder::visit(ArrayAccessAST *ast)
-//{
-//    accept(ast->expression);
-//
-//    return false;
-//}
-//
-//bool TreeBuilder::visit(ArrayDeclaratorAST *ast)
-//{
-//    accept(ast->expression);
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ArrayInitializerAST *ast)
-//{
-//    addDummyNode("ArrayInitializerAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(AsmDefinitionAST *ast)
-//{
-//    addDummyNode("AsmDefinitionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(AttributeSpecifierAST *ast)
-//{
-//    addDummyNode("AttributeSpecifierAST");
-//    return false;
-//}
+
+bool TreeBuilder::visit(CtorInitializerAST *ast)
+{
+  Item* tempItem = new CtorInitializerItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
+
+  return true;
+}
+
+
+bool TreeBuilder::visit(ArrayAccessAST *ast)
+{
+  Item* tempItem = new ArrayAccessItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
+
+  return true;
+}
+
+bool TreeBuilder::visit(ArrayDeclaratorAST *ast)
+{
+  Item* tempItem = new ArrayDeclaratorItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
+
+  return true;
+}
+
+bool TreeBuilder::visit(ArrayInitializerAST *ast)
+{
+  Item* tempItem = new ArrayInitializerItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
+
+  return true;
+}
+
+bool TreeBuilder::visit(AsmDefinitionAST *ast)
+{
+  Item* tempItem = new AsmDefinitionItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
+
+  return true;
+}
+
+bool TreeBuilder::visit(AttributeSpecifierAST *ast)
+{
+  Item* tempItem = new AttributeSpecifierItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
+
+  return true;
+}
 //
 //
 //bool TreeBuilder::visit(AttributeAST *ast)
@@ -192,31 +192,31 @@ bool TreeBuilder::visit(SimpleDeclarationAST *ast)
 //}
 //
 //
-bool TreeBuilder::visit(CaseStatementAST *ast)
-{
-    //out << "case ";
-    accept(ast->expression);
-    //out << ':';
-    if (! ast->statement) {
-        //newline();
-        return false;
-    }
-
-    if (ast->statement->asCompoundStatement()) {
-        //out << ' ';
-        accept(ast->statement);
-    } else if (ast->statement->asCaseStatement() || ast->statement->asLabeledStatement()) {
-        //newline();
-        accept(ast->statement);
-    } else {
-        //indent();
-        //newline();
-        accept(ast->statement);
-        //deindent();
-        //newline();
-    }
-    return false;
-}
+// bool TreeBuilder::visit(CaseStatementAST *ast)
+// {
+//     //out << "case ";
+//     accept(ast->expression);
+//     //out << ':';
+//     if (! ast->statement) {
+//         //newline();
+//         return false;
+//     }
+// 
+//     if (ast->statement->asCompoundStatement()) {
+//         //out << ' ';
+//         accept(ast->statement);
+//     } else if (ast->statement->asCaseStatement() || ast->statement->asLabeledStatement()) {
+//         //newline();
+//         accept(ast->statement);
+//     } else {
+//         //indent();
+//         //newline();
+//         accept(ast->statement);
+//         //deindent();
+//         //newline();
+//     }
+//     return false;
+// }
 //
 //
 //bool TreeBuilder::visit(CastExpressionAST *ast)
@@ -461,7 +461,7 @@ bool TreeBuilder::visit(CaseStatementAST *ast)
 //
 //bool TreeBuilder::visit(FunctionDeclaratorAST *ast)
 //{
-//    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
+//    Item* tempItem = new Item(currentItem);
 //    tempItem->setAST(ast);
 //
 //    currentItem->appendChild(tempItem);
@@ -487,7 +487,7 @@ bool TreeBuilder::visit(CaseStatementAST *ast)
 //
 //bool TreeBuilder::visit(FunctionDefinitionAST *ast)
 //{
-//    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
+//    Item* tempItem = new Item(currentItem);
 //    tempItem->setAST(ast);
 //
 //    currentItem->appendChild(tempItem);
@@ -575,15 +575,17 @@ bool TreeBuilder::visit(CaseStatementAST *ast)
 //    accept(ast->name);
 //    return false;
 //}
-//
-//
-//bool TreeBuilder::visit(NamespaceAST *ast)
-//{
-//    addDummyNode("NamespaceAST");
-//    return true;
-//}
-//
-//
+
+bool TreeBuilder::visit(NamespaceAST *ast)
+{
+  Item* tempItem = new NamespaceItem(currentItem);
+  tempItem->setAST(ast);
+  currentItem->appendChild(tempItem);
+  currentItem = tempItem;
+
+  return true;
+}
+
 //bool TreeBuilder::visit(NamespaceAliasDefinitionAST *ast)
 //{
 //    addDummyNode("NamespaceAliasDefinitionAST");
@@ -699,7 +701,7 @@ bool TreeBuilder::visit(CaseStatementAST *ast)
 //
 //bool TreeBuilder::visit(ParameterDeclarationAST *ast)
 //{
-//    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
+//    Item* tempItem = new Item(currentItem);
 //    tempItem->setAST(ast);
 //
 //    currentItem->appendChild(tempItem);
@@ -728,29 +730,29 @@ bool TreeBuilder::visit(CaseStatementAST *ast)
 //}
 //
 ////nechat
-bool TreeBuilder::visit(ParameterDeclarationClauseAST *ast)
-{
-
-    if (!ast->parameter_declarations)
-        return false;
-
-    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
-    tempItem->setAST(ast);
-
-    currentItem->appendChild(tempItem);
-
-    currentItem = tempItem;
-
-   for (DeclarationAST *it = ast->parameter_declarations; it; it = it->next) {
-        accept(it);
-
-    }
-
-   if (tempItem->parent())
-       currentItem = tempItem->parent();
-
-    return false;
-}
+// bool TreeBuilder::visit(ParameterDeclarationClauseAST *ast)
+// {
+// 
+//     if (!ast->parameter_declarations)
+//         return false;
+// 
+//     Item* tempItem = new Item(currentItem);
+//     tempItem->setAST(ast);
+// 
+//     currentItem->appendChild(tempItem);
+// 
+//     currentItem = tempItem;
+// 
+//    for (DeclarationAST *it = ast->parameter_declarations; it; it = it->next) {
+//         accept(it);
+// 
+//     }
+// 
+//    if (tempItem->parent())
+//        currentItem = tempItem->parent();
+// 
+//     return false;
+// }
 //
 //bool TreeBuilder::visit(PtrOperatorAST *ast)
 //{
@@ -766,7 +768,7 @@ bool TreeBuilder::visit(ParameterDeclarationClauseAST *ast)
 ////    if (!ast->cv_qualifier_seq)
 ////        return false;
 //
-//    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
+//    Item* tempItem = new Item(currentItem);
 //    tempItem->setAST(ast);
 //
 //    currentItem->appendChild(tempItem);
@@ -800,7 +802,7 @@ bool TreeBuilder::visit(ParameterDeclarationClauseAST *ast)
 //
 //bool TreeBuilder::visit(PostfixExpressionAST *ast)
 //{
-//    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
+//    Item* tempItem = new Item(currentItem);
 //    tempItem->setAST(ast);
 //    currentItem->appendChild(tempItem);
 //    currentItem = tempItem;
@@ -819,7 +821,7 @@ bool TreeBuilder::visit(ParameterDeclarationClauseAST *ast)
 //
 //bool TreeBuilder::visit(QualifiedNameAST *ast)
 //{
-//    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
+//    Item* tempItem = new Item(currentItem);
 //    tempItem->setAST(ast);
 //
 //    currentItem->appendChild(tempItem);
@@ -856,9 +858,9 @@ bool TreeBuilder::visit(ParameterDeclarationClauseAST *ast)
 //
 //bool TreeBuilder::visit(SimpleNameAST *ast)
 //{
-//    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
+//    Item* tempItem = new Item(currentItem);
 //    tempItem->setAST(ast);
-//    tempItem->setItemType(ASTTreeItem::SimpleNameItem);
+//    tempItem->setItemType(Item::SimpleNameItem);
 //    currentItem->appendChild(tempItem);
 //
 //    return false;
@@ -867,9 +869,9 @@ bool TreeBuilder::visit(ParameterDeclarationClauseAST *ast)
 //
 //bool TreeBuilder::visit(SimpleSpecifierAST *ast)
 //{
-//    ASTTreeItem* tempItem = new ASTTreeItem(currentItem);
+//    Item* tempItem = new Item(currentItem);
 //    tempItem->setAST(ast);
-//    tempItem->setItemType(ASTTreeItem::SimpleSpecifierItem);
+//    tempItem->setItemType(Item::SimpleSpecifierItem);
 //    currentItem->appendChild(tempItem);
 //    return false;
 //}
