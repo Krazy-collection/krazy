@@ -1,4 +1,9 @@
 #include "asttreemodel.h"
+
+#if !defined(__WIN32)
+#include <cxxabi.h>
+#endif
+
 #include "astitem.h"
 
 ASTTreeModel::ASTTreeModel()
@@ -30,7 +35,11 @@ QVariant ASTTreeModel::data(const QModelIndex &index, int role) const
      Item *item = static_cast<Item*>(index.internalPointer());
 
      if (0 == index.column())
-         return item->nameData();
+#ifdef __WIN32
+       return typeid(*item->ast()).name();
+#else
+       return QString(abi::__cxa_demangle(typeid(*item->ast()).name(), 0, 0, 0) + 11 );
+#endif
 
     return item->data(index.column());
  }

@@ -81,11 +81,12 @@ void ParseResultWidget::onASTItemClicked(QModelIndex const &index)
   unsigned line, column;
   StringLiteral *fileId = 0;
   unit->getTokenPosition(item->ast()->firstToken(), &line, &column, &fileId);
-  qDebug() << "Line:" << line + 1 << "Column:" << column;
+  qDebug() << "Line: " << line + 1 << " Column:" << column << "firstToken: " << item->ast()->firstToken() ;
 
   QTextCursor tc(m_ui->m_headerView->document()->findBlockByLineNumber(line));
   //tc.movePosition(QTextCursor::Right,QTextCursor::MoveAnchor, column);
   tc.select(QTextCursor::LineUnderCursor);
+
   m_ui->m_headerView->setTextCursor(tc);
 }
 
