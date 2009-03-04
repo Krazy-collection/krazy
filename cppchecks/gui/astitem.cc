@@ -1,40 +1,37 @@
 #include "astitem.h"
 
-Item::Item(Item* parent)
+Item::Item(Item* parent) : m_ast(0), m_parentItem(parent)
 {
-  parentItem = parent;
 }
 
 Item::~Item()
 {
-  qDeleteAll(childItems);
+  qDeleteAll(m_childItems);
+}
+
+AST* Item::ast() const
+{
+  return m_ast;
 }
 
 void Item::appendChild(Item *child)
 {
-  childItems.append(child);
+  m_childItems.append(child);
 }
 
 Item* Item::child(int row)
 {
-  return childItems.at(row);
+  return m_childItems.at(row);
 }
-
 
 int Item::childCount() const
 {
-  return childItems.count();
+  return m_childItems.count();
 }
 
 int Item::columnCount() const
 {
   return 1;
-}
-
-//warning virtual method!
-QVariant Item::nameData()
-{
-  return "Item";
 }
 
 QVariant Item::data(int column)
@@ -47,25 +44,25 @@ QVariant Item::data(int column)
   return QVariant();
 }
 
+/* virtual */ QVariant Item::nameData()
+{
+  return "Item";
+}
+
+Item* Item::parent() const
+{
+  return m_parentItem;
+}
+
 int Item::row() const
 {
-  if (parentItem)
-    return parentItem->childItems.indexOf(const_cast<Item*>(this));
+  if (m_parentItem)
+    return m_parentItem->m_childItems.indexOf(const_cast<Item*>(this));
 
   return 0;
 }
 
-Item* Item::parent()
-{
-  return parentItem;
-}
-
-AST* Item::ast() const
-{
-  return _ast;
-}
-
 void Item::setAST(AST* ast)
 {
-  _ast = ast;
+  m_ast = ast;
 }
