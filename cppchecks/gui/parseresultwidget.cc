@@ -4,6 +4,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QModelIndex>
 #include <QtGui/QFileDialog>
+#include <QtGui/QTextBlock>
 
 #include <CppPreprocessor.h>
 #include <TranslationUnit.h>
@@ -20,7 +21,7 @@ ParseResultWidget::ParseResultWidget()
   m_ui->setupUi(this);
   connect(m_ui->m_openFileButton, SIGNAL(clicked()), this, SLOT(openFile()));
   connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
-          this, SLOT(onClicked(QModelIndex const &)));
+          this, SLOT(onIncludeClicked(QModelIndex const &)));
   connect(m_ui->m_preprocessedCheck, SIGNAL(stateChanged(int)),
           this, SLOT(onStateChanged(int)));
   connect(m_ui->m_treeCombo, SIGNAL(currentIndexChanged(int)),
@@ -72,7 +73,23 @@ QStringList ParseResultWidget::includePaths() const
   return paths;
 }
 
-void ParseResultWidget::onClicked(QModelIndex const &index)
+void ParseResultWidget::onASTItemClicked(QModelIndex const &index)
+{
+  Item *item = static_cast<Item*>(index.internalPointer());
+  TranslationUnit *unit = m_selectedDoc->translationUnit();
+
+  unsigned line, column;
+  StringLiteral *fileId = 0;
+  unit->getTokenPosition(item->ast()->firstToken(), &line, &column, &fileId);
+  qDebug() << "Line:" << line + 1 << "Column:" << column;
+
+  QTextCursor tc(m_ui->m_headerView->document()->findBlockByLineNumber(line));
+  //tc.movePosition(QTextCursor::Right,QTextCursor::MoveAnchor, column);
+  tc.select(QTextCursor::LineUnderCursor);
+  m_ui->m_headerView->setTextCursor(tc);
+}
+
+void ParseResultWidget::onIncludeClicked(QModelIndex const &index)
 {
   m_selectedDoc = static_cast<CPlusPlus::Document*>(index.internalPointer());
   m_ui->m_messageTable->setModel(new MessageTableModel(m_selectedDoc->diagnosticMessages()));
@@ -110,12 +127,15 @@ void ParseResultWidget::onTreeTypeChanged(int index)
   switch(index)
   {
     case 0:
+      m_ui->m_treeView->disconnect(this);
       connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
-              this, SLOT(onClicked(QModelIndex const &)));
+              this, SLOT(onIncludeClicked(QModelIndex const &)));
       m_ui->m_treeView->setModel(m_includeTreeModel);
       break;
     case 1:
       m_ui->m_treeView->disconnect(this);
+      connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
+              this, SLOT(onASTItemClicked(QModelIndex const &)));
 
       if (m_ui->m_treeView->model() != m_includeTreeModel)
         delete m_ui->m_treeView->model();

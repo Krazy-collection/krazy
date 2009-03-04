@@ -23,7 +23,8 @@ class ParseResultWidget : public QWidget
     ~ParseResultWidget();
 
   public slots:
-    void onClicked(QModelIndex const &);
+    void onASTItemClicked(QModelIndex const &);
+    void onIncludeClicked(QModelIndex const &);
     void onStateChanged(int);
     void onTreeTypeChanged(int index);
     void openFile();
