@@ -107,9 +107,12 @@ void ParseResultWidget::onTreeTypeChanged(int index)
   switch(index)
   {
     case 0:
+      connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
+              this, SLOT(onClicked(QModelIndex const &)));
       m_ui->m_treeView->setModel(m_includeTreeModel);
       break;
     case 1:
+      m_ui->m_treeView->disconnect(this);
       m_ui->m_treeView->setModel(buildASTModel());
     default:
       break;
