@@ -41,6 +41,9 @@ ParseResultWidget::ParseResultWidget()
 
 ParseResultWidget::~ParseResultWidget()
 {
+  if (m_ui->m_treeView->model() != m_includeTreeModel)
+    delete m_ui->m_treeView->model();
+
   delete m_ui;
   delete m_includeTreeModel;
 }
@@ -113,7 +116,12 @@ void ParseResultWidget::onTreeTypeChanged(int index)
       break;
     case 1:
       m_ui->m_treeView->disconnect(this);
+
+      if (m_ui->m_treeView->model() != m_includeTreeModel)
+        delete m_ui->m_treeView->model();
+
       m_ui->m_treeView->setModel(buildASTModel());
+      break;
     default:
       break;
   }
@@ -134,6 +142,9 @@ void ParseResultWidget::openFile()
 
     CPlusPlus::CppPreprocessor preproc;
     preproc.setIncludePaths(includePaths());
+
+    delete m_includeTreeModel;
+
     m_includeTreeModel = new IncludesTreeModel(preproc.run(fileName));
     m_ui->m_treeView->setModel(m_includeTreeModel);
   }

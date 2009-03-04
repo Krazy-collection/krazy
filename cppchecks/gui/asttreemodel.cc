@@ -6,6 +6,11 @@ ASTTreeModel::ASTTreeModel()
     rootItem = new Item();
 }
 
+ASTTreeModel::~ASTTreeModel()
+{
+  delete rootItem;
+}
+
 Item* ASTTreeModel::getRootItem()
 {
     return rootItem;
@@ -93,11 +98,6 @@ QVariant ASTTreeModel::data(const QModelIndex &index, int role) const
          parentItem = static_cast<Item*>(parent.internalPointer());
 
      return parentItem->childCount();
- }
-
-  ASTTreeModel::~ASTTreeModel()
- {
-     delete rootItem;
  }
 
  int ASTTreeModel::columnCount(const QModelIndex &parent) const

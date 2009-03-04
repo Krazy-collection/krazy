@@ -7,7 +7,7 @@ Item::Item(Item* parent)
 
 Item::~Item()
 {
-  // TODO: delete child items here?
+  qDeleteAll(childItems);
 }
 
 void Item::appendChild(Item *child)
