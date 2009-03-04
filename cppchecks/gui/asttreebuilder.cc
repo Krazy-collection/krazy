@@ -18,19 +18,21 @@ TreeBuilder::~TreeBuilder()
 
 bool TreeBuilder::preVisit(AST* ast)
 {
-  Item* tempItem = new Item(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
   return true;
+}
+
+void TreeBuilder::appendItem(Item* item, AST* ast)
+{
+  item->setAST(ast);
+  currentItem->appendChild(item);
+  currentItem = item;
 }
 
 
 void TreeBuilder::postVisit(AST* ast)
 {
   if (currentItem->parent())
-      currentItem = currentItem->parent();
+    currentItem = currentItem->parent();
 }
 
 void TreeBuilder::addDummyNode(const char * str)
@@ -46,980 +48,578 @@ void TreeBuilder::setRootItem(Item* item)
 
 bool TreeBuilder::visit(TranslationUnitAST *ast)
 {
-  Item* tempItem = new TranslationUnitItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
+  appendItem(new TranslationUnitItem(currentItem), ast );
   return true;
 }
 
 bool TreeBuilder::visit(DeclarationStatementAST *ast)
 {
-  Item* tempItem = new DeclarationStatementItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
+  appendItem(new DeclarationStatementItem(currentItem) , ast);
   return true;
 }
 
 bool TreeBuilder::visit(AccessDeclarationAST *ast)
 {
-  Item* tempItem = new AccessDeclarationItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
+  appendItem(new AccessDeclarationItem(currentItem) , ast);
   return true;
 }
 
 bool TreeBuilder::visit(SimpleDeclarationAST *ast)
 {
-  Item* tempItem = new SimpleDeclarationItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
+  appendItem(new SimpleDeclarationItem(currentItem) , ast);
   return true;
 }
-
-bool TreeBuilder::visit(CtorInitializerAST *ast)
-{
-  Item* tempItem = new CtorInitializerItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
-  return true;
-}
-
 
 bool TreeBuilder::visit(ArrayAccessAST *ast)
 {
-  Item* tempItem = new ArrayAccessItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
+  appendItem(new ArrayAccessItem(currentItem) , ast);
   return true;
 }
 
 bool TreeBuilder::visit(ArrayDeclaratorAST *ast)
 {
-  Item* tempItem = new ArrayDeclaratorItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
+  appendItem(new ArrayDeclaratorItem(currentItem), ast);
   return true;
 }
 
 bool TreeBuilder::visit(ArrayInitializerAST *ast)
 {
-  Item* tempItem = new ArrayInitializerItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
+  appendItem(new ArrayInitializerItem(currentItem), ast);
   return true;
 }
 
 bool TreeBuilder::visit(AsmDefinitionAST *ast)
 {
-  Item* tempItem = new AsmDefinitionItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
+  appendItem(new AsmDefinitionItem(currentItem), ast);
   return true;
 }
 
 bool TreeBuilder::visit(AttributeSpecifierAST *ast)
 {
-  Item* tempItem = new AttributeSpecifierItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
-
+  appendItem(new AttributeSpecifierItem(currentItem), ast);
   return true;
 }
-//
-//
-//bool TreeBuilder::visit(AttributeAST *ast)
-//{
-//    addDummyNode("AttributeAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(BaseSpecifierAST *ast)
-//{
-//    addDummyNode("BaseSpecifierAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(BinaryExpressionAST *ast)
-//{
-//
-//    accept(ast->left_expression);
-//    //out << ' '  << spell(ast->binary_op_token) << ' ';
-//    accept(ast->right_expression);
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(BoolLiteralAST *ast)
-//{
-//    addDummyNode("BoolLiteralAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(BreakStatementAST *ast)
-//{
-//    addDummyNode("BreakStatementAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(CallAST *ast)
-//{
-//    addDummyNode("CallAST");
-//    return false;
-//}
-//
-//
-// bool TreeBuilder::visit(CaseStatementAST *ast)
-// {
-//     //out << "case ";
-//     accept(ast->expression);
-//     //out << ':';
-//     if (! ast->statement) {
-//         //newline();
-//         return false;
-//     }
-// 
-//     if (ast->statement->asCompoundStatement()) {
-//         //out << ' ';
-//         accept(ast->statement);
-//     } else if (ast->statement->asCaseStatement() || ast->statement->asLabeledStatement()) {
-//         //newline();
-//         accept(ast->statement);
-//     } else {
-//         //indent();
-//         //newline();
-//         accept(ast->statement);
-//         //deindent();
-//         //newline();
-//     }
-//     return false;
-// }
-//
-//
-//bool TreeBuilder::visit(CastExpressionAST *ast)
-//{
-//    addDummyNode("CastExpressionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(CatchClauseAST *ast)
-//{
-//    addDummyNode("CatchClauseAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ClassSpecifierAST *ast)
-//{
-//
-//    if (ast->attributes) {
-//        accept(ast->attributes);
-//        qDebug() << "ClassSpecifierAST has attributes";
-//
-//    }
-//
-//    accept(ast->name);
-//
-//    if (ast->colon_token) {
-//        qDebug() << "ClassSpecifierAST has colon token";
-//        for (BaseSpecifierAST *it = ast->base_clause; it; it = it->next) {
-//            accept(it);
-//            if (it->next)
-//               ;
-//        }
-//    }
-//
-//    if (ast->member_specifiers) {
-//        //qDebug() << "ClassSpecifierAST has member specifiers";
-//        if (ast->member_specifiers) {
-//            for (DeclarationAST *it = ast->member_specifiers; it; it = it->next) {
-//                accept(it);
-//
-//            }
-//        }
-//
-//    }
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(CompoundStatementAST *ast)
-//{
-//     //out << '{';
-//    if (ast->statements) {
-//        //indent();
-//        //newline();
-//        for (StatementAST *it = ast->statements; it; it = it->next) {
-//            accept(it);
-////            if (it->next)
-////                newline();
-//        }
-////        deindent();
-////        newline();
-//    }
-//    //out << '}';
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ConditionAST *ast)
-//{
-//    addDummyNode("ConditionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ConditionalExpressionAST *ast)
-//{
-//    addDummyNode("ConditionalExpressionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ContinueStatementAST *ast)
-//{
-//    addDummyNode("ContinueStatementAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ConversionFunctionIdAST *ast)
-//{
-//    addDummyNode("ConversionFunctionIdAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(CppCastExpressionAST *ast)
-//{
-//    addDummyNode("CppCastExpressionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(DeclaratorAST *ast)
-//{
-//
-//    for (PtrOperatorAST *it = ast->ptr_operators; it; it = it->next) {
-//        accept(it);
-//    }
-//    if (ast->core_declarator) {
-////        if (ast->ptr_operators)
-////            out << ' ';
-//        accept(ast->core_declarator);
-//    }
-//    for (PostfixDeclaratorAST *it = ast->postfix_declarators; it; it = it->next) {
-//        accept(it);
-//    }
-//    for (SpecifierAST *it = ast->attributes; it; it = it->next) {
-//        accept(it);
-////        if (it->next)
-////            out << ' ';
-//    }
-//    if (ast->initializer) {
-////        out << ' ';
-////        out << '=';
-////        out << ' ';
-//        accept(ast->initializer);
-//    }
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(DeclaratorIdAST *ast)
-//{
-//    accept(ast->name);
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(DeclaratorListAST *ast)
-//{
-//    addDummyNode("DeclaratorListAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(DeleteExpressionAST *ast)
-//{
-//    addDummyNode("DeleteExpressionAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(DestructorNameAST *ast)
-//{
-//    addDummyNode("DestructorNameAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(DoStatementAST *ast)
-//{
-//    addDummyNode("DoStatementAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(ElaboratedTypeSpecifierAST *ast)
-//{
-//    addDummyNode("ElaboratedTypeSpecifierAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(EmptyDeclarationAST *ast)
-//{
-//    addDummyNode("EmptyDeclarationAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(EnumSpecifierAST *ast)
-//{
-//    addDummyNode("EnumSpecifierAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(EnumeratorAST *ast)
-//{
-//    addDummyNode("EnumeratorAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(ExceptionDeclarationAST *ast)
-//{
-//    addDummyNode("ExceptionDeclarationAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(ExceptionSpecificationAST *ast)
-//{
-//    addDummyNode("ExceptionSpecificationAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(ExpressionListAST *ast)
-//{
-//    addDummyNode("ExpressionListAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(ExpressionOrDeclarationStatementAST *ast)
-//{
-//    accept(ast->declaration);
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(ExpressionStatementAST *ast)
-//{
-//    //accept(ast->expression);
-//    //out << ';';
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(ForStatementAST *ast)
-//{
-//    addDummyNode("ForStatementAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(FunctionDeclaratorAST *ast)
-//{
-//    Item* tempItem = new Item(currentItem);
-//    tempItem->setAST(ast);
-//
-//    currentItem->appendChild(tempItem);
-//
-//    currentItem = tempItem;
-//    accept(ast->parameters);
-//    //out << ')';
-//    for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
-//        //out << ' ';
-//        accept(it);
-//    }
-//    if (ast->exception_specification) {
-//        //out << ' ';
-//        accept(ast->exception_specification);
-//    }
-//
-//    if (tempItem->parent())
-//        currentItem = tempItem->parent();
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(FunctionDefinitionAST *ast)
-//{
-//    Item* tempItem = new Item(currentItem);
-//    tempItem->setAST(ast);
-//
-//    currentItem->appendChild(tempItem);
-//
-//    currentItem = tempItem;
-//
-//    for (SpecifierAST *it = ast->decl_specifier_seq; it; it = it->next) {
-//        accept(it);
-////        if (it->next)
-////            out << ' ';
-//    }
-//    if (ast->declarator) {
-////        if (ast->decl_specifier_seq)
-////            out << ' ';
-//        accept(ast->declarator);
-//    }
-//    accept(ast->ctor_initializer);
-//    //newline();
-//    accept(ast->function_body);
-//   /* if (ast->next)
-//        newline(); */// one extra line after the function definiton.
-//
-//    if (tempItem->parent())
-//        currentItem = tempItem->parent();
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(GotoStatementAST *ast)
-//{
-//    addDummyNode("GotoStatementAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(IfStatementAST *ast)
-//{
-//    addDummyNode("IfStatementAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(LabeledStatementAST *ast)
-//{
-//    addDummyNode("LabeledStatementAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(LinkageBodyAST *ast)
-//{
-//    addDummyNode("LinkageBodyAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(LinkageSpecificationAST *ast)
-//{
-//    addDummyNode("LinkageSpecificationAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(MemInitializerAST *ast)
-//{
-//    addDummyNode("MemInitializerAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(MemberAccessAST *ast)
-//{
-//
-//
-//    accept(ast->member_name);
-//
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(NamedTypeSpecifierAST *ast)
-//{
-//    accept(ast->name);
-//    return false;
-//}
+
+bool TreeBuilder::visit(AttributeAST *ast)
+{
+  appendItem(new AttributeItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(BaseSpecifierAST *ast)
+{
+  appendItem(new BaseSpecifierItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(BinaryExpressionAST *ast)
+{
+  appendItem(new BinaryExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(BoolLiteralAST *ast)
+{
+  appendItem(new BoolLiteralItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(BreakStatementAST *ast)
+{
+  appendItem(new BreakStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(CallAST *ast)
+{
+  appendItem(new CallItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(CaseStatementAST *ast)
+{
+  appendItem(new CaseStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(CastExpressionAST *ast)
+{
+  appendItem(new CastExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(CatchClauseAST *ast)
+{
+  appendItem(new CatchClauseItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ClassSpecifierAST *ast)
+{
+  appendItem(new ClassSpecifierItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(CompoundStatementAST *ast)
+{
+  appendItem(new CompoundStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ConditionAST *ast)
+{
+  appendItem(new ConditionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ConditionalExpressionAST *ast)
+{
+  appendItem(new ConditionalExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ContinueStatementAST *ast)
+{
+  appendItem(new ContinueStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ConversionFunctionIdAST *ast)
+{
+  appendItem(new ConversionFunctionIdItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(CppCastExpressionAST *ast)
+{
+  appendItem(new CppCastExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(CtorInitializerAST *ast)
+{
+  appendItem(new CtorInitializerItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(DeclaratorAST *ast)
+{
+  appendItem(new DeclaratorItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(DeclaratorIdAST *ast)
+{
+  appendItem(new DeclaratorIdItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(DeclaratorListAST *ast)
+{
+  appendItem(new DeclaratorListItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(DeleteExpressionAST *ast)
+{
+  appendItem(new DeleteExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(DestructorNameAST *ast)
+{
+  appendItem(new DestructorNameItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(DoStatementAST *ast)
+{
+  appendItem(new DoStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ElaboratedTypeSpecifierAST *ast)
+{
+  appendItem(new ElaboratedTypeSpecifierItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(EmptyDeclarationAST *ast)
+{
+  appendItem(new EmptyDeclarationItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(EnumSpecifierAST *ast)
+{
+  appendItem(new EnumSpecifierItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(EnumeratorAST *ast)
+{
+  appendItem(new EnumeratorItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ExceptionDeclarationAST *ast)
+{
+  appendItem(new ExceptionDeclarationItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ExceptionSpecificationAST *ast)
+{
+  appendItem(new ExceptionSpecificationItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ExpressionListAST *ast)
+{
+  appendItem(new ExpressionListItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ExpressionOrDeclarationStatementAST *ast)
+{
+  appendItem(new ExpressionOrDeclarationStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ExpressionStatementAST *ast)
+{
+  appendItem(new ExpressionStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ForStatementAST *ast)
+{
+  appendItem(new ForStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(FunctionDeclaratorAST *ast)
+{
+  appendItem(new FunctionDeclaratorItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(FunctionDefinitionAST *ast)
+{
+  appendItem(new FunctionDefinitionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(GotoStatementAST *ast)
+{
+  appendItem(new GotoStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(IfStatementAST *ast)
+{
+  appendItem(new IfStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(LabeledStatementAST *ast)
+{
+  appendItem(new LabeledStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(LinkageBodyAST *ast)
+{
+  appendItem(new LinkageBodyItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(LinkageSpecificationAST *ast)
+{
+  appendItem(new LinkageSpecificationItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(MemInitializerAST *ast)
+{
+  appendItem(new MemInitializerItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(MemberAccessAST *ast)
+{
+  appendItem(new MemberAccessItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(NamedTypeSpecifierAST *ast)
+{
+  appendItem(new NamedTypeSpecifierItem(currentItem), ast);
+  return true;
+}
 
 bool TreeBuilder::visit(NamespaceAST *ast)
 {
-  Item* tempItem = new NamespaceItem(currentItem);
-  tempItem->setAST(ast);
-  currentItem->appendChild(tempItem);
-  currentItem = tempItem;
+  appendItem(new NamespaceItem(currentItem), ast);
 
   return true;
 }
 
-//bool TreeBuilder::visit(NamespaceAliasDefinitionAST *ast)
-//{
-//    addDummyNode("NamespaceAliasDefinitionAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(NestedDeclaratorAST *ast)
-//{
-//    addDummyNode("NestedDeclaratorAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(NestedExpressionAST *ast)
-//{
-//    addDummyNode("NestedExpressionAST");
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(NestedNameSpecifierAST *ast)
-//{
-//    accept(ast->class_or_namespace_name);
-////    if (ast->scope_token)
-////        out << "::";
-//    return false;
-//}
-//
-//
-//
-//bool TreeBuilder::visit(NewExpressionAST *ast)
-//{
-//
-//    if (ast->expression) {
-//        accept(ast->expression);
-////        if (ast->type_id)
-////            out << ' ';
-//    }
-//    if (ast->type_id) {
-//        accept(ast->type_id);
-////        if (ast->new_type_id)
-////            out << ' ';
-//    }
-//    if (ast->new_type_id) {
-//        accept(ast->new_type_id);
-////        if (ast->new_initializer)
-////            out << ' ';
-//    }
-//
-//    accept(ast->new_initializer);
-//
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(NewInitializerAST *ast)
-//{
-//
-//    //out << '(';
-//    accept(ast->expression);
-//    //out << ')';
-//
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(NewTypeIdAST *ast)
-//{
-//
-//    for (SpecifierAST *it = ast->type_specifier; it; it = it->next) {
-//        accept(it);
-////        if (it->next)
-////            out << ' ';
-//    }
-////    if (ast->type_specifier)
-////        out << ' ';
-//    if (ast->new_initializer) {
-//        accept(ast->new_initializer);
-////        if (ast->new_declarator)
-////            out << ' ';
-//    }
-//    accept(ast->new_declarator);
-//
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(NumericLiteralAST *ast)
-//{
-//
-//
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(OperatorAST *ast)
-//{
-//    addDummyNode("OperatorAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(OperatorFunctionIdAST *ast)
-//{
-//    addDummyNode("OperatorFunctionIdAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ParameterDeclarationAST *ast)
-//{
-//    Item* tempItem = new Item(currentItem);
-//    tempItem->setAST(ast);
-//
-//    currentItem->appendChild(tempItem);
-//
-//    currentItem = tempItem;
-//
-//    for (SpecifierAST *it = ast->type_specifier; it; it = it->next)
-//    {
-//        accept(it);
-//    }
-//
-//    if (ast->declarator) {
-//        accept(ast->declarator);
-//    }
-//    if (ast->equal_token) {
-////        out << ' ';
-////        out << '=';
-////        out << ' ';
-//    }
-//
-//    accept(ast->expression);
-//
-//    if (tempItem->parent())
-//       currentItem = tempItem->parent();
-//    return false;
-//}
-//
-////nechat
-// bool TreeBuilder::visit(ParameterDeclarationClauseAST *ast)
-// {
-// 
-//     if (!ast->parameter_declarations)
-//         return false;
-// 
-//     Item* tempItem = new Item(currentItem);
-//     tempItem->setAST(ast);
-// 
-//     currentItem->appendChild(tempItem);
-// 
-//     currentItem = tempItem;
-// 
-//    for (DeclarationAST *it = ast->parameter_declarations; it; it = it->next) {
-//         accept(it);
-// 
-//     }
-// 
-//    if (tempItem->parent())
-//        currentItem = tempItem->parent();
-// 
-//     return false;
-// }
-//
-//bool TreeBuilder::visit(PtrOperatorAST *ast)
-//{
-//qDebug() << "TreeBuilder::visit(PtrOperatorAST *ast)";
-//    return true;
-//}
-//
-//
-//bool TreeBuilder::visit(PointerAST *ast)
-//{
-//    //qDebug() << "TreeBuilder::visit(PointerAST *ast)";
-//    //out << '*';
-////    if (!ast->cv_qualifier_seq)
-////        return false;
-//
-//    Item* tempItem = new Item(currentItem);
-//    tempItem->setAST(ast);
-//
-//    currentItem->appendChild(tempItem);
-//
-//    currentItem = tempItem;
-//
-//    for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
-//        accept(it);
-//    }
-//
-//    if (tempItem->parent())
-//       currentItem = tempItem->parent();
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(PointerToMemberAST *ast)
-//{
-//    addDummyNode("PointerToMemberAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(PostIncrDecrAST *ast)
-//{
-//    addDummyNode("PostIncrDecrAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(PostfixExpressionAST *ast)
-//{
-//    Item* tempItem = new Item(currentItem);
-//    tempItem->setAST(ast);
-//    currentItem->appendChild(tempItem);
-//    currentItem = tempItem;
-//
-//    accept(ast->base_expression);
-//    for (PostfixAST *it = ast->postfix_expressions; it; it = it->next) {
-//        accept(it);
-//    }
-//
-//    if (tempItem->parent())
-//        currentItem = tempItem->parent();
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(QualifiedNameAST *ast)
-//{
-//    Item* tempItem = new Item(currentItem);
-//    tempItem->setAST(ast);
-//
-//    currentItem->appendChild(tempItem);
-//
-//    currentItem = tempItem;
-//
-////     if (ast->global_scope_token)
-////        out << "::";
-//    for (NestedNameSpecifierAST *it = ast->nested_name_specifier; it; it = it->next) {
-//        accept(it);
-//    }
-//    accept(ast->unqualified_name);
-//
-//    if (tempItem->parent())
-//        currentItem = tempItem->parent();
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ReferenceAST *ast)
-//{
-//    addDummyNode("ReferenceAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ReturnStatementAST *ast)
-//{
-//    addDummyNode("ReturnStatementAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(SimpleNameAST *ast)
-//{
-//    Item* tempItem = new Item(currentItem);
-//    tempItem->setAST(ast);
-//    tempItem->setItemType(Item::SimpleNameItem);
-//    currentItem->appendChild(tempItem);
-//
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(SimpleSpecifierAST *ast)
-//{
-//    Item* tempItem = new Item(currentItem);
-//    tempItem->setAST(ast);
-//    tempItem->setItemType(Item::SimpleSpecifierItem);
-//    currentItem->appendChild(tempItem);
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(SizeofExpressionAST *ast)
-//{
-//    addDummyNode("SizeofExpressionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(StringLiteralAST *ast)
-//{
-//    addDummyNode("StringLiteralAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(SwitchStatementAST *ast)
-//{
-//    addDummyNode("SwitchStatementAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TemplateArgumentListAST *ast)
-//{
-//    addDummyNode("TemplateArgumentListAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TemplateDeclarationAST *ast)
-//{
-//    addDummyNode("TemplateDeclarationAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TemplateIdAST *ast)
-//{
-//    addDummyNode("TemplateIdAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TemplateTypeParameterAST *ast)
-//{
-//    addDummyNode("TemplateTypeParameterAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ThisExpressionAST *ast)
-//{
-//    addDummyNode("ThisExpressionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(ThrowExpressionAST *ast)
-//{
-//    addDummyNode("ThrowExpressionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TryBlockStatementAST *ast)
-//{
-//    addDummyNode("TryBlockStatementAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TypeConstructorCallAST *ast)
-//{
-//    addDummyNode("TypeConstructorCallAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TypeIdAST *ast)
-//{
-//    addDummyNode("TypeIdAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TypeidExpressionAST *ast)
-//{
-//    addDummyNode("TypeidExpressionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TypeofSpecifierAST *ast)
-//{
-//    addDummyNode("TypeofSpecifierAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TypenameCallExpressionAST *ast)
-//{
-//    addDummyNode("TypenameCallExpressionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(TypenameTypeParameterAST *ast)
-//{
-//    addDummyNode("TypenameTypeParameterAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(UnaryExpressionAST *ast)
-//{
-//    addDummyNode("UnaryExpressionAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(UsingAST *ast)
-//{
-//    addDummyNode("UsingAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(UsingDirectiveAST *ast)
-//{
-//    addDummyNode("UsingDirectiveAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(WhileStatementAST *ast)
-//{
-//    addDummyNode("WhileStatementAST");
-//    return false;
-//}
-//
-//
-//bool TreeBuilder::visit(QtMethodAST *ast)
-//{
-//    addDummyNode("QtMethodAST");
-//    return false;
-//}
-//
+bool TreeBuilder::visit(NamespaceAliasDefinitionAST *ast)
+{
+  appendItem(new NamespaceAliasDefinitionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(NestedDeclaratorAST *ast)
+{
+  appendItem(new NestedDeclaratorItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(NestedExpressionAST *ast)
+{
+  appendItem(new NestedExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(NestedNameSpecifierAST *ast)
+{
+  appendItem(new NestedNameSpecifierItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(NewExpressionAST *ast)
+{
+  appendItem(new NewExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(NewInitializerAST *ast)
+{
+  appendItem(new NewInitializerItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(NewTypeIdAST *ast)
+{
+  appendItem(new NewTypeIdItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(NumericLiteralAST *ast)
+{
+  appendItem(new NumericLiteralItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(OperatorAST *ast)
+{
+  appendItem(new OperatorItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(OperatorFunctionIdAST *ast)
+{
+  appendItem(new OperatorFunctionIdItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ParameterDeclarationAST *ast)
+{
+  appendItem(new ParameterDeclarationItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ParameterDeclarationClauseAST *ast)
+{
+  appendItem(new ParameterDeclarationClauseItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(PtrOperatorAST *ast)
+{
+  appendItem(new PtrOperatorItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(PointerAST *ast)
+{
+  appendItem(new PointerItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(PointerToMemberAST *ast)
+{
+  appendItem(new PointerToMemberItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(PostIncrDecrAST *ast)
+{
+  appendItem(new Item(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(PostfixExpressionAST *ast)
+{
+  appendItem(new PostfixExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(QualifiedNameAST *ast)
+{
+  appendItem(new QualifiedNameItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ReferenceAST *ast)
+{
+  appendItem(new ReferenceItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ReturnStatementAST *ast)
+{
+  appendItem(new ReturnStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(SimpleNameAST *ast)
+{
+  appendItem(new SimpleNameItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(SimpleSpecifierAST *ast)
+{
+  appendItem(new SimpleSpecifierItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(SizeofExpressionAST *ast)
+{
+  appendItem(new SizeofExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(StringLiteralAST *ast)
+{
+  appendItem(new StringLiteralItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(SwitchStatementAST *ast)
+{
+  appendItem(new SwitchStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TemplateArgumentListAST *ast)
+{
+  appendItem(new TemplateArgumentListItem(currentItem), ast);
+  return true;
+}
+
+
+bool TreeBuilder::visit(TemplateDeclarationAST *ast)
+{
+  appendItem(new TemplateDeclarationItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TemplateIdAST *ast)
+{
+  appendItem(new TemplateIdItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TemplateTypeParameterAST *ast)
+{
+  appendItem(new TemplateTypeParameterItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ThisExpressionAST *ast)
+{
+  appendItem(new ThisExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(ThrowExpressionAST *ast)
+{
+  appendItem(new ThrowExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TryBlockStatementAST *ast)
+{
+  appendItem(new TryBlockStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TypeConstructorCallAST *ast)
+{
+  appendItem(new TypeConstructorCallItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TypeIdAST *ast)
+{
+  appendItem(new TypeIdItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TypeidExpressionAST *ast)
+{
+  appendItem(new TypeidExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TypeofSpecifierAST *ast)
+{
+  appendItem(new TypeofSpecifierItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TypenameCallExpressionAST *ast)
+{
+  appendItem(new TypenameCallExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(TypenameTypeParameterAST *ast)
+{
+  appendItem(new TypenameTypeParameterItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(UnaryExpressionAST *ast)
+{
+  appendItem(new UnaryExpressionItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(UsingAST *ast)
+{
+  appendItem(new UsingItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(UsingDirectiveAST *ast)
+{
+  appendItem(new UsingDirectiveItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(WhileStatementAST *ast)
+{
+  appendItem(new WhileStatementItem(currentItem), ast);
+  return true;
+}
+
+bool TreeBuilder::visit(QtMethodAST *ast)
+{
+  appendItem(new QtMethodItem(currentItem), ast);
+  return true;
+}

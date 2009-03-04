@@ -8,7 +8,7 @@
 
 class Item;
 
-class CPLUSPLUS_EXPORT ASTTreeModel :  public QAbstractItemModel
+class ASTTreeModel : public QAbstractItemModel
 {
   public:
     ASTTreeModel();
