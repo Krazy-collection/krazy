@@ -47,12 +47,13 @@ ParseResultWidget::~ParseResultWidget()
 
 QAbstractItemModel *ParseResultWidget::buildASTModel() const
 {
+  m_selectedDoc->parse();
+
   ASTTreeModel* model = new ASTTreeModel();
   model->getRootItem()->setAST(m_selectedDoc->translationUnit()->ast());
   TreeBuilder builder(m_selectedDoc->translationUnit()->control());
   builder.setRootItem(model->getRootItem());
 
-  m_selectedDoc->parse();
   m_selectedDoc->translationUnit()->ast()->asTranslationUnit()->accept(&builder);
 
   return model;
