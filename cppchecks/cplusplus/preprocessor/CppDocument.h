@@ -169,6 +169,13 @@ public:
 
     void appendMacro(const Macro &macro);
 
+    /**
+     * This will run the semantic pass over the AST. If the AST is not created
+     * yet, the document will be parsed first. The semantic tree can be
+     * retrieved by using the Scope() method.
+     */
+    void check(Scope *globalScope = 0);
+
     static Ptr create(Ptr parent, const QString &fileName);
 
     QList<Macro> definedMacros() const
@@ -191,6 +198,9 @@ public:
     Ptr parent() const
     { return _parent; }
 
+    /**
+     * Parses the source code and creates an AST object of it.
+     */
     bool parse();
 
     // TODO: This is function must be called before the last object goes out of
@@ -202,6 +212,8 @@ public:
     //       Document::Ptr goes out of scope without having to call this release
     //       function explicitly.
     void release();
+
+    Scope *scope() const;
 
     void setSource(const QByteArray &source);
 
@@ -236,6 +248,7 @@ public:
     QList<Include> _includes;
     QList<MacroUse> _macroUses;
     Ptr _parent;
+    Scope *_scope;
     QList<Block> _skippedBlocks;
     QByteArray _source;
     TranslationUnit* _translationUnit;
