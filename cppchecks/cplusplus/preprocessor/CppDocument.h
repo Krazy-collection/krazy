@@ -164,6 +164,7 @@ public:
 
     void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
 
+    // TODO: Remove the parent concept @see release.
     Ptr addIncludeFile(Ptr parent, const QString &fileName, unsigned line);
 
     void appendMacro(const Macro &macro);
@@ -192,6 +193,14 @@ public:
 
     bool parse();
 
+    // TODO: This is function must be called before the last object goes out of
+    //       scope. Otherwhise Include objects might keep a Document::Ptr to
+    //       this Document which prevent that the memory gets released. This was
+    //       added in combination with the parent concept in the constructor for
+    //       the IncludeModel in cppchecks/gui. I think this should solved in
+    //       another way so that all memory gets released when the last
+    //       Document::Ptr goes out of scope without having to call this release
+    //       function explicitly.
     void release();
 
     void setSource(const QByteArray &source);
