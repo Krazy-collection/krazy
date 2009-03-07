@@ -46,7 +46,7 @@
 namespace CPlusPlus {
 
 class Control;
-class Macro;
+class MacroArgumentReference;
 class TranslationUnit;
 
 class CPP_PREPROCESSOR_EXPORT Document
@@ -143,17 +143,30 @@ public:
 
     class MacroUse: public Block {
       Macro _macro;
+      QVector<Block> _arguments;
 
       public:
         inline MacroUse(const Macro &macro,
                         unsigned begin = 0,
                         unsigned end = 0)
-          : Block(begin, end),
-            _macro(macro)
-        {}
+            : Block(begin, end),
+              _macro(macro)
+        { }
 
         const Macro &macro() const
         { return _macro; }
+
+        bool isFunctionLike() const
+        { return _macro.isFunctionLike(); }
+
+        QVector<Block> arguments() const
+        { return _arguments; }
+
+        void setArguments(const QVector<Block> &arguments)
+        { _arguments = arguments; }
+
+        void addArgument(const Block &block)
+        { _arguments.append(block); }
     };
 
 public:
@@ -162,7 +175,8 @@ public:
     void addDiagnosticMessage(const DiagnosticMessage &d)
     { _diagnosticMessages.append(d); }
 
-    void addMacroUse(const Macro &macro, unsigned offset, unsigned length);
+    void addMacroUse(const Macro &macro, unsigned offset, unsigned length,
+                     const QVector<MacroArgumentReference> &range);
 
     // TODO: Remove the parent concept @see release.
     Ptr addIncludeFile(Ptr parent, const QString &fileName, unsigned line);

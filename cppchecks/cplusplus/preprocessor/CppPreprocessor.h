@@ -76,7 +76,8 @@ protected:
     virtual void macroAdded(const Macro &macro);
     virtual void startExpandingMacro(unsigned offset,
                                      const Macro &macro,
-                                     const QByteArray &originalText);
+                                     const QByteArray &originalText,
+                                     const QVector<MacroArgumentReference> &actuals);
     virtual void stopExpandingMacro(unsigned offset, const Macro &macro);
     virtual void startSkippingBlocks(unsigned offset);
     virtual void stopSkippingBlocks(unsigned offset);

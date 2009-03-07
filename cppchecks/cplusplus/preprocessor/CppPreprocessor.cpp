@@ -12,7 +12,7 @@ using namespace CPlusPlus;
 static const char pp_configuration_file[] = "<configuration>";
 
 CppPreprocessor::CppPreprocessor()
-  : m_proc(this, env)
+  : m_proc(this, &env)
 {}
 
 void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
@@ -97,15 +97,17 @@ void CppPreprocessor::macroAdded(const Macro &macro)
     m_currentDoc->appendMacro(macro);
 }
 
-void CppPreprocessor::startExpandingMacro(unsigned offset,
-                                          const Macro &macro,
-                                          const QByteArray &originalText)
+void CppPreprocessor::startExpandingMacro(
+                                 unsigned offset,
+                                 const Macro &macro,
+                                 const QByteArray &originalText,
+                                 const QVector<MacroArgumentReference> &actuals)
 {
     if (! m_currentDoc)
         return;
 
     //qDebug() << "start expanding:" << macro.name << "text:" << originalText;
-    m_currentDoc->addMacroUse(macro, offset, originalText.length());
+    m_currentDoc->addMacroUse(macro, offset, originalText.length(), actuals);
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
@@ -168,8 +170,8 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
         env.currentFile = m_currentDoc->fileName().toUtf8();
 
         // Preprocess and parse the documents included in the current document.
-        QByteArray preprocessedCode;
-        m_proc(contents, &preprocessedCode);
+        QByteArray preprocessedCode = m_proc(fileName.toUtf8(), contents);
+        //m_proc(contents, &preprocessedCode);
 
         env.currentFile = previousFile;
         env.currentLine = previousLine;

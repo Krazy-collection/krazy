@@ -46,6 +46,8 @@
 #include <QtCore/QFile>
 #include <QtCore/QtDebug>
 
+#include "PreprocessorClient.h"
+
 using namespace CPlusPlus;
 
 namespace {
@@ -136,9 +138,18 @@ void Document::appendMacro(const Macro &macro)
     _definedMacros.append(macro);
 }
 
-void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length)
+void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length,
+                           const QVector<MacroArgumentReference> &actuals)
 {
-    _macroUses.append(MacroUse(macro, offset, offset + length));
+    MacroUse use(macro, offset, offset + length);
+
+    foreach (const MacroArgumentReference &actual, actuals) {
+        const Block arg(actual.position(), actual.position() + actual.length());
+
+        use.addArgument(arg);
+    }
+
+    _macroUses.append(use);
 }
 
 void Document::check(Scope *globals) const

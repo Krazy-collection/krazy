@@ -1,42 +1,54 @@
-/***************************************************************************
+/**************************************************************************
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
+** Commercial Usage
 **
-** Non-Open Source Usage
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
 **
-** Licensees may use this file in accordance with the Qt Beta Version
-** License Agreement, Agreement version 2.2 provided with the Software or,
-** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.
+** GNU Lesser General Public License Usage
 **
-** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License versions 2.0 or 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the packaging
-** of this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at qt-sales@nokia.com.
 **
-** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception
-** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
-**
-***************************************************************************/
+**************************************************************************/
 
 #include "pp.h"
-
-#include <QtCore/QDateTime>
-
 #include "pp-cctype.h"
 #include "pp-macro-expander.h"
+#include <QtCore/QDateTime>
+
+namespace CPlusPlus {
+
+
+
+struct pp_frame
+{
+    Macro *expanding_macro;
+    const QVector<QByteArray> actuals;
+
+    pp_frame(Macro *expanding_macro, const QVector<QByteArray> &actuals)
+        : expanding_macro (expanding_macro),
+          actuals (actuals)
+    { }
+};
+
+
+} // end of namespace CPlusPlus
 
 using namespace CPlusPlus;
 
@@ -54,9 +66,10 @@ inline static bool comment_p (const char *__first, const char *__last)
     return (*__first == '/' || *__first == '*');
 }
 
-MacroExpander::MacroExpander (Environment &env, pp_frame *frame)
-    : env(env), frame(frame),
-      lines(0), generated_lines(0)
+MacroExpander::MacroExpander(Environment *env, pp_frame *frame)
+    : env(env),
+      frame(frame),
+      lines(0)
 { }
 
 const QByteArray *MacroExpander::resolve_formal(const QByteArray &__name)
@@ -75,10 +88,15 @@ const QByteArray *MacroExpander::resolve_formal(const QByteArray &__name)
     return 0;
 }
 
-const char *MacroExpander::operator () (const char *__first, const char *__last,
-                                        QByteArray *__result)
+const char *MacroExpander::operator()(const char *first, const char *last,
+                                      QByteArray *result)
 {
-    generated_lines = 0;
+    return expand(first, last, result);
+}
+
+const char *MacroExpander::expand(const char *__first, const char *__last,
+                                  QByteArray *__result)
+{
     __first = skip_blanks (__first, __last);
     lines = skip_blanks.lines;
 
@@ -87,10 +105,10 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
         if (*__first == '\n')
         {
             __result->append("\n# ");
-            __result->append(QByteArray::number(env.currentLine));
+            __result->append(QByteArray::number(env->currentLine));
             __result->append(' ');
             __result->append('"');
-            __result->append(env.currentFile);
+            __result->append(env->currentFile);
             __result->append('"');
             __result->append('\n');
             ++lines;
@@ -214,20 +232,20 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
                 continue;
             }
 
-            Macro *macro = env.resolve (fast_name);
-            if (! macro || macro->isHidden() || env.hideNext)
+            Macro *macro = env->resolve (fast_name);
+            if (! macro || macro->isHidden() || env->hideNext)
             {
                 if (fast_name.size () == 7 && fast_name [0] == 'd' && fast_name == "defined")
-                    env.hideNext = true;
+                    env->hideNext = true;
                 else
-                    env.hideNext = false;
+                    env->hideNext = false;
 
                 if (fast_name.size () == 8 && fast_name [0] == '_' && fast_name [1] == '_')
                 {
                     if (fast_name == "__LINE__")
                     {
                         char buf [16];
-                        const size_t count = qsnprintf (buf, 16, "%d", env.currentLine + lines);
+                        const size_t count = qsnprintf (buf, 16, "%d", env->currentLine + lines);
                         __result->append(buf, count);
                         continue;
                     }
@@ -235,7 +253,7 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
                     else if (fast_name == "__FILE__")
                     {
                         __result->append('"');
-                        __result->append(env.currentFile);
+                        __result->append(env->currentFile);
                         __result->append('"');
                         continue;
                     }
@@ -274,8 +292,7 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
                     __tmp.reserve (256);
 
                     MacroExpander expand_macro (env);
-                    expand_macro (macro->definition(), &__tmp);
-                    generated_lines += expand_macro.lines;
+                    expand_macro(macro->definition(), &__tmp);
 
                     if (! __tmp.isEmpty ())
                     {
@@ -287,7 +304,7 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
                         if (__end_id == __tmp_end)
                         {
                             const QByteArray __id (__begin_id, __end_id - __begin_id);
-                            m = env.resolve (__id);
+                            m = env->resolve (__id);
                         }
 
                         if (! m)
@@ -353,7 +370,6 @@ const char *MacroExpander::operator () (const char *__first, const char *__last,
             macro->setHidden(true);
             expand_macro (macro->definition(), __result);
             macro->setHidden(false);
-            generated_lines += expand_macro.lines;
         }
         else
             __result->append(*__first++);

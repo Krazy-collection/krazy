@@ -1,35 +1,31 @@
-/***************************************************************************
+/**************************************************************************
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
+** Commercial Usage
 **
-** Non-Open Source Usage
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
 **
-** Licensees may use this file in accordance with the Qt Beta Version
-** License Agreement, Agreement version 2.2 provided with the Software or,
-** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.
+** GNU Lesser General Public License Usage
 **
-** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License versions 2.0 or 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the packaging
-** of this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at qt-sales@nokia.com.
 **
-** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception
-** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
-**
-***************************************************************************/
+**************************************************************************/
 /*
   Copyright 2005 Roberto Raggi <roberto@kdevelop.org>
 
@@ -54,54 +50,51 @@
 #define PP_MACRO_EXPANDER_H
 
 #include "pp-scanner.h"
+#include <QtCore/QVector>
+#include <QtCore/QByteArray>
 
 namespace CPlusPlus {
 
-    struct pp_frame
-    {
-        Macro *expanding_macro;
-        const QVector<QByteArray> actuals;
+class Environment;
 
-        pp_frame (Macro *expanding_macro, const QVector<QByteArray> &actuals)
-            : expanding_macro (expanding_macro),
-              actuals (actuals)
-        { }
-    };
+struct pp_frame;
 
-    class MacroExpander
-    {
-        Environment &env;
-        pp_frame *frame;
+class MacroExpander
+{
+    Environment *env;
+    pp_frame *frame;
 
-        pp_skip_number skip_number;
-        pp_skip_identifier skip_identifier;
-        pp_skip_string_literal skip_string_literal;
-        pp_skip_char_literal skip_char_literal;
-        pp_skip_argument skip_argument;
-        pp_skip_comment_or_divop skip_comment_or_divop;
-        pp_skip_blanks skip_blanks;
-        pp_skip_whitespaces skip_whitespaces;
+    pp_skip_number skip_number;
+    pp_skip_identifier skip_identifier;
+    pp_skip_string_literal skip_string_literal;
+    pp_skip_char_literal skip_char_literal;
+    pp_skip_argument skip_argument;
+    pp_skip_comment_or_divop skip_comment_or_divop;
+    pp_skip_blanks skip_blanks;
+    pp_skip_whitespaces skip_whitespaces;
 
-        const QByteArray *resolve_formal (const QByteArray &name);
+    const QByteArray *resolve_formal(const QByteArray &name);
 
-    public:
-        MacroExpander (Environment &env, pp_frame *frame = 0);
+public:
+    MacroExpander(Environment *env, pp_frame *frame = 0);
 
-        const char *operator () (const char *first, const char *last,
-                                 QByteArray *result);
+    const char *operator()(const char *first, const char *last,
+                             QByteArray *result);
 
-        const char *operator () (const QByteArray &source,
-                                 QByteArray *result)
-        { return operator()(source.constBegin(), source.constEnd(), result); }
+    const char *operator()(const QByteArray &source,
+                             QByteArray *result)
+    { return operator()(source.constBegin(), source.constEnd(), result); }
 
-        const char *skip_argument_variadics (const QVector<QByteArray> &actuals,
-                                             Macro *macro,
-                                             const char *first, const char *last);
+    const char *expand(const char *first, const char *last,
+                       QByteArray *result);
 
-    public: // attributes
-        int lines;
-        int generated_lines;
-    };
+    const char *skip_argument_variadics(const QVector<QByteArray> &actuals,
+                                         Macro *macro,
+                                         const char *first, const char *last);
+
+public: // attributes
+    int lines;
+};
 
 } // namespace CPlusPlus
 

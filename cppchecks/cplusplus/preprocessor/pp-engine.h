@@ -1,35 +1,31 @@
-/***************************************************************************
+/**************************************************************************
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
+** Commercial Usage
 **
-** Non-Open Source Usage
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
 **
-** Licensees may use this file in accordance with the Qt Beta Version
-** License Agreement, Agreement version 2.2 provided with the Software or,
-** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.
+** GNU Lesser General Public License Usage
 **
-** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License versions 2.0 or 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the packaging
-** of this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at qt-sales@nokia.com.
 **
-** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception
-** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
-**
-***************************************************************************/
+**************************************************************************/
 /*
   Copyright 2005 Roberto Raggi <roberto@kdevelop.org>
 
@@ -54,7 +50,6 @@
 #define CPLUSPLUS_PP_ENGINE_H
 
 #include "PreprocessorClient.h"
-#include "PreprocessorEnvironment.h"
 #include "pp-macro-expander.h"
 
 #include <Token.h>
@@ -66,168 +61,129 @@ namespace CPlusPlus {
 
 namespace CPlusPlus {
 
-    struct Value
+struct Value;
+
+class CPP_PREPROCESSOR_EXPORT Preprocessor
+{
+public:
+    Preprocessor(Client *client, Environment *env);
+
+    QByteArray operator()(const QByteArray &filename,
+                          const QByteArray &source);
+
+private:
+    enum { MAX_LEVEL = 512 };
+
+    enum PP_DIRECTIVE_TYPE
     {
-        enum Kind {
-            Kind_Long,
-            Kind_ULong,
-        };
-
-        Kind kind;
-
-        union {
-            long l;
-            unsigned long ul;
-        };
-
-
-        Value()
-            : kind(Kind_Long), l(0)
-        { }
-
-        inline bool is_ulong () const
-        { return kind == Kind_ULong; }
-
-        inline void set_ulong (unsigned long v)
-        {
-            ul = v;
-            kind = Kind_ULong;
-        }
-
-        inline void set_long (long v)
-        {
-            l = v;
-            kind = Kind_Long;
-        }
-
-        inline bool is_zero () const
-        { return l == 0; }
-
-#define PP_DEFINE_BIN_OP(name, op) \
-        inline Value operator op(const Value &other) const \
-        { \
-            Value v = *this; \
-            if (v.is_ulong () || other.is_ulong ()) \
-                v.set_ulong (v.ul op other.ul); \
-            else \
-                v.set_long (v.l op other.l); \
-            return v; \
-        }
-
-        PP_DEFINE_BIN_OP(op_add, +)
-        PP_DEFINE_BIN_OP(op_sub, -)
-        PP_DEFINE_BIN_OP(op_mult, *)
-        PP_DEFINE_BIN_OP(op_div, /)
-        PP_DEFINE_BIN_OP(op_mod, %)
-        PP_DEFINE_BIN_OP(op_lhs, <<)
-        PP_DEFINE_BIN_OP(op_rhs, >>)
-        PP_DEFINE_BIN_OP(op_lt, <)
-        PP_DEFINE_BIN_OP(op_gt, >)
-        PP_DEFINE_BIN_OP(op_le, <=)
-        PP_DEFINE_BIN_OP(op_ge, >=)
-        PP_DEFINE_BIN_OP(op_eq, ==)
-        PP_DEFINE_BIN_OP(op_ne, !=)
-        PP_DEFINE_BIN_OP(op_bit_and, &)
-        PP_DEFINE_BIN_OP(op_bit_or, |)
-        PP_DEFINE_BIN_OP(op_bit_xor, ^)
-        PP_DEFINE_BIN_OP(op_and, &&)
-        PP_DEFINE_BIN_OP(op_or, ||)
-
-#undef PP_DEFINE_BIN_OP
+        PP_UNKNOWN_DIRECTIVE,
+        PP_DEFINE,
+        PP_IMPORT,
+        PP_INCLUDE,
+        PP_INCLUDE_NEXT,
+        PP_ELIF,
+        PP_ELSE,
+        PP_ENDIF,
+        PP_IF,
+        PP_IFDEF,
+        PP_IFNDEF,
+        PP_UNDEF
     };
 
-    class CPP_PREPROCESSOR_EXPORT Preprocessor
-    {
-        Client *client;
-        Environment &env;
-        MacroExpander expand;
+    typedef const CPlusPlus::Token *TokenIterator;
 
-        enum { MAX_LEVEL = 512 };
-
-        bool _skipping[MAX_LEVEL]; // ### move in state
-        bool _true_test[MAX_LEVEL]; // ### move in state
-        int iflevel; // ### move in state
-
-        enum PP_DIRECTIVE_TYPE
-        {
-            PP_UNKNOWN_DIRECTIVE,
-            PP_DEFINE,
-            PP_IMPORT,
-            PP_INCLUDE,
-            PP_INCLUDE_NEXT,
-            PP_ELIF,
-            PP_ELSE,
-            PP_ENDIF,
-            PP_IF,
-            PP_IFDEF,
-            PP_IFNDEF,
-            PP_UNDEF
-        };
-
-        typedef const CPlusPlus::Token *TokenIterator;
-
-        struct State {
-            QByteArray source;
-            QVector<CPlusPlus::Token> tokens;
-            TokenIterator dot;
-        };
-
-        QList<State> _savedStates;
-
-        State state() const;
-        void pushState(const State &state);
-        void popState();
-
-        QByteArray _source;
-        QVector<CPlusPlus::Token> _tokens;
-        TokenIterator _dot;
-
-        State createStateFromSource(const QByteArray &source) const;
-
-    public:
-        Preprocessor(Client *client, Environment &env);
-
-        void operator()(const QByteArray &filename,
-                        const QByteArray &source,
-                        QByteArray *result);
-
-        void operator()(const QByteArray &source,
-                        QByteArray *result);
-
-    private:
-        void resetIfLevel();
-        bool testIfLevel();
-        int skipping() const;
-
-        PP_DIRECTIVE_TYPE classifyDirective(const QByteArray &directive) const;
-
-        Value evalExpression(TokenIterator firstToken,
-                             TokenIterator lastToken,
-                             const QByteArray &source) const;
-
-        QVector<CPlusPlus::Token> tokenize(const QByteArray &text) const;
-
-        const char *startOfToken(const CPlusPlus::Token &token) const;
-        const char *endOfToken(const CPlusPlus::Token &token) const;
-
-        QByteArray tokenSpell(const CPlusPlus::Token &token) const;
-        QByteArray tokenText(const CPlusPlus::Token &token) const; // does a deep copy
-
-        void processDirective(TokenIterator dot, TokenIterator lastToken);
-        void processInclude(bool skipCurrentPath,
-                            TokenIterator dot, TokenIterator lastToken,
-                            bool acceptMacros = true);
-        void processDefine(TokenIterator dot, TokenIterator lastToken);
-        void processIf(TokenIterator dot, TokenIterator lastToken);
-        void processElse(TokenIterator dot, TokenIterator lastToken);
-        void processElif(TokenIterator dot, TokenIterator lastToken);
-        void processEndif(TokenIterator dot, TokenIterator lastToken);
-        void processIfdef(bool checkUndefined,
-                          TokenIterator dot, TokenIterator lastToken);
-        void processUndef(TokenIterator dot, TokenIterator lastToken);
-
-        bool isQtReservedWord(const QByteArray &name) const;
+    struct State {
+        QByteArray source;
+        QVector<CPlusPlus::Token> tokens;
+        TokenIterator dot;
     };
+
+    bool markGeneratedTokens(bool markGeneratedTokens, TokenIterator dot = 0);
+
+    void preprocess(const QByteArray &filename,
+                    const QByteArray &source,
+                    QByteArray *result);
+
+    QByteArray expand(const QByteArray &source);
+    void expand(const QByteArray &source, QByteArray *result);
+    void expand(const char *first, const char *last, QByteArray *result);
+    void expandBuiltinMacro(TokenIterator identifierToken,
+                            const QByteArray &spell);
+    void expandObjectLikeMacro(TokenIterator identifierToken,
+                               const QByteArray &spell,
+                               Macro *m, QByteArray *result);
+    void expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m,
+                                 const QVector<MacroArgumentReference> &actuals);
+
+    void resetIfLevel();
+    bool testIfLevel();
+    int skipping() const;
+
+    PP_DIRECTIVE_TYPE classifyDirective(const QByteArray &directive) const;
+
+    Value evalExpression(TokenIterator firstToken,
+                         TokenIterator lastToken,
+                         const QByteArray &source) const;
+
+    QVector<CPlusPlus::Token> tokenize(const QByteArray &text) const;
+
+    const char *startOfToken(const CPlusPlus::Token &token) const;
+    const char *endOfToken(const CPlusPlus::Token &token) const;
+
+    QByteArray tokenSpell(const CPlusPlus::Token &token) const;
+    QByteArray tokenText(const CPlusPlus::Token &token) const; // does a deep copy
+
+    void collectActualArguments(QVector<MacroArgumentReference> *actuals);
+    MacroArgumentReference collectOneActualArgument();
+
+    void processNewline(bool force = false);
+
+    void processSkippingBlocks(bool skippingBlocks,
+                               TokenIterator dot, TokenIterator lastToken);
+
+    Macro *processObjectLikeMacro(TokenIterator identifierToken,
+                                  const QByteArray &spell,
+                                  Macro *m);
+
+    void processDirective(TokenIterator dot, TokenIterator lastToken);
+    void processInclude(bool skipCurrentPath,
+                        TokenIterator dot, TokenIterator lastToken,
+                        bool acceptMacros = true);
+    void processDefine(TokenIterator dot, TokenIterator lastToken);
+    void processIf(TokenIterator dot, TokenIterator lastToken);
+    void processElse(TokenIterator dot, TokenIterator lastToken);
+    void processElif(TokenIterator dot, TokenIterator lastToken);
+    void processEndif(TokenIterator dot, TokenIterator lastToken);
+    void processIfdef(bool checkUndefined,
+                      TokenIterator dot, TokenIterator lastToken);
+    void processUndef(TokenIterator dot, TokenIterator lastToken);
+
+    bool isQtReservedWord(const QByteArray &name) const;
+
+    State state() const;
+    void pushState(const State &state);
+    void popState();
+
+    State createStateFromSource(const QByteArray &source) const;
+
+private:
+    Client *client;
+    Environment *env;
+    MacroExpander _expand;
+
+    bool _skipping[MAX_LEVEL]; // ### move in state
+    bool _true_test[MAX_LEVEL]; // ### move in state
+    int iflevel; // ### move in state
+
+    QList<State> _savedStates;
+
+    QByteArray _source;
+    QVector<CPlusPlus::Token> _tokens;
+    TokenIterator _dot;
+
+    QByteArray *_result;
+    bool _markGeneratedTokens;
+};
 
 } // namespace CPlusPlus
 
