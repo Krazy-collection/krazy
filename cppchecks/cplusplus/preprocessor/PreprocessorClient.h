@@ -59,7 +59,7 @@ public:
   { return _length; }
 };
 
-class CPLUSPLUS_EXPORT Client
+class CPP_PREPROCESSOR_EXPORT Client
 {
   Client(const Client &other);
   void operator=(const Client &other);
