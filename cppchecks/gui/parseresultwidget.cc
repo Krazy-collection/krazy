@@ -7,6 +7,7 @@
 #include <QtGui/QTextBlock>
 
 #include <CppPreprocessor.h>
+#include <Scope.h>
 #include <TranslationUnit.h>
 
 #include "asttreemodel.h"
@@ -16,7 +17,10 @@
 #include "ui_parseresultwidget.h"
 
 ParseResultWidget::ParseResultWidget()
-  : m_includeTreeModel(0), m_ui(new Ui::ParseResultWidget()), m_selectedDoc(0)
+  : m_globals(0),
+    m_includeTreeModel(0),
+    m_ui(new Ui::ParseResultWidget()),
+    m_selectedDoc(0)
 {
   m_ui->setupUi(this);
   connect(m_ui->m_openFileButton, SIGNAL(clicked()), this, SLOT(openFile()));
@@ -45,6 +49,7 @@ ParseResultWidget::~ParseResultWidget()
   if (m_ui->m_treeView->model() != m_includeTreeModel)
     delete m_ui->m_treeView->model();
 
+  delete m_globals;
   delete m_ui;
   delete m_includeTreeModel;
 }
@@ -61,6 +66,19 @@ QAbstractItemModel *ParseResultWidget::buildASTModel() const
   m_selectedDoc->translationUnit()->ast()->asTranslationUnit()->accept(&builder);
 
   return model;
+}
+
+QAbstractItemModel *ParseResultWidget::buildSemanticModel()
+{
+  if (!m_globals)
+  {
+    qDebug() << "Building Scope";
+    m_globals = new Scope(0);
+    m_rootDoc->check(m_globals);
+  }
+
+  // TODO: Build a semantic tree model and return it.
+  return 0;
 }
 
 QStringList ParseResultWidget::includePaths() const
@@ -122,18 +140,18 @@ void ParseResultWidget::onStateChanged(int state)
 
 void ParseResultWidget::onTreeTypeChanged(int index)
 {
-  if (!m_selectedDoc)
-    return;
-
   switch(index)
   {
-    case 0:
+    case 0: // Include Tree
       m_ui->m_treeView->disconnect(this);
       connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
               this, SLOT(onIncludeClicked(QModelIndex const &)));
       m_ui->m_treeView->setModel(m_includeTreeModel);
       break;
-    case 1:
+    case 1: // Abstract Syntax Tree
+      if (!m_selectedDoc)
+        return; // We can only create an AST when a document is selected.
+
       m_ui->m_treeView->disconnect(this);
       connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
               this, SLOT(onASTItemClicked(QModelIndex const &)));
@@ -143,7 +161,17 @@ void ParseResultWidget::onTreeTypeChanged(int index)
 
       m_ui->m_treeView->setModel(buildASTModel());
       break;
-    default:
+    case 2: // Semantic Tree
+      m_ui->m_treeView->disconnect(this);
+      //connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
+      //        this, SLOT(onSemanticItemClicked(QModelIndex const &)));
+      if (m_ui->m_treeView->model() != m_includeTreeModel)
+        delete m_ui->m_treeView->model();
+
+      buildSemanticModel();
+      //m_ui->m_treeView->setModel(buildSemanticModel());
+      break;
+    default: // Invalid
       break;
   }
 }
@@ -166,7 +194,8 @@ void ParseResultWidget::openFile()
 
     delete m_includeTreeModel;
 
-    m_includeTreeModel = new IncludesTreeModel(preproc.run(fileName));
+    m_rootDoc = preproc.run(fileName);
+    m_includeTreeModel = new IncludesTreeModel(m_rootDoc);
     m_ui->m_treeView->setModel(m_includeTreeModel);
   }
 }

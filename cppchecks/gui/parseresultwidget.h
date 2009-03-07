@@ -1,12 +1,14 @@
 #include <QtGui/QWidget>
 
+#include <CppDocument.h>
+
 class IncludesTreeModel;
 class QAbstractItemModel;
 class QModelIndex;
 
 namespace CPlusPlus
 {
-  class Document;
+  class Scope;
 }
 
 namespace Ui
@@ -32,9 +34,12 @@ class ParseResultWidget : public QWidget
   private: // Functions
     QStringList includePaths() const;
     QAbstractItemModel *buildASTModel() const;
+    QAbstractItemModel *buildSemanticModel();
 
   private:
-    IncludesTreeModel *m_includeTreeModel;
-    Ui::ParseResultWidget *m_ui;
-    CPlusPlus::Document *m_selectedDoc;
+    CPlusPlus::Scope        *m_globals;
+    IncludesTreeModel       *m_includeTreeModel;
+    CPlusPlus::Document::Ptr m_rootDoc;
+    CPlusPlus::Document     *m_selectedDoc;
+    Ui::ParseResultWidget   *m_ui;
 };

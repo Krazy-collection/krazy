@@ -97,7 +97,7 @@ public:
 } // anonymous namespace
 
 Document::Document(const QString &fileName, Ptr parent)
-  : _fileName(fileName), _parent(parent), _scope(0)
+  : _fileName(fileName), _parent(parent)
 {
   _control = new Control();
 
@@ -117,8 +117,6 @@ Document::~Document()
   delete _translationUnit;
   delete _control->diagnosticClient();
   delete _control;
-  delete _scope;
-  _scope = 0;
 }
 
 QString Document::fileName() const
@@ -143,34 +141,21 @@ void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length)
     _macroUses.append(MacroUse(macro, offset, offset + length));
 }
 
-void Document::check(Scope *globalScope)
+void Document::check(Scope *globals) const
 {
-  if (!_translationUnit->isParsed())
-    parse();
-
-  if (!globalScope)
-  {
-    _scope = _control->newNamespace(0)->members();
-  }
-  else
-    _scope = globalScope;
-
   foreach(Include inc, _includes)
-    inc.document()->check(_scope);
+    inc.document()->check(globals);
 
-  if (!_translationUnit->ast())
+  if (!_translationUnit->isParsed() || !_translationUnit->ast())
     return;
 
   Semantic semantic(_control);
-
-  //_globalNamespace = _control->newNamespace(0);
-  if (! _translationUnit->ast())
-      return; // nothing to do.
-
-  if (TranslationUnitAST *ast = _translationUnit->ast()->asTranslationUnit()) {
-      for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
-          semantic.check(decl, _scope);
-      }
+  if (TranslationUnitAST *ast = _translationUnit->ast()->asTranslationUnit())
+  {
+    for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next)
+    {
+      semantic.check(decl, globals);
+    }
   }
 }
 

@@ -48,6 +48,11 @@
              <string>Abstract Syntax Tree</string>
             </property>
            </item>
+           <item>
+            <property name="text">
+             <string>Semantic Tree</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>

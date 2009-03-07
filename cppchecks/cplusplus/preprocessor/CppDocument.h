@@ -170,11 +170,12 @@ public:
     void appendMacro(const Macro &macro);
 
     /**
-     * This will run the semantic pass over the AST. If the AST is not created
-     * yet, the document will be parsed first. The semantic tree can be
-     * retrieved by using the Scope() method.
+     * This will run the semantic pass over the AST and the AST of all included
+     * documents. If the AST is not created
+     * yet, the document will be parsed first. The semantic symbols will be
+     * added to the @param globals Scope object.
      */
-    void check(Scope *globalScope = 0);
+    void check(Scope *globals) const;
 
     static Ptr create(Ptr parent, const QString &fileName);
 
@@ -213,8 +214,6 @@ public:
     //       function explicitly.
     void release();
 
-    Scope *scope() const;
-
     void setSource(const QByteArray &source);
 
     QByteArray source() const
@@ -248,7 +247,6 @@ public:
     QList<Include> _includes;
     QList<MacroUse> _macroUses;
     Ptr _parent;
-    Scope *_scope;
     QList<Block> _skippedBlocks;
     QByteArray _source;
     TranslationUnit* _translationUnit;
