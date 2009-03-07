@@ -42,7 +42,7 @@ namespace CPlusPlus {
 
 class Macro;
 
-class CPLUSPLUS_EXPORT MacroArgumentReference
+class CPP_PREPROCESSOR_EXPORT MacroArgumentReference
 {
   unsigned _position;
   unsigned _length;
