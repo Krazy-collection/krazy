@@ -90,36 +90,36 @@ foreach $line (@lines) {
   $pline =~ s/\'\"\'//g;
 
   if ($pline =~ m:\":) {
-    next if ($line =~ m+[\s\(](QLatin1String|QString)\s*\(+);
-    next if ($line =~ m+[\s\(](tr|i18n|i18nc|i18np|i18ncp)\s*\(+);
+    next if ($pline =~ m+[\s\(](QLatin1String|QString)\s*\(+);
+    next if ($pline =~ m+[\s\(](tr|i18n|i18nc|i18np|i18ncp)\s*\(+);
 
-    next if ($line =~ m+[\s\(](ki18n|ki18nc|ki18np|ki18ncp)\s*\(+);
-    next if ($line =~ m+[\s\(](qFatal|qError|qWarning|qDebug)\s*\(+);
-    next if ($line =~ m+[\s\(](kFatal|kError|kWarning|kDebug)\s*\(+);
-    next if ($line =~ m+[\s](Q_ASSERT|Q_ASSERT_X)\s*\(+);
-    next if ($line =~ m+[\s](QRegExp)\s*\(+);
-    next if ($line =~ m+[\s\(\.](printf|fprintf|vsprintf|sprintf|scanf|fscanf|sscanf)\s*\(+);
-    next if ($line =~ m+[\s\(](strcmp|strncmp)\s*\(+);
-    next if ($line =~ m+[\s](qgetenv|setenv)\s*\(+);
-    next if ($line =~ m+[\s\(](fopen|popen)\s*\(+);
+    next if ($pline =~ m+[\s\(](ki18n|ki18nc|ki18np|ki18ncp)\s*\(+);
+    next if ($pline =~ m+[\s\(](qFatal|qError|qWarning|qDebug)\s*\(+);
+    next if ($pline =~ m+[\s\(](kFatal|kError|kWarning|kDebug)\s*\(+);
+    next if ($pline =~ m+[\s](Q_ASSERT|Q_ASSERT_X)\s*\(+);
+    next if ($pline =~ m+[\s](QRegExp)\s*\(+);
+    next if ($pline =~ m+[\s\(\.](printf|fprintf|vsprintf|sprintf|scanf|fscanf|sscanf)\s*\(+);
+    next if ($pline =~ m+[\s\(](strcmp|strncmp)\s*\(+);
+    next if ($pline =~ m+[\s](qgetenv|setenv)\s*\(+);
+    next if ($pline =~ m+[\s\(](fopen|popen)\s*\(+);
 
-    next if ($line =~ m+\sreturn\s\"+);
-    next if ($line =~ m+\schar\s*\*+);
-    next if ($line =~ m+(<<|=)\s*\"+);
-    next if ($line =~ m/(\+|\+=)\s*\"/);
-    next if ($line =~ m/^\s*\"/);
-    next if ($line =~ m/(QString|QLatin1String|QRegExp)\s\w+\s*\(\s*\"/);
+    next if ($pline =~ m+\sreturn\s\"+);
+    next if ($pline =~ m+\schar\s*\*+);
+    next if ($pline =~ m+(<<|=)\s*\"+ && $pline !~ m+\".*(<<|=).*\"+);
+    next if ($pline =~ m/(\+|\+=)\s*\"/);
+    next if ($pline =~ m/^\s*\"/);
+    next if ($pline =~ m/(QString|QLatin1String|QRegExp)\s\w+\s*\(\s*\"/);
 
     # methods that have const char * as arg1
-    next if ($line =~ m/(addAction|QPixmap|setObjectName|inherits|fromAscii|fromLatin1|fromLocal8Bit|readEntry|readPathEntry|writeEntry|writePathEntry|setCodec|locateLocal|fromUtf8|fromUtf16|[Ii]con|[Gg]roup)\s*\(\s*\"/);
+    next if ($pline =~ m/(addAction|QPixmap|setObjectName|inherits|fromAscii|fromLatin1|fromLocal8Bit|readEntry|readPathEntry|writeEntry|writePathEntry|setCodec|locateLocal|fromUtf8|fromUtf16|[Ii]con|[Gg]roup)\s*\(\s*\"/);
 
     # Even thought append/prepend would be faster with QLatin1String's, this
     # would lead to thousands and thousands of issues. We'd also need to
     # check +=, <<, and >> operators.
-    next if ($line =~ m/(append|prepend)\s*\(\s*\"/);
+    next if ($pline =~ m/(append|prepend)\s*\(\s*\"/);
 
     # For now, we really only care about a few QString methods
-    next unless ($line =~ m/(startsWith|endsWith)\s*\(\s*\"/);
+    next unless ($pline =~ m/(startsWith|endsWith)\s*\(\s*\"/);
 
     # TODO: find cases where i18n() should be used
 
