@@ -2,6 +2,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QModelIndex>
 #include <QtGui/QFileDialog>
 #include <QtGui/QTextBlock>
@@ -10,10 +11,11 @@
 #include <Scope.h>
 #include <TranslationUnit.h>
 
+#include "asttreebuilder.h"
 #include "asttreemodel.h"
+#include "dumpast.h"
 #include "includestreemodel.h"
 #include "messagetablemodel.h"
-#include "asttreebuilder.h"
 #include "ui_parseresultwidget.h"
 
 ParseResultWidget::ParseResultWidget()
@@ -29,7 +31,10 @@ ParseResultWidget::ParseResultWidget()
   connect(m_ui->m_preprocessedCheck, SIGNAL(stateChanged(int)),
           this, SLOT(onStateChanged(int)));
   connect(m_ui->m_treeCombo, SIGNAL(currentIndexChanged(int)),
-          this, SLOT(onTreeTypeChanged(int)));
+          this, SLOT(onTreeTypeChanged(int)));        
+  connect(m_ui->m_exportAST, SIGNAL(clicked()),
+          this, SLOT(exportAST()));
+          
 
   // TODO: Read from config.
   QStringList includePaths;
@@ -68,7 +73,7 @@ QAbstractItemModel *ParseResultWidget::buildASTModel() const
   return model;
 }
 
-QAbstractItemModel *ParseResultWidget::buildSemanticModel()
+QAbstractItemModel *ParseResultWidget::buildScopeModel()
 {
   if (!m_globals)
   {
@@ -79,6 +84,26 @@ QAbstractItemModel *ParseResultWidget::buildSemanticModel()
 
   // TODO: Build a semantic tree model and return it.
   return 0;
+}
+
+void ParseResultWidget::exportAST()
+{
+  if (!m_selectedDoc)
+    return;
+  
+  m_selectedDoc->parse();
+  
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Export AST")
+                            , m_selectedDoc->fileName() + ".ast"
+                            , tr("AST Files (*.ast)"));
+  QFile result(fileName);
+  result.remove();
+  result.open(QIODevice::WriteOnly);
+  
+  DumpAST dumper(&result, m_selectedDoc->translationUnit()->control());
+  dumper(m_selectedDoc->translationUnit()->ast());
+  
+  result.close();
 }
 
 QStringList ParseResultWidget::includePaths() const
@@ -99,7 +124,8 @@ void ParseResultWidget::onASTItemClicked(QModelIndex const &index)
   unsigned line, column;
   StringLiteral *fileId = 0;
   unit->getTokenPosition(item->ast()->firstToken(), &line, &column, &fileId);
-  qDebug() << "Line: " << line + 1 << " Column:" << column << "firstToken: " << item->ast()->firstToken() ;
+  //qDebug() << "Line: " << line + 1 << " Column:" << column << "firstToken: " 
+  //        << item->ast()->firstToken() ;
 
   QTextCursor tc(m_ui->m_headerView->document()->findBlockByLineNumber(line));
   //tc.movePosition(QTextCursor::Right,QTextCursor::MoveAnchor, column);
@@ -161,14 +187,14 @@ void ParseResultWidget::onTreeTypeChanged(int index)
 
       m_ui->m_treeView->setModel(buildASTModel());
       break;
-    case 2: // Semantic Tree
+    case 2: // Scope Tree
       m_ui->m_treeView->disconnect(this);
       //connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
       //        this, SLOT(onSemanticItemClicked(QModelIndex const &)));
       if (m_ui->m_treeView->model() != m_includeTreeModel)
         delete m_ui->m_treeView->model();
 
-      buildSemanticModel();
+      buildScopeModel();
       //m_ui->m_treeView->setModel(buildSemanticModel());
       break;
     default: // Invalid

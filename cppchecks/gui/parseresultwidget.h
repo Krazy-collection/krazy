@@ -25,6 +25,7 @@ class ParseResultWidget : public QWidget
     ~ParseResultWidget();
 
   public slots:
+    void exportAST();
     void onASTItemClicked(QModelIndex const &);
     void onIncludeClicked(QModelIndex const &);
     void onStateChanged(int);
@@ -34,7 +35,7 @@ class ParseResultWidget : public QWidget
   private: // Functions
     QStringList includePaths() const;
     QAbstractItemModel *buildASTModel() const;
-    QAbstractItemModel *buildSemanticModel();
+    QAbstractItemModel *buildScopeModel();
 
   private:
     CPlusPlus::Scope        *m_globals;
