@@ -7,23 +7,28 @@
 
 #include <QtCore/QIODevice>
 
+#include "NamePrettyPrinter.h"
+#include "Overview.h"
 #include "Scope.h"
 #include "Symbol.h"
 #include "SymbolVisitor.h"
 
 class DumpScope : protected SymbolVisitor
 {
-  int m_depth;
-  QIODevice *m_device;
+  int               m_depth;
+  QIODevice        *m_device;
+  NamePrettyPrinter m_namePrinter;
   
   public:
     DumpScope(QIODevice *device)
-      : m_depth(0), m_device(device)
+      : m_depth(0)
+      , m_device(device)
+      , m_namePrinter(new Overview())
     {}
 
     void operator()(Scope const &scope)
     {
-      m_device->write("Namespace (Anonymous)");
+      m_device->write("Namespace (Anonymous)\n");
       m_depth++;
 
       for (unsigned idx = 0; idx < scope.symbolCount(); ++idx)
@@ -45,7 +50,9 @@ class DumpScope : protected SymbolVisitor
       #endif
 
       QString data(m_depth, ' ');
-      data += QString(name) + '\n';
+      data += QString(name);
+      data += " (" + m_namePrinter(symbol->name());
+      data += ")\n";
       m_device->write(data.toUtf8());
       
       ++m_depth;
