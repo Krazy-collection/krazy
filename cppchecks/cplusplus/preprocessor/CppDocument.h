@@ -185,11 +185,11 @@ public:
 
     /**
      * This will run the semantic pass over the AST and the AST of all included
-     * documents. If the AST is not created
-     * yet, the document will be parsed first. The semantic symbols will be
-     * added to the @param globals Scope object.
+     * documents. If the AST is not created yet, the document will be parsed
+     * first. The semantic symbols will be added to the @param globals Scope
+     * object.
      */
-    void check(Scope *globals) const;
+    void check(Scope *globals);
 
     static Ptr create(Ptr parent, const QString &fileName);
 

@@ -26,6 +26,7 @@ class ParseResultWidget : public QWidget
 
   public slots:
     void exportAST();
+    void exportScope();
     void onASTItemClicked(QModelIndex const &);
     void onIncludeClicked(QModelIndex const &);
     void onStateChanged(int);

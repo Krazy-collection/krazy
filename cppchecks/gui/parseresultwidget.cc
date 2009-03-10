@@ -14,6 +14,7 @@
 #include "asttreebuilder.h"
 #include "asttreemodel.h"
 #include "dumpast.h"
+#include "dumpscope.h"
 #include "includestreemodel.h"
 #include "messagetablemodel.h"
 #include "ui_parseresultwidget.h"
@@ -34,8 +35,9 @@ ParseResultWidget::ParseResultWidget()
           this, SLOT(onTreeTypeChanged(int)));        
   connect(m_ui->m_exportAST, SIGNAL(clicked()),
           this, SLOT(exportAST()));
+  connect(m_ui->m_exportScope, SIGNAL(clicked()),
+          this, SLOT(exportScope()));
           
-
   // TODO: Read from config.
   QStringList includePaths;
   includePaths << QDir::current().path();
@@ -77,7 +79,6 @@ QAbstractItemModel *ParseResultWidget::buildScopeModel()
 {
   if (!m_globals)
   {
-    qDebug() << "Building Scope";
     m_globals = new Scope(0);
     m_rootDoc->check(m_globals);
   }
@@ -104,6 +105,21 @@ void ParseResultWidget::exportAST()
   dumper(m_selectedDoc->translationUnit()->ast());
   
   result.close();
+}
+
+void ParseResultWidget::exportScope()
+{
+  if (!m_globals)
+    buildScopeModel();
+  
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Export Scope")
+                            , m_rootDoc->fileName() + ".scope"
+                            , tr("Scope Files (*.scope)"));
+  QFile result(fileName);
+  result.remove();
+  result.open(QIODevice::WriteOnly);
+  DumpScope dumper(&result);
+  dumper(*m_globals);
 }
 
 QStringList ParseResultWidget::includePaths() const

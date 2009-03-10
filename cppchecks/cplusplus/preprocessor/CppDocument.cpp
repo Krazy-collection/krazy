@@ -152,13 +152,13 @@ void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length,
     _macroUses.append(use);
 }
 
-void Document::check(Scope *globals) const
+void Document::check(Scope *globals)
 {
   foreach(Include inc, _includes)
     inc.document()->check(globals);
 
-  if (!_translationUnit->isParsed() || !_translationUnit->ast())
-    return;
+  if (!_translationUnit->ast())
+    parse();
 
   Semantic semantic(_control);
   if (TranslationUnitAST *ast = _translationUnit->ast()->asTranslationUnit())
