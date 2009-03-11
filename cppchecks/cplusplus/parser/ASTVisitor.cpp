@@ -1,35 +1,31 @@
-/***************************************************************************
+/**************************************************************************
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact:  Qt Software Information (qt-info@nokia.com)
 **
+** Commercial Usage
 **
-** Non-Open Source Usage
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
 **
-** Licensees may use this file in accordance with the Qt Beta Version
-** License Agreement, Agreement version 2.2 provided with the Software or,
-** alternatively, in accordance with the terms contained in a written
-** agreement between you and Nokia.
+** GNU Lesser General Public License Usage
 **
-** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License versions 2.0 or 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the packaging
-** of this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at qt-sales@nokia.com.
 **
-** http://www.fsf.org/licensing/licenses/info/GPLv2.html and
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt GPL Exception
-** version 1.3, included in the file GPL_EXCEPTION.txt in this package.
-**
-***************************************************************************/
+**************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -73,16 +69,14 @@ Control *ASTVisitor::control() const
 TranslationUnit *ASTVisitor::translationUnit() const
 { return _control->translationUnit(); }
 
+const Token &ASTVisitor::tokenAt(unsigned index) const
+{ return translationUnit()->tokenAt(index); }
+
 int ASTVisitor::tokenKind(unsigned index) const
 { return translationUnit()->tokenKind(index); }
 
 const char *ASTVisitor::spell(unsigned index) const
-{
-    if (! index)
-        return 0;
-
-    return translationUnit()->tokenAt(index).spell();
-}
+{ return translationUnit()->spell(index); }
 
 Identifier *ASTVisitor::identifier(unsigned index) const
 { return translationUnit()->identifier(index); }
@@ -96,10 +90,22 @@ NumericLiteral *ASTVisitor::numericLiteral(unsigned index) const
 StringLiteral *ASTVisitor::stringLiteral(unsigned index) const
 { return translationUnit()->stringLiteral(index); }
 
+void ASTVisitor::getPosition(unsigned offset,
+                             unsigned *line,
+                             unsigned *column,
+                             StringLiteral **fileName) const
+{ translationUnit()->getPosition(offset, line, column, fileName); }
+
 void ASTVisitor::getTokenPosition(unsigned index,
                                   unsigned *line,
                                   unsigned *column,
                                   StringLiteral **fileName) const
 { translationUnit()->getTokenPosition(index, line, column, fileName); }
+
+void ASTVisitor::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const
+{ getPosition(tokenAt(index).begin(), line, column); }
+
+void ASTVisitor::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
+{ getPosition(tokenAt(index).end(), line, column); }
 
 CPLUSPLUS_END_NAMESPACE
