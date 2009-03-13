@@ -1,10 +1,16 @@
 #include <QtGui/QWidget>
 
 #include <cppmodel/document.h>
+#include <parser/Scope.h>
 
 class IncludesTreeModel;
 class QAbstractItemModel;
 class QModelIndex;
+
+namespace CPlusPlus
+{
+class Scope;
+}
 
 namespace Ui
 {
@@ -38,4 +44,5 @@ class ParseResultWidget : public QWidget
     CPlusPlus::CppModel::Document::Ptr m_rootDoc;
     CPlusPlus::CppModel::Document::Ptr m_selectedDoc;
     Ui::ParseResultWidget             *m_ui;
+	CPlusPlus::Scope                  *m_globals;
 };
