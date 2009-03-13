@@ -24,7 +24,7 @@ class ParseResultWidget : public QWidget
     ParseResultWidget();
     ~ParseResultWidget();
 
-  public slots:
+  protected slots:
     void exportAST();
     void exportScope();
     void onASTItemClicked(QModelIndex const &);
@@ -34,9 +34,9 @@ class ParseResultWidget : public QWidget
     void openFile();
 
   private: // Functions
-    QStringList includePaths() const;
     QAbstractItemModel *buildASTModel() const;
     QAbstractItemModel *buildScopeModel();
+    QStringList includePaths() const;
 
   private:
     CPlusPlus::Scope                  *m_globals;

@@ -49,9 +49,18 @@ void CppPreprocessor::setLocalIncludePaths(QStringList const &includePaths)
 
 Document::Ptr CppPreprocessor::operator()(QString &fileName)
 {
+  m_mode = Recursive;
   sourceNeeded(fileName, IncludeGlobal, /*line = */ 0);
   return m_rootDoc;
 }
+
+QByteArray CppPreprocessor::operator()(QString const &fileName)
+{
+  m_mode = NonRecursive;
+  return sourceNeeded(fileName, /*line = */ 0);
+}
+
+/// CppPreprocessor :: protected functions
 
 bool CppPreprocessor::includeFile(QString const &absoluteFilePath, QByteArray *result)
 {
@@ -67,7 +76,7 @@ bool CppPreprocessor::includeFile(QString const &absoluteFilePath, QByteArray *r
     // qDebug() << "CppPreprocessor::includeFile() including" << absoluteFilePath;
     m_included.insert(absoluteFilePath);
     QTextStream stream(&file);
-    const QString contents = stream.readAll();
+    QString const contents = stream.readAll();
     *result = contents.toUtf8();
     file.close();
     return true;
@@ -187,11 +196,11 @@ void CppPreprocessor::stopSkippingBlocks(unsigned offset)
   if (m_currentDoc)
     m_currentDoc->stopSkippingBlocks(offset);
 }
-#include <QtCore/QDebug>
+
 void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
                                    unsigned line)
 {
-  if (fileName.isEmpty())
+  if (fileName.isEmpty() || m_mode == NonRecursive)
       return; // Nothing todo.
 
   Document::Ptr previousDoc;
@@ -242,6 +251,24 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
   }
 
   (void) switchDocument(previousDoc); // We have switched, so switch back
+}
+
+QByteArray CppPreprocessor::sourceNeeded(QString const &fileName, unsigned line)
+{
+  QFile file(fileName);
+
+  if (!file.exists())
+    return QByteArray();
+
+  if (file.open(QFile::ReadOnly)) 
+  {
+    QTextStream stream(&file);
+    QByteArray contents = stream.readAll().toUtf8();
+    file.close();
+    return m_proc(fileName.toUtf8(), contents);
+  }
+
+  return QByteArray();
 }
 
 Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)

@@ -22,6 +22,8 @@
 using namespace CPlusPlus;
 using namespace CppModel;
 
+/// ParseResultWidget :: public functions
+
 ParseResultWidget::ParseResultWidget()
   : m_globals(0),
     m_includeTreeModel(0),
@@ -68,39 +70,12 @@ ParseResultWidget::~ParseResultWidget()
   delete m_includeTreeModel;
 }
 
-QAbstractItemModel *ParseResultWidget::buildASTModel() const
-{
-//   m_selectedDoc->parse();
-// 
-//   ASTTreeModel* model = new ASTTreeModel();
-//   model->getRootItem()->setAST(m_selectedDoc->translationUnit()->ast());
-//   TreeBuilder builder(m_selectedDoc->translationUnit()->control());
-//   builder.setRootItem(model->getRootItem());
-// 
-//   m_selectedDoc->translationUnit()->ast()->asTranslationUnit()->accept(&builder);
-// 
-//   return model;
-  return new QStandardItemModel;
-}
-
-QAbstractItemModel *ParseResultWidget::buildScopeModel()
-{
-//   if (!m_globals)
-//   {
-//     m_globals = new Scope(0);
-//     m_rootDoc->check(m_globals);
-//   }
-
-  // TODO: Build a semantic tree model and return it.
-  return 0;
-}
+/// ParseResultWidget :: protected slots
 
 void ParseResultWidget::exportAST()
 {
   if (!m_selectedDoc)
     return;
-
-//   m_selectedDoc->parse();
 
   QString fileName = QFileDialog::getSaveFileName(this, tr("Export AST")
                             , m_selectedDoc->fileName() + ".ast"
@@ -119,7 +94,7 @@ void ParseResultWidget::exportScope()
 {
   if (!m_globals)
     buildScopeModel();
-  
+
   QString fileName = QFileDialog::getSaveFileName(this, tr("Export Scope")
                             , m_rootDoc->fileName() + ".scope"
                             , tr("Scope Files (*.scope)"));
@@ -128,16 +103,6 @@ void ParseResultWidget::exportScope()
   result.open(QIODevice::WriteOnly);
   DumpScope dumper(&result);
   dumper(*m_globals);
-}
-
-QStringList ParseResultWidget::includePaths() const
-{
-  QStringList paths;
-
-  for(int idx = 0; idx < m_ui->m_includeDirsList->count(); ++idx)
-    paths << m_ui->m_includeDirsList->item(idx)->text();
-
-  return paths;
 }
 
 void ParseResultWidget::onASTItemClicked(QModelIndex const &index)
@@ -168,23 +133,25 @@ void ParseResultWidget::onIncludeClicked(QModelIndex const &index)
 
 void ParseResultWidget::onStateChanged(int state)
 {
-  if (state == Qt::Unchecked)
+  QByteArray source;
+
+  QFile header(m_selectedDoc->absoluteFileName());
+  if (header.exists() && header.open(QIODevice::ReadOnly))
+    source = header.readAll();
+  else
   {
-    QFile header(m_selectedDoc->absoluteFileName());
-    if (header.exists() && header.open(QIODevice::ReadOnly))
-    {
-      QString text = header.readAll();
-      m_ui->m_headerView->setPlainText(text);
-    }
-    else
-    {
-      m_ui->m_headerView->setPlainText("<empty file>");
-    }
+    m_ui->m_headerView->setPlainText("<empty file>");
+    return;
   }
+
+  if (state == Qt::Unchecked)
+    m_ui->m_headerView->setPlainText(source);
   else
   {
     // TODO: Fixme
-    //m_ui->m_headerView->setPlainText(m_selectedDoc->source());
+    CppPreprocessor preproc;
+    QByteArray preprocessedSource = preproc(m_selectedDoc->absoluteFileName());
+    m_ui->m_headerView->setPlainText(preprocessedSource);
   }
 }
 
@@ -249,4 +216,43 @@ void ParseResultWidget::openFile()
     m_includeTreeModel = new IncludesTreeModel(m_rootDoc);
     m_ui->m_treeView->setModel(m_includeTreeModel);
   }
+}
+
+/// ParseResultWidget :: private functions
+
+QAbstractItemModel *ParseResultWidget::buildASTModel() const
+{
+//   m_selectedDoc->parse();
+// 
+//   ASTTreeModel* model = new ASTTreeModel();
+//   model->getRootItem()->setAST(m_selectedDoc->translationUnit()->ast());
+//   TreeBuilder builder(m_selectedDoc->translationUnit()->control());
+//   builder.setRootItem(model->getRootItem());
+// 
+//   m_selectedDoc->translationUnit()->ast()->asTranslationUnit()->accept(&builder);
+// 
+//   return model;
+  return new QStandardItemModel;
+}
+
+QAbstractItemModel *ParseResultWidget::buildScopeModel()
+{
+//   if (!m_globals)
+//   {
+//     m_globals = new Scope(0);
+//     m_rootDoc->check(m_globals);
+//   }
+
+  // TODO: Build a semantic tree model and return it.
+  return 0;
+}
+
+QStringList ParseResultWidget::includePaths() const
+{
+  QStringList paths;
+
+  for(int idx = 0; idx < m_ui->m_includeDirsList->count(); ++idx)
+    paths << m_ui->m_includeDirsList->item(idx)->text();
+
+  return paths;
 }

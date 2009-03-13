@@ -34,7 +34,7 @@ namespace CppModel {
 
 class CPLUSPLUS_MODEL_EXPORT CppPreprocessor : public Client
 {
-  public:
+  public: // Functions
     CppPreprocessor();
 
     /**
@@ -69,7 +69,25 @@ class CPLUSPLUS_MODEL_EXPORT CppPreprocessor : public Client
      */
     Document::Ptr operator()(QString &fileName);
 
-  protected:
+    /**
+     * Preprocesses the given file and returns the preprocessed source. This
+     * method will <em>not</em> process eventually included documents. The
+     * @param fileName must be the name of an existing file.
+     * 
+     * @param fileName The initial file which must be preprocessed.
+     * @return A Document object containing preprocessed code and pointers to
+     *         included documents.
+     */
+    QByteArray operator()(QString const &fileName);
+
+  protected: // Enum
+    enum Mode
+    {
+      Recursive,
+      NonRecursive
+    };
+
+  protected: // Functions
     bool includeFile(QString const &absoluteFilePath, QByteArray *result);
 
     QByteArray tryIncludeFile(QString &fileName, IncludeType type, QString &msg);
@@ -77,6 +95,8 @@ class CPLUSPLUS_MODEL_EXPORT CppPreprocessor : public Client
     virtual void macroAdded(const Macro &macro);
 
     virtual void sourceNeeded(QString &fileName, IncludeType type, unsigned line);
+
+    QByteArray sourceNeeded(QString const &fileName, unsigned line);
 
     virtual void startExpandingMacro(unsigned offset,
                                      Macro const &macro,
@@ -91,12 +111,13 @@ class CPLUSPLUS_MODEL_EXPORT CppPreprocessor : public Client
 
     Document::Ptr switchDocument(Document::Ptr doc);
 
-  private:
+  private: // Members
     Document::Ptr m_currentDoc;
     Environment   m_env;
     QStringList   m_globalIncludePaths;
     QSet<QString> m_included;
     QStringList   m_localIncludePaths;
+    Mode          m_mode;
     Preprocessor  m_proc;
     Document::Ptr m_rootDoc;
   };
