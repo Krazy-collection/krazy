@@ -7,9 +7,9 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QTextBlock>
 
-#include <CppPreprocessor.h>
-#include <Scope.h>
-#include <TranslationUnit.h>
+#include <cppmodel/cpppreprocessor.h>
+#include <parser/Scope.h>
+#include <parser/TranslationUnit.h>
 
 #include "asttreebuilder.h"
 #include "asttreemodel.h"
@@ -18,6 +18,9 @@
 #include "includestreemodel.h"
 #include "messagetablemodel.h"
 #include "ui_parseresultwidget.h"
+
+using namespace CPlusPlus;
+using namespace CppModel;
 
 ParseResultWidget::ParseResultWidget()
   : m_globals(0),
@@ -37,15 +40,19 @@ ParseResultWidget::ParseResultWidget()
           this, SLOT(exportAST()));
   connect(m_ui->m_exportScope, SIGNAL(clicked()),
           this, SLOT(exportScope()));
-          
+
   // TODO: Read from config.
   QStringList includePaths;
   includePaths << QDir::current().path();
   includePaths << "/usr/include/";
   includePaths << "/usr/include/qt4";
+
+  includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include";
+  includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4";
+  includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4/x86_64-pc-linux-gnu";
   includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include";
   includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include/g++-v4";
-  includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include/g++-v4/i686-pc-linux-gnu/";
+  includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include/g++-v4/i686-pc-linux-gnu";
 
   m_ui->m_includeDirsList->addItems(includePaths);
   m_ui->m_tabs->setEnabled(true);
@@ -63,25 +70,26 @@ ParseResultWidget::~ParseResultWidget()
 
 QAbstractItemModel *ParseResultWidget::buildASTModel() const
 {
-  m_selectedDoc->parse();
-
-  ASTTreeModel* model = new ASTTreeModel();
-  model->getRootItem()->setAST(m_selectedDoc->translationUnit()->ast());
-  TreeBuilder builder(m_selectedDoc->translationUnit()->control());
-  builder.setRootItem(model->getRootItem());
-
-  m_selectedDoc->translationUnit()->ast()->asTranslationUnit()->accept(&builder);
-
-  return model;
+//   m_selectedDoc->parse();
+// 
+//   ASTTreeModel* model = new ASTTreeModel();
+//   model->getRootItem()->setAST(m_selectedDoc->translationUnit()->ast());
+//   TreeBuilder builder(m_selectedDoc->translationUnit()->control());
+//   builder.setRootItem(model->getRootItem());
+// 
+//   m_selectedDoc->translationUnit()->ast()->asTranslationUnit()->accept(&builder);
+// 
+//   return model;
+  return new QStandardItemModel;
 }
 
 QAbstractItemModel *ParseResultWidget::buildScopeModel()
 {
-  if (!m_globals)
-  {
-    m_globals = new Scope(0);
-    m_rootDoc->check(m_globals);
-  }
+//   if (!m_globals)
+//   {
+//     m_globals = new Scope(0);
+//     m_rootDoc->check(m_globals);
+//   }
 
   // TODO: Build a semantic tree model and return it.
   return 0;
@@ -91,19 +99,19 @@ void ParseResultWidget::exportAST()
 {
   if (!m_selectedDoc)
     return;
-  
-  m_selectedDoc->parse();
-  
+
+//   m_selectedDoc->parse();
+
   QString fileName = QFileDialog::getSaveFileName(this, tr("Export AST")
                             , m_selectedDoc->fileName() + ".ast"
                             , tr("AST Files (*.ast)"));
   QFile result(fileName);
   result.remove();
   result.open(QIODevice::WriteOnly);
-  
+
   DumpAST dumper(&result, m_selectedDoc->translationUnit()->control());
   dumper(m_selectedDoc->translationUnit()->ast());
-  
+
   result.close();
 }
 
@@ -152,10 +160,9 @@ void ParseResultWidget::onASTItemClicked(QModelIndex const &index)
 
 void ParseResultWidget::onIncludeClicked(QModelIndex const &index)
 {
-  m_selectedDoc = static_cast<CPlusPlus::Document*>(index.internalPointer());
+  m_selectedDoc = index.data(IncludesTreeModel::DocumentRole).value<Document::Ptr>();
   m_ui->m_messageTable->setModel(new MessageTableModel(m_selectedDoc->diagnosticMessages()));
   m_ui->m_messageTable->setColumnWidth(0, 40);
-
   onStateChanged(m_ui->m_preprocessedCheck->checkState());
 }
 
@@ -163,7 +170,7 @@ void ParseResultWidget::onStateChanged(int state)
 {
   if (state == Qt::Unchecked)
   {
-    QFile header(m_selectedDoc->fileName());
+    QFile header(m_selectedDoc->absoluteFileName());
     if (header.exists() && header.open(QIODevice::ReadOnly))
     {
       QString text = header.readAll();
@@ -176,7 +183,8 @@ void ParseResultWidget::onStateChanged(int state)
   }
   else
   {
-    m_ui->m_headerView->setPlainText(m_selectedDoc->source());
+    // TODO: Fixme
+    //m_ui->m_headerView->setPlainText(m_selectedDoc->source());
   }
 }
 
@@ -231,12 +239,13 @@ void ParseResultWidget::openFile()
       m_includeTreeModel = 0;
     }
 
-    CPlusPlus::CppPreprocessor preproc;
-    preproc.setIncludePaths(includePaths());
+    CppPreprocessor preproc;
+    // TODO: Also make it possible to add local include paths.
+    preproc.setGlobalIncludePaths(includePaths());
 
     delete m_includeTreeModel;
 
-    m_rootDoc = preproc.run(fileName);
+    m_rootDoc = preproc(fileName);
     m_includeTreeModel = new IncludesTreeModel(m_rootDoc);
     m_ui->m_treeView->setModel(m_includeTreeModel);
   }

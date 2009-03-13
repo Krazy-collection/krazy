@@ -31,6 +31,7 @@
 #include <preprocessor/PreprocessorClient.h>
 
 #include <QtCore/QByteArray>
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QtDebug>
 
@@ -69,7 +70,7 @@ namespace {
                             line, column, message);
         messages->append(m);
       }
-      
+
       static DiagnosticMessage::Level convertLevel(int level) 
       {
         switch (level) 
@@ -114,9 +115,17 @@ Client::IncludeType Document::Include::type() const
 
 Document::~Document()
 {
-  delete _translationUnit;
-  delete _control->diagnosticClient();
-  delete _control;
+  delete m_translationUnit;
+  delete m_control->diagnosticClient();
+  delete m_control;
+}
+
+QString Document::absoluteFileName() const
+{
+  if (m_path.endsWith(QDir::separator()))
+    return m_path + m_fileName;
+  else
+    return m_path + QDir::separator() + m_fileName;
 }
 
 void Document::check()
@@ -141,114 +150,123 @@ void Document::check()
 
 QList<Macro> Document::definedMacros() const
 {
-  return _definedMacros;
+  return m_definedMacros;
 }
 
 QList<DiagnosticMessage> Document::diagnosticMessages() const
 {
-  return _diagnosticMessages;
+  return m_diagnosticMessages;
 }
 
 QString Document::fileName() const
 {
-  return _fileName;
+  return m_fileName;
 }
 
 QList<Document::Include> Document::includes() const
 {
-  return _includes;
+  return m_includes;
 }
 
 QList<MacroUse> Document::macroUses() const
 {
-  return _macroUses;
+  return m_macroUses;
 }
 
 QList<CharBlock> Document::skippedBlocks() const
 {
-  return _skippedBlocks;
+  return m_skippedBlocks;
+}
+
+TranslationUnit * Document::translationUnit() const
+{
+  return m_translationUnit;
 }
 
 /// Document :: Protected functions
 
-/*
-
 void Document::addDiagnosticMessage(DiagnosticMessage const &message)
 {
-  _diagnosticMessages.append(message);
+  m_diagnosticMessages.append(message);
 }
 
-Document::Ptr Document::addIncludeFile(Ptr parent, const QString &fileName, unsigned line)
+void Document::addIncludeFile(Ptr const &includedDocument
+                            , Client::IncludeType type
+                            , unsigned line)
 {
-  Ptr includedDocument = create(parent, fileName);
-  _includes.append(Include(includedDocument, line));
-  return includedDocument;
+  m_includes.append(Include(includedDocument, type, line));
 }
 
-void Document::appendMacro(const Macro &macro)
+void Document::addMacroUse(Macro const &macro
+                         , unsigned offset
+                         , unsigned length
+                         , QVector<MacroArgumentReference> const &actuals)
 {
-    _definedMacros.append(macro);
+  MacroUse use(macro, offset, offset + length);
+
+  foreach (const MacroArgumentReference &actual, actuals) {
+    const CharBlock arg(actual.position(), actual.position() + actual.length());
+
+    use.addArgument(arg);
+  }
+
+  m_macroUses.append(use);
 }
 
-void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length,
-                           const QVector<MacroArgumentReference> &actuals)
+void Document::appendMacro(Macro const &macro)
 {
-    MacroUse use(macro, offset, offset + length);
-
-    foreach (const MacroArgumentReference &actual, actuals) {
-        const Block arg(actual.position(), actual.position() + actual.length());
-
-        use.addArgument(arg);
-    }
-
-    _macroUses.append(use);
+  m_definedMacros.append(macro);
 }
 
-Document::Ptr Document::create(Ptr parent, const QString &fileName)
+Document::Ptr Document::create(QString const &fileName)
 {
-    Document::Ptr doc(new Document(fileName, parent));
-    return doc;
+  Document::Ptr doc(new Document(fileName));
+  return doc;
+}
+
+void Document::setPath(QString const &path)
+{
+  m_path = path;
 }
 
 void Document::setSource(QByteArray const &source)
 {
   // NOTE: We don't store the actual source at all in the document object. From
   //       the source we create directly an unannotated AST.
-  _translationUnit->setSource(source.constBegin(), source.size());
-  _translationUnit->tokenize();
-  _translationUnit->parse(TranslationUnit::ParseTranlationUnit);
-  _translationUnit->release();
+  m_translationUnit->setSource(source.constBegin(), source.size());
+  m_translationUnit->tokenize();
+  m_translationUnit->parse(TranslationUnit::ParseTranlationUnit);
+  m_translationUnit->release();
 }
 
 void Document::startSkippingBlocks(unsigned start)
 {
-  _skippedBlocks.append(Block(start, 0));
+  m_skippedBlocks.append(CharBlock(start, 0));
 }
 
 void Document::stopSkippingBlocks(unsigned stop)
 {
-  unsigned start = _skippedBlocks.back().begin();
+  unsigned start = m_skippedBlocks.back().begin();
   if (start > stop)
-    _skippedBlocks.removeLast(); // Ignore this block, it's invalid.
+    m_skippedBlocks.removeLast(); // Ignore this block, it's invalid.
   else
-    _skippedBlocks.back() = Block(start, stop);
+    m_skippedBlocks.back() = CharBlock(start, stop);
 }
-*/
 
 /// Document :: Private functions
 
 Document::Document(const QString &fileName)
-  : _fileName(fileName)
-  , _control(new Control())
+  : m_fileName(fileName)
+  , m_control(new Control())
 {
-  _control->setDiagnosticClient(new DocumentDiagnosticClient(this, &_diagnosticMessages));
+  m_control->setDiagnosticClient(new DocumentDiagnosticClient(this, &m_diagnosticMessages));
 
   const QByteArray localFileName = fileName.toUtf8();
-  StringLiteral *fileId = _control->findOrInsertFileName(localFileName.constData(),
+  StringLiteral *fileId = m_control->findOrInsertFileName(localFileName.constData(),
                                                           localFileName.size());
-  _translationUnit = new TranslationUnit(_control, fileId);
-  _translationUnit->setQtMocRunEnabled(true);
-  _translationUnit->setObjCEnabled(true);
+  m_translationUnit = new TranslationUnit(m_control, fileId);
+  m_translationUnit->setQtMocRunEnabled(true);
+  m_translationUnit->setObjCEnabled(true);
 
-  (void) _control->switchTranslationUnit(_translationUnit);
+  (void) m_control->switchTranslationUnit(m_translationUnit);
 }

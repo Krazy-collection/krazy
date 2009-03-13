@@ -52,7 +52,7 @@
 #include "PreprocessorClient.h"
 #include "pp-macro-expander.h"
 
-#include <Token.h>
+#include <parser/Token.h>
 #include <QtCore/QVector>
 
 namespace CPlusPlus {

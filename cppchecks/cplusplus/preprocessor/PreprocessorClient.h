@@ -30,7 +30,7 @@
 #ifndef CPLUSPLUS_PP_CLIENT_H
 #define CPLUSPLUS_PP_CLIENT_H
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <parser/CPlusPlusForwardDeclarations.h>
 #include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE

@@ -19,18 +19,20 @@
 
 #include "dpointeranalyzer.h"
 
+#include <cppmodel/nameprettyprinter.h>
+#include <cppmodel/overview.h>
+
 #include <iostream>
+
+#include <parser/Scope.h>
+#include <parser/Symbol.h>
+#include <parser/Symbols.h>
 
 #include <QtCore/QtDebug>
 
-#include "NamePrettyPrinter.h"
-#include "Overview.h"
-#include "Scope.h"
-#include "Symbol.h"
-#include "Symbols.h"
-
 using namespace std;
 using namespace CPlusPlus;
+using namespace CppModel;
 
 QList<Result> DPointerAnalyzer::analyze(Scope const &globalScope)
 {

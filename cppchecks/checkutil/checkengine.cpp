@@ -24,12 +24,12 @@
 #include <QtCore/QtDebug>
 #include <QtCore/QUrl>
 
-#include "AST.h"
-#include "CppPreprocessor.h"
-#include "Control.h"
-#include "Scope.h"
-#include "Semantic.h"
-#include "TranslationUnit.h"
+// #include "AST.h"
+// #include "CppPreprocessor.h"
+// #include "Control.h"
+// #include "Scope.h"
+// #include "Semantic.h"
+// #include "TranslationUnit.h"
 
 using namespace CPlusPlus;
 
@@ -53,21 +53,21 @@ void CheckEngine::process(QUrl const &file)
   includePaths << "/usr/lib/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4";
   includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4/x86_64-pc-linux-gnu";
 
-  CppPreprocessor preproc;
-  preproc.setIncludePaths(includePaths);
-  QString path = file.path();
-  CPlusPlus::Document::Ptr document = preproc.run(path);
-  document->includes();
-  int x = 0;
-  foreach (Document::Include inc, document->includes())
-  {
-    qDebug() << inc.document()->fileName();
-  }
+//   CppPreprocessor preproc;
+//   preproc.setIncludePaths(includePaths);
+//   QString path = file.path();
+//   CPlusPlus::Document::Ptr document = preproc.run(path);
+//   document->includes();
+//   int x = 0;
+//   foreach (Document::Include inc, document->includes())
+//   {
+//     qDebug() << inc.document()->fileName();
+//   }
   
   // TODO: We now build one big tree for all the files. This is not necessary
   //       for more simple checks so we might want to make that optional.
   // Parse the files and build the semantic tree
-  Scope globalScope;
+//   Scope globalScope;
   /* FIXME: This seems the wrong approach, working on a (hopefully) better one.
   foreach(CPlusPlus::Document::Ptr const &doc, documents)
   {
@@ -89,7 +89,7 @@ void CheckEngine::process(QUrl const &file)
   */
 
   // Now lets see if we can find any issue.
-  m_results = m_analyzer->analyze(globalScope);
+//   m_results = m_analyzer->analyze(globalScope);
 }
 
 QList<Result> CheckEngine::results() const

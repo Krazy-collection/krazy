@@ -7,10 +7,10 @@
 
 #include <QtCore/QIODevice>
 
-#include "AST.h"
-#include "ASTVisitor.h"
-#include "Control.h"
-#include "PrettyPrinter.h"
+#include <parser/AST.h>
+#include <parser/ASTVisitor.h>
+#include <parser/Control.h>
+#include <parser/PrettyPrinter.h>
 
 class DumpAST : protected ASTVisitor
 {

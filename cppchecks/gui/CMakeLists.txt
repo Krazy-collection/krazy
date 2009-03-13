@@ -1,9 +1,7 @@
 include_directories(
   ${QT_INCLUDE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${CPP_PARSER_SOURCE_DIR}
-  ${CPP_PREPROCESSOR_SOURCE_DIR}
-  ${CPP_TOOLS_SOURCE_DIR}
+  ${CPP_SOURCE_DIR}
 )
 
 set(APP_SRCS
@@ -28,7 +26,7 @@ target_link_libraries(parse_result_analyzer
   ${QT_QTCORE_LIBRARY}
   ${QT_QTGUI_LIBRARY}
   preprocessor
-  cpptools
+  cppmodel
 )
 
 if(WIN32)

@@ -49,7 +49,7 @@
 #ifndef PP_MACRO_H
 #define PP_MACRO_H
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <parser/CPlusPlusForwardDeclarations.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QVector>

@@ -49,7 +49,7 @@
 #ifndef CPLUSPLUS_PP_ENVIRONMENT_H
 #define CPLUSPLUS_PP_ENVIRONMENT_H
 
-#include "CPlusPlusForwardDeclarations.h"
+#include <parser/CPlusPlusForwardDeclarations.h>
 
 #include <QtCore/QList>
 #include <QtCore/QByteArray>

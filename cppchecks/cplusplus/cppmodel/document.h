@@ -25,6 +25,7 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QList>
 #include <QtCore/QMap>
+#include <QtCore/QMetaType>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -71,6 +72,8 @@ namespace CppModel {
     public:
       ~Document();
 
+      QString absoluteFileName() const;
+
       /**
        * This will run the semantic pass over the AST and the AST of all included
        * documents. If the AST is not created yet, the document will be parsed
@@ -91,21 +94,23 @@ namespace CppModel {
 
       QList<CharBlock> skippedBlocks() const;
 
-      TranslationUnit const & translationUnit() const;
+      TranslationUnit * translationUnit() const;
 
     protected: // Functions
       friend class CppPreprocessor; /// Only a preprocessor can modify a document.
 
       void addDiagnosticMessage(DiagnosticMessage const &message);
 
+      void addIncludeFile(Ptr const &includedDocument, Client::IncludeType type, unsigned line);
+
       void addMacroUse(Macro const &macro, unsigned offset, unsigned length,
                        QVector<MacroArgumentReference> const &range);
-
-      void addIncludeFile(Ptr includedDocument, Client::IncludeType type, unsigned line);
 
       void appendMacro(Macro const &macro);
 
       static Ptr create(QString const &fileName);
+
+      void setPath(QString const &path);
 
       void setSource(QByteArray const &source);
 
@@ -121,19 +126,22 @@ namespace CppModel {
       Document(const QString &fileName);
 
     private: // Members
-      Control*                 _control;
-      QString                  _fileName;
-      QList<Macro>             _definedMacros;
-      QList<DiagnosticMessage> _diagnosticMessages;
-      QList<Include>           _includes;
-      QList<MacroUse>          _macroUses;
-      QList<CharBlock>         _skippedBlocks;
-      QByteArray               _source;
-      TranslationUnit         *_translationUnit;
+      Control*                 m_control;
+      QString                  m_fileName;
+      QList<Macro>             m_definedMacros;
+      QList<DiagnosticMessage> m_diagnosticMessages;
+      QList<Include>           m_includes;
+      QList<MacroUse>          m_macroUses;
+      QString                  m_path;
+      QList<CharBlock>         m_skippedBlocks;
+      QByteArray               m_source;
+      TranslationUnit         *m_translationUnit;
   };
 
 } // namespace CppModel
 
 } // namespace CPlusPlus
+
+Q_DECLARE_METATYPE(CPlusPlus::CppModel::Document::Ptr);
 
 #endif // CPLUSPLUS_CPPMODEL_DOCUMENT_H

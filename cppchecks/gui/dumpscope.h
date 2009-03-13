@@ -5,25 +5,22 @@
 #include <cxxabi.h>
 #endif
 
-#include <QtCore/QIODevice>
+#include <cppmodel/nameprettyprinter.h>
+#include <cppmodel/overview.h>
 
-#include "NamePrettyPrinter.h"
-#include "Overview.h"
-#include "Scope.h"
-#include "Symbol.h"
-#include "SymbolVisitor.h"
+#include <parser/Scope.h>
+#include <parser/Symbol.h>
+#include <parser/SymbolVisitor.h>
+
+#include <QtCore/QIODevice>
 
 class DumpScope : protected SymbolVisitor
 {
-  int               m_depth;
-  QIODevice        *m_device;
-  NamePrettyPrinter m_namePrinter;
-  
   public:
     DumpScope(QIODevice *device)
       : m_depth(0)
       , m_device(device)
-      , m_namePrinter(new Overview())
+      , m_namePrinter(new CPlusPlus::CppModel::Overview())
     {}
 
     void operator()(Scope const &scope)
@@ -54,13 +51,18 @@ class DumpScope : protected SymbolVisitor
       data += " (" + m_namePrinter(symbol->name());
       data += ")\n";
       m_device->write(data.toUtf8());
-      
+
       ++m_depth;
       return true;
     }
 
     virtual void postVisit(Symbol *)
     { --m_depth; }
+
+  private:
+    int                                    m_depth;
+    QIODevice                             *m_device;
+    CPlusPlus::CppModel::NamePrettyPrinter m_namePrinter;
 };
 
 #endif // DUMP_AST_H

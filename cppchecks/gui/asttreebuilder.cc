@@ -1,20 +1,19 @@
-#include <AST.h>
+#include "asttreebuilder.h"
+
+#include <parser/AST.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QString>
 
 #include "astitem.h"
-#include "asttreebuilder.h"
-
 
 //using namespace CPlusPlus;
 
 TreeBuilder::TreeBuilder(Control *control):ASTVisitor(control)
-{
-}
+{}
 
 TreeBuilder::~TreeBuilder()
-{
-}
+{}
 
 bool TreeBuilder::preVisit(AST* ast)
 {

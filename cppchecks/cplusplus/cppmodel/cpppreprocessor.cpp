@@ -23,7 +23,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
-#include <TranslationUnit.h>
+#include <parser/TranslationUnit.h>
 
 using namespace CPlusPlus;
 using namespace CppModel;
@@ -131,14 +131,17 @@ QByteArray CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type, 
       fileName = path;
       // TODO: Store a list of files that could not be found.
       if (type == IncludeGlobal)
-        msg = fileName 
-          + QLatin1String(": is included as a local include"
-                          "but was only found in the global include path.");
+        msg = fileName;
+        msg += QLatin1String(": is included as a local include "
+                             "but was only found in the global include path.");
       return contents;
     }
   }
 
-  msg = fileName + QLatin1String(": No such file.");
+  if (type == IncludeLocal)
+    msg = '"' + fileName + '"' + QLatin1String(": No such file.");
+  else
+    msg = '<' + fileName + '>' + QLatin1String(": No such file.");
   return QByteArray();
 }
 
@@ -184,7 +187,7 @@ void CppPreprocessor::stopSkippingBlocks(unsigned offset)
   if (m_currentDoc)
     m_currentDoc->stopSkippingBlocks(offset);
 }
-
+#include <QtCore/QDebug>
 void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
                                    unsigned line)
 {
@@ -234,6 +237,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     m_env.currentFile = previousFile;
     m_env.currentLine = previousLine;
 
+    m_currentDoc->setPath(fileName.remove(m_currentDoc->fileName()));
     m_currentDoc->setSource(preprocessedCode);
   }
 

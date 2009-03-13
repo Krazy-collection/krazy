@@ -4,8 +4,6 @@ include_directories(
 )
 
 set(preproc_SRCS
-    CppDocument.cpp
-    CppPreprocessor.cpp
     Macro.cpp
     pp-engine.cpp
     pp-macro-expander.cpp

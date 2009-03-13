@@ -49,7 +49,7 @@
 #ifndef CPLUSPLUS_ASTFWD_H
 #define CPLUSPLUS_ASTFWD_H
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <parser/CPlusPlusForwardDeclarations.h>
 
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE

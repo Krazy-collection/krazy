@@ -1,7 +1,7 @@
 #ifndef ASTTREEMODELITEM_H
 #define ASTTREEMODELITEM_H
 
-#include <AST.h>
+#include <parser/AST.h>
 #include <QtCore/QVariant>
 
 using namespace CPlusPlus;

@@ -5,26 +5,26 @@
 #include <QtCore/QModelIndex>
 #include <QtCore/QVariant>
 
-#include <CppDocument.h>
+#include <cppmodel/diagnosticmessage.h>
 
 class MessageTableModel :  public QAbstractTableModel
 {
   public:
-    MessageTableModel(QList<CPlusPlus::Document::DiagnosticMessage> const &messages);
+    MessageTableModel(QList<CPlusPlus::CppModel::DiagnosticMessage> const &messages);
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(QModelIndex const &parent = QModelIndex()) const;
 
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(QModelIndex const &index, int role) const;
 
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(QModelIndex const &index) const;
 
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(QModelIndex const &parent = QModelIndex()) const;
 
   private:
-    QList<CPlusPlus::Document::DiagnosticMessage> m_messages;
+    QList<CPlusPlus::CppModel::DiagnosticMessage> m_messages;
     int m_rowCount;
 };
 

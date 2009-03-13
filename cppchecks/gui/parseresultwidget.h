@@ -1,6 +1,6 @@
 #include <QtGui/QWidget>
 
-#include <CppDocument.h>
+#include <cppmodel/document.h>
 
 class IncludesTreeModel;
 class QAbstractItemModel;
@@ -39,9 +39,9 @@ class ParseResultWidget : public QWidget
     QAbstractItemModel *buildScopeModel();
 
   private:
-    CPlusPlus::Scope        *m_globals;
-    IncludesTreeModel       *m_includeTreeModel;
-    CPlusPlus::Document::Ptr m_rootDoc;
-    CPlusPlus::Document     *m_selectedDoc;
-    Ui::ParseResultWidget   *m_ui;
+    CPlusPlus::Scope                  *m_globals;
+    IncludesTreeModel                 *m_includeTreeModel;
+    CPlusPlus::CppModel::Document::Ptr m_rootDoc;
+    CPlusPlus::CppModel::Document::Ptr m_selectedDoc;
+    Ui::ParseResultWidget             *m_ui;
 };

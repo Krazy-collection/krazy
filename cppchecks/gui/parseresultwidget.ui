@@ -58,7 +58,11 @@
         </layout>
        </item>
        <item>
-        <widget class="QTreeView" name="m_treeView"/>
+        <widget class="QTreeView" name="m_treeView">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QTabWidget" name="m_tabs">

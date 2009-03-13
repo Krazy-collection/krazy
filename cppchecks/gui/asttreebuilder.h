@@ -1,8 +1,7 @@
 #ifndef TREEBUILDER_H
 #define TREEBUILDER_H
 
-#include <AST.h>
-#include <ASTVisitor.h>
+#include <parser/ASTVisitor.h>
 
 #include "astitem.h"
 

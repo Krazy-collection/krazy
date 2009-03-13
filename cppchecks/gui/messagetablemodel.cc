@@ -1,16 +1,18 @@
 #include "messagetablemodel.h"
 
-MessageTableModel::MessageTableModel(QList<CPlusPlus::Document::DiagnosticMessage> const &messages)
-  : m_messages(messages)
-{
-}
+using namespace CPlusPlus;
+using namespace CppModel;
 
-int MessageTableModel::columnCount(const QModelIndex &parent) const
+MessageTableModel::MessageTableModel(QList<DiagnosticMessage> const &messages)
+  : m_messages(messages)
+{}
+
+int MessageTableModel::columnCount(QModelIndex const &parent) const
 {
   return 2;
 }
 
-QVariant MessageTableModel::data(const QModelIndex &index, int role) const
+QVariant MessageTableModel::data(QModelIndex const &index, int role) const
 {
   if (!index.isValid())
     return QVariant();
@@ -29,7 +31,7 @@ QVariant MessageTableModel::data(const QModelIndex &index, int role) const
   return QVariant();
 }
 
-Qt::ItemFlags MessageTableModel::flags(const QModelIndex &index) const
+Qt::ItemFlags MessageTableModel::flags(QModelIndex const &index) const
 {
   if (!index.isValid())
     return Qt::ItemIsEnabled;
@@ -54,7 +56,7 @@ QVariant MessageTableModel::headerData(int section, Qt::Orientation orientation,
   }
 }
 
-int MessageTableModel::rowCount(const QModelIndex &parent) const
+int MessageTableModel::rowCount(QModelIndex const &parent) const
 {
   return m_messages.size();
 }

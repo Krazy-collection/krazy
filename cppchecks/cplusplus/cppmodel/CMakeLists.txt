@@ -1,12 +1,12 @@
 include_directories(
   ${QT_INCLUDE_DIR}
   ${CPP_SOURCE_DIR}
-  ${CPP_PARSER_SOURCE_DIR}
 )
 
-message(STATUS ${CPP_SOURCE_DIR})
-
 set(cppmodel_SRCS
+    nameprettyprinter.cpp
+    overview.cpp
+    typeprettyprinter.cpp
     macrouse.cpp
     diagnosticmessage.cpp
     document.cpp

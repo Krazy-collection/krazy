@@ -1,10 +1,11 @@
 #ifndef ASTTREEMODEL_H
 #define ASTTREEMODEL_H
 
+#include <parser/CPlusPlusForwardDeclarations.h>
+
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QModelIndex>
 #include <QtCore/QVariant>
-#include <CPlusPlusForwardDeclarations.h>
 
 class Item;
 
