@@ -6,11 +6,6 @@ class IncludesTreeModel;
 class QAbstractItemModel;
 class QModelIndex;
 
-namespace CPlusPlus
-{
-  class Scope;
-}
-
 namespace Ui
 {
   class ParseResultWidget;
@@ -39,7 +34,6 @@ class ParseResultWidget : public QWidget
     QStringList includePaths() const;
 
   private:
-    CPlusPlus::Scope                  *m_globals;
     IncludesTreeModel                 *m_includeTreeModel;
     CPlusPlus::CppModel::Document::Ptr m_rootDoc;
     CPlusPlus::CppModel::Document::Ptr m_selectedDoc;
