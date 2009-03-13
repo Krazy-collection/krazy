@@ -10,6 +10,8 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_PREFIX_PATH}/lib)
 check_cxx_compiler_flag(-fvisibility=hidden __KRAZY_HAVE_GCC_VISIBILITY)
 set( __KRAZY_HAVE_GCC_VISIBILITY ${__KDE_HAVE_GCC_VISIBILITY} CACHE BOOL "GCC support for hidden visibility")
 
+set(CPP_SOURCE_DIR ${CMAKE_SOURCE_DIR}/cplusplus/)
+
 set(CPP_PREPROCESSOR_SOURCE_DIR ${CMAKE_SOURCE_DIR}/cplusplus/preprocessor)
 set(CPP_PARSER_SOURCE_DIR ${CMAKE_SOURCE_DIR}/cplusplus/parser)
 set(CPP_TOOLS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/cplusplus/tools)
