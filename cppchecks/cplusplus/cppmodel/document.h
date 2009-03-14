@@ -47,7 +47,7 @@ namespace CppModel {
     public:
       typedef QSharedPointer<Document> Ptr;
 
-      class Include 
+      class CPLUSPLUS_MODEL_EXPORT Include 
       {
         public:
           /**
