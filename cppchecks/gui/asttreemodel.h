@@ -7,9 +7,9 @@
 #include <QtCore/QStack>
 #include <QtGui/QStandardItemModel>
 
-class ASTTreeModel : public QStandardItemModel, public CPlusPlus::ASTVisitor
+class ASTTreeModel : public QStandardItemModel, private CPlusPlus::ASTVisitor
 {
-  public:
+  public: // Functions
     /**
      * Creates a TreeModel for given TranslationUnit. This class will not take
      * ownership of @param translationUnit and you should make shure that this
@@ -19,11 +19,12 @@ class ASTTreeModel : public QStandardItemModel, public CPlusPlus::ASTVisitor
 
     ~ASTTreeModel();
 
+  private: // Functions
     virtual void postVisit(CPlusPlus::AST* ast);
 
     virtual bool preVisit(CPlusPlus::AST *ast);
 
-  private:
+  private: // Members
     QStack<QStandardItem*> m_items; // For building the tree model.
 };
 

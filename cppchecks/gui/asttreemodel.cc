@@ -42,9 +42,7 @@ ASTTreeModel::~ASTTreeModel()
   if (m_items.empty())
     invisibleRootItem()->appendRow(item);
   else
-  {
     m_items.top()->appendRow(item);
-  }
 
   m_items.push(item);
 
