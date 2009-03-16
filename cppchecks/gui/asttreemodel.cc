@@ -53,7 +53,7 @@ ASTTreeModel::~ASTTreeModel()
   QStandardItem *item = new QStandardItem(abi::__cxa_demangle(
     typeid(*ast).name(), 0, 0, 0) + 11);
 #else
-  QStandardItem *item = new QStandardItem((ast).name());
+  QStandardItem *item = new QStandardItem(typeid(*ast).name());
 #endif
 
   //item->setData(var, DocumentRole); // NOTE: additional information can be added here.
