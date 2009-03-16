@@ -82,6 +82,8 @@ namespace CppModel {
 
       QString fileName() const;
 
+      Namespace * const globalNamespace() const;
+
       QList<Include> includes() const;
 
       QList<MacroUse> macroUses() const;
@@ -108,7 +110,7 @@ namespace CppModel {
        * first. The semantic symbols will be added to the @param globals Scope
        * object.
        */
-      void check(QSharedPointer<Namespace> globalNamespace = QSharedPointer<Namespace>(0));
+      void check(QSharedPointer<Namespace> globalNamespace = QSharedPointer<Namespace>());
 
       static Ptr create(QString const &fileName);
 

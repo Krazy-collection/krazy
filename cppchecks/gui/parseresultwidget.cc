@@ -34,6 +34,7 @@
 #include "dumpscope.h"
 #include "includestreemodel.h"
 #include "messagetablemodel.h"
+#include "symboltreemodel.h"
 #include "ui_parseresultwidget.h"
 
 using namespace CPlusPlus;
@@ -54,7 +55,7 @@ ParseResultWidget::ParseResultWidget()
   connect(m_ui->m_preprocessedCheck, SIGNAL(stateChanged(int)),
           this, SLOT(onStateChanged(int)));
   connect(m_ui->m_treeCombo, SIGNAL(currentIndexChanged(int)),
-          this, SLOT(onTreeTypeChanged(int)));        
+          this, SLOT(onTreeTypeChanged(int)));
   connect(m_ui->m_exportAST, SIGNAL(clicked()),
           this, SLOT(exportAST()));
   connect(m_ui->m_exportScope, SIGNAL(clicked()),
@@ -109,9 +110,6 @@ void ParseResultWidget::exportAST()
 
 void ParseResultWidget::exportScope()
 {
-  if (!m_globals)
-    buildScopeModel();
-
   QString fileName = QFileDialog::getSaveFileName(this, tr("Export Scope")
                             , m_rootDoc->fileName() + ".scope"
                             , tr("Scope Files (*.scope)"));
@@ -205,8 +203,8 @@ void ParseResultWidget::onTreeTypeChanged(int index)
       if (m_ui->m_treeView->model() != m_includeTreeModel)
         delete m_ui->m_treeView->model();
 
-      buildScopeModel();
-      //m_ui->m_treeView->setModel(buildSemanticModel());
+      m_ui->m_treeView->setModel(new SymbolTreeModel(m_rootDoc->globalNamespace()));
+      m_ui->m_treeView->setColumnWidth(0, 175);
       break;
     default: // Invalid
       break;
@@ -239,18 +237,6 @@ void ParseResultWidget::openFile()
 }
 
 /// ParseResultWidget :: private functions
-
-QAbstractItemModel *ParseResultWidget::buildScopeModel()
-{
-//   if (!m_globals)
-//   {
-//     m_globals = new Scope(0);
-//     m_rootDoc->check(m_globals);
-//   }
-
-  // TODO: Build a semantic tree model and return it.
-  return 0;
-}
 
 QStringList ParseResultWidget::includePaths() const
 {

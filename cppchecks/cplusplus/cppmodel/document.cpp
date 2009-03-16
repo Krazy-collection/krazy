@@ -142,6 +142,11 @@ QString Document::fileName() const
   return m_fileName;
 }
 
+Namespace * const Document::globalNamespace() const
+{
+  return m_globalNamespace.data();
+}
+
 QList<Document::Include> Document::includes() const
 {
   return m_includes;
@@ -197,16 +202,23 @@ void Document::appendMacro(Macro const &macro)
   m_definedMacros.append(macro);
 }
 
+static void setToZero(Namespace *obj)
+{
+  obj = 0;
+}
+
 void Document::check(QSharedPointer<Namespace> globalNamespace)
 {
   if (globalNamespace)
     m_globalNamespace = globalNamespace;
   else
-    m_globalNamespace = QSharedPointer<Namespace>(m_control->newNamespace(0));
+    // The namespace is deleted when the Control object is deleted so the shared
+    // pointer should not delete the object when the last goes out of scope.
+    m_globalNamespace = QSharedPointer<Namespace>(m_control->newNamespace(0), setToZero);
 
   // Check the included documents.
   foreach(Include inc, m_includes)
-    inc.document()->check(globalNamespace);
+    inc.document()->check(m_globalNamespace);
 
   if (! m_translationUnit->ast())
     return; // nothing to do.
