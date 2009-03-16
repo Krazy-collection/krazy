@@ -236,7 +236,7 @@ void Document::setSource(QByteArray const &source)
   m_translationUnit->setSource(source.constBegin(), source.size());
   m_translationUnit->tokenize();
   m_translationUnit->parse(TranslationUnit::ParseTranlationUnit);
-  m_translationUnit->release();
+  //m_translationUnit->release();
 }
 
 void Document::startSkippingBlocks(unsigned start)

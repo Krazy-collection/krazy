@@ -35,7 +35,6 @@ class ParseResultWidget : public QWidget
     void openFile();
 
   private: // Functions
-    QAbstractItemModel *buildASTModel() const;
     QAbstractItemModel *buildScopeModel();
     QStringList includePaths() const;
 

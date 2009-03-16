@@ -12,21 +12,21 @@
 #include <parser/Control.h>
 #include <parser/PrettyPrinter.h>
 
-class DumpAST : protected ASTVisitor
+class DumpAST : protected CPlusPlus::ASTVisitor
 {
   int m_depth;
   QIODevice *m_device;
   
   public:
-    DumpAST(QIODevice *device, Control *control)
-        : ASTVisitor(control), m_depth(0), m_device(device)
+    DumpAST(QIODevice *device, CPlusPlus::Control *control)
+        : CPlusPlus::ASTVisitor(control), m_depth(0), m_device(device)
     {}
 
-    void operator()(AST *ast)
+    void operator()(CPlusPlus::AST *ast)
     { accept(ast); }
 
   protected:
-    virtual bool preVisit(AST *ast)
+    virtual bool preVisit(CPlusPlus::AST *ast)
     {
       const char *name;
       #ifdef Q_CC_GNU
@@ -43,7 +43,7 @@ class DumpAST : protected ASTVisitor
       return true;
     }
 
-    virtual void postVisit(AST *)
+    virtual void postVisit(CPlusPlus::AST *)
     { --m_depth; }
 };
 

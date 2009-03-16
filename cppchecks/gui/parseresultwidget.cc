@@ -11,7 +11,6 @@
 #include <parser/Scope.h>
 #include <parser/TranslationUnit.h>
 
-#include "asttreebuilder.h"
 #include "asttreemodel.h"
 #include "dumpast.h"
 #include "dumpscope.h"
@@ -107,6 +106,7 @@ void ParseResultWidget::exportScope()
 
 void ParseResultWidget::onASTItemClicked(QModelIndex const &index)
 {
+  /*
   Item *item = static_cast<Item*>(index.internalPointer());
   TranslationUnit *unit = m_selectedDoc->translationUnit();
 
@@ -121,6 +121,7 @@ void ParseResultWidget::onASTItemClicked(QModelIndex const &index)
   tc.select(QTextCursor::LineUnderCursor);
 
   m_ui->m_headerView->setTextCursor(tc);
+  */
 }
 
 void ParseResultWidget::onIncludeClicked(QModelIndex const &index)
@@ -176,7 +177,8 @@ void ParseResultWidget::onTreeTypeChanged(int index)
       if (m_ui->m_treeView->model() != m_includeTreeModel)
         delete m_ui->m_treeView->model();
 
-      m_ui->m_treeView->setModel(buildASTModel());
+      if (m_selectedDoc)
+        m_ui->m_treeView->setModel(new ASTTreeModel(m_selectedDoc->translationUnit()));
       break;
     case 2: // Scope Tree
       m_ui->m_treeView->disconnect(this);
@@ -219,21 +221,6 @@ void ParseResultWidget::openFile()
 }
 
 /// ParseResultWidget :: private functions
-
-QAbstractItemModel *ParseResultWidget::buildASTModel() const
-{
-//   m_selectedDoc->parse();
-// 
-//   ASTTreeModel* model = new ASTTreeModel();
-//   model->getRootItem()->setAST(m_selectedDoc->translationUnit()->ast());
-//   TreeBuilder builder(m_selectedDoc->translationUnit()->control());
-//   builder.setRootItem(model->getRootItem());
-// 
-//   m_selectedDoc->translationUnit()->ast()->asTranslationUnit()->accept(&builder);
-// 
-//   return model;
-  return new QStandardItemModel;
-}
 
 QAbstractItemModel *ParseResultWidget::buildScopeModel()
 {

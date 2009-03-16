@@ -5,9 +5,7 @@ include_directories(
 )
 
 set(APP_SRCS
-  astitem.cc
   asttreemodel.cc
-  asttreebuilder.cc
   includestreemodel.cc
   messagetablemodel.cc
   parseresultwidget.cc
@@ -25,6 +23,7 @@ add_executable(parse_result_analyzer ${APP_SRCS} ${APP_MOC_SRCS} ${APP_UI_HDRS})
 target_link_libraries(parse_result_analyzer
   ${QT_QTCORE_LIBRARY}
   ${QT_QTGUI_LIBRARY}
+  cpp_parser
   preprocessor
   cppmodel
 )

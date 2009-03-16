@@ -14,7 +14,7 @@
 
 #include <QtCore/QIODevice>
 
-class DumpScope : protected SymbolVisitor
+class DumpScope : protected CPlusPlus::SymbolVisitor
 {
   public:
     DumpScope(QIODevice *device)
@@ -23,7 +23,7 @@ class DumpScope : protected SymbolVisitor
       , m_namePrinter(new CPlusPlus::CppModel::Overview())
     {}
 
-    void operator()(Scope const &scope)
+    void operator()(CPlusPlus::Scope const &scope)
     {
       m_device->write("Namespace (Anonymous)\n");
       m_depth++;
@@ -37,7 +37,7 @@ class DumpScope : protected SymbolVisitor
     }
 
   protected:
-    virtual bool preVisit(Symbol *symbol)
+    virtual bool preVisit(CPlusPlus::Symbol *symbol)
     {
       const char *name;
       #ifdef Q_CC_GNU
@@ -56,7 +56,7 @@ class DumpScope : protected SymbolVisitor
       return true;
     }
 
-    virtual void postVisit(Symbol *)
+    virtual void postVisit(CPlusPlus::Symbol *)
     { --m_depth; }
 
   private:

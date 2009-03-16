@@ -1,36 +1,30 @@
 #ifndef ASTTREEMODEL_H
 #define ASTTREEMODEL_H
 
+#include <parser/ASTVisitor.h>
 #include <parser/CPlusPlusForwardDeclarations.h>
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QModelIndex>
-#include <QtCore/QVariant>
+#include <QtCore/QStack>
+#include <QtGui/QStandardItemModel>
 
-class Item;
-
-class ASTTreeModel : public QAbstractItemModel
+class ASTTreeModel : public QStandardItemModel, public CPlusPlus::ASTVisitor
 {
   public:
-    ASTTreeModel();
+    /**
+     * Creates a TreeModel for given TranslationUnit. This class will not take
+     * ownership of @param translationUnit and you should make shure that this
+     * model is not used after deletion of @param translationUnit.
+     */
+    ASTTreeModel(CPlusPlus::TranslationUnit *translationUnit);
+
     ~ASTTreeModel();
 
-    QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
-    QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    Item* getRootItem();
+    virtual void postVisit(CPlusPlus::AST* ast);
+
+    virtual bool preVisit(CPlusPlus::AST *ast);
 
   private:
-    void setupModelData(QString fileName, Item *parent, QString filterText);
-
-    Item *rootItem;
+    QStack<QStandardItem*> m_items; // For building the tree model.
 };
 
 #endif // ASTTREEMODEL_H
