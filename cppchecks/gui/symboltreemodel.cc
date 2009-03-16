@@ -61,7 +61,7 @@ SymbolTreeModel::~SymbolTreeModel()
   QStandardItem *item1 = new QStandardItem(abi::__cxa_demangle(
     typeid(*symbol).name(), 0, 0, 0) + 11);
 #else
-  QStandardItem *item1 = new QStandardItem((*symbol).name());
+  QStandardItem *item1 = new QStandardItem(typeid(*symbol).name());
 #endif
 
   // The first item in the row serves as parent for eventual childs of this

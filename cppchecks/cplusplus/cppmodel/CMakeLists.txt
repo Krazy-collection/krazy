@@ -19,6 +19,6 @@ target_link_libraries(cppmodel preprocessor cpp_parser ${QT_QTCORE_LIBRARY})
 set_target_properties(cppmodel PROPERTIES DEFINE_SYMBOL CPLUSPLUSMODEL_BUILD_LIB)
 
 if(WIN32)
-install(TARGETS preprocessor ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS cppmodel ${INSTALL_TARGETS_DEFAULT_ARGS})
 endif(WIN32)
 
