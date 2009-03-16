@@ -25,7 +25,6 @@
 #include <parser/Literals.h>
 #include <parser/Scope.h>
 #include <parser/Semantic.h>
-#include <parser/Symbols.h>
 #include <parser/TranslationUnit.h>
 
 #include <preprocessor/PreprocessorClient.h>
@@ -128,26 +127,6 @@ QString Document::absoluteFileName() const
     return m_path + QDir::separator() + m_fileName;
 }
 
-void Document::check()
-{
-  /*
-  foreach(Include inc, _includes)
-    inc.document()->check(globals);
-
-  if (!_translationUnit->ast())
-    parse();
-
-  Semantic semantic(_control);
-  if (TranslationUnitAST *ast = _translationUnit->ast()->asTranslationUnit())
-  {
-    for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next)
-    {
-      semantic.check(decl, globals);
-    }
-  }
-  */
-}
-
 QList<Macro> Document::definedMacros() const
 {
   return m_definedMacros;
@@ -216,6 +195,29 @@ void Document::addMacroUse(Macro const &macro
 void Document::appendMacro(Macro const &macro)
 {
   m_definedMacros.append(macro);
+}
+
+void Document::check(QSharedPointer<Namespace> globalNamespace)
+{
+  if (globalNamespace)
+    m_globalNamespace = globalNamespace;
+  else
+    m_globalNamespace = QSharedPointer<Namespace>(m_control->newNamespace(0));
+
+  // Check the included documents.
+  foreach(Include inc, m_includes)
+    inc.document()->check(globalNamespace);
+
+  if (! m_translationUnit->ast())
+    return; // nothing to do.
+
+  // Now check this document.
+  Semantic semantic(m_control);
+  Scope *globals = m_globalNamespace->members();
+
+  if (TranslationUnitAST *ast = m_translationUnit->ast()->asTranslationUnit())
+    for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next)
+      semantic.check(decl, globals);
 }
 
 Document::Ptr Document::create(QString const &fileName)

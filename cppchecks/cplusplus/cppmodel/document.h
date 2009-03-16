@@ -19,6 +19,8 @@
 #ifndef CPLUSPLUS_CPPMODEL_DOCUMENT_H
 #define CPLUSPLUS_CPPMODEL_DOCUMENT_H
 
+// Needed for Namespace, Should be removed by moving members to private data class.
+#include <parser/Symbols.h>
 #include <preprocessor/Macro.h>
 #include <preprocessor/PreprocessorClient.h>
 
@@ -74,14 +76,6 @@ namespace CppModel {
 
       QString absoluteFileName() const;
 
-      /**
-       * This will run the semantic pass over the AST and the AST of all included
-       * documents. If the AST is not created yet, the document will be parsed
-       * first. The semantic symbols will be added to the @param globals Scope
-       * object.
-       */
-      void check();
-
       QList<Macro> definedMacros() const;
 
       QList<DiagnosticMessage> diagnosticMessages() const;
@@ -108,6 +102,14 @@ namespace CppModel {
 
       void appendMacro(Macro const &macro);
 
+      /**
+       * This will run the semantic pass over the AST and the AST of all included
+       * documents. If the AST is not created yet, the document will be parsed
+       * first. The semantic symbols will be added to the @param globals Scope
+       * object.
+       */
+      void check(QSharedPointer<Namespace> globalNamespace = QSharedPointer<Namespace>(0));
+
       static Ptr create(QString const &fileName);
 
       void setPath(QString const &path);
@@ -121,21 +123,23 @@ namespace CppModel {
     private: // Functions
       Document(const Document &other);
 
-      void operator =(const Document &other);
+      void operator=(const Document &other);
 
       Document(const QString &fileName);
 
     private: // Members
-      Control*                 m_control;
-      QString                  m_fileName;
-      QList<Macro>             m_definedMacros;
-      QList<DiagnosticMessage> m_diagnosticMessages;
-      QList<Include>           m_includes;
-      QList<MacroUse>          m_macroUses;
-      QString                  m_path;
-      QList<CharBlock>         m_skippedBlocks;
-      QByteArray               m_source;
-      TranslationUnit         *m_translationUnit;
+      // TODO: Move the members to a private data class.
+      Control*                  m_control;
+      QString                   m_fileName;
+      QList<Macro>              m_definedMacros;
+      QList<DiagnosticMessage>  m_diagnosticMessages;
+      QSharedPointer<Namespace> m_globalNamespace;
+      QList<Include>            m_includes;
+      QList<MacroUse>           m_macroUses;
+      QString                   m_path;
+      QList<CharBlock>          m_skippedBlocks;
+      QByteArray                m_source;
+      TranslationUnit          *m_translationUnit;
   };
 
 } // namespace CppModel

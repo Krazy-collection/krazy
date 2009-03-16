@@ -51,6 +51,7 @@ Document::Ptr CppPreprocessor::operator()(QString &fileName)
 {
   m_mode = Recursive;
   sourceNeeded(fileName, IncludeGlobal, /*line = */ 0);
+  m_rootDoc->check();
   return m_rootDoc;
 }
 
