@@ -130,15 +130,18 @@ make distclean
 cd ..
 
 # build and install cppcheck plugins
-cd cppchecks && \
-mkdir -p build && \
-cd build && \
-cmake -DCMAKE_PREFIX_PATH=$TOP .. && \
-make && \
-make install
-cd ..
-rm -rf build
-cd ..
+# TODO: Probably the whole cpp checks will move out of krazy because I think
+#       that it makes more sense as a seperate tool. For it is certainly not
+#       ready for use anyway so we comment it out.
+# cd cppchecks && \
+# mkdir -p build && \
+# cd build && \
+# cmake -DCMAKE_PREFIX_PATH=$TOP .. && \
+# make && \
+# make install
+# cd ..
+# rm -rf build
+# cd ..
 
 #install share stuff
 mkdir -p $TOP/share/dtd
