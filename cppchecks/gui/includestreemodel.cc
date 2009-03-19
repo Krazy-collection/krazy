@@ -53,6 +53,7 @@ void IncludesTreeModel::addItems(Document::Ptr document, QStandardItem *parent)
 
     QStandardItem *item = new QStandardItem(name);
     item->setData(var, DocumentRole);
+    item->setToolTip(inc.document()->absoluteFileName());
 
     parent->appendRow(item);
     addItems(inc.document(),item);
