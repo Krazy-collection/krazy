@@ -29,6 +29,11 @@ if ( test $# -gt 0 ) then
   TOP=$1
 fi
 
+if test "$TOP" = "--help"; then
+  echo "Usage: $0 [installation_prefix]";
+  exit 1
+fi
+
 if ( test `$QMAKE -query QT_VERSION | egrep -c '^4'` -eq 0 ) then
   echo "The qmake found in your \$PATH is not the Qt4 version"
   echo "Please put your Qt4 bin directory first. Exiting..."
