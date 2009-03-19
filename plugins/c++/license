@@ -5,7 +5,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2008 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2005-2009 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 # Copyright (C) 2007 by Dirk Mueller <mueller@kde.org>                        #
 #                                                                             #
@@ -47,9 +47,10 @@ use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
+use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.6";
+my($Version) = "1.7";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -139,6 +140,9 @@ if ($krazy == 1) {
     exit $r;
 }
 
+#code for non-Krazy usage start here
+exit 1 if (!&GetOptions('verbose' => \$verbose, 'quiet' => \$quiet));
+
 my $had_error = 0;
 foreach my $f (@ARGV) {
     my ($r, $license, $comment) = &checkOneFile($f);
@@ -153,6 +157,7 @@ exit 1 if $had_error;
 print "okay\n" if ($#ARGV == 0 && !$quiet);
 exit 0;
 
+### end main
 sub checkLicense($)
 {
    my($text) = @_;
