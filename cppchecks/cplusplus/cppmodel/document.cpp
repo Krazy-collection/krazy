@@ -118,7 +118,7 @@ Document::~Document()
 
 QString Document::absoluteFileName() const
 {
-  if (m_path.endsWith(QDir::separator()))
+  if (m_path.isEmpty() || m_path.endsWith(QDir::separator()))
     return m_path + m_fileName;
   else
     return m_path + QDir::separator() + m_fileName;
