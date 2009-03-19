@@ -31,6 +31,9 @@
 #include <QtCore/QFile>
 #include <QtCore/QtDebug>
 
+#include "binder.h"
+#include "namespacebinding.h"
+
 using namespace CPlusPlus;
 using namespace CppModel;
 
@@ -87,7 +90,9 @@ namespace {
 /// Implementation of Include
 
 Document::Include::Include(Ptr const &document, Client::IncludeType type, unsigned line)
-  : m_document(document), m_line(line), m_type(type)
+  : m_document(document)
+  , m_line(line)
+  , m_type(type)
 {}
 
 Document::Ptr Document::Include::document() const
@@ -114,6 +119,7 @@ Document::~Document()
   delete m_translationUnit;
   delete m_control->diagnosticClient();
   delete m_control;
+  delete m_binding;
 }
 
 QString Document::absoluteFileName() const
@@ -122,6 +128,11 @@ QString Document::absoluteFileName() const
     return m_path + m_fileName;
   else
     return m_path + QDir::separator() + m_fileName;
+}
+
+NamespaceBinding * const Document::boundGlobalNamespace() const
+{
+  return m_binding;
 }
 
 QList<Macro> Document::definedMacros() const
@@ -199,6 +210,12 @@ void Document::appendMacro(Macro const &macro)
   m_definedMacros.append(macro);
 }
 
+void Document::bind()
+{
+  Binder bind;
+  m_binding = bind(m_translationUnit, m_globalNamespace.data());
+}
+
 static void setToZero(Namespace *obj)
 {
   obj = 0;
@@ -267,8 +284,9 @@ void Document::stopSkippingBlocks(unsigned stop)
 /// Document :: Private functions
 
 Document::Document(const QString &fileName)
-  : m_fileName(fileName)
+  : m_binding(0)
   , m_control(new Control())
+  , m_fileName(fileName)
 {
   m_control->setDiagnosticClient(new DocumentDiagnosticClient(this, &m_diagnosticMessages));
 

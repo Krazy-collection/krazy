@@ -42,6 +42,8 @@ namespace CPlusPlus {
 
 namespace CppModel {
 
+  class NamespaceBinding;
+
   class CPLUSPLUS_MODEL_EXPORT Document
   {
     public:
@@ -74,12 +76,27 @@ namespace CppModel {
 
       QString absoluteFileName() const;
 
+      /**
+       * Returns the NamespaceBinding object for the global namespace. This
+       * contains binded namespace in opposite of namespace forrests.
+       *
+       * @see Namespace * const globalNamespace() const
+       * @see void bind()
+       */
+      NamespaceBinding * const boundGlobalNamespace() const;
+
       QList<Macro> definedMacros() const;
 
       QList<DiagnosticMessage> diagnosticMessages() const;
 
       QString fileName() const;
 
+      /**
+       * Returns the Namespace object for the global namespace.
+       *
+       * @see NamespaceBinding * const boundGlobalNamespace() const
+       * @see void bind()
+       */
       Namespace * const globalNamespace() const;
 
       QList<Include> includes() const;
@@ -101,6 +118,18 @@ namespace CppModel {
                        QVector<MacroArgumentReference> const &range);
 
       void appendMacro(Macro const &macro);
+
+      /**
+       * The semantic pass creates forrests of namespace trees. I.e. everytime
+       * it finds a namespace definition it does not check if the namespace
+       * already is created but just creates a new Namespace object with the
+       * same name and adds it to the scope where the namespace was defined. In
+       * this model we're more interested in a tree where all namespaces with
+       * the same name in the same scope are handled as the same logical
+       * namespace. This method does the actual binding and should be called
+       * after the check method.
+       */
+      void bind();
 
       /**
        * This will run the semantic pass over the AST and the AST of all included
@@ -129,6 +158,7 @@ namespace CppModel {
 
     private: // Members
       // TODO: Move the members to a private data class.
+      NamespaceBinding         *m_binding;
       Control*                  m_control;
       QString                   m_fileName;
       QList<Macro>              m_definedMacros;
