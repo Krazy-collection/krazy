@@ -224,8 +224,10 @@ void ParseResultWidget::openFile()
       m_includeTreeModel = 0;
     }
 
+    // TODO: Also make it possible to add local include paths and to modify those
+    //       paths in the gui.
     CppPreprocessor preproc;
-    // TODO: Also make it possible to add local include paths.
+    preproc.setLocalIncludePaths(QStringList() << QFileInfo(fileName).absolutePath());
     preproc.setGlobalIncludePaths(includePaths());
 
     delete m_includeTreeModel;
