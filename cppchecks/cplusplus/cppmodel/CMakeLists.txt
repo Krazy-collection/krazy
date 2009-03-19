@@ -9,6 +9,8 @@ set(cppmodel_SRCS
     typeprettyprinter.cpp
     macrouse.cpp
     diagnosticmessage.cpp
+    namespacebinding.cpp
+    binder.cpp
     document.cpp
     cpppreprocessor.cpp
 )
