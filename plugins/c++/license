@@ -153,8 +153,6 @@ foreach my $f (@ARGV) {
 }
 
 exit 1 if $had_error;
-
-print "okay\n" if ($#ARGV == 0 && !$quiet);
 exit 0;
 
 ### end main
