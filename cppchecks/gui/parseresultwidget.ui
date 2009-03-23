@@ -15,94 +15,92 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
    <item row="0" column="0">
-    <widget class="QSplitter" name="splitter_2">
+    <widget class="QSplitter" name="splitter">
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="opaqueResize">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
-     <widget class="QSplitter" name="splitter">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QPushButton" name="m_openFileButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+     <widget class="QWidget" name="">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="m_openFileButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Open File</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="m_treeCombo">
+           <item>
             <property name="text">
-             <string>Open File</string>
+             <string>Include Tree</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="m_treeCombo">
-            <item>
-             <property name="text">
-              <string>Include Tree</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Abstract Syntax Tree</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Symbol Tree</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Bound Symbol Tree</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QTreeView" name="m_treeView">
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QTabWidget" name="m_tabs">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="currentIndex">
-        <number>0</number>
-       </property>
-       <widget class="QWidget" name="tab">
-        <attribute name="title">
-         <string>Include Directories</string>
-        </attribute>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetMinimumSize</enum>
+           </item>
+           <item>
+            <property name="text">
+             <string>Abstract Syntax Tree</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Symbol Tree</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Bound Symbol Tree</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTreeView" name="m_treeView">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
          </property>
-         <item row="4" column="0" colspan="2">
-          <widget class="QPushButton" name="m_openIncludeConfig">
-           <property name="whatsThis">
-            <string>Use this button to open an include directories configuration file. Normally the include directories are passed to the compiler, but in this case you have to set them yourself. The file should contain single lines each containing one directory. The first directories are set as global include paths. Then the file should contain a line with only '%'. The directories read after that line are set as local include directories.
+        </widget>
+       </item>
+       <item>
+        <widget class="QTabWidget" name="m_tabs">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>300</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>Include Directories</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
+           <item row="4" column="0" colspan="2">
+            <widget class="QPushButton" name="m_openIncludeConfig">
+             <property name="whatsThis">
+              <string>Use this button to open an include directories configuration file. Normally the include directories are passed to the compiler, but in this case you have to set them yourself. The file should contain single lines each containing one directory. The first directories are set as global include paths. Then the file should contain a line with only '%'. The directories read after that line are set as local include directories.
 
 When a file is opened for parsing, the directory which contains that file will be added to the local include paths.
 
@@ -114,100 +112,102 @@ e.g.:
 %
 /path/to/project
 /path/to/project/another/level</string>
-           </property>
-           <property name="text">
-            <string>Open Include Config</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="QListWidget" name="m_globalIncludeDirsList">
-           <property name="whatsThis">
-            <string>This list shows the directories that are used to look up global include files (e.g. #include &lt;some/header.h&gt;) during preprocessing.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0" colspan="2">
-          <widget class="QListWidget" name="m_localIncludeDirsList">
-           <property name="whatsThis">
-            <string>This list shows the paths that are used to look up local included files (e.g. #include &quot;someheader.h&quot;) during preprocessing. The path that contains the file that is being parsed will also be added to this list.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Global Includes</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Local Includes</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tab_2">
-        <attribute name="title">
-         <string>Messages</string>
-        </attribute>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QTableView" name="m_messageTable">
-           <attribute name="horizontalHeaderStretchLastSection">
-            <bool>true</bool>
-           </attribute>
-           <attribute name="verticalHeaderStretchLastSection">
-            <bool>false</bool>
-           </attribute>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tab_3">
-        <attribute name="title">
-         <string>Actions</string>
-        </attribute>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <item>
-            <widget class="QPushButton" name="m_exportAST">
+             </property>
              <property name="text">
-              <string>Export AST</string>
+              <string>Open Include Config</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QPushButton" name="m_exportScope">
-             <property name="text">
-              <string>Export Global Scope</string>
+           <item row="1" column="0" colspan="2">
+            <widget class="QListWidget" name="m_globalIncludeDirsList">
+             <property name="whatsThis">
+              <string>This list shows the directories that are used to look up global include files (e.g. #include &lt;some/header.h&gt;) during preprocessing.</string>
              </property>
             </widget>
            </item>
-           <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+           <item row="3" column="0" colspan="2">
+            <widget class="QListWidget" name="m_localIncludeDirsList">
+             <property name="whatsThis">
+              <string>This list shows the paths that are used to look up local included files (e.g. #include &quot;someheader.h&quot;) during preprocessing. The path that contains the file that is being parsed will also be added to this list.</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Global Includes</string>
              </property>
-            </spacer>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Local Includes</string>
+             </property>
+            </widget>
            </item>
           </layout>
-         </item>
-        </layout>
-       </widget>
-      </widget>
+         </widget>
+         <widget class="QWidget" name="tab_2">
+          <attribute name="title">
+           <string>Messages</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QTableView" name="m_messageTable">
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderStretchLastSection">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_3">
+          <attribute name="title">
+           <string>Actions</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QPushButton" name="m_exportAST">
+               <property name="text">
+                <string>Export AST</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="m_exportScope">
+               <property name="text">
+                <string>Export Global Scope</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QCheckBox" name="m_preprocessedCheck">

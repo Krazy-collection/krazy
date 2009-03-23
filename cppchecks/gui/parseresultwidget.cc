@@ -62,6 +62,7 @@ ParseResultWidget::ParseResultWidget()
           this, SLOT(exportScope()));
   connect(m_ui->m_openIncludeConfig, SIGNAL(clicked()), this, SLOT(openIncConfig()));
   setWindowFlags(Qt::WindowContextHelpButtonHint);
+  m_ui->splitter->setStretchFactor(1, 4);
 }
 
 ParseResultWidget::~ParseResultWidget()
