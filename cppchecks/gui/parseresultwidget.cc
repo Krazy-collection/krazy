@@ -62,7 +62,9 @@ ParseResultWidget::ParseResultWidget()
           this, SLOT(exportScope()));
   connect(m_ui->m_openIncludeConfig, SIGNAL(clicked()), this, SLOT(openIncConfig()));
   setWindowFlags(Qt::WindowContextHelpButtonHint);
+
   m_ui->splitter->setStretchFactor(1, 4);
+  m_ui->m_preprocessedCheck->setEnabled(false);
 }
 
 ParseResultWidget::~ParseResultWidget()
@@ -132,6 +134,7 @@ void ParseResultWidget::onIncludeClicked(QModelIndex const &index)
   m_selectedDoc = index.data(IncludesTreeModel::DocumentRole).value<Document::Ptr>();
   m_ui->m_messageTable->setModel(new MessageTableModel(m_selectedDoc->diagnosticMessages()));
   m_ui->m_messageTable->setColumnWidth(0, 40);
+  m_ui->m_preprocessedCheck->setEnabled(true);
   onStateChanged(m_ui->m_preprocessedCheck->checkState());
 }
 

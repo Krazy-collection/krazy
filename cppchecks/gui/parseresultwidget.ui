@@ -224,6 +224,9 @@ e.g.:
          <property name="whatsThis">
           <string>Shows the code of the file which is currently selected in the Include Tree.</string>
          </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
