@@ -61,8 +61,7 @@ ParseResultWidget::ParseResultWidget()
   connect(m_ui->m_exportScope, SIGNAL(clicked()),
           this, SLOT(exportScope()));
   connect(m_ui->m_openIncludeConfig, SIGNAL(clicked()), this, SLOT(openIncConfig()));
-  
-  m_ui->m_tabs->setEnabled(true);
+  setWindowFlags(Qt::WindowContextHelpButtonHint);
 }
 
 ParseResultWidget::~ParseResultWidget()

@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   QApplication app(argc, argv);
 
   ParseResultWidget widget;
-  widget.show();
+  widget.showMaximized();
 
   return app.exec();
 }
