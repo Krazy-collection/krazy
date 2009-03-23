@@ -255,8 +255,8 @@ void ParseResultWidget::openIncConfig()
       return;
 
     QStringList includePaths;
-    m_ui->m_globalIncludeDirsList->addItems(includePaths);
-    m_ui->m_localIncludeDirsList->addItems(includePaths);
+    m_ui->m_globalIncludeDirsList->clear();
+    m_ui->m_localIncludeDirsList->clear();
 
     while (!file.atEnd())
     {
