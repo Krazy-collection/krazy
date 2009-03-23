@@ -183,7 +183,7 @@ void ParseResultWidget::onTreeTypeChanged(int index)
       if (m_selectedDoc)
         m_ui->m_treeView->setModel(new ASTTreeModel(m_selectedDoc->translationUnit()));
       break;
-    case 2: // Scope Tree
+    case 2: // Symbol Tree
       m_ui->m_treeView->disconnect(this);
       //connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
       //        this, SLOT(onSemanticItemClicked(QModelIndex const &)));
@@ -193,6 +193,15 @@ void ParseResultWidget::onTreeTypeChanged(int index)
       m_ui->m_treeView->setModel(new SymbolTreeModel(m_rootDoc->globalNamespace()));
       m_ui->m_treeView->setColumnWidth(0, 175);
       break;
+    case 3: // Bound Symbol Tree
+      m_ui->m_treeView->disconnect(this);
+      if (m_ui->m_treeView->model() != m_includeTreeModel)
+        delete m_ui->m_treeView->model();
+
+      m_ui->m_treeView->setModel(new SymbolTreeModel(m_rootDoc->boundGlobalNamespace()));
+      m_ui->m_treeView->setColumnWidth(0, 175);
+      break;
+
     default: // Invalid
       break;
   }

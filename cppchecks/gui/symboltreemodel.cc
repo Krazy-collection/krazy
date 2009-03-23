@@ -24,9 +24,11 @@
 #endif
 
 #include <cppmodel/overview.h>
+#include <cppmodel/namespacebinding.h>
 
 #include <parser/Scope.h>
 #include <parser/Symbol.h>
+#include <parser/Symbols.h>
 
 #include <QtCore/QDebug>
 #include <QtGui/QStandardItem>
@@ -39,11 +41,57 @@ SymbolTreeModel::SymbolTreeModel(CPlusPlus::Symbol * const symbol)
 {
   setHorizontalHeaderItem(0, new QStandardItem("Symbol Name"));
   setHorizontalHeaderItem(1, new QStandardItem("Symbol Type"));
-  accept(symbol);
+  SymbolVisitor::accept(symbol);
+}
+
+SymbolTreeModel::SymbolTreeModel(NamespaceBinding * binding)
+  : m_namePrinter(new Overview())
+{
+  setHorizontalHeaderItem(0, new QStandardItem("Symbol Name"));
+  setHorizontalHeaderItem(1, new QStandardItem("Symbol Type"));
+
+  accept(binding);
 }
 
 SymbolTreeModel::~SymbolTreeModel()
 {}
+
+/// Private functions
+
+void SymbolTreeModel::accept(NamespaceBinding * binding)
+{
+  QStandardItem *item0 = new QStandardItem(m_namePrinter(binding->name()));
+  QStandardItem *item1 = new QStandardItem("NamespaceBinding");
+
+  QList<QStandardItem*> row;
+  row.append(item0);
+  row.append(item1);
+
+  if (m_items.empty())
+    invisibleRootItem()->appendRow(row);
+  else
+    m_items.top()->appendRow(row);
+
+  // Push the item on the stack so that child items can use it as parent.
+  m_items.push(item0);
+
+  for (unsigned i = 0; i < binding->children.size(); ++i)
+    accept(binding->children.at(i));
+
+  for (unsigned i = 0; i < binding->symbols.size(); ++i)
+  {
+    Namespace *ns = binding->symbols[i];
+
+    for (unsigned i = 0; i < ns->memberCount(); ++i)
+    {
+      if (!ns->memberAt(i)->isNamespace())
+        SymbolVisitor::accept(ns->memberAt(i));
+    }
+  }
+
+  if (!m_items.empty())
+    m_items.pop();
+}
 
 /* virtual */ void SymbolTreeModel::postVisit(CPlusPlus::Symbol* symbol)
 {

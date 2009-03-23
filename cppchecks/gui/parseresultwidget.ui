@@ -50,7 +50,12 @@
            </item>
            <item>
             <property name="text">
-             <string>Scope Tree</string>
+             <string>Symbol Tree</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Bound Symbol Tree</string>
             </property>
            </item>
           </widget>

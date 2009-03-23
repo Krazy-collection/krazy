@@ -27,6 +27,13 @@
 #include <QtCore/QStack>
 #include <QtGui/QStandardItemModel>
 
+namespace CPlusPlus {
+  namespace CppModel {
+    class NamespaceBinding;
+  }
+}
+
+
 class SymbolTreeModel : public QStandardItemModel, private CPlusPlus::SymbolVisitor
 {
   public: // Functions
@@ -37,9 +44,13 @@ class SymbolTreeModel : public QStandardItemModel, private CPlusPlus::SymbolVisi
      */
     SymbolTreeModel(CPlusPlus::Symbol * const symbol);
 
+    SymbolTreeModel(CPlusPlus::CppModel::NamespaceBinding * binding);
+
     ~SymbolTreeModel();
 
   private: // Functions
+    void accept(CPlusPlus::CppModel::NamespaceBinding * binding);
+
     virtual bool preVisit(CPlusPlus::Symbol *symbol);
 
     virtual void postVisit(CPlusPlus::Symbol *);

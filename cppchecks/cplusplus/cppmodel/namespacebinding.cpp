@@ -2,6 +2,7 @@
    This file or code within this file was originally part of Qt Creator.
 
    Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+   Copyright (C) 2009 Bertjan Broeksema <b.broeksema@kdemail.net>
 
    GNU Lesser General Public License Usage
 
@@ -44,17 +45,12 @@ NamespaceBinding::~NamespaceBinding()
   }
 }
 
-NameId *NamespaceBinding::name() const
+Name *NamespaceBinding::name() const
 {
   if (symbols.size())
   {
     if (Name *name = symbols.at(0)->name())
-    {
-      NameId *nameId = name->asNameId();
-      assert(nameId != 0);
-
-      return nameId;
-    }
+      return name;
   }
 
   return 0;
@@ -62,7 +58,7 @@ NameId *NamespaceBinding::name() const
 
 Identifier *NamespaceBinding::identifier() const
 {
-  if (NameId *nameId = name())
+  if (NameId *nameId = name()->asNameId())
     return nameId->identifier();
 
   return 0;

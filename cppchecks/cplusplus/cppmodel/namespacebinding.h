@@ -2,6 +2,7 @@
    This file or code within this file was originally part of Qt Creator.
 
    Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+   Copyright (C) 2009 Bertjan Broeksema <b.broeksema@kdemail.net>
 
    GNU Lesser General Public License Usage
 
@@ -36,7 +37,7 @@ namespace CppModel {
       ~NamespaceBinding();
 
       /// Returns this binding's name.
-      NameId *name() const;
+      Name *name() const;
 
       /// Returns this binding's identifier.
       Identifier *identifier() const;
