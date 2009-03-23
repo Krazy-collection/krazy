@@ -54,6 +54,7 @@ class ParseResultWidget : public QWidget
     void onStateChanged(int);
     void onTreeTypeChanged(int index);
     void openFile();
+    void openIncConfig();
 
   private: // Functions
     QStringList includePaths() const;
@@ -63,7 +64,7 @@ class ParseResultWidget : public QWidget
     CPlusPlus::CppModel::Document::Ptr m_rootDoc;
     CPlusPlus::CppModel::Document::Ptr m_selectedDoc;
     Ui::ParseResultWidget             *m_ui;
-	CPlusPlus::Scope                  *m_globals;
+    CPlusPlus::Scope                  *m_globals;
 };
 
 #endif // PARSE_RESULT_WIDGET_H

@@ -60,21 +60,8 @@ ParseResultWidget::ParseResultWidget()
           this, SLOT(exportAST()));
   connect(m_ui->m_exportScope, SIGNAL(clicked()),
           this, SLOT(exportScope()));
-
-  // TODO: Read from config.
-  QStringList includePaths;
-  includePaths << QDir::current().path();
-  includePaths << "/usr/include/";
-  includePaths << "/usr/include/qt4";
-
-  includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include";
-  includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4";
-  includePaths << "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.1.2/include/g++-v4/x86_64-pc-linux-gnu";
-  includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include";
-  includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include/g++-v4";
-  includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include/g++-v4/i686-pc-linux-gnu";
-
-  m_ui->m_globalIncludeDirsList->addItems(includePaths);
+  connect(m_ui->m_openIncludeConfig, SIGNAL(clicked()), this, SLOT(openIncConfig()));
+  
   m_ui->m_tabs->setEnabled(true);
 }
 
@@ -129,7 +116,7 @@ void ParseResultWidget::onASTItemClicked(QModelIndex const &index)
   unsigned line, column;
   StringLiteral *fileId = 0;
   unit->getTokenPosition(item->ast()->firstToken(), &line, &column, &fileId);
-  //qDebug() << "Line: " << line + 1 << " Column:" << column << "firstToken: " 
+  //qDebug() << "Line: " << line + 1 << " Column:" << column << "firstToken: "
   //        << item->ast()->firstToken() ;
 
   QTextCursor tc(m_ui->m_headerView->document()->findBlockByLineNumber(line));
@@ -248,4 +235,36 @@ QStringList ParseResultWidget::includePaths() const
     paths << m_ui->m_globalIncludeDirsList->item(idx)->text();
 
   return paths;
+}
+
+void ParseResultWidget::openIncConfig()
+{
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Include Config File"),
+                                                 QDir::current().path(),
+                                                 tr("config file (*.incc)"));
+  if (!fileName.isEmpty())
+  {
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+      return;
+
+    QStringList includePaths;
+
+    while (!file.atEnd())
+    {
+      QString line = file.readLine().trimmed();
+      if(line.startsWith('%'))
+        break;
+      includePaths << line;
+    }
+    m_ui->m_globalIncludeDirsList->addItems(includePaths);
+    includePaths.clear();
+
+    while (!file.atEnd())
+    {
+      QString line = file.readLine().trimmed();
+       includePaths << line;
+    }
+    m_ui->m_localIncludeDirsList->addItems(includePaths);
+  }
 }
