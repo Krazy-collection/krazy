@@ -211,11 +211,9 @@ void ParseResultWidget::openFile()
       m_includeTreeModel = 0;
     }
 
-    // TODO: Also make it possible to add local include paths and to modify those
-    //       paths in the gui.
     CppPreprocessor preproc;
-    preproc.setLocalIncludePaths(QStringList() << QFileInfo(fileName).absolutePath());
-    preproc.setGlobalIncludePaths(includePaths());
+    preproc.setLocalIncludePaths(localIncludePaths() << QFileInfo(fileName).absolutePath());
+    preproc.setGlobalIncludePaths(globalIncludePaths());
 
     delete m_includeTreeModel;
 
@@ -227,12 +225,20 @@ void ParseResultWidget::openFile()
 
 /// ParseResultWidget :: private functions
 
-QStringList ParseResultWidget::includePaths() const
+QStringList ParseResultWidget::globalIncludePaths() const
 {
   QStringList paths;
-  // TODO: Make difference between global/local includes.
   for(int idx = 0; idx < m_ui->m_globalIncludeDirsList->count(); ++idx)
     paths << m_ui->m_globalIncludeDirsList->item(idx)->text();
+
+  return paths;
+}
+
+QStringList ParseResultWidget::localIncludePaths() const
+{
+  QStringList paths;
+  for(int idx = 0; idx < m_ui->m_localIncludeDirsList->count(); ++idx)
+    paths << m_ui->m_localIncludeDirsList->item(idx)->text();
 
   return paths;
 }

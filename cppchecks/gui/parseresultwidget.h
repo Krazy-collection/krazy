@@ -57,7 +57,8 @@ class ParseResultWidget : public QWidget
     void openIncConfig();
 
   private: // Functions
-    QStringList includePaths() const;
+    QStringList globalIncludePaths() const;
+    QStringList localIncludePaths() const;
 
   private:
     IncludesTreeModel                 *m_includeTreeModel;
