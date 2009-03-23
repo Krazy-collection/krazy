@@ -74,7 +74,7 @@ ParseResultWidget::ParseResultWidget()
   includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include/g++-v4";
   includePaths << "/usr/lib/gcc/i686-pc-linux-gnu/4.1.2/include/g++-v4/i686-pc-linux-gnu";
 
-  m_ui->m_includeDirsList->addItems(includePaths);
+  m_ui->m_globalIncludeDirsList->addItems(includePaths);
   m_ui->m_tabs->setEnabled(true);
 }
 
@@ -243,9 +243,9 @@ void ParseResultWidget::openFile()
 QStringList ParseResultWidget::includePaths() const
 {
   QStringList paths;
-
-  for(int idx = 0; idx < m_ui->m_includeDirsList->count(); ++idx)
-    paths << m_ui->m_includeDirsList->item(idx)->text();
+  // TODO: Make difference between global/local includes.
+  for(int idx = 0; idx < m_ui->m_globalIncludeDirsList->count(); ++idx)
+    paths << m_ui->m_globalIncludeDirsList->item(idx)->text();
 
   return paths;
 }
