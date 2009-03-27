@@ -105,7 +105,7 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;  #skip C++ comments
 
   if ($line =~ m/new\sQ\w+/ || $line =~ m/new\s(KPIM::)*K(UrlRequester|ComboBox|LineEdit|TabBar|TextEdit|TimeEdit|DateEdit|Action)/) {
-    next if ($line =~ m/(Application|Buffer|Date|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation)/ && $line !~ m/(UrlRequester|LineEdit|ComboBox|TimeEdit|DateEdit|KAction)/);
+    next if ($line =~ m/(Application|Buffer|Date|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|ActionCollection|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation|SignalMapper)/ && $line !~ m/(UrlRequester|LineEdit|ComboBox|TimeEdit|DateEdit|KAction)/);
     next if ($line =~ m/\(\s*new\s/ || $line =~ m/^\s*return\snew/);
 
     $sline = $line;
@@ -133,7 +133,7 @@ foreach my $w (keys %Widgets) {
   # skip kcfg stuff, as we do the inverse check for them separately
   next if ($Widgets{$w}{'name'} =~ m/^kcfg_/);
 
-  # skip KAction, as we do a different check for them seperately
+  # skip KAction, as we do a different check for them separately
   next if ($Widgets{$w}{'type'} =~ m/KAction/);
 
   $linecnt = $Widgets{$w}{'linecnt'};
@@ -218,7 +218,7 @@ foreach my $w (keys %Widgets) {
   $hasStatusTip=0;
   $hasHelpText=0;
 
-  next if ($Widgets{$w}{'type'} !~ m/KAction/);
+  next if ($Widgets{$w}{'type'} ne "KAction");
 
   $linecnt = $Widgets{$w}{'linecnt'};
 
