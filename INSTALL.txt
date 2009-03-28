@@ -25,7 +25,7 @@ to your execute path.
     or
   % export PATH=$PATH:/another/location/bin
 
-Now, the 'krazy --list' command should show you a list of available plugins.
+Now, the 'krazy2 --list' command should show you a list of available plugins.
 
 
 "Hard" Krazy Installation Instructions

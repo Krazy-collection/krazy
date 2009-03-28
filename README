@@ -17,11 +17,11 @@ has an OSS-approved license!
 
 Usage on your local machine:
 ----------------------------
-For individual files use the krazy script and provide the filenames you 
+For individual files use the krazy2 script and provide the filenames you 
 want to check.
 
 For checking a whole directory including subdirectories, cd into the
-topmost directory you want to check and run the krazyall script from there.
+topmost directory you want to check and run the krazy2all script from there.
 
 The commandline options for both can be obtained by providing the --help option.
 
