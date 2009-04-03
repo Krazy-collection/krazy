@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2005-2008 by Allen Winter <winter@kde.org>                        #
+# Copyright 2005-2009 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -29,7 +29,6 @@
 #  --exclude-types=type1,type2,..typeN <- exclude these file types
 #  support TYPES and EXCLUDE-TYPES in .krazy files
 #  support more command line options in .krazy files (like <D>brief, <D>quiet, verbose,...)
-#  fix textedit export (for kate usage)
 #  "sets/classes" of checks? eg, KDE; KDEPIM; Qt; Gnome???
 
 # Plugin-based: simply put your checker somewhere in $KRAZY_PLUGIN_PATH.
@@ -1079,17 +1078,29 @@ sub printOOPS {
       my ($subissue) = $o;
       $subissue =~ s+^\s*\./$f:\s*++;
       $subissue =~ s+\s*line#.*$++;
+      $subissue =~ s+$f:++;
+      $subissue =~ s/\s*\w+://g;
+      $subissue =~ s/\(\d+\)//g;
+      $subissue =~ s/^\s*$//;
       $subissue .= ", " if ( $subissue ne "" );
+      $subissue =~ s+^[[:space:]]*++;
       my ($issue) = $_[1];
       $issue =~ s+^[Cc]hecks[[:space:]]*++;
       $issue =~ s+^[Cc]heck[[:space:]]*++;
       $issue =~ s+^for[[:space:]]*++;
+      $issue =~ s+\s*\[.*\]++;
       $issue =~ s+\.*[[:space:]]*$++g;
       $f     =~ s+^[[:space:]]*++;
-      my ($l);
 
+      my ($l,$hint);
       for $l (@ls) {
-        print "$f:$l:$subissue$issue\n";
+        $l =~ s/[[:alpha:]]*$//g;
+        $l =~ s/^[[:alpha:]]*//g;
+        $hint = $l;
+        $hint =~ s/\d+://;
+        $l =~ s/:\[.*\]//g;
+        $hint = "" if ($hint eq $l);
+        print "$f:$l:$subissue$issue$hint\n";
       }
     } elsif ( $export eq "xml" ) {
         # We need to think about this. The output of the checkers should be made
@@ -1234,9 +1245,10 @@ sub arrayLineify {
 
   return () if ( $s !~ m/line#/ );
 
-  $s =~ s+^.*line#++;
-  $s =~ s+[[:space:]]*\(\d*\)[[:space:]]*$++;
-  $s =~ s+\[+:\[+;
+  $s =~ s/^.*line#//;
+  $s =~ s/\s*\(\d*\)\s*//g;
+#  $s =~ s/\s*\[\w+\]\s*//g;
+  $s =~ s/\[/:\[/g;
   return split( ",", $s );
 }
 
