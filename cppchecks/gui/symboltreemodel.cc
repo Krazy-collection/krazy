@@ -128,3 +128,16 @@ void SymbolTreeModel::accept(NamespaceBinding * binding)
 
   return true;
 }
+
+///* virtual */ bool SymbolTreeModel::visit(CPlusPlus::Block *block)
+//{
+//  qDebug() << "Test: " << block->memberCount();
+//  for (unsigned i = 0; i < block->memberCount(); ++i)
+//  {
+//    Symbol *member = block->memberAt(i);
+//    qDebug() << abi::__cxa_demangle(typeid(*member).name(), 0, 0, 0) + 11;
+//    accept(member);
+//  }
+//
+//  return true;
+//}

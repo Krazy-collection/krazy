@@ -54,6 +54,8 @@ class SymbolTreeModel : public QStandardItemModel, private CPlusPlus::SymbolVisi
     virtual bool preVisit(CPlusPlus::Symbol *symbol);
 
     virtual void postVisit(CPlusPlus::Symbol *);
+    
+//    virtual bool visit(CPlusPlus::Block *block);
 
   private: // Members
     QStack<QStandardItem*>                 m_items; // For building the tree model.
