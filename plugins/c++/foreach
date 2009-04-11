@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "foreach";
-my($Version) = "1.4";
+my($Version) = "1.5";
 
 &parseArgs();
 
@@ -68,9 +68,11 @@ close(F);
 # Remove C-style comments and #if 0 blocks from the file input
 my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
 
-my($cnt) = 0;
 my($linecnt) = 0;
+my($cnt) = 0;
+my($vcnt) = 0;
 my($lstr) = "";
+my($vlstr) = "";
 
 my($line);
 while ($linecnt < $#lines) {
@@ -84,6 +86,18 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;  #skip C++ comments
 
   if ($line =~ m/(foreach|Q_FOREACH)\s*\(/) {
+
+     if ($line =~ m/[\.>]values\(\)\s*\)/ ||
+         $line =~ m/[\.>]keys\(\)\s*\)/) {
+       $vcnt++;
+       if ($vcnt == 1) {
+         $vlstr = "values or keys iteration line\#" . $linecnt;
+       } else {
+         $vlstr = $vlstr . "," . $linecnt;
+       }
+       print "=> $line\n" if (&verboseArg());
+     }
+
     next if ($line =~ m/\(\s*const\s[:\w]+\s*&\s*\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?[:\w]+\s*\*(\s*const\s)?\s*\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?(T|int|uint|uint32_t|quint64|qint64|unsigned int|unsigned long|GLint|GLuint|ulong|long|float|double|qreal|unsigned char|char|QChar)\s\w+\s*,/);
@@ -101,21 +115,26 @@ while ($linecnt < $#lines) {
 
     $cnt++;
     if ($cnt == 1) {
-      $lstr = "line\#" . $linecnt;
+      $lstr = "non-const ref iterator line\#" . $linecnt;
     } else {
       $lstr = $lstr . "," . $linecnt;
     }
-    print "=> $line" if (&verboseArg());
+    print "=> $line\n" if (&verboseArg());
   }
 }
 
-if (!$cnt) {
+
+my($total_count) = $cnt + $vcnt;
+if (!$total_count) {
   print "okay\n" if (!&quietArg());
   exit 0;
 } else {
   $lstr =~ s/,$//;
-  print "$lstr ($cnt)\n" if (!&quietArg());
-  exit $cnt;
+  if (!&quietArg()) {
+    print "$lstr ($cnt)\n" if ($cnt);
+    print "$vlstr ($vcnt)\n" if ($vcnt);
+  }
+  exit $total_count;
 }
 
 # search the previous $n lines for a pattern $p
@@ -142,6 +161,6 @@ sub Version {
 }
 
 sub Explain {
-  print "When not using POD types (int, double, pointer, ...) you should use const & for your foreach variables. There are two reasons for this: 1) Prevents you from the mistake of writing foreach loops that modify the list, that is \'foreach(Foo f, list) f.a = f.b = f.c = 0;\' compiles but does not modify the contents of list 2) Saves a copy constructor call for each of the list elements\n";
+  print "When not using POD types (int, double, pointer, ...) you should use const & for your foreach variables. There are two reasons for this: 1) Prevents you from the mistake of writing foreach loops that modify the list, that is \'foreach(Foo f, list) f.a = f.b = f.c = 0;\' compiles but does not modify the contents of list 2) Saves a copy constructor call for each of the list elements\nDo not call values in Hashes/Maps/Sets inside foreach loops.\n";
   exit 0 if &explainArg();
 }
