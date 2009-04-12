@@ -68,7 +68,7 @@ if ($#ARGV != 0){ &Help(); exit 0; }
 #    } else {
 #      $lstr = $lstr . "," . $linecnt;
 #    }
-#    print "=> $line" if (&verboseArg());
+#    print "=> $line\n" if (&verboseArg());
 #  }
 #}
 #close(F);
