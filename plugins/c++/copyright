@@ -106,13 +106,14 @@ while ($line = <F>) {
   #Businesses and legal entities are allowed to not have email addresses.
   next if ($line =~ m/Datakonsult/i);
   next if ($line =~ m/Apple Computer/i);
-  next if ($line =~ m/Apple Inc/i);
+  next if ($line =~ m/Apple\s*,?\s*Inc/i);
   next if ($line =~ m/Free Software Foundation/i);
   next if ($line =~ m/(World Wide Web Consortium|W3C)/i);
   next if ($line =~ m/Aladdin Enterprises/i);
   next if ($line =~ m/SUSE Linux/i);
   next if ($line =~ m/Open Group/i);
   next if ($line =~ m/Netscape/i);
+  next if ($line =~ m/Nokia/i);
   next if ($line =~ m/Tridia Corporation/i);
   next if ($line =~ m/AT\&T Laboratories/i);
   next if ($line =~ m/X Consortium/i);
