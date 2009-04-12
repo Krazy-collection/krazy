@@ -165,6 +165,7 @@ cd ..
 
 #remove old checkers no longer in use
 rm -f $TOP/lib/krazy2/krazy-plugins/*/contractions
+rm -f $TOP/lib/krazy2/krazy-plugins/*/qconnect
 
 #permissions
 if ( test $EBN -eq 1 ) then
