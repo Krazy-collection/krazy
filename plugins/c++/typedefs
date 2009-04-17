@@ -149,6 +149,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Please use Qt typedefs (like qint32 and qreal) as defined in QGlobals.\n";
+  print "Please use Qt typedefs (like qint32 and qreal) as defined in QGlobals. These typedefs are guaranteed to have the size in bits that the name states on all platforms. \n";
   exit 0 if &explainArg();
 }
