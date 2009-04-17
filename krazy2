@@ -1140,9 +1140,11 @@ sub printOOPS {
 
         # Sometimes a check returns per line the issue like:
         # utils/input.cpp: line#155[Couldn't],184[Couldn't],200[Couldn't],258[Couldn't] (4)
-        # $lines = "            <line>$lines<\/line>\n";
-        if ($lines =~ /(\d+)\[[\w']*\],?/) {
-          $lines =~ s/(\d+)\[([\w']*)\],?/            <line issue="$2">$1<\/line>\n/g;
+        #
+        # Another format is: value[expected value]
+        # tokenizer.cpp: line#54 int8_t[qint8],#56 int16_t[qint16],#58 int32_t[qint32] (3)
+        if ($lines =~ m/(\d+)\s*(\w*\[\w*\]),?#?/) {
+          $lines =~ s/(\d+)\s*(\w*\[\w*\]),?#?/            <line issue="$2">$1<\/line>\n/g;
         } elsif ($lines =~ /(\d+),?/) {
            $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
         }
