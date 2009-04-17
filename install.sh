@@ -157,6 +157,11 @@ cp kcfg.dtd $TOP/share/dtd
 cp kcfg.xsd $TOP/share/dtd
 cd ..
 
+mkdir -p $TOP/share/xsl
+cd stylesheets && \
+cp *.xsl $TOP/share/xsl
+cd ..
+
 #build and install extra docs
 cd doc && \
 make install PREFIX=$TOP && \
