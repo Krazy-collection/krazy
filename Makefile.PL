@@ -25,7 +25,7 @@ WriteMakefile(
 	      'AUTHOR'          => 'Allen Winter <winter@kde.org>',
 	      'VERSION_FROM'    => 'krazy2',
 	      'ABSTRACT_FROM'   => 'krazy2',
-	      'EXE_FILES'       => ['krazy2','krazy2all','krazy2ebn'],
+	      'EXE_FILES'       => ['krazy2','krazy2all','krazy2ebn','krazy2xml'],
 	      'NORECURS'        => 1,
 	      'PREREQ_FATAL'    => true,
 	      'PREREQ_PM'       => { "HTML::Parser" => 2.20,
