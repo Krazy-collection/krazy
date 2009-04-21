@@ -1120,10 +1120,10 @@ sub printOOPS {
         if ( $ls1 =~ m/line#/ ) {
           $lines = $ls1;
           $message = $ls1;
-        } elsif ( $ls2 =~ m/line#/ ) {
+        } elsif ( defined($ls2) && $ls2 =~ m/line#/ ) {
           $lines = $ls2;
           $message = $ls2;
-        } elsif ( $ls3 =~ m/line#/ ) {
+        } elsif ( defined($ls3) && $ls3 =~ m/line#/ ) {
           $lines = $ls3;
           $message = $ls3;
         } else {
