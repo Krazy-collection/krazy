@@ -80,7 +80,7 @@ if ( hostname() =~ m/englishbreakfast/ ) {
   $repos      = '/home/svn/home/kde';
   $checks     = ''; # execute all checks.
   $saxon      = '/usr/local/bin/saxon';
-  $stylesheet = '/usr/local/www/data-ebn/krazy2/share/xsl/krazy-main.xsl'; 
+  $stylesheet = '/usr/local/www/data-ebn/krazy/share/xsl/krazy-main.xsl';
 } else {
 
   # my system settings for testing
