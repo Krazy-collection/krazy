@@ -373,6 +373,7 @@ my $A_URL = 'url';
 my $A_ADDRESS = 'address';
 my $A_SECTION = 'section';
 my $A_LABEL = 'label';
+my $A_STRONG = 'strong';
 
 # All role names.
 my $R_ACTION = 'action';
@@ -442,7 +443,7 @@ my %kuitspec = (
     $T_BCODE       => [ [], [] ],
     $T_SHORTCUT    => [ [], [] ],
     $T_INTERFACE   => [ [], [] ],
-    $T_EMPHASIS    => [ [], [] ],
+    $T_EMPHASIS    => [ [$A_STRONG], [] ],
     $T_PLACEHOLDER => [ [], [] ],
     $T_EMAIL       => [ [$A_ADDRESS], [] ],
     $T_ENVAR       => [ [], [] ],
