@@ -456,8 +456,8 @@ sub doIt {
   # TODO: translate the xml reports to SQL queries and execute them.
 
   # We're finished, remove the xml file.
-  $command = "rm $out/result.xml";
-  system($command);
+  #$command = "rm $out/result.xml";
+  #system($command);
 }
 
 sub subdirsFromCMakeList {
