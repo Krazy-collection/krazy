@@ -49,10 +49,24 @@ CREATE TABLE tool_run (
 
 -- Description: Each tool_run has results for every plugin that is executed by
 --              the tool. It is assumed that a tool is run on one single file.
+--              The number of issues which is found in a specific run can be
+--              determined by counting the rows in tool_run_result_issues for a
+--              given tool_run_id.
 CREATE TABLE tool_run_results (
-  tool_run_results_id SERIAL PRIMARY KEY,
+  tool_run_result_id  SERIAL PRIMARY KEY,
   tool_run_id         INTEGER REFERENCES tool_run(tool_run_id),
   plugin_id           INTEGER REFERENCES plugins(plugin_id), -- The plugin for which the results are stored.
   file_name           VARCHAR(50),  -- The file that is being checked.
-  issue_count         INTEGER       -- The number of issues reported by the plugin.
+  issue_count         INTEGER -- Should be equal to the number of lines in tool_run_result_issues as long
+);                            -- as there has not been a new run.
+
+-- I'm not sure about this table, this grows large very quickely. Probably we
+-- Only want to store the specific issues for the last run and just keep the count
+-- Afterwards.
+CREATE TABLE tool_run_result_issues (
+  tool_run_result_issue_id SERIAL,
+  tool_run_results_id      INTEGER REFERENCES tool_run_results(tool_run_result_id),
+  line                     INTEGER,
+  expected_value           VARCHAR,
+  actual_value             VARCHAR
 );
