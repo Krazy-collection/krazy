@@ -57,6 +57,7 @@ CREATE TABLE tool_run_results (
   tool_run_result_id  SERIAL PRIMARY KEY,
   tool_run_id         INTEGER REFERENCES tool_run(tool_run_id),
   plugin_id           INTEGER REFERENCES plugins(plugin_id), -- The plugin for which the results are stored.
+  submodule           VARCHAR,      -- The submodule to which the file belongs (In kde this would kmail, korganizer, etc).
   file_name           VARCHAR(50),  -- The file that is being checked.
   issue_count         INTEGER -- Should be equal to the number of lines in tool_run_result_issues as long
 );                            -- as there has not been a new run.
