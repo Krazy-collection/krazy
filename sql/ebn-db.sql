@@ -12,13 +12,20 @@ CREATE TABLE tools (
 -- Description: We assume that A tool has one or more plugins. For tools with no
 --              plugins a plugin with the same name/version as the tool should
 --              be added.
-CREATE TABLE tool_plugins (
-  tool_plugin_id  SERIAL PRIMARY KEY,
-  tool_id         INTEGER REFERENCES tools(tool_id),  -- tool to which this plugin belongs too.
+CREATE TABLE plugins (
+  plugin_id       SERIAL PRIMARY KEY,
   name            VARCHAR(50) NOT NULL,
   version         VARCHAR(20),
   short_desc      VARCHAR,
   long_desc       VARCHAR
+);
+
+-- Description: As it might be possible that different versions of a tool uses
+--              the same version of some plugin, we link them in this seperate
+--              table.
+CREATE TABLE tool_plugins (
+  tool_id         INTEGER REFERENCES tools(tool_id),
+  plugin_id       INTEGER REFERENCES plugins(plugin_id)
 );
 
 -- Description: A component within is checked by one or more tools. Each tool is
@@ -45,7 +52,7 @@ CREATE TABLE tool_run (
 CREATE TABLE tool_run_results (
   tool_run_results_id SERIAL PRIMARY KEY,
   tool_run_id         INTEGER REFERENCES tool_run(tool_run_id),
-  tool_plugin_id      INTEGER REFERENCES tool_plugins(tool_plugin_id), -- The plugin for which the results are stored.
+  plugin_id           INTEGER REFERENCES plugins(plugin_id), -- The plugin for which the results are stored.
   file_name           VARCHAR(50),  -- The file that is being checked.
   issue_count         INTEGER       -- The number of issues reported by the plugin.
 );
