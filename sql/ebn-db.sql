@@ -17,7 +17,8 @@ CREATE TABLE plugins (
   name            VARCHAR(50) NOT NULL,
   version         VARCHAR(20),
   short_desc      VARCHAR,
-  long_desc       VARCHAR
+  long_desc       VARCHAR,
+  file_types      VARCHAR -- Comma seperated list of file types that are supported by this plugin.
 );
 
 -- Description: As it might be possible that different versions of a tool uses
