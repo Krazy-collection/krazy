@@ -22,6 +22,7 @@ captruefalse \
 constref \
 copyright \
 cpp \
+crashy \
 doublequote_chars \
 doxytags \
 dpointer \
