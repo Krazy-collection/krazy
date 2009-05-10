@@ -97,6 +97,7 @@ foreach $line (@lines) {
 
   if ($line =~ m/\+\s*\"[[:print:]]\"/ ||
       $line =~ m/\"[[:print:]]\"\s*\+/ ||
+      $line =~ m/[[:print:]]\s*=\s*\"[[:print:]]\"/ ||
       $line =~ m/\+=\s*\"[[:print:]]\"/) {
     next if ($line =~ m/\\\"[[:print:]]\"/);
     next if ($line =~ m/\"[[:print:]]\\\"/);
@@ -104,6 +105,7 @@ foreach $line (@lines) {
     next if ($line =~ m/\"\\\"/);
     next if ($line =~ m/\"[[:print:]]\"\s[A-Z]/);
     next if ($line =~ m/\(\s*\)\s*\+=/);  #skip foo()+=
+    next if ($line =~ m/[[:print:]]\s*[=!]=\s*\"/);
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
