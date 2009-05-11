@@ -9,6 +9,7 @@
   <xsl:import href="functions.xsl" />
   <xsl:import href="globalvars.xsl" />
   
+  <xsl:param name="component" as="xsd:string"/>
   <xsl:param name="module" as="xsd:string"/>
   <xsl:param name="submodule" as="xsd:string" />
   
@@ -26,11 +27,11 @@
     
     <xsl:choose>
       <xsl:when test="$line eq -1" >
-        <xsl:value-of select="concat('http://lxr.kde.org/source/KDE/', $module, '/', $submodule, '/', $file)" />
+        <xsl:value-of select="concat('http://lxr.kde.org/source/', $component, '/', $module, '/', $submodule, '/', $file)" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of 
-          select="concat('http://lxr.kde.org/source/KDE/', $module, '/', $submodule, '/', $file, '#', $line)" />
+          select="concat('http://lxr.kde.org/source/', $component, '/', $module, '/', $submodule, '/', $file, '#', $line)" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -125,12 +126,13 @@
         <div id="content">
           <div class="inside">
             <p style="font-size: x-small;font-style: sans-serif;">
+              <xsl:variable name="compurl" select="concat('/krazy2/index.php?component=',$component)" />
               <a href="/index.php">Home</a>&nbsp;&gt;&nbsp;
               <a href="/krazy2/index.php">Krazy Code Checker</a>&nbsp;&gt;&nbsp;
-              <a href="/krazy2/index.php?component=KDE">KDE</a>&nbsp;&gt;&nbsp;
-              <a href="{concat('/krazy2/index.php?component=KDE&amp;module=', $module)}">
+              <a href="{$compurl}"><xsl:value-of select="$component" /></a>&nbsp;&gt;&nbsp;
+              <a href="{concat($compurl, '&amp;module=', $module)}">
                 <xsl:value-of select="$module" /></a>&nbsp;&gt;
-              <a href="{concat('/krazy2/index.php?component=KDE&amp;module=', $module, '&amp;submodule=', $submodule)}">
+              <a href="{concat($compurl, '&amp;module=', $module, '&amp;submodule=', $submodule)}">
                 <xsl:value-of select="$submodule" /></a>
             </p>
             <xsl:apply-templates select="global" mode="krazy2ebn" />
