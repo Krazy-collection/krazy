@@ -128,6 +128,10 @@
               <a href="/index.php">Home</a>&nbsp;&gt;&nbsp;
               <a href="/krazy2/index.php">Krazy Code Checker</a>&nbsp;&gt;&nbsp;
               <a href="/krazy2/index.php?component=KDE">KDE</a>&nbsp;&gt;&nbsp;
+              <a href="{concat('/krazy2/index.php?component=KDE&amp;module=', $module)}">
+                <xsl:value-of select="$module" /></a>&nbsp;&gt;
+              <a href="{concat('/krazy2/index.php?component=KDE&amp;module=', $module, '&amp;submodule=', $submodule)}">
+                <xsl:value-of select="$submodule" /></a>
             </p>
             <xsl:apply-templates select="global" mode="krazy2ebn" />
             <ul>
