@@ -450,7 +450,7 @@ sub doIt {
   #       the database in a fine grained enough manner, we can change te ebn site
   #       to be a php only site and not a mixture of php and krazy generated pages.
   my ( $component, $module, $subdir ) = split( "/", $cms );
-  $command = "$saxon -im krazy2ebn $out/result.xml $stylesheet module=$module submodule=$subdir > $out/index.html";
+  $command = "$saxon -im krazy2ebn $out/result.xml $stylesheet component=$component module=$module submodule=$subdir > $out/index.html";
   system($command);
 
   # TODO: translate the xml reports to SQL queries and execute them.
