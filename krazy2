@@ -1110,8 +1110,8 @@ sub printOOPS {
         ( $file, $ls1, $ls2, $ls3 ) = split( ":", $o );
 
         # Remove leading whitespace and ./
-        $file =~ s+^[[:space:]]*\./++;
-        $ls1 =~ s+^[[:space:]]*++;
+        $file =~ s/^\s*(\.\/)?//;
+        $ls1 =~ s/^\s*//;
 
         # Ugly due to inconsitent output of checkers and my total lack of perl and
         # re skills.
@@ -1128,7 +1128,7 @@ sub printOOPS {
           $message = $ls3;
         } else {
           $lines = "";
-          $message = "";
+          $message = $ls1; # No line# part, so only set the message.
         }
 
         $message =~ s/\s*line\#.*$//;    # remove the lines#123,345 part
@@ -1153,11 +1153,13 @@ sub printOOPS {
         if ($message) {
           print "          <message>", encode_entities( $message ), "</message>\n";
         }
+        print "          <issues>\n";
         if ( $lines ) {
-          print "          <issues>\n";
           print $lines;
-          print "          </issues>\n";
+        } else { # There is only a message, probably something that is not bound to a specific line.
+          print "            <line>-1</line>\n";
         }
+        print "          </issues>\n";
         print "        </file>\n";
     } else {
       if ( $export =~ "lxr" ) {

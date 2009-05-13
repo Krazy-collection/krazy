@@ -42,13 +42,19 @@
     <xsl:variable name="count" select="count(issues/line)" />
     
     <li><a href="{$lxrlink}"><xsl:value-of select="@name"/></a>: 
-      line#<xsl:for-each select="issues/line">
-        <xsl:variable name="lxrlinelink" select="ebn:createLexerLink($filename, .)" />
-        
-        <a href="{$lxrlinelink}"><xsl:value-of select="."/></a>
-        <xsl:if test="@issue ne ''" >[<xsl:value-of select="@issue" />]</xsl:if>
-        <xsl:if test="position() ne $count">,</xsl:if></xsl:for-each>
-      (<xsl:value-of select="count(issues/line)" />)
+      <xsl:choose>
+        <xsl:when test="issues/line[1] eq '-1'">
+          <xsl:value-of select="message" />
+        </xsl:when>
+        <xsl:otherwise>
+          line#<xsl:for-each select="issues/line">
+            <xsl:variable name="lxrlinelink" select="ebn:createLexerLink($filename, .)" />
+            <a href="{$lxrlinelink}"><xsl:value-of select="."/></a>
+            <xsl:if test="@issue ne ''" >[<xsl:value-of select="@issue" />]</xsl:if>
+            <xsl:if test="position() ne $count">,</xsl:if></xsl:for-each>
+          (<xsl:value-of select="count(issues/line)" />)
+        </xsl:otherwise>
+      </xsl:choose>
     </li>
   </xsl:template>
   
