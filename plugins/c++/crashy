@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "crashy";
-my($Version) = "1.0";
+my($Version) = "1.1";
 
 &parseArgs();
 
@@ -72,7 +72,7 @@ my($linecnt) = 0;
 my($cnt) = 0;
 my($lstr) = "";
 
-my($var,$pat);
+my($var,$pat,$expat);
 my($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
@@ -92,18 +92,21 @@ while ($linecnt < $#lines) {
     $var =~ s/^\s*if\s*\(\s*//;
     $var =~ s/^.*\s*=\s*//;
     $var =~ s/^\s*//;
+    $var =~ s/!//;
 
     next if ($var =~ m/^return/);
     $pat = "\\*\\s*" . $var . "\\s*=\\s*new\\s*\\w+\\(";
-
     if ($line =~ m/$var\.exec/ || &searchBack($pat,$linecnt,12)) {
-      $cnt++;
-      if ($cnt == 1) {
-	$lstr = "line\#" . $linecnt;
-      } else {
-	$lstr = $lstr . "," . $linecnt;
+      $expat = "(QSqlQuery|KApplication)\\s&?" . $var;
+      if (! &searchBack($expat,$linecnt,12)) {
+        $cnt++;
+        if ($cnt == 1) {
+          $lstr = "line\#" . $linecnt;
+        } else {
+          $lstr = $lstr . "," . $linecnt;
+        }
+        print "=> $line\n" if (&verboseArg());
       }
-      print "=> $line\n" if (&verboseArg());
     }
   }
 }
