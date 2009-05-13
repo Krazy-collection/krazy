@@ -131,9 +131,8 @@
               <a href="/krazy2/index.php">Krazy Code Checker</a>&nbsp;&gt;&nbsp;
               <a href="{$compurl}"><xsl:value-of select="$component" /></a>&nbsp;&gt;&nbsp;
               <a href="{concat($compurl, '&amp;module=', $module)}">
-                <xsl:value-of select="$module" /></a>&nbsp;&gt;
-              <a href="{concat($compurl, '&amp;module=', $module, '&amp;submodule=', $submodule)}">
-                <xsl:value-of select="$submodule" /></a>
+                <xsl:value-of select="$module" /></a>&nbsp;&gt;&nbsp;
+              <b><xsl:value-of select="$submodule" /></b>
             </p>
             <xsl:apply-templates select="global" mode="krazy2ebn" />
             <ul>
