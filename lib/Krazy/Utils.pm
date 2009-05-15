@@ -208,13 +208,9 @@ sub validateExportType {
   if ($export) {
     $export = lc($export);
     if ( ( $export eq "text" ) ||
-	 ( $export eq "textlist" ) ||
-	 ( $export eq "textedit" ) ||
-	 ( $export eq "xml" ) ||
-	 ( $export eq "ebn" ) ||
-	 ( $export eq "ebnlxr" ) ||
-	 ( $export eq "html" ) ||
-	 ( $export eq "htmllxr" ) ) {
+         ( $export eq "textlist" ) ||
+         ( $export eq "textedit" ) ||
+         ( $export eq "xml" ) ) {
       return 1;
     }
   }

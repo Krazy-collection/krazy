@@ -83,18 +83,13 @@
 #                    super -> print super strict issues only
 #                    all -> print all issues (default)
 #                  use strictness to help filter out issues of less importance
-#   --export <text|textlist|textedit|ebn|ebnlxr|html|htmllxr|xml>
+#   --export <text|textlist|textedit|xml>
 #                  output in one of the following formats:
 #                    text (default)
 #                    textlist -> plain old text, 1 offending file-per-line
 #                    textedit -> text formatted for IDEs, 1 issue-per-line
-#                    ebn -> English Breakfast Network style
-#                    ebnlxr -> English Breakfast Network style + lxr.kde.org
-#                    html -> plain old html
-#                    htmllxr -> plain old html + lxr.kde.org
 #                    xml -> XML formatted
 #   --title:       give the output a project title.
-#   --cms:         component/module/subdir triple for html and ebn exports
 #   --rev:         subversion revision number
 #   --ignorerc:    ignore .krazy files
 #   --dry-run:     don't execute the checks; only show what would be run
@@ -603,11 +598,7 @@ if ( !$quiet ) {
       print "      </check>\n" if ( $export eq "xml" );
     }
 
-    if ( $export eq "xml" ) {
-      print "    </file-type>\n";
-    } elsif ( $export !~ "text" ) {
-      print "</ol>\n<br>\n"
-    }
+    print "    </file-type>\n" if ( $export eq "xml" );
   }
   &printFooter();
 }
@@ -647,7 +638,7 @@ sub Help {
   print "            do NOT run the specified checker program(s)\n";
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
   print "         add the specified \"extra\" program(s) to the checker list\n";
-  print "  --export <text|textlist|textedit|ebn|ebnlxr|html|htmllxr|xml>\n";
+  print "  --export <text|textlist|textedit|xml>\n";
   print "            output in one of the following formats:\n";
   print "              text (default)\n";
   print "              textlist -> plain old text, 1 offending file-per-line\n";
@@ -660,7 +651,6 @@ sub Help {
   print "                         with links to lxr.kde.org\n";
   print "              xml -> XML formatted\n";
   print "  --title   give the output a project title\n";
-  print "  --cms     component/module/subdir triple for html and ebn exports\n";
   print "  --rev:    subversion revision number\n";
   print "  --ignorerc: ignore .krazy files\n";
   print "  --dry-run don't execute the checks; only show what would be run\n";
@@ -712,20 +702,39 @@ sub printList {
   my ($prog);
   for $prog ( sort @list ) {
     $use = "";
-    $use = "[EXTRA] " if ($isextra);
+    $use = "[EXTRA] " if ($isextra && $export ne "xml");
     $use .= `$prog --help 2>/dev/null`;
     chomp($use);
     $use = "(no description available)" if ( length($use) < 4 );
-    if ( $export !~ "text" ) {
-      print "<li><b>" . &basename($prog) . ":</b> $use\n";
+
+    if ( $export eq "xml" ) {
+      print "  " if ( $isextra );
+      print "      <plugin name=\"" . &basename($prog) . "\"";
+      print " short-desc=\"$use\"";
+      if ( $explain ) {
+        print ">\n";
+      } else {
+        print "/>\n";
+      }
     } else {
       printf( "%18.18s: %s\n", &basename($prog), $use );
     }
+
     if ($explain) {
       $use = `$prog --explain 2>/dev/null`;
       chomp($use);
       $use = "(no explanation available)" if ( length($use) < 4 );
-      &printExplain( wrap( "        ", "        ", $use ) );
+
+      if ( $export eq "xml" ) {
+        print "  " if ( $isextra );
+        print "         <explanation>\n$use\n";
+        print "  " if ( $isextra );
+        print "         <explanation>\n";
+        print "  " if ( $isextra );
+        print "      </plugin>\n";
+      } else {
+        &printExplain( wrap( "        ", "        ", $use ) );
+      }
     }
   }
 }
@@ -733,21 +742,12 @@ sub printList {
 # List function: print a list of all checker programs available to run.
 sub List {
   my ( $prog, $use, $type );
-
-  $title = "Available KDE source code sanitizer checks";
-  if ( $export =~ "ebn" ) {
-    &printEbnHeader();
-  } elsif ( $export =~ "xml" ) {
+  
+  if ( $export =~ "xml" ) {
     &printXmlHeader();
-  } elsif ( $export =~ "html" ) {
-    &printHtmlHeader();
-  }
-
-  if ( $export !~ "text" ) {
-    print "<ul>\n";
-    print "<h2>$title</h2>\n";
+    print "  <file-types>\n";
   } else {
-    print "$title:\n";
+    print "Available KDE source code sanitizer checks:\n";
   }
 
   foreach $type ( keys %Checkers ) {
@@ -759,13 +759,13 @@ sub List {
       printf( "%18.18s\n", "(none)" );
     }
     if ( $#{ $xCheckers{$type} } >= 0 ) {
+      print "      <extra>\n";
       &printList( 1, @{ $xCheckers{$type} } );
+      print "      </extra>\n";
     }
-    if ( $export !~ "text" ) {
-      print "</ol>\n<br>\n";
-    } else {
-      print "\n";
-    }
+
+    print "    </file-type>" if ( $export eq "xml" );
+    print "\n";
   }
 
   &printFooter();
@@ -776,108 +776,28 @@ sub List {
 sub ListTypes {
   my ( $prog, $use, $type );
 
-  $title = "Supported file types";
-  if ( $export =~ "ebn" ) {
-    &printEbnHeader();
-  } elsif ( $export =~ "xml" ) {
-    &printXmlHeader();
-  } elsif ( $export =~ "html" ) {
-    &printHtmlHeader();
-  }
+  &printXmlHeader() if ( $export =~ "xml" );
 
-  if ( $export !~ "text" ) {
-    print "<ul>\n";
-    print "<h2>$title</h2>\n";
-  } else {
-    print "$title:\n";
-  }
+  print "Supported file types:\n";
 
   foreach $type ( keys %Checkers ) {
     my($desc) = &fileTypeDesc($type);
     printf( "%12.12s: %s", $type, $desc );
-    if ( $export !~ "text" ) {
-      print "</ol>\n<br>\n";
-    } else {
-      print "\n";
-    }
+    print "\n";
   }
 
   &printFooter();
   exit 0 if $listtypes;
 }
 
-# printEbnHeader function: print the header string for the EBN export type.
-sub printEbnHeader {
-  print
-"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n";
-  print
-"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n";
-  print "<head>\n";
-  print "<title>$title</title>\n";
-  print
-"<link rel=\"stylesheet\" type=\"text/css\" title=\"Normal\" href=\"/style.css\" />\n";
-  print "</head>\n";
-  print "<body>\n";
-  print "<div id=\"title\">\n";
-  print "<div class=\"logo\">&nbsp;</div>\n";
-  print "<div class=\"header\">\n";
-  print "<h1><a href=\"/\">English Breakfast Network</a></h1>\n";
-  print
-    "<p><a href=\"/\">Almost, but not quite, entirely unlike tea.</a></p>\n";
-  print "</div>\n";
-  print "</div>\n";
-  print "<div id=\"content\">\n";
-  print "<div class=\"inside\">\n";
-}
-
 # printXmlHeader function: print the header string for the XML export type.
 sub printXmlHeader {
   print "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-	print "<krazy>\n";
-}
-
-# printEbnBreadcrumbs function: print breadcrumbs for EBN navigation
-sub printEbnBreadcrumbs {
-  my ( $component, $module, $subdir ) = @_;
-  my ($upcomp) = uc($component);
-  $upcomp =~ s/-/ /;
-
-  print "<p style=\"font-size: x-small;font-style: sans-serif;\">\n";
-  print "<a href=\"/index.php\">Home</a>&nbsp;&gt;&nbsp;\n";
-  print "<a href=\"/$Prog/index.php\">Krazy Code Checker</a>&nbsp;&gt;&nbsp;\n";
-  print
-"<a href=\"/$Prog/index.php?component=$component\">$upcomp</a>&nbsp;&gt;&nbsp;\n"
-    if ($component);
-  print
-"<a href=\"/$Prog/index.php?component=$component&module=$module\">$module</a>&nbsp;&gt;&nbsp;\n"
-    if ( $component && $module );
-  print "$subdir\n" if ($subdir);
-  print "</p>\n";
-}
-
-# printEbnQualityLinks function: print links to other EBN quality tools
-sub printEbnQualityLinks {
-  my ( $component, $module, $subdir ) = @_;
-
-  print "<p style=\"font-size: x-small;font-style: sans-serif;\">\n";
-  print "Other $module/$subdir reports:\n";
-  print
-"[<a href=\"/apidocs/apidox-$component/$module-$subdir.html\">APIDOX</a>]\n";
-  print
-"[<a href=\"/sanitizer/reports/$component/$module/$subdir/index.html\">Docs</a>]\n";
-  print "</p>\n";
-}
-
-# printHtmlHeader function: print the header string for the HTML export type.
-sub printHtmlHeader {
-  print
-"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n";
-  print
-"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n";
-  print "<head>\n";
-  print "<title>$title</title>\n";
-  print "</head>\n";
-  print "<body>\n";
+  if ($list) {
+    print "<tool name=\"krazy2\">\n";
+  } else {
+    print "<krazy>\n";
+  }
 }
 
 # printHeader function: print the header string, according to export type.
@@ -885,31 +805,7 @@ sub printHeader {
   my ( $num_issues, $num_checks, $num_files ) = @_;
   my ( $component, $module, $subdir ) = split( "/", $cms );
 
-  if ( $export =~ "ebn" ) {
-    &printEbnHeader();
-
-    # Breadcrumbs
-    &printEbnBreadcrumbs( $component, $module, $subdir );
-
-    # Links to other available reports
-    if ( $component && $module && $subdir ) {
-      &printEbnQualityLinks( $component, $module, $subdir );
-    }
-
-    print "<h1>$title</h1>\n";
-    print "<p>Checkers Run = $num_checks<br>\n";
-    print "Files Processed = $num_files<br>\n";
-    if ($num_issues) {
-      print "Total Issues = $num_issues";
-    } else {
-      print "No Issues Found!";
-    }
-    print " ...as of ";
-    print asOf();
-    print " (SVN revision $rev)" if ($rev);
-    print "</p>\n";
-    print "<ul>\n";
-  } elsif ($export =~ "xml") {
+  if ($export =~ "xml") {
     &printXmlHeader();
 
     print "  <global>\n";
@@ -918,60 +814,20 @@ sub printHeader {
     print "    <svn-rev value=\"$rev\" />\n" if ($rev);
     print "  </global>\n";
     print "  <file-types>\n";
-  } else {
-    if ( $export eq "html" ) {
-      &printHtmlHeader();
-      print "<h1>$title</h1>\n";
-      print "<p>Checkers Run = $num_checks<br>\n";
-      print "Files Processed = $num_files<br>\n";
-      if ($num_issues) {
-        print "Total Issues = $num_issues";
-      } else {
-        print "No Issues Found!";
-      }
-      print " ...as of ";
-      print asOf();
-      print " (SVN revision $rev)" if ($rev);
-      print "</p>\n";
-      print "<ul>\n";
+  } else { # text output
+    print "\n$title\n" if ($title);
+    print "\nCheckers Run = $num_checks\n";
+    print "Files Processed = $num_files\n";
+    if ($num_issues) {
+      print "Total Issues = $num_issues";
     } else {
-      if ( $export eq "text" ) {
-        print "\n$title\n" if ($title);
-        print "\nCheckers Run = $num_checks\n";
-        print "Files Processed = $num_files\n";
-        if ($num_issues) {
-          print "Total Issues = $num_issues";
-        } else {
-          print "No Issues Found!";
-        }
-        print " ...as of ";
-        print asOf();
-        print " (SVN revision $rev)" if ($rev);
-        print "\n\n";
-      }
+      print "No Issues Found!";
     }
+    print " ...as of ";
+    print asOf();
+    print " (SVN revision $rev)" if ($rev);
+    print "\n\n";
   }
-}
-
-# printEbnFooter function: print the footer string for the EBN export type.
-sub printEbnFooter {
-  print "\n";
-  print "</ul>\n";
-  print "</div>\n";
-  print "</div>\n";
-  print "<div id=\"footer\">\n";
-  print "<p>Site content Copyright 2005-2008 by Adriaan de Groot,<br/>\n";
-  print "except images as indicated.</p>\n";
-  print "</div>\n";
-  print "</body>\n";
-  print "</html>\n";
-}
-
-# printHtmlFooter function: print the footer string for the HTML export type.
-sub printHtmlFooter {
-  print "</ul>\n";
-  print "</body>\n";
-  print "</html>\n";
 }
 
 # printFooter function: print the footer string, according to export type.
@@ -979,16 +835,10 @@ sub printFooter {
 
   if ( $export eq "xml" ) {
     print "  </file-types>\n";
-    print "</krazy>\n";
-  } elsif ( $export =~ "ebn" ) {
-    &printEbnFooter();
-  } else {
-    if ( $export eq "html" ) {
-      &printHtmlFooter();
+    if ($list) {
+      print "</tool>\n";
     } else {
-      if ( $export eq "text" ) {
-        print "";
-      }
+      print "</krazy>\n";
     }
   }
 }
@@ -1005,12 +855,6 @@ sub printCheck() {
     # something like:
     # <check name="foo" desc="checks for foo">
     print "      <check desc=\"", &htmlify( $check ), "\">\n";
-  } elsif ( $export =~ "ebn" || $export =~ "html" ) {
-    # export is "ebn" or "html"
-    print "<li>";
-    print "<span class=\"toolmsg\">" if ( $export =~ "ebn" );
-    print "$check\n<b>$result</b>";
-    print "</span>" if ( $export =~ "ebn" );
   }
 }
 
@@ -1039,8 +883,6 @@ sub printFType {
   $desc = "For File Type $ftype" if ( $desc eq "" );
   if ( $export eq "xml" ) {
     print "    <file-type value=\"$ftype\">\n";
-  } elsif ( $export !~ "text" ) {
-    print "<li><b><u>$desc\n</u></b>\n<ol>\n";
   } else {
     print "==>$desc<==\n";
   }
@@ -1054,10 +896,9 @@ sub printOOPS {
   $subdir    = "" if ( !defined($subdir) );
 
   my ($o);
-  print "\n<ul>\n" if ( $export !~ "text" && $export !~ "xml" );
+
   for $o ( split( "\n", $_[0] ) ) {
     chomp($o);
-    print "<li>" if ( $export !~ "text" && $export ne "xml" );
 
     if ( $export eq "textlist" ) {
       my ($t) = split( ":", $o );
@@ -1103,129 +944,75 @@ sub printOOPS {
         print "$f:$l:$subissue$issue$hint\n";
       }
     } elsif ( $export eq "xml" ) {
-        # We need to think about this. The output of the checkers should be made
-        # consitent.
-        my ( $ls1, $ls2, $ls3 ) = ( "", "", "" );
-        my ( $file );
-        ( $file, $ls1, $ls2, $ls3 ) = split( ":", $o );
+      # We need to think about this. The output of the checkers should be made
+      # consitent.
+      my ( $ls1, $ls2, $ls3 ) = ( "", "", "" );
+      my ( $file );
+      ( $file, $ls1, $ls2, $ls3 ) = split( ":", $o );
 
-        # Remove leading whitespace and ./
-        $file =~ s/^\s*(\.\/)?//;
-        $ls1 =~ s/^\s*//;
+      # Remove leading whitespace and ./
+      $file =~ s/^\s*(\.\/)?//;
+      $ls1 =~ s/^\s*//;
 
-        # Ugly due to inconsitent output of checkers and my total lack of perl and
-        # re skills.
-        my( $lines );
-        my( $message );
-        if ( $ls1 =~ m/line#/ ) {
-          $lines = $ls1;
-          $message = $ls1;
-        } elsif ( defined($ls2) && $ls2 =~ m/line#/ ) {
-          $lines = $ls2;
-          $message = $ls2;
-        } elsif ( defined($ls3) && $ls3 =~ m/line#/ ) {
-          $lines = $ls3;
-          $message = $ls3;
-        } else {
-          $lines = "";
-          $message = $ls1; # No line# part, so only set the message.
-        }
-
-        $message =~ s/\s*line\#.*$//;    # remove the lines#123,345 part
-        $message =~ s/^[[:space:]]*//;   # remove leading spaces.
-        $message =~ s/\(\d+\)//;         # remove the number of issues if it's there.
-
-        $lines =~ s/^.*line#//;          # only keep the numbers
-        $lines =~ s/\(\d+\)//;           # remove the number of issues if it's there.
-
-        # Sometimes a check returns per line the issue like:
-        # utils/input.cpp: line#155[Couldn't],184[Couldn't],200[Couldn't],258[Couldn't] (4)
-        #
-        # Another format is: value[expected value]
-        # tokenizer.cpp: line#54 int8_t[qint8],#56 int16_t[qint16],#58 int32_t[qint32] (3)
-        if ($lines =~ m/(\d+)\s*(\w*\[\w*\]),?#?/) {
-          $lines =~ s/(\d+)\s*(\w*\[\w*\]),?#?/            <line issue="$2">$1<\/line>\n/g;
-        } elsif ($lines =~ /(\d+),?/) {
-           $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
-        }
-
-        print "        <file name=\"$file\">\n";
-        if ($message) {
-          print "          <message>", encode_entities( $message ), "</message>\n";
-        }
-        print "          <issues>\n";
-        if ( $lines ) {
-          print $lines;
-        } else { # There is only a message, probably something that is not bound to a specific line.
-          print "            <line>-1</line>\n";
-        }
-        print "          </issues>\n";
-        print "        </file>\n";
-    } else {
-      if ( $export =~ "lxr" ) {
-        my ($url);
-        if ( $component eq "kde-4.x" ) {
-          $module =~ s+kdebase-apps+kdebase/apps+;
-          $module =~ s+kdebase-runtime+kdebase/runtime+;
-          $module =~ s+kdebase-workspace+kdebase/workspace+;
-          $url = "http://lxr.kde.org/source/KDE/";
-          if ($module) {
-            $url .= "$module/";
-            $url .= "$subdir/" if ($subdir);
-          }
-        } elsif ( $component eq "bundled-apps" && $module eq "koffice" ) {
-          $url = "http://lxr.kde.org/source/koffice/$subdir/";
-        } elsif ( $component eq "bundled-apps" &&
-          $module eq "enterprise-kdepim" ) {
-          print &htmlify($o);
-          print "\n";
-          goto here;
-        } elsif ( $component eq "kdereview" ) {
-          $url = "http://lxr.kde.org/source/kdereview/$subdir/";
-        } elsif ( $component eq "kdesupport" ) {
-          $url = "http://lxr.kde.org/source/kdesupport/$subdir/";
-        } else {
-          $url = "http://lxr.kde.org/source/$component/$module/$subdir/";
-        }
-
-        my ($f);
-        my ( $ls1, $ls2, $ls3 ) = ( "", "", "" );
-        ( $f, $ls1, $ls2, $ls3 ) = split( ":", $o );
-        $f =~ s+^[[:space:]]*\./++;
-        $url .= "$f";
-        $ls1 = &lxrLineify( $ls1, $url ) if ( defined($ls1) );
-        $ls2 = &lxrLineify( $ls2, $url ) if ( defined($ls2) );
-        $ls3 = &lxrLineify( $ls3, $url ) if ( defined($ls3) );
-        print "<a href=\"$url\">$f</a>: $ls1";
-        print ": $ls2" if ($ls2);
-        print ": $ls3" if ($ls3);
-        print "\n";
-      } elsif ( $export =~ "ebn" || $export =~ "html" ) {
-        print &htmlify($o);
-        print "\n";
+      # Ugly due to inconsitent output of checkers and my total lack of perl and
+      # re skills.
+      my( $lines );
+      my( $message );
+      if ( $ls1 =~ m/line#/ ) {
+        $lines = $ls1;
+        $message = $ls1;
+      } elsif ( defined($ls2) && $ls2 =~ m/line#/ ) {
+        $lines = $ls2;
+        $message = $ls2;
+      } elsif ( defined($ls3) && $ls3 =~ m/line#/ ) {
+        $lines = $ls3;
+        $message = $ls3;
       } else {
-        print "$o\n";
+        $lines = "";
+        $message = $ls1; # No line# part, so only set the message.
       }
+
+      $message =~ s/\s*line\#.*$//;    # remove the lines#123,345 part
+      $message =~ s/^[[:space:]]*//;   # remove leading spaces.
+      $message =~ s/\(\d+\)//;         # remove the number of issues if it's there.
+
+      $lines =~ s/^.*line#//;          # only keep the numbers
+      $lines =~ s/\(\d+\)//;           # remove the number of issues if it's there.
+
+      # Sometimes a check returns per line the issue like:
+      # utils/input.cpp: line#155[Couldn't],184[Couldn't],200[Couldn't],258[Couldn't] (4)
+      #
+      # Another format is: value[expected value]
+      # tokenizer.cpp: line#54 int8_t[qint8],#56 int16_t[qint16],#58 int32_t[qint32] (3)
+      if ($lines =~ m/(\d+)\s*(\w*\[\w*\]),?#?/) {
+        $lines =~ s/(\d+)\s*(\w*\[\w*\]),?#?/            <line issue="$2">$1<\/line>\n/g;
+      } elsif ($lines =~ /(\d+),?/) {
+          $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
+      }
+
+      print "        <file name=\"$file\">\n";
+      if ($message) {
+        print "          <message>", encode_entities( $message ), "</message>\n";
+      }
+      print "          <issues>\n";
+      if ( $lines ) {
+        print $lines;
+      } else { # There is only a message, probably something that is not bound to a specific line.
+        print "            <line>-1</line>\n";
+      }
+      print "          </issues>\n";
+      print "        </file>\n";
+    } else {
+      print "$o\n";
     }
-  here:
-    print "</li>\n" if ( $export !~ "text" && $export ne "xml" );
   }
-  print "</ul>\n" if ( $export !~ "text" && $export ne "xml" );
 }
 
 # printExplain function: print the explanation lines, according to export type.
 sub printExplain {
-  if ( $export =~ "ebn" ) {
-    print "<p class=\"explanation\">";
-    print &htmlify( $_[0] );
-    print "</p>\n</li>\n";
-  } elsif ( $export eq "html" ) {
-      print "<p>";
-      print "<p><p><b>Why should I care?</b>";
-      print &htmlify( $_[0] );
-      print "</p>\n</li>\n";
-  } elsif ( $export eq "xml" ) {
-    print "        <explanation>", &htmlify( $_[0] ), "</explanation>";
+  if ( $export eq "xml" ) {
+    $_[0] =~ s/^\s*//;
+    print "        <explanation>\n", &htmlify( $_[0] ), "\n        </explanation>";
   } else {
     # text export
     print "$_[0]\n";
@@ -1370,7 +1157,7 @@ Add the specified "extra" program(s) to the list of checkers to run.
 Use the --list option to show the list of available "extra" checkers; they
 will be marked with the tag [EXTRA] by the checker description line.
 
-=item B<--export> <text|textlist|textedit|ebn|ebnlxr|html|htmllxr|xml>
+=item B<--export> <text|textlist|textedit|xml>
 
 Output in one of the following formats:
      text (default)
