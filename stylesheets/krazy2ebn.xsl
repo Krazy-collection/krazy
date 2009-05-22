@@ -58,7 +58,8 @@
           <xsl:value-of select="message" />
         </xsl:when>
         <xsl:otherwise>
-          line#<xsl:for-each select="issues/line">
+          <xsl:value-of select="message" /> line#
+          <xsl:for-each select="issues/line">
             <xsl:variable name="lxrlinelink" select="ebn:createLexerLink($filename, .)" />
             <a href="{$lxrlinelink}"><xsl:value-of select="."/></a>
             <xsl:if test="@issue ne ''" >[<xsl:value-of select="@issue" />]</xsl:if>
