@@ -452,6 +452,11 @@ sub doIt {
   my ( $component, $module, $subdir ) = split( "/", $cms );
   $command = "$saxon -im krazy2ebn $out/result.xml $stylesheet component=$component module=$module submodule=$subdir > $out/index.html";
   system($command);
+  # Make sure the file ends with a newline.
+  if (-f $out/index.html) {
+    open( F, ">>$f" );
+    print F "\n";
+  }
 
   # TODO: translate the xml reports to SQL queries and execute them.
 
