@@ -20,18 +20,29 @@
               method="xhtml" 
               omit-xml-declaration="yes"
               version="1.0" />
-  
+
   <xsl:function name="ebn:createLexerLink" as="xsd:string">
     <xsl:param name="file" as="xsd:string"/>
     <xsl:param name="line" as="xsd:integer" />
-    
+
+    <xsl:variable name="lexerComponent">
+      <xsl:choose>
+        <xsl:when test="$component eq 'kde-4.x'">
+          <xsl:value-of select="concat('', 'KDE')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$component" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:choose>
       <xsl:when test="$line eq -1" >
-        <xsl:value-of select="concat('http://lxr.kde.org/source/', $component, '/', $module, '/', $submodule, '/', $file)" />
+        <xsl:value-of select="concat('http://lxr.kde.org/source/', $lexerComponent, '/', $module, '/', $submodule, '/', $file)" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of 
-          select="concat('http://lxr.kde.org/source/', $component, '/', $module, '/', $submodule, '/', $file, '#', $line)" />
+          select="concat('http://lxr.kde.org/source/', $lexerComponent, '/', $module, '/', $submodule, '/', $file, '#', $line)" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
