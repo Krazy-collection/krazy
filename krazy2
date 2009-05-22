@@ -759,9 +759,9 @@ sub List {
       printf( "%18.18s\n", "(none)" );
     }
     if ( $#{ $xCheckers{$type} } >= 0 ) {
-      print "      <extra>\n";
+      print "      <extra>\n" if ( $export eq "xml" );
       &printList( 1, @{ $xCheckers{$type} } );
-      print "      </extra>\n";
+      print "      </extra>\n" if ( $export eq "xml" );
     }
 
     print "    </file-type>" if ( $export eq "xml" );
