@@ -445,6 +445,11 @@ sub doIt {
   $command = "$command" . " > " . "$out/result.xml";
   system("$command");
 
+  # Probably no files to process resulting in an empty (0 byte) result.xml file.
+  if (-z "$out/result.xml") {
+    return;
+  }
+
   # Translate the xml report to ebn website 
   # NOTE: This is imo a temporary solution. As soon as we store the results in
   #       the database in a fine grained enough manner, we can change te ebn site
