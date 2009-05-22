@@ -27,8 +27,12 @@
 
     <xsl:variable name="lexerComponent">
       <xsl:choose>
-        <xsl:when test="$component eq 'kde-4.x'">
-          <xsl:value-of select="concat('', 'KDE')"/>
+        <xsl:when test="matches($component, '^kde-\d\.x$')">
+          <xsl:value-of select="'KDE'"/>
+        </xsl:when>
+        <xsl:when test="$component eq $module" >
+          <!-- Just leave out the component if both component and are the same -->
+          <xsl:value-of select="''" />
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$component" />
@@ -36,13 +40,24 @@
       </xsl:choose>
     </xsl:variable>
 
+    <xsl:variable name="componentModule">
+      <xsl:choose>
+        <xsl:when test="$lexerComponent eq ''" >
+          <xsl:value-of select="$module" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat($lexerComponent, '/', $module)" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:choose>
       <xsl:when test="$line eq -1" >
-        <xsl:value-of select="concat('http://lxr.kde.org/source/', $lexerComponent, '/', $module, '/', $submodule, '/', $file)" />
+        <xsl:value-of select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file)" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of 
-          select="concat('http://lxr.kde.org/source/', $lexerComponent, '/', $module, '/', $submodule, '/', $file, '#', $line)" />
+          select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file, '#', $line)" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
