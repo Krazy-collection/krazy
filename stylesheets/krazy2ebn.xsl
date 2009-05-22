@@ -12,7 +12,7 @@
   <xsl:param name="component" as="xsd:string"/>
   <xsl:param name="module" as="xsd:string"/>
   <xsl:param name="submodule" as="xsd:string" />
-  
+
   <xsl:output doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"
               doctype-system="DTD/xhtml1-transitional.dtd"
               encoding="UTF-8" 
@@ -156,6 +156,10 @@
               <xsl:apply-templates select="file-types" mode="krazy2ebn" />
             </ul>
           </div>
+        </div>
+        <div id="footer">
+          <p>Site content Copyright 2005-2008 by Adriaan de Groot,<br/>
+          except images as indicated.</p>
         </div>
       </body>
      </html>
