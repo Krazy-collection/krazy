@@ -710,7 +710,7 @@ sub printList {
     if ( $export eq "xml" ) {
       print "  " if ( $isextra );
       print "      <plugin name=\"" . &basename($prog) . "\"";
-      print " short-desc=\"$use\"";
+      print " short-desc=\"" . encode_entities($use) . "\"";
       if ( $explain ) {
         print ">\n";
       } else {
