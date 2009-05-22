@@ -471,7 +471,7 @@ sub subdirsFromCMakeList {
   open( F, "$f" ) || die "Error: Cannot open $f";
   my ($line);
   while ( $line = <F> ) {
-    next if ( $line =~ m/^[[:space:]]*#/ );
+    $line =~ s/#.*$//;
     next unless ( $line =~ m/add_subdirectory/i );
     $line =~ s/macro_optional_//i;
     $line =~ s/add_subdirectory[[:space:]]*\(\s+(\S+)\s+\)/$1/i;
