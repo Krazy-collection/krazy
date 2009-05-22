@@ -370,7 +370,7 @@ sub doItForList {
       $iss      = 0;
       if ( &inIgnoreSubs($s) ) {
         print "    Ignoring $comp/$module/$s\n";
-        # &createIgnorePage( "$out", "$comp/$module/$s" );
+        &createIgnorePage( "$out", "$comp/$module/$s" );
       } else {
         &mergeSubdirSettings( "$trunk/$comp/$module/$s" );
         &doIt( "$trunk/$comp/$module/$s", "$out", "$comp/$module/$s", $rev );
@@ -584,6 +584,63 @@ sub execSql {
       print "echo @_ | PSQL -t -h services.codeyard.net -U kde kde -A -q\n";
     }
   }
+}
+
+# createIgnorePage: create an empty "ignore" page.
+sub createIgnorePage {
+  my ( $outdir, $cms ) = @_;
+  my ($f) = "$outdir" . "/index.html";
+  open( F, ">$f" ) || return;
+  my ($title) = "Results for " . "$cms";
+  print "$title\n";
+  my ( $component, $module, $subdir ) = split( "/", $cms );
+  my ($upcomp) = uc($component);
+  $upcomp =~ s/-/ /;
+
+  print F "<html>\n";
+  print F "<head>\n";
+  print F "<title>$title</title>\n";
+  print F "<link rel=\"stylesheet\" type=\"text/css\" title=\"Normal\" href=\"/style.css\" />\n";
+  print F "</head>\n";
+  print F "<body>\n";
+  print F "<div id=\"title\">\n";
+  print F "<div class=\"logo\">&nbsp;</div>\n";
+  print F "<div class=\"header\">\n";
+  print F "<h1><a href=\"/\">English Breakfast Network</a></h1>\n";
+  print F "<p><a href=\"/\">Almost, but not quite, entirely unlike tea.</a></p>\n";
+  print F "</div>\n";
+  print F "</div>\n";
+  print F "<div id=\"content\">\n";
+  print F "<div class=\"inside\">\n";
+
+  # Links to other available reports
+  if ( $component && $module && $subdir ) {
+    print F "<p style=\"font-size: x-small;font-style: sans-serif;\">\n";
+    print F "Other $module/$subdir reports:\n";
+    print F "[<a href=\"/apidocs/apidox-$component/$module-$subdir.html\">APIDOX</a>]\n";
+    print F "[<a href=\"/sanitizer/reports/$component/$module/$subdir/index.html\">Docs</a>]\n";
+    print F "</p>\n";
+  }
+
+  print F "<h1>$title</h1>\n";
+  print F "<p>Not processed per IGNORESUBS directive found in $component/.krazy or $module/.krazy file.<br>\n";
+
+  print F " ...as of ";
+  print F asOf();
+  print F "</p>\n";
+  print F "<ol>\n";
+
+  print F "</ol>\n";
+  print F "</div>\n";
+  print F "</div>\n";
+  print F "<div id=\"footer\">\n";
+  print F "<p>Site content Copyright 2005-2007 by Adriaan de Groot,<br/>\n";
+  print F "except images as indicated.</p>\n";
+  print F "</div>\n";
+  print F "</body>\n";
+  print F "</html>\n";
+
+  close F;
 }
 
 #==============================================================================
