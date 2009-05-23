@@ -108,7 +108,9 @@
           </xsl:call-template>
         </xsl:for-each>
       </ul>
-      <p class="explanation"><xsl:value-of select="explanation" /></p>
+      <p class="explanation">
+        <xsl:value-of select="explanation" disable-output-escaping="yes" />
+      </p>
       </xsl:if>
     </li>
   </xsl:template>
