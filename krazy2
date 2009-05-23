@@ -591,7 +591,7 @@ if ( !$quiet ) {
           my ($use) = `$p --explain 2>/dev/null`;
           chomp($use);
           $use = "(no explanation available)" if ( length($use) < 4 );
-          &printExplain( wrap( "        ", "        ", $use ) );
+          &printExplain( $use );
         }
       }
       print "\n" if ($cline ne "" && $export ne "textlist" && $export ne "textedit");
@@ -729,20 +729,13 @@ sub printList {
 
     if ($explain) {
       $use = `$prog --explain 2>/dev/null`;
-      chomp($use);
+      chomp( $use );
       $use = "(no explanation available)" if ( length($use) < 4 );
-
-      if ( $export eq "xml" ) {
-        print "  " if ( $isextra );
-        print "         <explanation>\n$use\n";
-        print "  " if ( $isextra );
-        print "         <explanation>\n";
-        print "  " if ( $isextra );
-        print "      </plugin>\n";
-      } else {
-        &printExplain( wrap( "        ", "        ", $use ) );
-      }
+      printExplain( $use, $isextra );
     }
+
+   print "  " if ( $isextra && $export eq "xml");
+   print "      </plugin>\n" if ( $export eq "xml" );
   }
 }
 
@@ -1017,12 +1010,17 @@ sub printOOPS {
 
 # printExplain function: print the explanation lines, according to export type.
 sub printExplain {
+  my ( $explanation, $isextra ) = @_;
+
   if ( $export eq "xml" ) {
-    $_[0] =~ s/^\s*//;
-    print "        <explanation>\n", &htmlify( $_[0] ), "\n        </explanation>";
+    $explanation =~ s/^\s*//;
+    print "  " if ( $isextra );
+    print "         <explanation>" . encode_entities($explanation) . "\n";
+    print "  " if ( $isextra );
+    print "         </explanation>\n";
   } else {
     # text export
-    print "$_[0]\n";
+    print wrap( "        ", "        ", $explanation ) . "\n";
   }
 }
 
