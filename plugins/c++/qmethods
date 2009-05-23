@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2008 by Allen Winter <winter@kde.org>                         #
+# Copyright (C) 2008-2009 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qmethods";
-my($Version) = "1.6";
+my($Version) = "1.7";
 
 &parseArgs();
 
@@ -89,6 +89,7 @@ while ($linecnt < $#lines) {
   &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)','');
   &doIt1($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','[Ss]tatusBar|KGamePopupItem::|game');
   &doIt($line,'QImage::depth','depth\s*\(\s*\)/','[Pp]ix|desktop|screen|pd-');
+  &doIt2($line,'QTimer::singleShot(0,...)','singleShot\s*\(\s*0\s*,','');
 # when we have a real parser, check for the following as well:
 # QString::isNull (in almost all cases, QString::isEmpty should be used instead)
 }
@@ -134,10 +135,36 @@ sub doIt1() {
   }
 }
 
+#version of doIt that calls qMethodNoSigsOrSlots
+sub doIt2() {
+  my($line,$qname,$regexp,$nregexp) = @_;
+  if (&qMethodNoSigsOrSlots($line,$regexp,$nregexp)) {
+    $cnt++;
+    if ($cnt == 1) {
+      $lstr = "line\#" . $linecnt;
+    } else {
+      $lstr = $lstr . "," . $linecnt;
+    }
+    $lstr .= " $qname";
+    print "=> $line\n" if (&verboseArg());
+  }
+}
+
 sub qMethod() {
   my($l,$regexp,$nregexp) = @_;
   if ($l =~ m/[:\.>\s]$regexp/ &&
       $l !~ m/SIGNAL/ && $l !~ m/SLOT/) {
+    if ($nregexp eq "" || $l !~ m/$nregexp/) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+#version of qMethod that doesn't fail for SIGNALs and SLOTs
+sub qMethodNoSigsOrSlots() {
+  my($l,$regexp,$nregexp) = @_;
+  if ($l =~ m/[:\.>\s]$regexp/) {
     if ($nregexp eq "" || $l !~ m/$nregexp/) {
       return 1;
     }
