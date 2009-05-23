@@ -708,9 +708,16 @@ sub printList {
     $use = "(no description available)" if ( length($use) < 4 );
 
     if ( $export eq "xml" ) {
+      $version = `$prog --version 2>/dev/null`;
+      chomp($version);
+      if ($version =~ m/.*(\d\.\d(\.\d)?).*/) {
+        $version = $1;
+      }
+
       print "  " if ( $isextra );
       print "      <plugin name=\"" . &basename($prog) . "\"";
       print " short-desc=\"" . encode_entities($use) . "\"";
+      print " version=\"" . $version . "\"";
       if ( $explain ) {
         print ">\n";
       } else {
