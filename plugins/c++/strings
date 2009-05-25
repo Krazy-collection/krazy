@@ -168,6 +168,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Some QString methods (like startsWith() and endsWith()) are more efficient if they are passed a QString instead of a const char *.\n";
+  print "Some QString methods (like startsWith() and endsWith()) are more efficient if they are passed a QLatin1String, avoiding an implicit conversion from const char *.\n";
   exit 0 if &explainArg();
 }
