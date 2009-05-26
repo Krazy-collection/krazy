@@ -479,7 +479,7 @@ sub osMacros() {
   my($l,$lp1) = @_;
   return 1
       if (
-        $l =~ m/Q_OS_/ ||
+#       allow Q_OS_
         $l =~ m/USE_SOLARIS/ ||
         $l =~ m/USE_NETBSD/ ||
         $l =~ m/USE_FREEBSD/ ||
@@ -509,9 +509,9 @@ sub compilerMacros() {
   return 1
       if (
         $l =~ m/__BORLANDC__/ ||
-        $l =~ m/__INTEL_COMPILER/ ||
-        $l =~ m/Q_CC_/
+        $l =~ m/__INTEL_COMPILER/
       );
+  # allow Q_CC_
   return 1 if ($l =~ m/__GNUC__/ && $lp1 !~ /warning/);
   return 0;
 }
