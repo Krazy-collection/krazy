@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "foreach";
-my($Version) = "1.6";
+my($Version) = "1.7";
 
 &parseArgs();
 
@@ -85,7 +85,7 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  if ($line =~ m/(foreach|Q_FOREACH)\s*\(/) {
+  if ($line =~ m/^\s*(foreach|Q_FOREACH)\s*\(/) {
 
      if ($line =~ m/[\.>]values\(\)\s*\)/ ||
          $line =~ m/[\.>]keys\(\)\s*\)/) {
