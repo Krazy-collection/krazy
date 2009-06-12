@@ -854,7 +854,7 @@ sub printCheck() {
     # Would be nice maybe to have the checker name in here.
     # something like:
     # <check name="foo" desc="checks for foo">
-    print "      <check desc=\"", &htmlify( $check ), "\">\n";
+    print "      <check desc=\"", &xmlify( $check ), "\">\n";
   }
 }
 
@@ -1015,7 +1015,7 @@ sub printExplain {
   if ( $export eq "xml" ) {
     $explanation =~ s/^\s*//;
     print "  " if ( $isextra );
-    print "         <explanation>" . encode_entities($explanation) . "\n";
+    print "         <explanation>" . xmlify( $explanation ) . "\n";
     print "  " if ( $isextra );
     print "         </explanation>\n";
   } else {
@@ -1024,14 +1024,13 @@ sub printExplain {
   }
 }
 
-# htmlify function: turn plain text into html
-sub htmlify {
+# xmlify function: turn plain text into html
+sub xmlify {
   my ($s) = @_;
   $s = encode_entities($s);
-  $s =~ s+&lt;http:(.*?)&gt;+<a href="http:$1">http:$1</a>+gs;
-  $s =~ s=\*(\S+)\*=<strong>$1</strong>=g;    # *word* becomes boldified
-
-  #  $s =~ s=\b\_(\S+)\_\b=<em>$1</em>=g;     # _word_ becomes italicized
+  $s =~ s+&lt;http:(.*?)&gt;+&lt;a href="http:$1"&gt;http:$1&lt;/a&gt;+gs;
+  $s =~ s=\*(\S+)\*=&lt;strong&gt;$1&lt;/strong&gt;=g;    # *word* becomes boldified
+  $s =~ s=\b\_(\S+)\_\b=&lt;em&gt;$1&lt;/em&gt;=g;        # _word_ becomes italicized
   return $s;
 }
 
@@ -1048,11 +1047,11 @@ sub arrayLineify {
   return split( ",", $s );
 }
 
-# htmlify the line number string for lxr
+# xmlify the line number string for lxr
 sub lxrLineify {
   my ( $s, $url ) = @_;
 
-  $s = &htmlify($s);
+  $s = &xmlify($s);
   return $s if ( $s !~ m/line#/ );
 
   $s =~ s+line#(\d*)+line#<a href=\"$url#$1\">$1</a>+g;
