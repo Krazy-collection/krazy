@@ -5,7 +5,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # Copyright (C) 2008 by Volker Krause <vkrause@kde.org>                       #
-# Copyright (C) 2008 by Allen Winter <winter@kde.org>                         #
+# Copyright (C) 2008-2009 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "iconnames";
-my($Version) = "1.4";
+my($Version) = "1.5";
 
 &parseArgs();
 
@@ -1106,12 +1106,28 @@ while ($linecnt < $#lines) {
     $line =~ s+//.*++;  #skip C++ comments
 
     $pline = $line;
-    $pline =~ s/KStandardDirs::locate\(.*\)/KStandardDirs::locate\(\)/g;
+    $pline =~ s/\[\s\".*\"\s*\]//g;
+    $pline =~ s/KStandardDirs::locate\s*\(.*\)//g;
+    $pline =~ s/readPathEntry\s*\(.*\)//g;
+    $pline =~ s/QRegExp\s*\(.*\)//g;
+    $pline =~ s/i18n\s*\(.*\)//g;
+    $pline =~ s/i18nc\s*\(.*\)//g;
+    $pline =~ s/i18ncp\s*\(.*\)//g;
+    $pline =~ s/htmlIcon\s*\(.*\)//g;
+    $pline =~ s/loadIcon\s*\(.*\)//g;
+    $pline =~ s/\"PNG\"//g;
+    $pline =~ s/\"pixmap\(\)\"//g;
 
     # does this cover everything? without any filtering we get too much noise
     if ( $pline =~ m/Icon\s*\(/ || $pline =~ m/iconPath\s*\(/ ||
 	 $pline =~ m/[Pp]ixmap\s*\(/ ) {
-      # FIXME: this fails for quoted quotes and god knows what else...
+
+      next if ($pline =~ m/PixmapNode/);
+      next if ($pline =~ m/KNotification/);
+      next if ($pline =~ m/readIcon/);
+      next if ($pline =~ m/readEntry/);
+      next if ($pline =~ m/setTabIcon/);
+
       my @strings = split( /\"/, $pline );
       for ( my $i = 1; $i < $#strings; $i = $i + 2 ) {
 	my $string = $strings[$i];
