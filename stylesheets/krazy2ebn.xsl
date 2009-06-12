@@ -40,13 +40,30 @@
       </xsl:choose>
     </xsl:variable>
 
+    <xsl:variable name="lexerModule">
+      <xsl:choose>
+        <xsl:when test="matches($module, 'kdebase-apps')">
+          <xsl:value-of select="'kdebase/apps'"/>
+        </xsl:when>
+        <xsl:when test="matches($module, 'kdebase-runtime')">
+          <xsl:value-of select="'kdebase/runtime'"/>
+        </xsl:when>
+        <xsl:when test="matches($module, 'kdebase-workspace')">
+          <xsl:value-of select="'kdebase/workspace'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$module" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:variable name="componentModule">
       <xsl:choose>
         <xsl:when test="$lexerComponent eq ''" >
           <xsl:value-of select="$module" />
         </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="concat($lexerComponent, '/', $module)" />
+          <xsl:value-of select="concat($lexerComponent, '/', $lexerModule)" />
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
