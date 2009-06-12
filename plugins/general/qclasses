@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.9";
+my($Version) = "1.10";
 
 &parseArgs();
 
@@ -99,7 +99,7 @@ while ($linecnt < $#lines) {
   &doIt($line,"QHttp","KIO::AccessManager",'');
   &doIt($line,"QWorkspace","QMdiArea",'');
 
-  # use KDE classes instead of Qt classes where possible 
+  # use KDE classes instead of Qt classes where possible
   &doIt($line,"QColorDialog","KColorDialog",'');
   &doIt($line,"QComboBox","KComboBox",'');
   &doIt($line,"QMessageBox","KMessageBox",'');
@@ -168,7 +168,8 @@ sub whiteList {
       $l =~ m/QUrl::toAce/ ||
       $l =~ m/QUrl::fromAce/ ||
       $l =~ m/QDialog::DialogCode/ ||
-      $l =~ m/QDialog::accept/) {
+      $l =~ m/QDialog::accept/ ||
+      $l =~ m/KServiceTypeTrader::createInstanceFromQuery<.*>/) {
     return 1;
   } else {
     return 0;
