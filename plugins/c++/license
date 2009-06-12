@@ -79,6 +79,7 @@ sub checkOneFile($)
       $absf =~ m+/kdelibs/kio/misc/ksendbugmail/+ ||
       $absf =~ m+/kdelibs/kinit/+ ||
       $absf =~ m+/kdesupport/kdewin32/tools/+ ||
+      $absf =~ m+/kdesupport/polkit-qt/examples/+ ||
       $absf =~ m+/kde.*libs/.*/(?:tests|examples)/+ ||
       $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+ ||
       $absf =~ m+/kdepimlibs/kioslave/+);
