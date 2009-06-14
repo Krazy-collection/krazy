@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "crashy";
-my($Version) = "1.1";
+my($Version) = "1.2";
 
 &parseArgs();
 
@@ -97,6 +97,8 @@ while ($linecnt < $#lines) {
     next if ($var =~ m/^return/);
     $pat = "\\*\\s*" . $var . "\\s*=\\s*new\\s*\\w+\\(";
     if ($line =~ m/$var\.exec/ || &searchBack($pat,$linecnt,12)) {
+      # don't complain if the exec is the last statement in a method
+      next if ( $lines[$linecnt] =~ m/^\s{1,2}\}/); #ugly HACK to detect end-of-method
       $expat = "(QSqlQuery|KApplication)\\s&?" . $var;
       if (! &searchBack($expat,$linecnt,12)) {
         $cnt++;
