@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.6";
+my($Version) = "1.7";
 
 &parseArgs();
 
@@ -592,6 +592,8 @@ coordiators            coordinators
 copys                  copies
 coresponding           corresponding
 corrent                correct
+corrdinate             coordinate
+corrdinates            coordinates
 correponds             corresponds
 costraints             constraints
 coudn't                couldn't
@@ -628,7 +630,7 @@ customise              customize
 customised             customized
 cutsom                 custom
 cutt                   cut
-cutt                   cut
+cutted                 cut
 datas                  data
 dcopcient              dcopclient
 dcopcients             dcopclients
@@ -1036,6 +1038,7 @@ informaion             information
 informatation          information
 informationon          information
 informations           information
+infos                  information
 inifity                infinity
 inital                 initial
 initally               initially
@@ -1305,6 +1308,7 @@ otehr                  other
 otehrs                 others
 ouput                  output
 ouputs                 outputs
+ourselfes              ourselves
 outputing              outputting
 overidden              overridden
 overriden              overridden
