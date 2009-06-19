@@ -490,7 +490,7 @@ for $ftype (@types) {
         if(!$brief) {
           print STDERR "=>$ftype/$bp test in-progress.";
         } else {
-          print STDERR ".";
+          print STDERR "." unless ($export =~ m/text[a-z]+/);
         }
       }
       $result{$p} = "";
@@ -544,7 +544,7 @@ for $ftype (@types) {
       } else {
         print "$p $opts $insopt $f\n";
       }
-      print STDERR "." unless ( $nf % 10 || $quiet );
+      print STDERR "." unless ( $nf % 10 || $quiet || $export =~ m/text[a-z]+/);
       } # foreach file to process
       if ( $nf > 0 ) {
         $overall_status += $status{$p} if ( defined( $status{$p} ) );
@@ -814,7 +814,7 @@ sub printHeader {
     print "    <svn-rev value=\"$rev\" />\n" if ($rev);
     print "  </global>\n";
     print "  <file-types>\n";
-  } else { # text output
+  } elsif ($export eq "text") {
     print "\n$title\n" if ($title);
     print "\nCheckers Run = $num_checks\n";
     print "Files Processed = $num_files\n";
