@@ -643,12 +643,6 @@ sub Help {
   print "              text (default)\n";
   print "              textlist -> plain old text, 1 offending file-per-line\n";
   print "              textedit -> text formatted for IDEs, 1 issue-per-line\n";
-  print "              ebn -> English Breakfast Network style\n";
-  print "              ebnlxr -> English Breakfast Network style,\n";
-  print "                        with links to lxr.kde.org\n";
-  print "              html -> plain old html\n";
-  print "              htmllxr -> plain old html,\n";
-  print "                         with links to lxr.kde.org\n";
   print "              xml -> XML formatted\n";
   print "  --title   give the output a project title\n";
   print "  --rev:    subversion revision number\n";
