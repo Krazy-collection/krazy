@@ -25,6 +25,7 @@
 #   --version:         display version information and exit
 #   --dry-run:         don't execute the checks; only show what would be run
 #   --nodb:            don't execute any database commands
+#   --nosaxon          don't execute the xslt transformations.
 #   --component [comp] process component 'comp'
 #   --module [mod1<,mod2,..>]
 #                      process module list from component 'comp'
@@ -35,6 +36,7 @@ use Getopt::Long;
 use Env qw (PSQL);
 use Sys::Hostname;
 use File::Basename;
+use File::Copy;
 use File::Find;
 use File::Path;
 use POSIX qw (strftime);
@@ -86,7 +88,7 @@ if ( hostname() =~ m/englishbreakfast/ ) {
   # my system settings for testing
   $tempdir    = '/home/developer/data/krazy2/temp';
   $destdir    = '/home/developer/data/krazy2/reports';
-  $comp       = 'KDE';
+  $comp       = 'kde-4.x';
   $module     = '';
   $trunk      = '/home/developer/data/kde/trunk';
   $krazy      = '/home/developer/local/bin/krazy2';
@@ -106,6 +108,7 @@ my ($help)    = '';
 my ($version) = '';
 my ($dryrun)  = '';
 my ($nodb) = '';
+my ($nosaxon) = '';
 my ($reptitle) = '';
 
 exit 1
@@ -114,6 +117,7 @@ exit 1
        'version'     => \$version,
        'dry-run'     => \$dryrun,
        'nodb'        => \$nodb,
+       'nosaxon'     => \$nosaxon,
        'component=s' => \$comp,
        'module=s'    => \$module,
        'title=s'     => \$reptitle
@@ -217,10 +221,31 @@ if ( $#modules < 0 ) {
 
 # Let's doit!
 my (@subdirs);
+
+&myMkdir("$tempdir/$comp") if (! -d "$tempdir/$comp");
+
+# This is the same for all modules so generate only once
+print "  Generating $comp/tool-list.xml\n";
+my $command = "$krazy --export=xml --list --explain > $tempdir/$comp/tool-list.xml";
+system("$command");
+
 for $m (@modules) {
   print "  [$m]\n";
   &myRmdir("$tempdir/$comp/$m");
   &myMkdir("$tempdir/$comp/$m");
+
+  # Create two required files for xmltodb:
+  # 1) tool-list.xml
+  print "    Copying tool-list.xml to module dir\n";
+  copy("$tempdir/$comp/tool-list.xml", "$tempdir/$comp/$m/tool-list.xml");
+
+  # 2) component.info
+  print "    Generating $comp/$m/component.info\n";
+  open(COMPINFO,">$tempdir/$comp/$m/component.info") || die("Cannot Open component.info");
+  print COMPINFO "component=$comp\n";
+  print COMPINFO "module=$m\n";
+  print COMPINFO "revision=$svnRev\n";
+  close(COMPINFO);
 
   @subdirs = ();
   if ( -f "$trunk/$comp/$m/CMakeLists.txt" ) {
@@ -370,7 +395,7 @@ sub doItForList {
       $iss      = 0;
       if ( &inIgnoreSubs($s) ) {
         print "    Ignoring $comp/$module/$s\n";
-        &createIgnorePage( "$out", "$comp/$module/$s" );
+        &createIgnorePage( "$out", "$comp/$module/$s" ) if (!$nosaxon);
       } else {
         &mergeSubdirSettings( "$trunk/$comp/$module/$s" );
         &doIt( "$trunk/$comp/$module/$s", "$out", "$comp/$module/$s", $rev );
@@ -455,13 +480,15 @@ sub doIt {
   #       the database in a fine grained enough manner, we can change te ebn site
   #       to be a php only site and not a mixture of php and krazy generated pages.
   my ( $component, $module, $subdir ) = split( "/", $cms );
-  $command = "$saxon -im krazy2ebn $out/result.xml $stylesheet component=$component module=$module submodule=$subdir > $out/index.html";
-  system($command);
-  # Make sure the file ends with a newline.
-  if (-f "$out/index.html") {
-    open( F, ">>$out/index.html" );
-    print F "\n";
-    close F;
+  if (!$nosaxon) {
+    $command = "$saxon -im krazy2ebn $out/result.xml $stylesheet component=$component module=$module submodule=$subdir > $out/index.html";
+    system($command);
+    # Make sure the file ends with a newline.
+    if (-f "$out/index.html") {
+      open( F, ">>$out/index.html" );
+      print F "\n";
+      close F;
+    }
   }
 
   # TODO: translate the xml reports to SQL queries and execute them.
@@ -659,6 +686,7 @@ sub Help {
   print "  --version   display version information and exit\n";
   print "  --dry-run   don't execute the checks; only show what would be run\n";
   print "  --nodb      don't execute any database commands\n";
+  print "  --nosaxon   don't execute the xslt transformation\n";
   print "  --component component to process (default=\"$comp\")\n";
   print "  --module    [mod1<,mod2...>]\n";
   print "              comma-separated list of modules to process (default=ALL)\n";
