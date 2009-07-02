@@ -729,7 +729,7 @@ sub printList {
     }
 
    print "  " if ( $isextra && $export eq "xml");
-   print "      </plugin>\n" if ( $export eq "xml" );
+   print "      </plugin>\n" if ( $export eq "xml" && $explain );
   }
 }
 
