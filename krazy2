@@ -790,7 +790,7 @@ sub printXmlHeader {
   if ($list) {
     print "<tool name=\"krazy2\">\n";
   } else {
-    print "<krazy>\n";
+    print "<tool-result tool=\"krazy2\">\n";
   }
 }
 
@@ -832,7 +832,7 @@ sub printFooter {
     if ($list) {
       print "</tool>\n";
     } else {
-      print "</krazy>\n";
+      print "</tool-result>\n";
     }
   }
 }
