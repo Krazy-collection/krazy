@@ -15,8 +15,8 @@
     <xsl:param name="fileType" as="xsd:string" />
     <xsl:sequence 
       select="if ($fileType eq 'all')
-              then count( $global.doc/krazy/file-types/file-type/check )
-              else count( $global.doc/krazy/file-types/file-type[@value=$fileType]/check )" />
+              then count( $global.doc/tool-result/file-types/file-type/check )
+              else count( $global.doc/tool-result/file-types/file-type[@value=$fileType]/check )" />
   </xsl:function>
   
   <!--
@@ -30,8 +30,8 @@
     <xsl:param name="fileType" as="xsd:string" />
     <xsl:sequence 
       select="if ($fileType eq 'all')
-              then count( $global.doc/krazy/file-types/file-type/check/file )
-              else count( $global.doc/krazy/file-types/file-type[@value=$fileType]/check/file )" />
+              then count( $global.doc/tool-result/file-types/file-type/check/file )
+              else count( $global.doc/tool-result/file-types/file-type[@value=$fileType]/check/file )" />
   </xsl:function>
 
   <xsl:function name="ebn:issueCount" as="xsd:integer">
@@ -41,20 +41,20 @@
     <xsl:choose>
       <xsl:when test="$fileType ne 'all' and $check eq 'all'" >
         <xsl:sequence 
-          select="count( $global.doc/krazy/file-types/file-type[@value=$fileType]/check/file/issues/line )" />
+          select="count( $global.doc/tool-result/file-types/file-type[@value=$fileType]/check/file/issues/line )" />
       </xsl:when>
       <xsl:when test="$fileType eq 'all' and $check ne 'all'" >
         <xsl:sequence
-          select="count( $global.doc/krazy/file-types/file-type/check[@desc=$check]/file/issues/line )" />
+          select="count( $global.doc/tool-result/file-types/file-type/check[@desc=$check]/file/issues/line )" />
       </xsl:when>
       <xsl:when test="$fileType ne 'all' and $check ne 'all'" >
         <xsl:sequence 
-          select="count( $global.doc/krazy/file-types/file-type[@value=$fileType]
+          select="count( $global.doc/tool-result/file-types/file-type[@value=$fileType]
                            /check[@desc=$check]/file/issues/line )" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:sequence
-          select="count( $global.doc/krazy/file-types/file-type/check/file/issues/line )" />
+          select="count( $global.doc/tool-result/file-types/file-type/check/file/issues/line )" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -63,14 +63,14 @@
     - Returns the total number of files processed by krazy.
     -->
   <xsl:function name="ebn:processedFilesCount" as="xsd:integer">
-    <xsl:value-of select="$global.doc/krazy/global/processed-files/@value" />
+    <xsl:value-of select="$global.doc/tool-result/global/processed-files/@value" />
   </xsl:function>
   
   <!--
     - Returns the date on which the krazy report was generated.
     -->
   <xsl:function name="ebn:dateOfRun" as="xsd:string">
-    <xsl:value-of select="$global.doc/krazy/global/date/@value" />
+    <xsl:value-of select="$global.doc/tool-result/global/date/@value" />
   </xsl:function>
 </xsl:stylesheet>
 

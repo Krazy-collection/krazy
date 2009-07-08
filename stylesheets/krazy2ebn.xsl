@@ -160,7 +160,7 @@
     ...as of <xsl:value-of select="ebn:dateOfRun()" /></p>
   </xsl:template>
   
-  <xsl:template match="/krazy" mode="krazy2ebn">
+  <xsl:template match="/tool-result" mode="krazy2ebn">
     <html xml:lang="en" lang="en">
       <head>
         <title>krazy2 Analysis</title>
