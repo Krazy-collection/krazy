@@ -141,10 +141,10 @@ sub qClass() {
   my($l,$qname,$nregexp) = @_;
 
   if ($filetype eq "c++") {
-    if ($l =~ m/new[[:space:]]$qname[[:space:]]*\(/ ||
+    if ($l =~ m/new\s+$qname\s*\(/ ||
 	$l =~ m/$qname\::[[:alnum:]]+[[:space:]]*\(/ ||
 	$l =~ m/$qname[[:space:]]*\*[[:space:]]*[[:alnum:]]+/ ||
-	$l =~ m/\s*:\s*public\s$qname/ ||
+	$l =~ m/[:,]\s*public\s+$qname/ ||
 	(($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/) && ($l !~ m/==/ && $l !~ m/\!=/))) {
       return 0 if ($nregexp ne "" && $l =~ m/$nregexp/);
       return 1 if (!&whiteList($l));
@@ -169,6 +169,7 @@ sub whiteList {
       $l =~ m/QUrl::fromAce/ ||
       $l =~ m/QDialog::DialogCode/ ||
       $l =~ m/QDialog::accept/ ||
+      $l =~ m/[:,]\s*public\s+QDialog/ ||
       $l =~ m/KServiceTypeTrader::createInstanceFromQuery<.*>/) {
     return 1;
   } else {
