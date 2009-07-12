@@ -169,7 +169,9 @@ sub whiteList {
       $l =~ m/QUrl::fromAce/ ||
       $l =~ m/QDialog::DialogCode/ ||
       $l =~ m/QDialog::accept/ ||
+      $l =~ m/QDialog::reject/ ||
       $l =~ m/[:,]\s*public\s+QDialog/ ||
+      $l =~ m/class=\"QDialog\"/ ||
       $l =~ m/KServiceTypeTrader::createInstanceFromQuery<.*>/) {
     return 1;
   } else {
