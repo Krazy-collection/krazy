@@ -79,7 +79,7 @@ IGNOREMODS is an administrator directive used only by the krazyebn(1) program.
 
 =head1 COPYRIGHT
 
-Copyright 2005-2007 by Allen Winter <winter@kde.org>
+Copyright 2005-2009 by Allen Winter <winter@kde.org>
 
 =head1 SEE ALSO
 

@@ -29,7 +29,7 @@ use Cwd;
 use Krazy::Utils;
 
 use Exporter;
-$VERSION = 1.10;
+$VERSION = 1.20;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(ParseKrazyRC);
@@ -63,7 +63,9 @@ my($CWD);
 
 sub ParseKrazyRC {
   my ($rcfile) = @_;
-  open( F, "$rcfile" ) || return;
+
+  my(%directives);
+  open( F, "$rcfile" ) || return %directives;
 
   my ( $line, $linecnt, $directive, $arg );
   $CWD = getcwd;
@@ -114,7 +116,6 @@ sub ParseKrazyRC {
   close(F);
 
   #return a hash of the directives
-  my(%directives);
   $directives{'EXCLUDE'}    = $rcExclude;
   $directives{'CHECK'}      = $rcOnly;
   $directives{'EXTRA'}      = $rcExtra;
@@ -128,7 +129,7 @@ sub ParseKrazyRC {
 }
 
 sub extras {
-  my ($args) = @_;  
+  my ($args) = @_;
   if ( !defined($args) ) {
     print "missing EXTRA arguments in .krazy...exiting\n";
     exit 1;
@@ -191,11 +192,12 @@ sub skips {
     exit 1;
   }
   $args =~ s+\\\|+|+g;
-  return if (!length($args));
   if ( !$rcSkipRegex ) {
     $rcSkipRegex = $args;
   } else {
-    $rcSkipRegex .= "|" . $args;
+    if ($args) {
+      $rcSkipRegex .= "|" . $args;
+    }
   }
 }
 

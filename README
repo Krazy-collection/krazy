@@ -25,11 +25,6 @@ topmost directory you want to check and run the krazy2all script from there.
 
 The commandline options for both can be obtained by providing the --help option.
 
-!!Caveat: Running the commandline tool currently doesn't read .krazy files,
-so if you excluded certain directories or files via a .krazy file you'll
-still see the issues from these reported. This does not happen in the big
-run that is done on the EBN.
-
 
 Exempting lines, files and directories from the checks:
 -------------------------------------------------------

@@ -32,7 +32,9 @@ use Exporter;
 $VERSION = 1.12;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(topModule topSubdir deDupe fileType fileTypeDesc findFiles asOf
+@EXPORT = qw(topModule topProject fileType fileTypeDesc findFiles asOf
+             deDupe addRegEx
+             addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
              validateExportType validatePriorityType validateStrictType validateOutputType);
@@ -50,15 +52,24 @@ sub topModule {
   $apath =~ s+/kdebase/workspace/+/kdebase-workspace/+;
   my($top) = $apath;
   $top =~ s+/$ModRegex/.*++;
-  return "" if ( $top eq $apath );
+  if ( $top eq $apath ) {
+    return "" unless
+      ($apath =~ m+trunk/KDE+ ||
+       $apath =~ m+trunk/extragear+ ||
+       $apath =~ m+trunk/playground+ ||
+       $apath =~ m+trunk/koffice+ ||
+       $apath =~ m+trunk/kdereview+ ||
+       $apath =~ m+trunk/kdesupport+ ||
+       $apath =~ m+branches/KDE+);
+  }
   my($module) = $apath;
   $module =~ s+$top/++;
   $module =~ s+/.*++;
   return "$top/$module";
 }
 
-#full path to the top of the module/subdir where the specified file resides
-sub topSubdir {
+#full path to the top of the project dir where the specified file resides
+sub topProject {
   my($in) = @_;
   my($apath) = abs_path($in);
   $apath =~ s+/kdebase/apps/+/kdebase-apps/+;
@@ -84,6 +95,61 @@ sub deDupe {
     push( @uniq, $item ) unless $seen{$item}++;
   }
   @list = @uniq;
+}
+
+sub addRegEx {
+  my ($r1,$r2) = @_;
+
+  $r1 =~ s+\|+\\\|+g;
+  $r2 =~ s+\|+\\\|+g;
+
+  if ($r1) {
+    if ($r2) {
+      $r1 .= "\\|" . $r2;
+    }
+  } else {
+    $r1 = $r2;
+  }
+  return $r1;
+}
+
+sub addCommaSeparated {
+  my ($l1,$l2) = @_;
+
+  $l1 =~ s/\s*//g; $l2 =~ s/\s*//g; # remove whitespace
+  $l1 =~ s/^,+//;  $l2 =~ s/^,+//;  # remove leading commas
+  $l1 =~ s/,+$//;  $l2 =~ s/,+$//;  # remove trailing commas
+
+  if ($l1) {
+    if ($l2) {
+      $l1 .= "," . $l2;
+    }
+  } else {
+    $l1 = $l2;
+  }
+  return &arrayToCommaSeparated(&deDupe(&commaSeparatedToArray($l1)));
+}
+
+sub commaSeparatedToArray {
+  my ($l) = @_;
+  my (@a) = ();
+
+  $l =~ s/\s*//g; # remove whitespace
+  $l =~ s/^,+//;  # remove leading commas
+  $l =~ s/,+$//;  # remove trailing commas
+  @a = split( ",", $l );
+  return @a;
+}
+
+sub arrayToCommaSeparated {
+  my (@a) = @_;
+  my ($l) = "";
+  my ($guy);
+  for $guy (@a) {
+    $l .= $guy . ",";
+  }
+  $l =~ s/,$//;
+  return $l;
 }
 
 # return a file type string determined by the filename extension

@@ -20,9 +20,6 @@
 #                                                                             #
 ###############################################################################
 
-# FOR KDAB:
-# if in a non-KDE project (i.e. no /kdefoo/ in pwd), then use the pwd/.krazy
-
 # TODO:
 #  --config=foo, read config file foo (and no other .krazy files)
 #  --types=type1,type2,..typeN  <- only process these file types
@@ -115,7 +112,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.8';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -269,13 +266,36 @@ foreach $type ( keys %xCheckers ) {
 # Print the list of supported file types and exit.
 &ListTypes() if $listtypes;
 
-### Follow the commands in a .krazy file is one exists in this directory.
-my (%ds);
+# Parse .krazy file(s)
+my(%ds);
 if ( !$ignorerc ) {
-  my ($rcfile) = topSubdir($CWD);
-  if ($rcfile) {
-    $rcfile .= "/.krazy";
-    %ds = ParseKrazyRC($rcfile);
+  # read directives from the user' .krazy in their home dir.
+  my ($rcfile) = $HOME . "/.krazy";
+  %ds = &ParseKrazyRC($rcfile);
+
+  # read directives from the project's .krazy
+  $rcfile="";
+  my ($projpath) = &topProject($CWD);
+  if ($projpath) {
+    $rcfile = $projpath . "/.krazy";
+  } else {
+    if (!&topModule($CWD)) {
+      #not in a KDE project dir, so use the one in cwd
+      $rcfile = $CWD . "/.krazy";
+    }
+  }
+  if ($rcfile && -f $rcfile) {
+    my(%pds) = &ParseKrazyRC($rcfile);
+
+    #Merge the directives from the possible 2 .krazy files
+    $ds{'EXCLUDE'} = &addCommaSeparated($ds{'EXCLUDE'},$pds{'EXCLUDE'});
+    $ds{'CHECK'} = &addCommaSeparated($ds{'CHECK'},$pds{'CHECK'});
+    $ds{'EXTRA'} = &addCommaSeparated($ds{'EXTRA'},$pds{'EXTRA'});
+    $ds{'SKIPREGEX'} = &addRegEx($ds{'SKIPREGEX'},$pds{'SKIPREGEX'});
+
+    $ds{'PRIORITY'} = $pds{'PRIORITY'} if ($pds{'PRIORITY'});
+    $ds{'STRICT'}   = $pds{'STRICT'} if ($pds{'STRICT'});
+    $ds{'OUTPUT'}   = $pds{'OUTPUT'} if ($pds{'OUTPUT'});
   }
 }
 
@@ -297,7 +317,8 @@ $brief = 1 if ( !$brief && $output eq "brief" );
 #   print "EXTRA $extra\n"       if ($extra);
 #   print "SKIP $skip\n"         if ($skip);
 #   print "PRIORITY $priority\n" if ($priority);
-#   print "STRICT $strict\n"     if ($strict);
+#    print "STRICT $strict\n"     if ($strict);
+#   print "OUTPUT $output\n"     if ($output);
 # }
 
 my ($p);
@@ -1414,17 +1435,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 F<.krazy> (see krazyrc(5))
 
-krazy2 looks up the current working directory tree for a F<.krazy> file
-in the project subdirectory.  Only F<.krazy> files found at the project
-subdirectory level are read.
+krazy2 first parses a F<.krazy> file found in the user's home directory,
+if such a file exists.
 
-For example, if the current working dir is
+Next, krazy2 searches up the current working directory tree for a
+project specific F<.krazy> file. If one is found, its settings are
+merged with (or override) those already found from F<$HOME/.krazy>.
+
+[For example, if the current working dir is
 F</my/kde/trunk/KDE/kdepimlibs/kcal/versit>, then krazy2 will look for
 F</my/kde/trunk/KDE/kdepimlibs/kcal/.krazy>, since kcal is the project
-within the kdepimlibs module.
+within the kdepimlibs module.]
 
-If the current working dir is not within a KDE module, or if the current
-working dir is above a project subdir, then a F<.krazy> file will not be read.
+If krazy2 determines that the current working directory is not located within
+the KDE directory structure, then it simply reads the settings from the
+F<.krazy> file found in the current working directory, if such a file exists.
+
+If krazy2 determines that the current working directory is located
+within the KDE directory structure but above a project subdir
+(eg. F<trunk/KDE/kdepim>), then it assumes no project specific F</.krazy> file.
 
 =head1 SEE ALSO
 
