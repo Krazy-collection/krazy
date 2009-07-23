@@ -16,7 +16,7 @@ fi
 if ( test `hostname | egrep -c englishbreakfast` -gt 0 ) then
   EBN=1
   TOP=/usr/local/www/data-ebn/krazy
-  QMAKE=/usr/local/src/qt-copy/bin/qmake
+  QMAKE=/usr/local/KDE4/bin/qmake
 else
   EBN=0
   TOP=/usr/local/Krazy2
