@@ -478,7 +478,7 @@ foreach $line (@lines) {
     print "$linecnt (no return values in parens) => $line\n" if (&verboseArg());
   }
 
-  if ($line =~ m/{};/ && $line !~ m/^\s*template\s<>\s(struct|class)/) {
+  if ($line =~ m/{};/ && $line !~ m/^\s*template\s<.*>\s(struct|class)/) {
     $Issues{'BADSEMI'}{'count'}++;
     if ($Issues{'BADSEMI'}{'count'} == 1) {
       $Issues{'BADSEMI'}{'lines'} = "line\#" . $linecnt;
