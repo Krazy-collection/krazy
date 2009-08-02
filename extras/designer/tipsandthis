@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "tipsandthis";
-my($Version) = "1.2";
+my($Version) = "1.3";
 
 &parseArgs();
 
@@ -90,6 +90,7 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/=\s*\"QGroupBox\"/);
     next if ($line =~ m/=\s*\"QLabel\"/);
     next if ($line =~ m/=\s*\"QFrame\"/);
+    next if ($line =~ m/=\s*\"Line\"/);
     #skip this class if the next line isn't a property
     next if ($lines[$linecnt] !~ m/<\s*property/);
 
