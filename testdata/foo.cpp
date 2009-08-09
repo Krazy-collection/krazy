@@ -88,3 +88,11 @@ foreach(const ptr<NESTERNAMESPACE::HeveaElement> &e, m_lstElts) {
  foo(e);
 }
 foreach(str,stringList){ dothis(str); } //foreach
+
+//spelling
+//internet
+//Internet
+//deamon
+//colour
+//interne Internet
+/* intial this variable */
