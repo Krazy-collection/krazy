@@ -70,6 +70,9 @@ for (i=0;
 	for (i = 0; i < N;
              i++) // hit
         { j++; //not a hit
+for (int i = 0, j = 1; j < result.count(); j++ ) { // Hit
+for (int i = 0, j = 1; j < result.count(); i = j++ ) { // Not a hit
+result.removeAt( j-- );  //Not a hit
 
 // Deprecated Qt classes
 QHttp *http = new QHttp( "www.kde.org" );
