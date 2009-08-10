@@ -272,6 +272,10 @@ if ( !$ignorerc ) {
   # read directives from the user' .krazy in their home dir.
   my ($rcfile) = $HOME . "/.krazy";
   %ds = &ParseKrazyRC($rcfile);
+  $ds{'EXCLUDE'} = '' if (!defined($ds{'EXCLUDE'}));
+  $ds{'CHECK'} = '' if (!defined($ds{'CHECK'}));
+  $ds{'EXTRA'} = '' if (!defined($ds{'EXTRA'}));
+  $ds{'SKIPREGEX'} = '' if (!defined($ds{'SKIPREGEX'}));
 
   # read directives from the project's .krazy
   $rcfile="";
@@ -285,7 +289,12 @@ if ( !$ignorerc ) {
     }
   }
   if ($rcfile && -f $rcfile) {
-    my(%pds) = &ParseKrazyRC($rcfile);
+    my(%pds);
+    $pds{'EXCLUDE'} = '' if (!defined($pds{'EXCLUDE'}));
+    $pds{'CHECK'} = '' if (!defined($pds{'CHECK'}));
+    $pds{'EXTRA'} = '' if (!defined($pds{'EXTRA'}));
+    $pds{'SKIPREGEX'} = '' if (!defined($pds{'SKIPREGEX'}));
+    %pds = &ParseKrazyRC($rcfile);
 
     #Merge the directives from the possible 2 .krazy files
     $ds{'EXCLUDE'} = &addCommaSeparated($ds{'EXCLUDE'},$pds{'EXCLUDE'});
@@ -300,13 +309,13 @@ if ( !$ignorerc ) {
 }
 
 # override .krazy file settings with command line settings
-$extra   = $ds{'EXTRA'}   if ( !$extra && defined( $ds{'EXTRA'} ) );
-$only    = $ds{'CHECK'}   if ( !$only && defined( $ds{'CHECK'} ) );
-$exclude = $ds{'EXCLUDE'} if ( !$exclude && defined( $ds{'EXCLUDE'} ) );
-$skip = $ds{'SKIPREGEX'}  if ( defined( $ds{'SKIPREGEX'} ) && $ds{'SKIPREGEX'} );
+$extra   = $ds{'EXTRA'}     if ( !$extra );
+$only    = $ds{'CHECK'}     if ( !$only );
+$exclude = $ds{'EXCLUDE'}   if ( !$exclude );
+$skip = $ds{'SKIPREGEX'}    if ( defined( $ds{'SKIPREGEX'} ) );
 $priority = $ds{'PRIORITY'} if ( !$priority && defined( $ds{'PRIORITY'} ) );
 $strict = $ds{'STRICT'}     if ( !$strict && defined( $ds{'STRICT'} ) );
-$output = $ds{'OUTPUT'} if ( defined( $ds{'OUTPUT'} ) );
+$output = $ds{'OUTPUT'}     if ( defined( $ds{'OUTPUT'} ) );
 $quiet = 1 if ( !$quiet && $output eq "quiet" );
 $brief = 1 if ( !$brief && $output eq "brief" );
 
