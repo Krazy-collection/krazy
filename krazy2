@@ -302,9 +302,9 @@ if ( !$ignorerc ) {
       $ds{'SKIPREGEX'} = &addRegEx($ds{'SKIPREGEX'},$pds{'SKIPREGEX'});
     }
 
-    $ds{'PRIORITY'} = $pds{'PRIORITY'} if (exists($pds{'PRIORITY'}));
-    $ds{'STRICT'}   = $pds{'STRICT'} if (exists($pds{'STRICT'}));
-    $ds{'OUTPUT'}   = $pds{'OUTPUT'} if (exists($pds{'OUTPUT'}));
+    $ds{'PRIORITY'} = $pds{'PRIORITY'} if ($pds{'PRIORITY'});
+    $ds{'STRICT'}   = $pds{'STRICT'} if ($pds{'STRICT'});
+    $ds{'OUTPUT'}   = $pds{'OUTPUT'} if ($pds{'OUTPUT'});
   }
 }
 
@@ -313,9 +313,9 @@ $extra   = $ds{'EXTRA'}     if (!$extra && exists($ds{'EXTRA'}));
 $only    = $ds{'CHECK'}     if (!$only && exists($ds{'CHECK'}));
 $exclude = $ds{'EXCLUDE'}   if (!$exclude && exists( $ds{'EXCLUDE'}));
 $skip = $ds{'SKIPREGEX'}    if (exists( $ds{'SKIPREGEX'} ) );
-$priority = $ds{'PRIORITY'} if (!$priority && exists($ds{'PRIORITY'}));
-$strict = $ds{'STRICT'}     if (!$strict && exists($ds{'STRICT'}));
-$output = $ds{'OUTPUT'}     if (exists($ds{'OUTPUT'}));
+$priority = $ds{'PRIORITY'} if (!$priority && $ds{'PRIORITY'});
+$strict = $ds{'STRICT'}     if (!$strict && $ds{'STRICT'});
+$output = $ds{'OUTPUT'}     if ($ds{'OUTPUT'});
 $quiet = 1 if ( !$quiet && $output eq "quiet" );
 $brief = 1 if ( !$brief && $output eq "brief" );
 
