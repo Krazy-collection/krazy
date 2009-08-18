@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 /*
@@ -62,14 +62,22 @@ namespace CPlusPlus {
 namespace CPlusPlus {
 
 struct Value;
+class Environment;
 
 class CPP_PREPROCESSOR_EXPORT Preprocessor
 {
 public:
     Preprocessor(Client *client, Environment *env);
 
-    QByteArray operator()(const QByteArray &filename,
-                          const QByteArray &source);
+    QByteArray operator()(const QString &filename, const QString &source);
+    QByteArray operator()(const QString &filename, const QByteArray &source);
+
+    void preprocess(const QString &filename,
+                    const QByteArray &source,
+                    QByteArray *result);
+
+    bool expandMacros() const;
+    void setExpandMacros(bool expandMacros);
 
 private:
     enum { MAX_LEVEL = 512 };
@@ -99,10 +107,6 @@ private:
     };
 
     bool markGeneratedTokens(bool markGeneratedTokens, TokenIterator dot = 0);
-
-    void preprocess(const QByteArray &filename,
-                    const QByteArray &source,
-                    QByteArray *result);
 
     QByteArray expand(const QByteArray &source);
     void expand(const QByteArray &source, QByteArray *result);
@@ -166,6 +170,12 @@ private:
 
     State createStateFromSource(const QByteArray &source) const;
 
+    void out(const QByteArray &text);
+    void out(char ch);
+    void out(const char *s);
+
+    QString string(const char *first, int len) const;
+
 private:
     Client *client;
     Environment *env;
@@ -183,6 +193,9 @@ private:
 
     QByteArray *_result;
     bool _markGeneratedTokens;
+
+    QString _originalSource;
+    bool _expandMacros;
 };
 
 } // namespace CPlusPlus

@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -72,6 +72,8 @@ protected:
 
     using ASTVisitor::visit;
 
+    unsigned locationOfDeclaratorId(DeclaratorAST *declarator) const;
+
     virtual bool visit(SimpleDeclarationAST *ast);
     virtual bool visit(EmptyDeclarationAST *ast);
     virtual bool visit(AccessDeclarationAST *ast);
@@ -88,6 +90,13 @@ protected:
     virtual bool visit(TemplateTypeParameterAST *ast);
     virtual bool visit(UsingAST *ast);
     virtual bool visit(UsingDirectiveAST *ast);
+
+    virtual bool visit(ObjCProtocolDeclarationAST *ast);
+    virtual bool visit(ObjCProtocolForwardDeclarationAST *ast);
+    virtual bool visit(ObjCClassDeclarationAST *ast);
+    virtual bool visit(ObjCClassForwardDeclarationAST *ast);
+    virtual bool visit(ObjCMethodDeclarationAST *ast);
+    virtual bool visit(ObjCVisibilityDeclarationAST *ast);
 
 private:
     DeclarationAST *_declaration;

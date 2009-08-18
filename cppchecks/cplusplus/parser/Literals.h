@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -101,6 +101,29 @@ class CPLUSPLUS_EXPORT NumericLiteral: public Literal
 public:
     NumericLiteral(const char *chars, unsigned size);
     virtual ~NumericLiteral();
+
+    bool isChar() const;
+    bool isWideChar() const;
+    bool isInt() const;
+    bool isFloat() const;
+    bool isDouble() const;
+    bool isLongDouble() const;
+    bool isLong() const;
+    bool isLongLong() const;
+
+    bool isUnsigned() const;
+    bool isHex() const;
+
+private:
+    struct Flags {
+        unsigned _type      : 8;
+        unsigned _isHex     : 1;
+        unsigned _isUnsigned: 1;
+    };
+    union {
+        unsigned _flags;
+        Flags f;
+    };
 };
 
 class CPLUSPLUS_EXPORT Identifier: public Literal

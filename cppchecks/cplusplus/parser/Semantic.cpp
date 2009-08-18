@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -67,7 +67,9 @@ public:
     Data(Semantic *semantic, Control *control)
         : semantic(semantic),
           control(control),
+          skipFunctionBodies(false),
           visibility(Symbol::Public),
+          ojbcVisibility(Symbol::Protected),
           methodKey(Function::NormalMethod),
           checkSpecifier(0),
           checkDeclaration(0),
@@ -89,7 +91,9 @@ public:
 
     Semantic *semantic;
     Control *control;
+    bool skipFunctionBodies;
     int visibility;
+    int ojbcVisibility;
     int methodKey;
     CheckSpecifier *checkSpecifier;
     CheckDeclaration *checkDeclaration;
@@ -130,6 +134,15 @@ FullySpecifiedType Semantic::check(PtrOperatorAST *ptrOperators, FullySpecifiedT
                                    Scope *scope)
 { return d->checkDeclarator->check(ptrOperators, type, scope); }
 
+FullySpecifiedType Semantic::check(ObjCMethodPrototypeAST *methodPrototype, Scope *scope)
+{ return d->checkDeclarator->check(methodPrototype, scope); }
+
+FullySpecifiedType Semantic::check(ObjCTypeNameAST *typeName, Scope *scope)
+{ return d->checkSpecifier->check(typeName, scope); }
+
+void Semantic::check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope)
+{ return d->checkName->check(arg, scope); }
+
 FullySpecifiedType Semantic::check(ExpressionAST *expression, Scope *scope)
 { return d->checkExpression->check(expression, scope); }
 
@@ -142,6 +155,15 @@ Name *Semantic::check(NameAST *name, Scope *scope)
 Name *Semantic::check(NestedNameSpecifierAST *name, Scope *scope)
 { return d->checkName->check(name, scope); }
 
+Name *Semantic::check(ObjCSelectorAST *args, Scope *scope)
+{ return d->checkName->check(args, scope); }
+
+bool Semantic::skipFunctionBodies() const
+{ return d->skipFunctionBodies; }
+
+void Semantic::setSkipFunctionBodies(bool skipFunctionBodies)
+{ d->skipFunctionBodies = skipFunctionBodies; }
+
 int Semantic::currentVisibility() const
 { return d->visibility; }
 
@@ -150,6 +172,16 @@ int Semantic::switchVisibility(int visibility)
     int previousVisibility = d->visibility;
     d->visibility = visibility;
     return previousVisibility;
+}
+
+int Semantic::currentObjCVisibility() const
+{ return d->ojbcVisibility; }
+
+int Semantic::switchObjCVisibility(int visibility)
+{
+    int previousOjbCVisibility = d->ojbcVisibility;
+    d->ojbcVisibility = visibility;
+    return previousOjbCVisibility;
 }
 
 int Semantic::currentMethodKey() const
@@ -171,10 +203,39 @@ int Semantic::visibilityForAccessSpecifier(int tokenKind) const
         return Symbol::Protected;
     case T_PRIVATE:
         return Symbol::Private;
-    case T_SIGNALS:
+    case T_Q_SIGNALS:
         return Symbol::Protected;
     default:
         return Symbol::Public;
+    }
+}
+
+int Semantic::visibilityForObjCAccessSpecifier(int tokenKind) const
+{
+    switch (tokenKind) {
+    case T_AT_PUBLIC:
+        return Symbol::Public;
+    case T_AT_PROTECTED:
+        return Symbol::Protected;
+    case T_AT_PRIVATE:
+        return Symbol::Private;
+    case T_AT_PACKAGE:
+        return Symbol::Package;
+    default:
+        return Symbol::Protected;
+    }
+}
+
+bool Semantic::isObjCClassMethod(int tokenKind) const
+{
+    switch (tokenKind) {
+    case T_PLUS:
+        return true;
+    case T_MINUS:
+        return false;
+    default:
+        // TODO EV: assert here?
+        return false;
     }
 }
 

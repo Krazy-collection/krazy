@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -76,6 +76,17 @@ FullySpecifiedType CheckSpecifier::check(SpecifierAST *specifier, Scope *scope)
     SpecifierAST *previousSpecifier = switchSpecifier(specifier);
     accept(specifier);
     (void) switchSpecifier(previousSpecifier);
+    (void) switchScope(previousScope);
+    return switchFullySpecifiedType(previousType);
+}
+
+FullySpecifiedType CheckSpecifier::check(ObjCTypeNameAST *typeName, Scope *scope)
+{
+    FullySpecifiedType previousType = switchFullySpecifiedType(FullySpecifiedType());
+    Scope *previousScope = switchScope(scope);
+
+    accept(typeName);
+
     (void) switchScope(previousScope);
     return switchFullySpecifiedType(previousType);
 }
@@ -303,6 +314,8 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 
     Name *className = semantic()->check(ast->name, _scope);
     Class *klass = control()->newClass(sourceLocation, className);
+    klass->setStartOffset(tokenAt(ast->firstToken()).offset);
+    klass->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = klass;
     unsigned classKey = tokenKind(ast->classkey_token);
     if (classKey == T_CLASS)
@@ -319,10 +332,10 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
         Name *baseClassName = semantic()->check(base->name, _scope);
         BaseClass *baseClass = control()->newBaseClass(ast->firstToken(), baseClassName);
         base->symbol = baseClass;
-        if (base->token_virtual)
+        if (base->virtual_token)
             baseClass->setVirtual(true);
-        if (base->token_access_specifier) {
-            int accessSpecifier = tokenKind(base->token_access_specifier);
+        if (base->access_specifier_token) {
+            int accessSpecifier = tokenKind(base->access_specifier_token);
             int visibility = semantic()->visibilityForAccessSpecifier(accessSpecifier);
             baseClass->setVisibility(visibility);
         }
@@ -333,9 +346,8 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     int previousVisibility = semantic()->switchVisibility(visibility);
     int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
 
-    for (DeclarationAST *member = ast->member_specifiers;
-            member; member = member->next) {
-        semantic()->check(member, klass->members());
+    for (DeclarationListAST *member = ast->member_specifiers; member; member = member->next) {
+        semantic()->check(member->declaration, klass->members());
     }
 
     (void) semantic()->switchMethodKey(previousMethodKey);
@@ -369,6 +381,8 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
 
     Name *name = semantic()->check(ast->name, _scope);
     Enum *e = control()->newEnum(sourceLocation, name);
+    e->setStartOffset(tokenAt(ast->firstToken()).offset);
+    e->setEndOffset(tokenAt(ast->lastToken()).offset);
     e->setVisibility(semantic()->currentVisibility());
     _scope->enterSymbol(e);
     _fullySpecifiedType.setType(e);
@@ -396,6 +410,13 @@ bool CheckSpecifier::visit(TypeofSpecifierAST *ast)
 bool CheckSpecifier::visit(AttributeSpecifierAST *ast)
 {
     accept(ast->next);
+    return false;
+}
+
+bool CheckSpecifier::visit(ObjCTypeNameAST * /*ast*/)
+{
+    // TODO: implement this (EV)
+    _fullySpecifiedType = FullySpecifiedType();
     return false;
 }
 

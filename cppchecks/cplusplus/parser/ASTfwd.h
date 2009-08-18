@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -83,6 +83,7 @@ class CoreDeclaratorAST;
 class CppCastExpressionAST;
 class CtorInitializerAST;
 class DeclarationAST;
+class DeclarationListAST;
 class DeclarationStatementAST;
 class DeclaratorAST;
 class DeclaratorIdAST;
@@ -100,6 +101,7 @@ class ExpressionAST;
 class ExpressionListAST;
 class ExpressionOrDeclarationStatementAST;
 class ExpressionStatementAST;
+class ForeachStatementAST;
 class ForStatementAST;
 class FunctionDeclaratorAST;
 class FunctionDefinitionAST;
@@ -143,6 +145,7 @@ class SimpleSpecifierAST;
 class SizeofExpressionAST;
 class SpecifierAST;
 class StatementAST;
+class StatementListAST;
 class StringLiteralAST;
 class SwitchStatementAST;
 class TemplateArgumentListAST;
@@ -167,7 +170,38 @@ class QtMethodAST;
 
 // ObjC++
 class IdentifierListAST;
+class ObjCClassForwardDeclarationAST;
 class ObjCClassDeclarationAST;
+class ObjCProtocolForwardDeclarationAST;
+class ObjCProtocolDeclarationAST;
+class ObjCProtocolRefsAST;
+class ObjCMessageExpressionAST;
+class ObjCMessageArgumentListAST;
+class ObjCMessageArgumentAST;
+class ObjCProtocolExpressionAST;
+class ObjCTypeNameAST;
+class ObjCEncodeExpressionAST;
+class ObjCSelectorAST;
+class ObjCSelectorWithoutArgumentsAST;
+class ObjCSelectorArgumentAST;
+class ObjCSelectorArgumentListAST;
+class ObjCSelectorWithArgumentsAST;
+class ObjCSelectorExpressionAST;
+class ObjCInstanceVariablesDeclarationAST;
+class ObjCVisibilityDeclarationAST;
+class ObjCPropertyDeclarationAST;
+class ObjCPropertyAttributeListAST;
+class ObjCPropertyAttributeAST;
+class ObjCMethodPrototypeAST;
+class ObjCMethodDeclarationAST;
+class ObjCMessageArgumentDeclarationListAST;
+class ObjCMessageArgumentDeclarationAST;
+class ObjCSynthesizedPropertyAST;
+class ObjCSynthesizedPropertyListAST;
+class ObjCSynthesizedPropertiesDeclarationAST;
+class ObjCDynamicPropertiesDeclarationAST;
+class ObjCFastEnumerationAST;
+class ObjCSynchronizedStatementAST;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER

@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -77,6 +77,9 @@ public:
     bool isClassType() const;
     bool isEnumType() const;
     bool isForwardClassDeclarationType() const;
+    bool isObjCClassType() const;
+    bool isObjCProtocolType() const;
+    bool isObjCMethodType() const;
 
     virtual const VoidType *asVoidType() const { return 0; }
     virtual const IntegerType *asIntegerType() const { return 0; }
@@ -91,6 +94,9 @@ public:
     virtual const Class *asClassType() const { return 0; }
     virtual const Enum *asEnumType() const { return 0; }
     virtual const ForwardClassDeclaration *asForwardClassDeclarationType() const { return 0; }
+    virtual const ObjCClass *asObjCClassType() const { return 0; }
+    virtual const ObjCProtocol *asObjCProtocolType() const { return 0; }
+    virtual const ObjCMethod *asObjCMethodType() const { return 0; }
 
     virtual VoidType *asVoidType() { return 0; }
     virtual IntegerType *asIntegerType() { return 0; }
@@ -105,6 +111,9 @@ public:
     virtual Class *asClassType() { return 0; }
     virtual Enum *asEnumType() { return 0; }
     virtual ForwardClassDeclaration *asForwardClassDeclarationType() { return 0; }
+    virtual ObjCClass *asObjCClassType() { return 0; }
+    virtual ObjCProtocol *asObjCProtocolType() { return 0; }
+    virtual ObjCMethod *asObjCMethodType() { return 0; }
 
     void accept(TypeVisitor *visitor);
     static void accept(Type *type, TypeVisitor *visitor);

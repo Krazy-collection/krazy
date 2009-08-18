@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -64,6 +64,8 @@ public:
                     bool isGlobal = false);
     virtual ~QualifiedNameId();
 
+    virtual Identifier *identifier() const;
+
     unsigned nameCount() const;
     Name *nameAt(unsigned index) const;
     Name *const *names() const;
@@ -94,7 +96,7 @@ public:
     NameId(Identifier *identifier);
     virtual ~NameId();
 
-    Identifier *identifier() const;
+    virtual Identifier *identifier() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
@@ -117,7 +119,7 @@ public:
     DestructorNameId(Identifier *identifier);
     virtual ~DestructorNameId();
 
-    Identifier *identifier() const;
+    virtual Identifier *identifier() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
@@ -142,7 +144,7 @@ public:
                    unsigned templateArgumentCount);
     virtual ~TemplateNameId();
 
-    Identifier *identifier() const;
+    virtual Identifier *identifier() const;
 
     // ### find a better name
     unsigned templateArgumentCount() const;
@@ -229,6 +231,7 @@ public:
 
     int kind() const;
 
+    virtual Identifier *identifier() const;
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const OperatorNameId *asOperatorNameId() const
@@ -252,6 +255,7 @@ public:
 
     FullySpecifiedType type() const;
 
+    virtual Identifier *identifier() const;
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const ConversionNameId *asConversionNameId() const
@@ -265,6 +269,39 @@ protected:
 
 private:
     FullySpecifiedType _type;
+};
+
+class CPLUSPLUS_EXPORT SelectorNameId: public Name
+{
+public:
+    SelectorNameId(Name *const names[],
+                   unsigned nameCount,
+                   bool hasArguments);
+    virtual ~SelectorNameId();
+
+    virtual Identifier *identifier() const;
+
+    unsigned nameCount() const;
+    Name *nameAt(unsigned index) const;
+    Name *const *names() const;
+
+    bool hasArguments() const;
+
+    virtual bool isEqualTo(const Name *other) const;
+
+    virtual const SelectorNameId *asSelectorNameId() const
+    { return this; }
+
+    virtual SelectorNameId *asSelectorNameId()
+    { return this; }
+
+protected:
+    virtual void accept0(NameVisitor *visitor);
+
+private:
+    Name **_names;
+    unsigned _nameCount;
+    bool _hasArguments;
 };
 
 CPLUSPLUS_END_NAMESPACE

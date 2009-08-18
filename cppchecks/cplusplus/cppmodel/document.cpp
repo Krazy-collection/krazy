@@ -241,9 +241,13 @@ void Document::check(QSharedPointer<Namespace> globalNamespace)
   Semantic semantic(m_control);
   Scope *globals = m_globalNamespace->members();
 
-  if (TranslationUnitAST *ast = m_translationUnit->ast()->asTranslationUnit())
-    for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next)
-      semantic.check(decl, globals);
+  if (TranslationUnitAST *ast = m_translationUnit->ast()->asTranslationUnit()){
+    for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
+      semantic.check(decl->declaration, globals);
+    }
+  } else if (ExpressionAST *ast = m_translationUnit->ast()->asExpression()) {
+    semantic.check(ast, globals);
+  }
 }
 
 Document::Ptr Document::create(QString const &fileName)
@@ -291,8 +295,8 @@ Document::Document(const QString &fileName)
   m_control->setDiagnosticClient(new DocumentDiagnosticClient(this, &m_diagnosticMessages));
 
   const QByteArray localFileName = fileName.toUtf8();
-  StringLiteral *fileId = m_control->findOrInsertFileName(localFileName.constData(),
-                                                          localFileName.size());
+  StringLiteral *fileId = m_control->findOrInsertStringLiteral(localFileName.constData(),
+                                                               localFileName.size());
   m_translationUnit = new TranslationUnit(m_control, fileId);
   m_translationUnit->setQtMocRunEnabled(true);
   m_translationUnit->setObjCEnabled(true);

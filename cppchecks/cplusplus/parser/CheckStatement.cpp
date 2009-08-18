@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -99,11 +99,13 @@ bool CheckStatement::visit(CaseStatementAST *ast)
 bool CheckStatement::visit(CompoundStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->lbrace_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
-    for (StatementAST *it = ast->statements; it; it = it->next) {
-        semantic()->check(it, _scope);
+    for (StatementListAST *it = ast->statements; it; it = it->next) {
+        semantic()->check(it->statement, _scope);
     }
     (void) switchScope(previousScope);
     return false;
@@ -139,9 +141,68 @@ bool CheckStatement::visit(ExpressionStatementAST *ast)
     return false;
 }
 
+bool CheckStatement::visit(ForeachStatementAST *ast)
+{
+    Block *block = control()->newBlock(ast->foreach_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
+    ast->symbol = block;
+    _scope->enterSymbol(block);
+    Scope *previousScope = switchScope(block->members());
+    if (ast->type_specifiers && ast->declarator) {
+        FullySpecifiedType ty = semantic()->check(ast->type_specifiers, _scope);
+        Name *name = 0;
+        ty = semantic()->check(ast->declarator, ty, _scope, &name);
+        unsigned location = ast->declarator->firstToken();
+        if (CoreDeclaratorAST *core_declarator = ast->declarator->core_declarator)
+            location = core_declarator->firstToken();
+        Declaration *decl = control()->newDeclaration(location, name);
+        decl->setType(ty);
+        _scope->enterSymbol(decl);
+    } else {
+        FullySpecifiedType exprTy = semantic()->check(ast->initializer, _scope);
+        (void) exprTy;
+    }
+
+    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
+    semantic()->check(ast->statement, _scope);
+    (void) switchScope(previousScope);
+    return false;
+}
+
+bool CheckStatement::visit(ObjCFastEnumerationAST *ast)
+{
+    Block *block = control()->newBlock(ast->for_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
+    ast->symbol = block;
+    _scope->enterSymbol(block);
+    Scope *previousScope = switchScope(block->members());
+    if (ast->type_specifiers && ast->declarator) {
+        FullySpecifiedType ty = semantic()->check(ast->type_specifiers, _scope);
+        Name *name = 0;
+        ty = semantic()->check(ast->declarator, ty, _scope, &name);
+        unsigned location = ast->declarator->firstToken();
+        if (CoreDeclaratorAST *core_declarator = ast->declarator->core_declarator)
+            location = core_declarator->firstToken();
+        Declaration *decl = control()->newDeclaration(location, name);
+        decl->setType(ty);
+        _scope->enterSymbol(decl);
+    } else {
+        FullySpecifiedType exprTy = semantic()->check(ast->initializer, _scope);
+        (void) exprTy;
+    }
+
+    semantic()->check(ast->body_statement, _scope);
+    (void) switchScope(previousScope);
+    return false;
+}
+
 bool CheckStatement::visit(ForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->for_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -156,6 +217,8 @@ bool CheckStatement::visit(ForStatementAST *ast)
 bool CheckStatement::visit(IfStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->if_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -196,6 +259,8 @@ bool CheckStatement::visit(ReturnStatementAST *ast)
 bool CheckStatement::visit(SwitchStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->switch_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -217,6 +282,8 @@ bool CheckStatement::visit(TryBlockStatementAST *ast)
 bool CheckStatement::visit(CatchClauseAST *ast)
 {
     Block *block = control()->newBlock(ast->catch_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
@@ -229,6 +296,8 @@ bool CheckStatement::visit(CatchClauseAST *ast)
 bool CheckStatement::visit(WhileStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->while_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());

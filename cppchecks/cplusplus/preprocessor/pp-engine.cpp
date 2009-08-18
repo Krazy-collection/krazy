@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 /*
@@ -47,10 +47,12 @@
 */
 
 #include "pp.h"
+#include "pp-cctype.h"
 
 #include <Lexer.h>
 #include <Token.h>
 #include <Literals.h>
+#include <cctype>
 
 #include <QtCore/QtDebug>
 #include <algorithm>
@@ -62,7 +64,7 @@ struct Value
 {
     enum Kind {
         Kind_Long,
-        Kind_ULong,
+        Kind_ULong
     };
 
     Kind kind;
@@ -229,7 +231,7 @@ protected:
     QByteArray tokenSpell() const
     {
         const QByteArray text = QByteArray::fromRawData(source.constData() + (*_lex)->offset,
-                                                        (*_lex)->length);
+                                                        (*_lex)->f.length);
         return text;
     }
 
@@ -238,7 +240,7 @@ protected:
 
     bool process_primary()
     {
-        if ((*_lex)->is(T_INT_LITERAL)) {
+        if ((*_lex)->is(T_NUMERIC_LITERAL)) {
             int base = 10;
             const QByteArray spell = tokenSpell();
             if (spell.at(0) == '0') {
@@ -531,7 +533,8 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
       env(env),
       _expand(env),
       _result(0),
-      _markGeneratedTokens(false)
+      _markGeneratedTokens(false),
+      _expandMacros(true)
 {
     resetIfLevel ();
 }
@@ -562,11 +565,21 @@ void Preprocessor::popState()
     _savedStates.removeLast();
 }
 
-QByteArray Preprocessor::operator()(const QByteArray &filename,
+QByteArray Preprocessor::operator()(const QString &fileName, const QString &source)
+{
+    const QString previousOriginalSource = _originalSource;
+    _originalSource = source;
+    const QByteArray bytes = source.toLatin1();
+    const QByteArray preprocessedCode = operator()(fileName, bytes);
+    _originalSource = previousOriginalSource;
+    return preprocessedCode;
+}
+
+QByteArray Preprocessor::operator()(const QString &fileName,
                                     const QByteArray &source)
 {
     QByteArray preprocessed;
-    preprocess(filename, source, &preprocessed);
+    preprocess(fileName, source, &preprocessed);
     return preprocessed;
 }
 
@@ -580,13 +593,42 @@ QByteArray Preprocessor::expand(const QByteArray &source)
 
 void Preprocessor::expand(const QByteArray &source, QByteArray *result)
 {
-    _expand(source, result);
+    if (result)
+        _expand(source, result);
 }
 
 void Preprocessor::expand(const char *first, const char *last, QByteArray *result)
 {
     const QByteArray source = QByteArray::fromRawData(first, last - first);
     return expand(source, result);
+}
+
+void Preprocessor::out(const QByteArray &text)
+{
+    if (_result)
+        _result->append(text);
+}
+
+void Preprocessor::out(char ch)
+{
+    if (_result)
+        _result->append(ch);
+}
+
+void Preprocessor::out(const char *s)
+{
+    if (_result)
+        _result->append(s);
+}
+
+bool Preprocessor::expandMacros() const
+{
+    return _expandMacros;
+}
+
+void Preprocessor::setExpandMacros(bool expandMacros)
+{
+    _expandMacros = expandMacros;
 }
 
 Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source) const
@@ -610,16 +652,16 @@ void Preprocessor::processNewline(bool force)
         return;
 
     if (force || env->currentLine > _dot->lineno) {
-        _result->append("\n# ");
-        _result->append(QByteArray::number(_dot->lineno));
-        _result->append(' ');
-        _result->append('"');
-        _result->append(env->currentFile);
-        _result->append('"');
-        _result->append('\n');
+        out("\n# ");
+        out(QByteArray::number(_dot->lineno));
+        out(' ');
+        out('"');
+        out(env->currentFile.toUtf8());
+        out('"');
+        out('\n');
     } else {
         for (unsigned i = env->currentLine; i < _dot->lineno; ++i)
-            _result->append('\n');
+            out('\n');
     }
 
     env->currentLine = _dot->lineno;
@@ -635,7 +677,7 @@ void Preprocessor::processSkippingBlocks(bool skippingBlocks,
         unsigned offset = start->offset;
 
         if (_skipping[iflevel]) {
-            if (_dot->newline)
+            if (_dot->f.newline)
                 ++offset;
 
             client->startSkippingBlocks(offset);
@@ -660,9 +702,9 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
             dot = _dot;
 
         if (_markGeneratedTokens)
-            _result->append("\n#gen true");
+            out("\n#gen true");
         else
-            _result->append("\n#gen false");
+            out("\n#gen false");
 
         processNewline(/*force = */ true);
 
@@ -682,18 +724,18 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
         ++it;
 
         for (; it != end; ++it) {
-            if (! std::isspace(*it))
-                _result->append(' ');
+            if (! pp_isspace(*it))
+                out(' ');
 
             else
-                _result->append(*it);
+                out(*it);
         }
     }
 
     return previous;
 }
 
-void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &source,
+void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                               QByteArray *result)
 {
     QByteArray *previousResult = _result;
@@ -701,25 +743,29 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
     pushState(createStateFromSource(source));
 
-    const QByteArray previousFileName = env->currentFile;
+    const QString previousFileName = env->currentFile;
     env->currentFile = fileName;
 
     const unsigned previousCurrentLine = env->currentLine;
     env->currentLine = 0;
 
     while (true) {
+
+        if (_dot->f.joined)
+            out("\\");
+
         processNewline();
 
         if (_dot->is(T_EOF_SYMBOL)) {
             break;
 
-        } else if (_dot->is(T_POUND) && (! _dot->joined && _dot->newline)) {
+        } else if (_dot->is(T_POUND) && (! _dot->f.joined && _dot->f.newline)) {
             // handle the preprocessor directive
 
             TokenIterator start = _dot;
             do {
                 ++_dot;
-            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->joined || ! _dot->newline));
+            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->f.joined || ! _dot->f.newline));
 
             const bool skippingBlocks = _skipping[iflevel];
 
@@ -731,15 +777,16 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
 
             do {
                 ++_dot;
-            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->joined || ! _dot->newline));
+            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->f.joined || ! _dot->f.newline));
 
         } else {
 
-            if (_dot->joined)
-                _result->append("\\\n");
+            if (_dot->f.whitespace) {
+                unsigned endOfPreviousToken = 0;
 
-            else if (_dot->whitespace) {
-                const unsigned endOfPreviousToken = (_dot - 1)->end();
+                if (_dot != _tokens.constBegin())
+                    endOfPreviousToken = (_dot - 1)->end();
+
                 const unsigned beginOfToken = _dot->begin();
 
                 const char *start = _source.constBegin() + endOfPreviousToken;
@@ -753,16 +800,16 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                 ++it;
 
                 for (; it != end; ++it) {
-                    if (std::isspace(*it))
-                        _result->append(*it);
+                    if (pp_isspace(*it))
+                        out(*it);
 
                     else
-                        _result->append(' ');
+                        out(' ');
                 }
             }
 
             if (_dot->isNot(T_IDENTIFIER)) {
-                _result->append(tokenSpell(*_dot));
+                out(tokenSpell(*_dot));
                 ++_dot;
 
             } else {
@@ -770,8 +817,23 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                 ++_dot; // skip T_IDENTIFIER
 
                 const QByteArray spell = tokenSpell(*identifierToken);
+                if (! _expandMacros) {
+                    if (! env->isBuiltinMacro(spell)) {
+                        Macro *m = env->resolve(spell);
+                        if (m && ! m->isFunctionLike()) {
+                            QByteArray expandedDefinition;
+                            expandObjectLikeMacro(identifierToken, spell, m, &expandedDefinition);
+                            if (expandedDefinition.trimmed().isEmpty()) {
+                                out(QByteArray(spell.length(), ' '));
+                                continue;
+                            }
+                        }
+                    }
+                    out(spell);
+                    continue;
+                }
 
-                if (env->isBuiltinMacro(spell))
+                else if (env->isBuiltinMacro(spell))
                     expandBuiltinMacro(identifierToken, spell);
 
                 else {
@@ -797,7 +859,7 @@ void Preprocessor::preprocess(const QByteArray &fileName, const QByteArray &sour
                     }
 
                     // it's not a function or object-like macro.
-                    _result->append(spell);
+                    out(spell);
                 }
             }
         }
@@ -892,7 +954,7 @@ Macro *Preprocessor::processObjectLikeMacro(TokenIterator identifierToken,
     }
 
     const bool was = markGeneratedTokens(true, identifierToken);
-    _result->append(tmp);
+    out(tmp);
     (void) markGeneratedTokens(was);
     return 0;
 }
@@ -965,14 +1027,14 @@ const char *Preprocessor::endOfToken(const Token &token) const
 QByteArray Preprocessor::tokenSpell(const Token &token) const
 {
     const QByteArray text = QByteArray::fromRawData(_source.constBegin() + token.offset,
-                                                     token.length);
+                                                     token.f.length);
     return text;
 }
 
 QByteArray Preprocessor::tokenText(const Token &token) const
 {
     const QByteArray text(_source.constBegin() + token.offset,
-                          token.length);
+                          token.f.length);
     return text;
 }
 
@@ -1077,7 +1139,7 @@ void Preprocessor::processInclude(bool, TokenIterator firstToken,
         const char *beginOfPath = endOfToken(*start);
         const char *endOfPath = startOfToken(*tk);
 
-        QString fn = QString::fromUtf8(beginOfPath, endOfPath - beginOfPath);
+        QString fn = string(beginOfPath, endOfPath - beginOfPath);
         client->sourceNeeded(fn, Client::IncludeGlobal, firstToken->lineno);
 
     } else if (tk->is(T_ANGLE_STRING_LITERAL) || tk->is(T_STRING_LITERAL)) {
@@ -1090,7 +1152,7 @@ void Preprocessor::processInclude(bool, TokenIterator firstToken,
         if (beginOfPath + 1 != endOfPath && ((quote == '"' && endOfPath[-1] == '"') ||
                                               (quote == '<' && endOfPath[-1] == '>'))) {
 
-            QString fn = QString::fromUtf8(beginOfPath + 1, spell.length() - 2);
+            QString fn = string(beginOfPath + 1, spell.length() - 2);
             client->sourceNeeded(fn, Client::IncludeLocal, firstToken->lineno);
         }
     }
@@ -1117,7 +1179,7 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
     macro.setName(tokenText(*tk));
     ++tk; // skip T_IDENTIFIER
 
-    if (tk->is(T_LPAREN) && ! tk->whitespace) {
+    if (tk->is(T_LPAREN) && ! tk->f.whitespace) {
         // a function-like macro definition
         macro.setFunctionLike(true);
 
@@ -1385,6 +1447,8 @@ bool Preprocessor::isQtReservedWord(const QByteArray &macroId) const
     const int size = macroId.size();
     if      (size == 9 && macroId.at(0) == 'Q' && macroId == "Q_SIGNALS")
         return true;
+    else if (size == 9 && macroId.at(0) == 'Q' && macroId == "Q_FOREACH")
+        return true;
     else if (size == 7 && macroId.at(0) == 'Q' && macroId == "Q_SLOTS")
         return true;
     else if (size == 8 && macroId.at(0) == 'Q' && macroId == "Q_SIGNAL")
@@ -1397,7 +1461,18 @@ bool Preprocessor::isQtReservedWord(const QByteArray &macroId) const
         return true;
     else if (size == 7 && macroId.at(0) == 's' && macroId == "signals")
         return true;
+    else if (size == 7 && macroId.at(0) == 'f' && macroId == "foreach")
+        return true;
     else if (size == 5 && macroId.at(0) == 's' && macroId == "slots")
         return true;
     return false;
+}
+
+QString Preprocessor::string(const char *first, int length) const
+{
+    if (_originalSource.isEmpty())
+        return QString::fromUtf8(first, length);
+
+    const int position = first - _source.constData();
+    return _originalSource.mid(position, length);
 }

@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -129,6 +129,15 @@ private:
     void pushLineStartOffset();
 
 private:
+    struct Flags {
+        unsigned _isIncremental: 1;
+        unsigned _scanCommentTokens: 1;
+        unsigned _scanKeywords: 1;
+        unsigned _scanAngleStringLiteralTokens: 1;
+        unsigned _qtMocRunEnabled: 1;
+        unsigned _objCEnabled: 1;
+    };
+
     TranslationUnit *_translationUnit;
     const char *_firstChar;
     const char *_currentChar;
@@ -138,14 +147,7 @@ private:
     int _state;
     union {
         unsigned _flags;
-        struct {
-            unsigned _isIncremental: 1;
-            unsigned _scanCommentTokens: 1;
-            unsigned _scanKeywords: 1;
-            unsigned _scanAngleStringLiteralTokens: 1;
-            unsigned _qtMocRunEnabled: 1;
-            unsigned _objCEnabled: 1;
-        };
+        Flags f;
     };
     unsigned _currentLine;
 };

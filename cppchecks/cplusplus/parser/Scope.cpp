@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -55,6 +55,8 @@
 #include <cstring>
 #include <iostream>
 
+using namespace std;
+
 CPLUSPLUS_BEGIN_NAMESPACE
 
 Scope::Scope(ScopedSymbol *owner)
@@ -63,10 +65,7 @@ Scope::Scope(ScopedSymbol *owner)
       _allocatedSymbols(0),
       _symbolCount(-1),
       _hash(0),
-      _hashSize(0),
-      _uses(0),
-      _allocatedUses(0),
-      _useCount(-1)
+      _hashSize(0)
 { }
 
 Scope::~Scope()
@@ -75,8 +74,6 @@ Scope::~Scope()
         free(_symbols);
     if (_hash)
         free(_hash);
-    if (_uses)
-        free(_uses);
 }
 
 ScopedSymbol *Scope::owner() const
@@ -300,30 +297,7 @@ Scope::iterator Scope::firstSymbol() const
 Scope::iterator Scope::lastSymbol() const
 { return _symbols + _symbolCount + 1; }
 
-unsigned Scope::useCount() const
-{ return _useCount + 1; }
-
-Use *Scope::useAt(unsigned index) const
-{ return &_uses[index]; }
-
-void Scope::addUse(unsigned sourceOffset, Name *name)
-{
-#ifdef CPLUSPLUS_WITH_USES
-    if (++_useCount == _allocatedUses) {
-        _allocatedUses += 4;
-        _uses = reinterpret_cast<Use *>(realloc(_uses, _allocatedUses * sizeof(Use)));
-    }
-
-    Symbol *lastVisibleSymbol;
-    if (_symbolCount == -1)
-        lastVisibleSymbol = owner();
-    else
-        lastVisibleSymbol = _symbols[_symbolCount];
-    _uses[_useCount].init(sourceOffset, name, lastVisibleSymbol);
-#else
-    (void) sourceOffset;
-    (void) name;
-#endif
-}
+void Scope::addUse(unsigned, Name *)
+{ }
 
 CPLUSPLUS_END_NAMESPACE

@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -56,7 +56,7 @@ static const char *token_names[] = {
 
     ("<comment>"), ("<doxy comment>"),
 
-    ("<identifier>"), ("<int literal>"), ("<float literal>"), ("<char literal>"),
+    ("<identifier>"), ("<numeric literal>"), ("<char literal>"),
     ("<wide char literal>"), ("<string literal>"), ("<wide char literal>"),
     ("<@string literal>"), ("<angle string literal>"),
 
@@ -90,7 +90,7 @@ static const char *token_names[] = {
     ("@protected"), ("@protocol"), ("@public"), ("@required"), ("@selector"),
     ("@synchronized"), ("@synthesize"), ("@throw"), ("@try"),
 
-    ("SIGNAL"), ("SLOT"), ("Q_SIGNAL"), ("Q_SLOT"), ("signals"), ("slots")
+    ("SIGNAL"), ("SLOT"), ("Q_SIGNAL"), ("Q_SLOT"), ("signals"), ("slots"), ("Q_FOREACH")
 };
 
 Token::Token() :
@@ -114,12 +114,11 @@ const char *Token::name(int kind)
 
 const char *Token::spell() const
 {
-    switch (kind) {
+    switch (f.kind) {
     case T_IDENTIFIER:
         return identifier->chars();
 
-    case T_INT_LITERAL:
-    case T_FLOAT_LITERAL:
+    case T_NUMERIC_LITERAL:
     case T_CHAR_LITERAL:
     case T_STRING_LITERAL:
     case T_AT_STRING_LITERAL:
@@ -129,7 +128,7 @@ const char *Token::spell() const
         return literal->chars();
 
     default:
-        return token_names[kind];
+        return token_names[f.kind];
     } // switch
 }
 

@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -121,6 +121,11 @@ public:
         delete_array_entries(enums);
         delete_array_entries(usingDeclarations);
         delete_array_entries(classForwardDeclarations);
+        delete_array_entries(objcClasses);
+        delete_array_entries(objcProtocols);
+        delete_array_entries(objcForwardClassDeclarations);
+        delete_array_entries(objcForwardProtocolDeclarations);
+        delete_array_entries(objcMethods);
     }
 
     NameId *findOrInsertNameId(Identifier *id)
@@ -189,6 +194,15 @@ public:
             QualifiedNameId *name = new QualifiedNameId(&names[0], names.size(), isGlobal);
             it = qualifiedNameIds.insert(it, std::make_pair(key, name));
         }
+        return it->second;
+    }
+
+    SelectorNameId *findOrInsertSelectorNameId(const std::vector<Name *> &names, bool hasArguments)
+    {
+        const SelectorNameIdKey key(names, hasArguments);
+        std::map<SelectorNameIdKey, SelectorNameId *>::iterator it = selectorNameIds.lower_bound(key);
+        if (it == selectorNameIds.end() || it->first != key)
+            it = selectorNameIds.insert(it, std::make_pair(key, new SelectorNameId(&names[0], names.size(), hasArguments)));
         return it->second;
     }
 
@@ -327,6 +341,41 @@ public:
         return c;
     }
 
+    ObjCClass *newObjCClass(unsigned sourceLocation, Name *name)
+    {
+        ObjCClass *c = new ObjCClass(translationUnit, sourceLocation, name);
+        objcClasses.push_back(c);
+        return c;
+    }
+
+    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name)
+    {
+        ObjCForwardClassDeclaration *fwd = new ObjCForwardClassDeclaration(translationUnit, sourceLocation, name);
+        objcForwardClassDeclarations.push_back(fwd);
+        return fwd;
+    }
+
+    ObjCProtocol *newObjCProtocol(unsigned sourceLocation, Name *name)
+    {
+        ObjCProtocol *p = new ObjCProtocol(translationUnit, sourceLocation, name);
+        objcProtocols.push_back(p);
+        return p;
+    }
+
+    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name)
+    {
+        ObjCForwardProtocolDeclaration *fwd = new ObjCForwardProtocolDeclaration(translationUnit, sourceLocation, name);
+        objcForwardProtocolDeclarations.push_back(fwd);
+        return fwd;
+    }
+
+    ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name)
+    {
+        ObjCMethod *method = new ObjCMethod(translationUnit, sourceLocation, name);
+        objcMethods.push_back(method);
+        return method;
+    }
+
     Enum *newEnum(unsigned sourceLocation, Name *name)
     {
         Enum *e = new Enum(translationUnit,
@@ -391,6 +440,27 @@ public:
         }
     };
 
+    struct SelectorNameIdKey {
+        std::vector<Name *> _names;
+        bool _hasArguments;
+
+        SelectorNameIdKey(const std::vector<Name *> &names, bool hasArguments): _names(names), _hasArguments(hasArguments) {}
+
+        bool operator==(const SelectorNameIdKey &other) const
+        { return _names == other._names && _hasArguments == other._hasArguments; }
+
+        bool operator!=(const SelectorNameIdKey &other) const
+        { return !operator==(other); }
+
+        bool operator<(const SelectorNameIdKey &other) const
+        {
+            if (_hasArguments == other._hasArguments)
+                return std::lexicographical_compare(_names.begin(), _names.end(), other._names.begin(), other._names.end());
+            else
+                return _hasArguments < other._hasArguments;
+        }
+    };
+
     struct ArrayKey {
         FullySpecifiedType type;
         size_t size;
@@ -449,7 +519,6 @@ public:
     LiteralTable<Identifier> identifiers;
     LiteralTable<StringLiteral> stringLiterals;
     LiteralTable<NumericLiteral> numericLiterals;
-    LiteralTable<StringLiteral> fileNames;
 
     // ### replace std::map with lookup tables. ASAP!
 
@@ -460,6 +529,7 @@ public:
     std::map<FullySpecifiedType, ConversionNameId *> conversionNameIds;
     std::map<TemplateNameIdKey, TemplateNameId *> templateNameIds;
     std::map<QualifiedNameIdKey, QualifiedNameId *> qualifiedNameIds;
+    std::map<SelectorNameIdKey, SelectorNameId *> selectorNameIds;
 
     // types
     VoidType voidType;
@@ -483,6 +553,11 @@ public:
     std::vector<Enum *> enums;
     std::vector<UsingDeclaration *> usingDeclarations;
     std::vector<ForwardClassDeclaration *> classForwardDeclarations;
+    std::vector<ObjCClass *> objcClasses;
+    std::vector<ObjCProtocol *> objcProtocols;
+    std::vector<ObjCForwardClassDeclaration *> objcForwardClassDeclarations;
+    std::vector<ObjCForwardProtocolDeclaration *> objcForwardProtocolDeclarations;
+    std::vector<ObjCMethod *> objcMethods;
 };
 
 Control::Control()
@@ -522,6 +597,18 @@ Control::IdentifierIterator Control::firstIdentifier() const
 Control::IdentifierIterator Control::lastIdentifier() const
 { return d->identifiers.end(); }
 
+Control::StringLiteralIterator Control::firstStringLiteral() const
+{ return d->stringLiterals.begin(); }
+
+Control::StringLiteralIterator Control::lastStringLiteral() const
+{ return d->stringLiterals.end(); }
+
+Control::NumericLiteralIterator Control::firstNumericLiteral() const
+{ return d->numericLiterals.begin(); }
+
+Control::NumericLiteralIterator Control::lastNumericLiteral() const
+{ return d->numericLiterals.end(); }
+
 StringLiteral *Control::findOrInsertStringLiteral(const char *chars, unsigned size)
 { return d->stringLiterals.findOrInsertLiteral(chars, size); }
 
@@ -538,21 +625,6 @@ NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars)
 {
     unsigned length = std::char_traits<char>::length(chars);
     return findOrInsertNumericLiteral(chars, length);
-}
-
-unsigned Control::fileNameCount() const
-{ return d->fileNames.size(); }
-
-StringLiteral *Control::fileNameAt(unsigned index) const
-{ return d->fileNames.at(index); }
-
-StringLiteral *Control::findOrInsertFileName(const char *chars, unsigned size)
-{ return d->fileNames.findOrInsertLiteral(chars, size); }
-
-StringLiteral *Control::findOrInsertFileName(const char *chars)
-{
-    unsigned length = std::char_traits<char>::length(chars);
-    return findOrInsertFileName(chars, length);
 }
 
 NameId *Control::nameId(Identifier *id)
@@ -582,6 +654,15 @@ QualifiedNameId *Control::qualifiedNameId(Name *const *names,
     std::vector<Name *> classOrNamespaceNames(names, names + nameCount);
     return d->findOrInsertQualifiedNameId(classOrNamespaceNames, isGlobal);
 }
+
+SelectorNameId *Control::selectorNameId(Name *const *names,
+                                        unsigned nameCount,
+                                        bool hasArguments)
+{
+    std::vector<Name *> selectorNames(names, names + nameCount);
+    return d->findOrInsertSelectorNameId(selectorNames, hasArguments);
+}
+
 
 VoidType *Control::voidType()
 { return &d->voidType; }
@@ -642,5 +723,19 @@ ForwardClassDeclaration *Control::newForwardClassDeclaration(unsigned sourceLoca
                                                              Name *name)
 { return d->newForwardClassDeclaration(sourceLocation, name); }
 
+ObjCClass *Control::newObjCClass(unsigned sourceLocation, Name *name)
+{ return d->newObjCClass(sourceLocation, name); }
+
+ObjCForwardClassDeclaration *Control::newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name)
+{ return d->newObjCForwardClassDeclaration(sourceLocation, name); }
+
+ObjCProtocol *Control::newObjCProtocol(unsigned sourceLocation, Name *name)
+{ return d->newObjCProtocol(sourceLocation, name); }
+
+ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name)
+{ return d->newObjCForwardProtocolDeclaration(sourceLocation, name); }
+
+ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, Name *name)
+{ return d->newObjCMethod(sourceLocation, name); }
 
 CPLUSPLUS_END_NAMESPACE

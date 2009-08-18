@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -64,8 +64,7 @@ enum Kind {
     T_IDENTIFIER,
 
     T_FIRST_LITERAL,
-    T_INT_LITERAL = T_FIRST_LITERAL,
-    T_FLOAT_LITERAL,
+    T_NUMERIC_LITERAL = T_FIRST_LITERAL,
     T_CHAR_LITERAL,
     T_WIDE_CHAR_LITERAL,
     T_STRING_LITERAL,
@@ -225,19 +224,20 @@ enum Kind {
     T_AT_THROW,
     T_AT_TRY,
 
-    T_LAST_OBJC_AT_KEYWORD,
+    T_LAST_OBJC_AT_KEYWORD = T_AT_TRY,
 
-    T_FIRST_QT_KEYWORD = T_LAST_OBJC_AT_KEYWORD,
+    T_FIRST_QT_KEYWORD,
 
     // Qt keywords
     T_SIGNAL = T_FIRST_QT_KEYWORD,
     T_SLOT,
     T_Q_SIGNAL,
     T_Q_SLOT,
-    T_SIGNALS,
-    T_SLOTS,
+    T_Q_SIGNALS,
+    T_Q_SLOTS,
+    T_Q_FOREACH,
 
-    T_LAST_KEYWORD = T_SLOTS,
+    T_LAST_KEYWORD = T_Q_FOREACH,
 
     // aliases
     T_OR = T_PIPE_PIPE,
@@ -276,8 +276,8 @@ public:
     Token();
     ~Token();
 
-    inline bool is(unsigned k) const    { return kind == k; }
-    inline bool isNot(unsigned k) const { return kind != k; }
+    inline bool is(unsigned k) const    { return f.kind == k; }
+    inline bool isNot(unsigned k) const { return f.kind != k; }
     const char *spell() const;
     void reset();
 
@@ -285,39 +285,39 @@ public:
     { return offset; }
 
     inline unsigned end() const
-    { return offset + length; }
+    { return offset + f.length; }
 
     inline bool isLiteral() const
-    { return kind >= T_FIRST_LITERAL && kind <= T_LAST_LITERAL; }
+    { return f.kind >= T_FIRST_LITERAL && f.kind <= T_LAST_LITERAL; }
 
     inline bool isOperator() const
-    { return kind >= T_FIRST_OPERATOR && kind <= T_LAST_OPERATOR; }
+    { return f.kind >= T_FIRST_OPERATOR && f.kind <= T_LAST_OPERATOR; }
 
     inline bool isKeyword() const
-    { return kind >= T_FIRST_KEYWORD && kind < T_FIRST_QT_KEYWORD; }
+    { return f.kind >= T_FIRST_KEYWORD && f.kind < T_FIRST_QT_KEYWORD; }
 
     inline bool isComment() const
-    { return kind == T_COMMENT || kind == T_DOXY_COMMENT; }
+    { return f.kind == T_COMMENT || f.kind == T_DOXY_COMMENT; }
 
     inline bool isObjCAtKeyword() const
-    { return kind >= T_FIRST_OBJC_AT_KEYWORD && kind < T_LAST_OBJC_AT_KEYWORD; }
+    { return f.kind >= T_FIRST_OBJC_AT_KEYWORD && f.kind <= T_LAST_OBJC_AT_KEYWORD; }
 
     static const char *name(int kind);
 
 public:
+    struct Flags {
+        unsigned kind       : 8;
+        unsigned newline    : 1;
+        unsigned whitespace : 1;
+        unsigned joined     : 1;
+        unsigned expanded   : 1;
+        unsigned generated  : 1;
+        unsigned pad        : 3;
+        unsigned length     : 16;
+    };
     union {
         unsigned flags;
-
-        struct {
-            unsigned kind       : 8;
-            unsigned newline    : 1;
-            unsigned whitespace : 1;
-            unsigned joined     : 1;
-            unsigned expanded   : 1;
-            unsigned generated  : 1;
-            unsigned pad        : 3;
-            unsigned length     : 16;
-        };
+        Flags f;
     };
 
     unsigned offset;

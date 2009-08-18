@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -131,6 +131,7 @@ public:
     virtual ExpressionListAST *asExpressionList() { return 0; }
     virtual ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement() { return 0; }
     virtual ExpressionStatementAST *asExpressionStatement() { return 0; }
+    virtual ForeachStatementAST *asForeachStatement() { return 0; }
     virtual ForStatementAST *asForStatement() { return 0; }
     virtual FunctionDeclaratorAST *asFunctionDeclarator() { return 0; }
     virtual FunctionDefinitionAST *asFunctionDefinition() { return 0; }
@@ -195,7 +196,38 @@ public:
     virtual UsingDirectiveAST *asUsingDirective() { return 0; }
     virtual WhileStatementAST *asWhileStatement() { return 0; }
     virtual IdentifierListAST *asIdentifierList() { return 0; }
+
+    virtual ObjCClassForwardDeclarationAST *asObjCClassForwarDeclaration() { return 0; }
     virtual ObjCClassDeclarationAST *asObjCClassDeclaration() { return 0; }
+    virtual ObjCProtocolForwardDeclarationAST *asObjCProtocolForwardDeclaration() { return 0; }
+    virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration() { return 0; }
+    virtual ObjCProtocolRefsAST *asObjCProtocolRefs() { return 0; }
+    virtual ObjCMessageArgumentAST *asObjCMessageArgument() { return 0; }
+    virtual ObjCMessageArgumentListAST *asObjCMessageArgumentList() { return 0; }
+    virtual ObjCMessageExpressionAST *asObjCMessageExpression() { return 0; }
+    virtual ObjCProtocolExpressionAST *asObjCProtocolExpression() { return 0; }
+    virtual ObjCTypeNameAST *asObjCTypeName() { return 0; }
+    virtual ObjCEncodeExpressionAST *asObjCEncodeExpression() { return 0; }
+    virtual ObjCSelectorAST *asObjCSelector() { return 0; }
+    virtual ObjCSelectorWithoutArgumentsAST *asObjCSelectorWithoutArguments() { return 0; }
+    virtual ObjCSelectorArgumentAST *asObjCSelectorArgument() { return 0; }
+    virtual ObjCSelectorArgumentListAST *asObjCSelectorArgumentList() { return 0; }
+    virtual ObjCSelectorWithArgumentsAST *asObjCSelectorWithArguments() { return 0; }
+    virtual ObjCSelectorExpressionAST *asObjCSelectorExpression() { return 0; }
+    virtual ObjCInstanceVariablesDeclarationAST *asObjCInstanceVariablesDeclaration() { return 0; }
+    virtual ObjCVisibilityDeclarationAST *asObjCVisibilityDeclaration() { return 0; }
+    virtual ObjCPropertyAttributeAST *asObjCPropertyAttribute() { return 0; }
+    virtual ObjCPropertyAttributeListAST *asObjCPropertyAttributeList() { return 0; }
+    virtual ObjCPropertyDeclarationAST *asObjCPropertyDeclaration() { return 0; }
+    virtual ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration() { return 0; }
+    virtual ObjCMessageArgumentDeclarationListAST *asObjCMessageArgumentDeclarationList() { return 0; }
+    virtual ObjCMethodPrototypeAST *asObjCMethodPrototype() { return 0; }
+    virtual ObjCMethodDeclarationAST *asObjCMethodDeclaration() { return 0; }
+    virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() { return 0; }
+    virtual ObjCSynthesizedPropertyListAST *asObjCSynthesizedPropertyList() { return 0; }
+    virtual ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration() { return 0; }
+    virtual ObjCDynamicPropertiesDeclarationAST *asObjCDynamicPropertiesDeclaration() { return 0; }
+    virtual ObjCFastEnumerationAST *asObjCFastEnumeration() { return 0; }
 
     virtual AST *clone(MemoryPool *pool) const = 0;
 
@@ -265,6 +297,7 @@ public:
     ExpressionListAST *expression_list;
     unsigned rparen_token;
     AttributeAST *next;
+    unsigned comma_token;
 
 public:
     virtual AttributeAST *asAttribute()
@@ -283,7 +316,9 @@ class CPLUSPLUS_EXPORT TypeofSpecifierAST: public SpecifierAST
 {
 public:
     unsigned typeof_token;
+    unsigned lparen_token;
     ExpressionAST *expression;
+    unsigned rparen_token;
 
 public:
     virtual TypeofSpecifierAST *asTypeofSpecifier()
@@ -300,9 +335,6 @@ protected:
 
 class CPLUSPLUS_EXPORT StatementAST: public AST
 {
-public:
-    StatementAST *next;
-
 public:
     virtual StatementAST *asStatement()
     { return this; }
@@ -322,13 +354,29 @@ public:
 class CPLUSPLUS_EXPORT DeclarationAST: public AST
 {
 public:
-    DeclarationAST *next;
-
-public:
     virtual DeclarationAST *asDeclaration()
     { return this; }
 
     virtual DeclarationAST *clone(MemoryPool *pool) const = 0;
+};
+
+class CPLUSPLUS_EXPORT DeclarationListAST: public AST
+{
+public:
+    DeclarationAST *declaration;
+    DeclarationListAST *next;
+
+public:
+    virtual DeclarationListAST *asDeclarationList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual DeclarationListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
 };
 
 class CPLUSPLUS_EXPORT CoreDeclaratorAST: public AST
@@ -355,10 +403,12 @@ public:
 class CPLUSPLUS_EXPORT DeclaratorAST: public AST
 {
 public:
+    SpecifierAST *attributes;
     PtrOperatorAST *ptr_operators;
     CoreDeclaratorAST *core_declarator;
     PostfixDeclaratorAST *postfix_declarators;
-    SpecifierAST *attributes;
+    SpecifierAST *post_attributes;
+    unsigned equals_token;
     ExpressionAST *initializer;
 
 public:
@@ -374,9 +424,10 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ExpressionListAST: public ExpressionAST
+class CPLUSPLUS_EXPORT ExpressionListAST: public AST
 {
 public:
+    unsigned comma_token;
     ExpressionAST *expression;
     ExpressionListAST *next;
 
@@ -482,8 +533,9 @@ protected:
 class CPLUSPLUS_EXPORT BaseSpecifierAST: public AST
 {
 public:
-    unsigned token_virtual;
-    unsigned token_access_specifier;
+    unsigned comma_token;
+    unsigned virtual_token;
+    unsigned access_specifier_token;
     NameAST *name;
     BaseSpecifierAST *next;
 
@@ -595,7 +647,7 @@ public:
     unsigned colon_token;
     BaseSpecifierAST *base_clause;
     unsigned lbrace_token;
-    DeclarationAST *member_specifiers;
+    DeclarationListAST *member_specifiers;
     unsigned rbrace_token;
 
 public: // annotations
@@ -635,11 +687,30 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT StatementListAST: public AST
+{
+public:
+    StatementAST *statement;
+    StatementListAST *next;
+
+public:
+    virtual StatementListAST *asStatementList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual StatementListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
 class CPLUSPLUS_EXPORT CompoundStatementAST: public StatementAST
 {
 public:
     unsigned lbrace_token;
-    StatementAST *statements;
+    StatementListAST *statements;
     unsigned rbrace_token;
 
 public: // annotations
@@ -847,6 +918,7 @@ protected:
 class CPLUSPLUS_EXPORT DeclaratorListAST: public AST
 {
 public:
+    unsigned comma_token;
     DeclaratorAST *declarator;
     DeclaratorListAST *next;
 
@@ -971,6 +1043,7 @@ protected:
 class CPLUSPLUS_EXPORT EnumeratorAST: public AST
 {
 public:
+    unsigned comma_token;
     unsigned identifier_token;
     unsigned equal_token;
     ExpressionAST *expression;
@@ -1094,6 +1167,37 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT ForeachStatementAST: public StatementAST
+{
+public:
+    unsigned foreach_token;
+    unsigned lparen_token;
+    // declaration
+    SpecifierAST *type_specifiers;
+    DeclaratorAST *declarator;
+    // or an expression
+    ExpressionAST *initializer;
+    unsigned comma_token;
+    ExpressionAST *expression;
+    unsigned rparen_token;
+    StatementAST *statement;
+
+public: // annotations
+    Block *symbol;
+
+public:
+    virtual ForeachStatementAST *asForeachStatement()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ForeachStatementAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
 class CPLUSPLUS_EXPORT ForStatementAST: public StatementAST
 {
 public:
@@ -1193,7 +1297,7 @@ class CPLUSPLUS_EXPORT LinkageBodyAST: public DeclarationAST
 {
 public:
     unsigned lbrace_token;
-    DeclarationAST *declarations;
+    DeclarationListAST *declarations;
     unsigned rbrace_token;
 
 public:
@@ -1210,7 +1314,7 @@ class CPLUSPLUS_EXPORT LinkageSpecificationAST: public DeclarationAST
 {
 public:
     unsigned extern_token;
-    unsigned extern_type;
+    unsigned extern_type_token;
     DeclarationAST *declaration;
 
 public:
@@ -1229,6 +1333,7 @@ protected:
 class CPLUSPLUS_EXPORT MemInitializerAST: public AST
 {
 public:
+    unsigned comma_token;
     NameAST *name;
     unsigned lparen_token;
     ExpressionAST *expression;
@@ -1252,6 +1357,8 @@ class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
 {
 public: // annotations
     Name *name;
+
+    virtual NameAST *asName() { return this; }
 
 public:
     virtual NameAST *clone(MemoryPool *pool) const = 0;
@@ -1422,7 +1529,7 @@ class CPLUSPLUS_EXPORT NamespaceAliasDefinitionAST: public DeclarationAST
 {
 public:
     unsigned namespace_token;
-    unsigned namespace_name;
+    unsigned namespace_name_token;
     unsigned equal_token;
     NameAST *name;
     unsigned semicolon_token;
@@ -1596,7 +1703,7 @@ protected:
 class CPLUSPLUS_EXPORT ParameterDeclarationClauseAST: public AST
 {
 public:
-    DeclarationAST *parameter_declarations;
+    DeclarationListAST *parameter_declarations;
     unsigned dot_dot_dot_token;
 
 public:
@@ -1937,7 +2044,9 @@ class CPLUSPLUS_EXPORT SizeofExpressionAST: public ExpressionAST
 {
 public:
     unsigned sizeof_token;
+    unsigned lparen_token;
     ExpressionAST *expression;
+    unsigned rparen_token;
 
 public:
     virtual SizeofExpressionAST *asSizeofExpression()
@@ -1955,7 +2064,7 @@ protected:
 class CPLUSPLUS_EXPORT NumericLiteralAST: public ExpressionAST
 {
 public:
-    unsigned token;
+    unsigned literal_token;
 
 public:
     virtual NumericLiteralAST *asNumericLiteral()
@@ -1973,7 +2082,7 @@ protected:
 class CPLUSPLUS_EXPORT BoolLiteralAST: public ExpressionAST
 {
 public:
-    unsigned token;
+    unsigned literal_token;
 
 public:
     virtual BoolLiteralAST *asBoolLiteral()
@@ -2029,7 +2138,7 @@ protected:
 class CPLUSPLUS_EXPORT StringLiteralAST: public ExpressionAST
 {
 public:
-    unsigned token;
+    unsigned literal_token;
     StringLiteralAST *next;
 
 public:
@@ -2073,6 +2182,7 @@ protected:
 class CPLUSPLUS_EXPORT TemplateArgumentListAST: public AST
 {
 public:
+    unsigned comma_token;
     ExpressionAST *template_argument;
     TemplateArgumentListAST *next;
 
@@ -2095,7 +2205,7 @@ public:
     unsigned export_token;
     unsigned template_token;
     unsigned less_token;
-    DeclarationAST *template_parameters;
+    DeclarationListAST *template_parameters;
     unsigned greater_token;
     DeclarationAST *declaration;
 
@@ -2134,7 +2244,7 @@ protected:
 class CPLUSPLUS_EXPORT TranslationUnitAST: public AST
 {
 public:
-    DeclarationAST *declarations;
+    DeclarationListAST *declarations;
 
 public:
     virtual TranslationUnitAST *asTranslationUnit()
@@ -2243,7 +2353,7 @@ class CPLUSPLUS_EXPORT TemplateTypeParameterAST: public DeclarationAST
 public:
     unsigned template_token;
     unsigned less_token;
-    DeclarationAST *template_parameters;
+    DeclarationListAST *template_parameters;
     unsigned greater_token;
     unsigned class_token;
     NameAST *name;
@@ -2363,7 +2473,8 @@ protected:
 class CPLUSPLUS_EXPORT IdentifierListAST: public AST
 {
 public:
-    unsigned identifier_token;
+    NameAST *name;
+    unsigned comma_token;
     IdentifierListAST *next;
 
 public:
@@ -2379,13 +2490,49 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
+class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierAST *attributes;
     unsigned class_token;
     IdentifierListAST *identifier_list;
     unsigned semicolon_token;
+
+public: // annotations
+    List<ObjCForwardClassDeclaration *> *symbols;
+
+public:
+    virtual ObjCClassForwardDeclarationAST *asObjCClassForwardDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCClassForwardDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
+{
+public:
+    SpecifierAST *attributes;
+    unsigned interface_token;
+    unsigned implementation_token;
+    NameAST *class_name;
+    unsigned lparen_token;
+    NameAST *category_name;
+    unsigned rparen_token;
+    unsigned colon_token;
+    NameAST *superclass;
+    ObjCProtocolRefsAST *protocol_refs;
+    ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
+    DeclarationListAST *member_declarations;
+    unsigned end_token;
+
+public: // annotations
+    ObjCClass *symbol;
 
 public:
     virtual ObjCClassDeclarationAST *asObjCClassDeclaration()
@@ -2395,6 +2542,626 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ObjCClassDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
+{
+public:
+    SpecifierAST *attributes;
+    unsigned protocol_token;
+    IdentifierListAST *identifier_list;
+    unsigned semicolon_token;
+
+public: // annotations
+    List<ObjCForwardProtocolDeclaration *> *symbols;
+
+public:
+    virtual ObjCProtocolForwardDeclarationAST *asObjCProtocolForwardDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCProtocolForwardDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
+{
+public:
+    SpecifierAST *attributes;
+    unsigned protocol_token;
+    NameAST *name;
+    ObjCProtocolRefsAST *protocol_refs;
+    DeclarationListAST *member_declarations;
+    unsigned end_token;
+
+public: // annotations
+    ObjCProtocol *symbol;
+
+public:
+    virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCProtocolDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCProtocolRefsAST: public AST
+{
+public:
+    unsigned less_token;
+    IdentifierListAST *identifier_list;
+    unsigned greater_token;
+
+public:
+    virtual ObjCProtocolRefsAST *asObjCProtocolRefs()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCProtocolRefsAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMessageArgumentAST: public AST
+{
+public:
+    ExpressionAST *parameter_value_expression;
+
+public:
+    virtual ObjCMessageArgumentAST *asObjCMessageArgument()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageArgumentAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMessageArgumentListAST: public AST
+{
+public:
+    ObjCMessageArgumentAST *arg;
+    ObjCMessageArgumentListAST *next;
+
+public:
+    virtual ObjCMessageArgumentListAST *asObjCMessageArgumentList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageArgumentListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMessageExpressionAST: public ExpressionAST
+{
+public:
+    unsigned lbracket_token;
+    ExpressionAST *receiver_expression;
+    ObjCSelectorAST *selector;
+    ObjCMessageArgumentListAST *argument_list;
+    unsigned rbracket_token;
+
+public:
+    virtual ObjCMessageExpressionAST *asObjCMessageExpression()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCProtocolExpressionAST: public ExpressionAST
+{
+public:
+    unsigned protocol_token;
+    unsigned lparen_token;
+    unsigned identifier_token;
+    unsigned rparen_token;
+
+public:
+    virtual ObjCProtocolExpressionAST *asObjCProtocolExpression()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCProtocolExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCTypeNameAST: public AST
+{
+public:
+    unsigned lparen_token;
+    unsigned type_qualifier;
+    ExpressionAST *type_id;
+    unsigned rparen_token;
+
+public:
+    virtual ObjCTypeNameAST *asObjCTypeName()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCTypeNameAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCEncodeExpressionAST: public ExpressionAST
+{
+public:
+    unsigned encode_token;
+    ObjCTypeNameAST *type_name;
+
+public:
+    virtual ObjCEncodeExpressionAST *asObjCEncodeExpression()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCEncodeExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCSelectorAST: public AST
+{
+public: // annotation
+    Name *selector_name;
+
+public:
+    virtual ObjCSelectorAST *asObjCSelector()
+    { return this; }
+
+    virtual ObjCSelectorAST *clone(MemoryPool *pool) const = 0;
+};
+
+class CPLUSPLUS_EXPORT ObjCSelectorWithoutArgumentsAST: public ObjCSelectorAST
+{
+public:
+    unsigned name_token;
+
+public:
+    virtual ObjCSelectorWithoutArgumentsAST *asObjCSelectorWithoutArguments()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSelectorWithoutArgumentsAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCSelectorArgumentAST: public AST
+{
+public:
+    unsigned name_token;
+    unsigned colon_token;
+
+public:
+    virtual ObjCSelectorArgumentAST *asObjCSelectorArgument()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSelectorArgumentAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCSelectorArgumentListAST: public AST
+{
+public:
+    ObjCSelectorArgumentAST *argument;
+    ObjCSelectorArgumentListAST *next;
+
+public:
+    virtual ObjCSelectorArgumentListAST *asObjCSelectorArgumentList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSelectorArgumentListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCSelectorWithArgumentsAST: public ObjCSelectorAST
+{
+public:
+    ObjCSelectorArgumentListAST *selector_arguments;
+
+public:
+    virtual ObjCSelectorWithArgumentsAST *asObjCSelectorWithArguments()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSelectorWithArgumentsAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCSelectorExpressionAST: public ExpressionAST
+{
+public:
+    unsigned selector_token;
+    unsigned lparen_token;
+    ObjCSelectorAST *selector;
+    unsigned rparen_token;
+
+public:
+    virtual ObjCSelectorExpressionAST *asObjCSelectorExpression()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSelectorExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCInstanceVariablesDeclarationAST: public AST
+{
+public:
+    unsigned lbrace_token;
+    DeclarationListAST *instance_variables;
+    unsigned rbrace_token;
+
+public:
+    virtual ObjCInstanceVariablesDeclarationAST *asObjCInstanceVariablesDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCInstanceVariablesDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCVisibilityDeclarationAST: public DeclarationAST
+{
+public:
+    unsigned visibility_token;
+
+public:
+    virtual ObjCVisibilityDeclarationAST *asObjCVisibilityDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCVisibilityDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCPropertyAttributeAST: public AST
+{
+public:
+    unsigned attribute_identifier_token;
+    unsigned equals_token;
+    ObjCSelectorAST *method_selector;
+
+public:
+    virtual ObjCPropertyAttributeAST *asObjCPropertyAttribute()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCPropertyAttributeAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCPropertyAttributeListAST: public AST
+{
+public:
+    ObjCPropertyAttributeAST *attr;
+    unsigned comma_token;
+    ObjCPropertyAttributeListAST *next;
+
+public:
+    virtual ObjCPropertyAttributeListAST *asObjCPropertyAttributeList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCPropertyAttributeListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCPropertyDeclarationAST: public DeclarationAST
+{
+public:
+    SpecifierAST *attributes;
+    unsigned property_token;
+    unsigned lparen_token;
+    ObjCPropertyAttributeListAST *property_attributes;
+    unsigned rparen_token;
+    DeclarationAST *simple_declaration;
+
+public:
+    virtual ObjCPropertyDeclarationAST *asObjCPropertyDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCPropertyDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public NameAST
+{
+public:
+    ObjCTypeNameAST* type_name;
+    SpecifierAST *attributes;
+    unsigned param_name_token;
+
+public: // annotations
+    Argument *argument;
+
+public:
+    virtual ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageArgumentDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationListAST: public AST
+{
+public:
+    ObjCMessageArgumentDeclarationAST *argument_declaration;
+    ObjCMessageArgumentDeclarationListAST *next;
+
+public:
+    virtual ObjCMessageArgumentDeclarationListAST *asObjCMessageArgumentDeclarationList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMessageArgumentDeclarationListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMethodPrototypeAST: public AST
+{
+public:
+    unsigned method_type_token;
+    ObjCTypeNameAST *type_name;
+    ObjCSelectorAST *selector;
+    ObjCMessageArgumentDeclarationListAST *arguments;
+    SpecifierAST *attributes;
+
+public: // annotations
+    ObjCMethod *symbol;
+
+public:
+    virtual ObjCMethodPrototypeAST *asObjCMethodPrototype()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMethodPrototypeAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCMethodDeclarationAST: public DeclarationAST
+{
+public:
+    ObjCMethodPrototypeAST *method_prototype;
+    StatementAST *function_body;
+    unsigned semicolon_token;
+
+public:
+    virtual ObjCMethodDeclarationAST *asObjCMethodDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCMethodDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCSynthesizedPropertyAST: public AST
+{
+public:
+    unsigned property_identifier;
+    unsigned equals_token;
+    unsigned property_alias_identifier;
+
+public:
+    virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSynthesizedPropertyAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCSynthesizedPropertyListAST: public AST
+{
+public:
+    ObjCSynthesizedPropertyAST *synthesized_property;
+    unsigned comma_token;
+    ObjCSynthesizedPropertyListAST *next;
+
+public:
+    virtual ObjCSynthesizedPropertyListAST *asObjCSynthesizedPropertyList()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSynthesizedPropertyListAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCSynthesizedPropertiesDeclarationAST: public DeclarationAST
+{
+public:
+    unsigned synthesized_token;
+    ObjCSynthesizedPropertyListAST *property_identifiers;
+    unsigned semicolon_token;
+
+public:
+    virtual ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSynthesizedPropertiesDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCDynamicPropertiesDeclarationAST: public DeclarationAST
+{
+public:
+    unsigned dynamic_token;
+    IdentifierListAST *property_identifiers;
+    unsigned semicolon_token;
+
+public:
+    virtual ObjCDynamicPropertiesDeclarationAST *asObjCDynamicPropertiesDeclaration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCDynamicPropertiesDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCFastEnumerationAST: public StatementAST
+{
+public:
+    unsigned for_token;
+    unsigned lparen_token;
+
+    // declaration
+    SpecifierAST *type_specifiers;
+    DeclaratorAST *declarator;
+    // or an expression
+    ExpressionAST *initializer;
+
+    unsigned in_token;
+    ExpressionAST *fast_enumeratable_expression;
+    unsigned rparen_token;
+    StatementAST *body_statement;
+
+public: // annotations
+    Block *symbol;
+
+public:
+    virtual ObjCFastEnumerationAST *asObjCFastEnumeration()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCFastEnumerationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+};
+
+class CPLUSPLUS_EXPORT ObjCSynchronizedStatementAST: public StatementAST
+{
+public:
+    unsigned synchronized_token;
+    unsigned lparen_token;
+    ExpressionAST *synchronized_object;
+    unsigned rparen_token;
+    StatementAST *statement;
+
+public:
+    virtual ObjCSynchronizedStatementAST *asObjCSynchronizedStatement()
+    { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSynchronizedStatementAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

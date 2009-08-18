@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 /*
@@ -60,12 +60,12 @@ Macro::Macro()
 QString Macro::toString() const
 {
     QString text;
-    if (_hidden)
+    if (f._hidden)
         text += QLatin1String("#undef ");
     else
         text += QLatin1String("#define ");
     text += QString::fromUtf8(_name.constData(), _name.size());
-    if (_functionLike) {
+    if (f._functionLike) {
         text += QLatin1Char('(');
         bool first = true;
         foreach (const QByteArray formal, _formals) {
@@ -75,7 +75,7 @@ QString Macro::toString() const
                 first = false;
             text += QString::fromUtf8(formal.constData(), formal.size());
         }
-        if (_variadic)
+        if (f._variadic)
             text += QLatin1String("...");
         text += QLatin1Char(')');
     }

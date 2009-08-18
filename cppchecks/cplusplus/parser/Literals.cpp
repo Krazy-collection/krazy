@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -50,6 +50,8 @@
 #include <cstring>
 #include <algorithm>
 #include <iostream>
+
+using namespace std;
 
 CPLUSPLUS_BEGIN_NAMESPACE
 
@@ -105,12 +107,104 @@ StringLiteral::~StringLiteral()
 { }
 
 ////////////////////////////////////////////////////////////////////////////////
+enum {
+    NumericLiteralIsChar,
+    NumericLiteralIsWideChar,
+    NumericLiteralIsInt,
+    NumericLiteralIsFloat,
+    NumericLiteralIsDouble,
+    NumericLiteralIsLongDouble,
+    NumericLiteralIsLong,
+    NumericLiteralIsLongLong
+};
+
 NumericLiteral::NumericLiteral(const char *chars, unsigned size)
-    : Literal(chars, size)
-{ }
+    : Literal(chars, size), _flags(0)
+{
+    f._type = NumericLiteralIsInt;
+
+    if (chars[0] == '\'') {
+        f._type = NumericLiteralIsChar;
+    } else if (size > 1 && chars[0] == 'L' && chars[1] == '\'') {
+        f._type = NumericLiteralIsWideChar;
+    } else if (size > 1 && chars[0] == '0' && (chars[1] == 'x' || chars[1] == 'X')) {
+        f._isHex = true;
+    } else {
+        const char *begin = chars;
+        const char *end = begin + size;
+
+        bool done = false;
+        const char *it = end - 1;
+
+        for (; it != begin - 1 && ! done; --it) {
+            switch (*it) {
+            case 'l': case 'L': // long suffix
+            case 'u': case 'U': // unsigned suffix
+            case 'f': case 'F': // floating suffix
+                break;
+
+            default:
+                done = true;
+                break;
+            } // switch
+        }
+
+        for (const char *dot = it; it != begin - 1; --it) {
+            if (*dot == '.')
+                f._type = NumericLiteralIsDouble;
+        }
+
+        for (++it; it != end; ++it) {
+            if (*it == 'l' || *it == 'L') {
+                if (f._type == NumericLiteralIsDouble) {
+                    f._type = NumericLiteralIsLongDouble;
+                } else if (it + 1 != end && (it[1] == 'l' || it[1] == 'L')) {
+                    ++it;
+                    f._type = NumericLiteralIsLongLong;
+                } else {
+                    f._type = NumericLiteralIsLong;
+                }
+            } else if (*it == 'f' || *it == 'F') {
+                f._type = NumericLiteralIsFloat;
+            } else if (*it == 'u' || *it == 'U') {
+                f._isUnsigned = true;
+            }
+        }
+    }
+}
 
 NumericLiteral::~NumericLiteral()
 { }
+
+bool NumericLiteral::isHex() const
+{ return f._isHex; }
+
+bool NumericLiteral::isUnsigned() const
+{ return f._isUnsigned; }
+
+bool NumericLiteral::isChar() const
+{ return f._type == NumericLiteralIsChar; }
+
+bool NumericLiteral::isWideChar() const
+{ return f._type == NumericLiteralIsWideChar; }
+
+bool NumericLiteral::isInt() const
+{ return f._type == NumericLiteralIsInt; }
+
+bool NumericLiteral::isFloat() const
+{ return f._type == NumericLiteralIsFloat; }
+
+bool NumericLiteral::isDouble() const
+{ return f._type == NumericLiteralIsDouble; }
+
+bool NumericLiteral::isLongDouble() const
+{ return f._type == NumericLiteralIsLongDouble; }
+
+bool NumericLiteral::isLong() const
+{ return f._type == NumericLiteralIsLong; }
+
+bool NumericLiteral::isLongLong() const
+{ return f._type == NumericLiteralIsLongLong; }
 
 ////////////////////////////////////////////////////////////////////////////////
 Identifier::Identifier(const char *chars, unsigned size)
@@ -122,7 +216,9 @@ Identifier::~Identifier()
 
 bool Identifier::isEqualTo(const Identifier *other) const
 {
-    if (this == other)
+    if (! other)
+        return false;
+    else if (this == other)
         return true;
     else if (hashCode() != other->hashCode())
         return false;

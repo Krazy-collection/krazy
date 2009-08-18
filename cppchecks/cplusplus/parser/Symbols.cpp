@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -152,19 +152,19 @@ Function::~Function()
 }
 
 bool Function::isNormal() const
-{ return _methodKey == NormalMethod; }
+{ return f._methodKey == NormalMethod; }
 
 bool Function::isSignal() const
-{ return _methodKey == SignalMethod; }
+{ return f._methodKey == SignalMethod; }
 
 bool Function::isSlot() const
-{ return _methodKey == SlotMethod; }
+{ return f._methodKey == SlotMethod; }
 
 int Function::methodKey() const
-{ return _methodKey; }
+{ return f._methodKey; }
 
 void Function::setMethodKey(int key)
-{ _methodKey = key; }
+{ f._methodKey = key; }
 
 unsigned Function::templateParameterCount() const
 {
@@ -187,6 +187,11 @@ bool Function::isEqualTo(const Type *other) const
     const Function *o = other->asFunctionType();
     if (! o)
         return false;
+    else if (isConst() != o->isConst())
+        return false;
+    else if (isVolatile() != o->isVolatile())
+        return false;
+
     Name *l = identity();
     Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r))) {
@@ -244,34 +249,34 @@ bool Function::hasArguments() const
 }
 
 bool Function::isVariadic() const
-{ return _isVariadic; }
+{ return f._isVariadic; }
 
 void Function::setVariadic(bool isVariadic)
-{ _isVariadic = isVariadic; }
+{ f._isVariadic = isVariadic; }
 
 bool Function::isConst() const
-{ return _isConst; }
+{ return f._isConst; }
 
 void Function::setConst(bool isConst)
-{ _isConst = isConst; }
+{ f._isConst = isConst; }
 
 bool Function::isVolatile() const
-{ return _isVolatile; }
+{ return f._isVolatile; }
 
 void Function::setVolatile(bool isVolatile)
-{ _isVolatile = isVolatile; }
+{ f._isVolatile = isVolatile; }
 
 bool Function::isPureVirtual() const
-{ return _isPureVirtual; }
+{ return f._isPureVirtual; }
 
 void Function::setPureVirtual(bool isPureVirtual)
-{ _isPureVirtual = isPureVirtual; }
+{ f._isPureVirtual = isPureVirtual; }
 
 bool Function::isAmbiguous() const
-{ return _isAmbiguous; }
+{ return f._isAmbiguous; }
 
 void Function::setAmbiguous(bool isAmbiguous)
-{ _isAmbiguous = isAmbiguous; }
+{ f._isAmbiguous = isAmbiguous; }
 
 void Function::visitSymbol0(SymbolVisitor *visitor)
 {
@@ -323,7 +328,13 @@ FullySpecifiedType Block::type() const
 { return FullySpecifiedType(); }
 
 void Block::visitSymbol0(SymbolVisitor *visitor)
-{ visitor->visit(this); }
+{
+    if (visitor->visit(this)) {
+        for (unsigned i = 0; i < memberCount(); ++i) {
+            visitSymbol(memberAt(i), visitor);
+        }
+    }
+}
 
 Enum::Enum(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name)
@@ -535,6 +546,199 @@ void Class::visitSymbol0(SymbolVisitor *visitor)
     if (visitor->visit(this)) {
         for (unsigned i = 0; i < _baseClasses.size(); ++i) {
             visitSymbol(_baseClasses.at(i), visitor);
+        }
+        for (unsigned i = 0; i < memberCount(); ++i) {
+            visitSymbol(memberAt(i), visitor);
+        }
+    }
+}
+
+ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
+        ScopedSymbol(translationUnit, sourceLocation, name),
+        _categoryName(0)
+{
+}
+
+ObjCClass::~ObjCClass()
+{}
+
+FullySpecifiedType ObjCClass::type() const
+{ return FullySpecifiedType(const_cast<ObjCClass *>(this)); }
+
+bool ObjCClass::isEqualTo(const Type *other) const
+{
+    const ObjCClass *o = other->asObjCClassType();
+    if (!o)
+        return false;
+
+    Name *l = identity();
+    Name *r = o->identity();
+    if (l == r || (l && l->isEqualTo(r)))
+        return true;
+    else
+        return false;
+}
+
+void ObjCClass::visitSymbol0(SymbolVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        for (unsigned i = 0; i < _baseClasses.size(); ++i)
+            visitSymbol(_baseClasses.at(i), visitor);
+        for (unsigned i = 0; i < _protocols.size(); ++i)
+            visitSymbol(_protocols.at(i), visitor);
+    }
+}
+
+void ObjCClass::accept0(TypeVisitor *visitor)
+{ visitor->visit(this); }
+
+ObjCProtocol::ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
+        ScopedSymbol(translationUnit, sourceLocation, name)
+{
+}
+
+ObjCProtocol::~ObjCProtocol()
+{}
+
+FullySpecifiedType ObjCProtocol::type() const
+{ return FullySpecifiedType(const_cast<ObjCProtocol *>(this)); }
+
+bool ObjCProtocol::isEqualTo(const Type *other) const
+{
+    const ObjCProtocol *o = other->asObjCProtocolType();
+    if (!o)
+        return false;
+
+    Name *l = identity();
+    Name *r = o->identity();
+    if (l == r || (l && l->isEqualTo(r)))
+        return true;
+    else
+        return false;
+}
+
+void ObjCProtocol::visitSymbol0(SymbolVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        for (unsigned i = 0; i < _protocols.size(); ++i)
+            visitSymbol(_protocols.at(i), visitor);
+    }
+}
+
+void ObjCProtocol::accept0(TypeVisitor *visitor)
+{ visitor->visit(this); }
+
+ObjCForwardClassDeclaration::ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
+        Symbol(translationUnit, sourceLocation, name)
+{
+}
+
+ObjCForwardClassDeclaration::~ObjCForwardClassDeclaration()
+{}
+
+FullySpecifiedType ObjCForwardClassDeclaration::type() const
+{ return FullySpecifiedType(); }
+
+void ObjCForwardClassDeclaration::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
+        Symbol(translationUnit, sourceLocation, name)
+{
+}
+
+ObjCForwardProtocolDeclaration::~ObjCForwardProtocolDeclaration()
+{}
+
+FullySpecifiedType ObjCForwardProtocolDeclaration::type() const
+{ return FullySpecifiedType(); }
+
+void ObjCForwardProtocolDeclaration::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+ObjCMethod::ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+    : ScopedSymbol(translationUnit, sourceLocation, name),
+     _flags(0)
+{ _arguments = new Scope(this); }
+
+ObjCMethod::~ObjCMethod()
+{
+    delete _arguments;
+}
+
+bool ObjCMethod::isEqualTo(const Type *other) const
+{
+    const ObjCMethod *o = other->asObjCMethodType();
+    if (! o)
+        return false;
+
+    Name *l = identity();
+    Name *r = o->identity();
+    if (l == r || (l && l->isEqualTo(r))) {
+        if (_arguments->symbolCount() != o->_arguments->symbolCount())
+            return false;
+        else if (! _returnType.isEqualTo(o->_returnType))
+            return false;
+        for (unsigned i = 0; i < _arguments->symbolCount(); ++i) {
+            Symbol *l = _arguments->symbolAt(i);
+            Symbol *r = o->_arguments->symbolAt(i);
+            if (! l->type().isEqualTo(r->type()))
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+void ObjCMethod::accept0(TypeVisitor *visitor)
+{ visitor->visit(this); }
+
+FullySpecifiedType ObjCMethod::type() const
+{ return FullySpecifiedType(const_cast<ObjCMethod *>(this)); }
+
+FullySpecifiedType ObjCMethod::returnType() const
+{ return _returnType; }
+
+void ObjCMethod::setReturnType(FullySpecifiedType returnType)
+{ _returnType = returnType; }
+
+bool ObjCMethod::hasReturnType() const
+{
+    const FullySpecifiedType ty = returnType();
+    return ty.isValid() || ty.isSigned() || ty.isUnsigned();
+}
+
+unsigned ObjCMethod::argumentCount() const
+{
+    if (! _arguments)
+        return 0;
+
+    return _arguments->symbolCount();
+}
+
+Symbol *ObjCMethod::argumentAt(unsigned index) const
+{ return _arguments->symbolAt(index); }
+
+Scope *ObjCMethod::arguments() const
+{ return _arguments; }
+
+bool ObjCMethod::hasArguments() const
+{
+    return ! (argumentCount() == 0 ||
+              (argumentCount() == 1 && argumentAt(0)->type()->isVoidType()));
+}
+
+bool ObjCMethod::isVariadic() const
+{ return f._isVariadic; }
+
+void ObjCMethod::setVariadic(bool isVariadic)
+{ f._isVariadic = isVariadic; }
+
+void ObjCMethod::visitSymbol0(SymbolVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        for (unsigned i = 0; i < _arguments->symbolCount(); ++i) {
+            visitSymbol(_arguments->symbolAt(i), visitor);
         }
         for (unsigned i = 0; i < memberCount(); ++i) {
             visitSymbol(memberAt(i), visitor);

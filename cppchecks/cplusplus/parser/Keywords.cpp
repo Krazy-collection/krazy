@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -297,7 +297,7 @@ static inline int classify5(const char *s, bool q) {
         if (s[2] == 'o') {
           if (s[3] == 't') {
             if (s[4] == 's') {
-              return T_SLOTS;
+              return T_Q_SLOTS;
             }
           }
         }
@@ -620,6 +620,21 @@ static inline int classify7(const char *s, bool q) {
       }
     }
   }
+  else if (q && s[0] == 'f') {
+    if (s[1] == 'o') {
+      if (s[2] == 'r') {
+        if (s[3] == 'e') {
+          if (s[4] == 'a') {
+            if (s[5] == 'c') {
+              if (s[6] == 'h') {
+                return T_Q_FOREACH;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (q && s[0] == 's') {
     if (s[1] == 'i') {
       if (s[2] == 'g') {
@@ -627,7 +642,7 @@ static inline int classify7(const char *s, bool q) {
           if (s[4] == 'a') {
             if (s[5] == 'l') {
               if (s[6] == 's') {
-                return T_SIGNALS;
+                return T_Q_SIGNALS;
               }
             }
           }
@@ -687,7 +702,7 @@ static inline int classify7(const char *s, bool q) {
           if (s[4] == 'O') {
             if (s[5] == 'T') {
               if (s[6] == 'S') {
-                return T_SLOTS;
+                return T_Q_SLOTS;
               }
             }
           }
@@ -950,7 +965,21 @@ static inline int classify9(const char *s, bool q) {
               if (s[6] == 'A') {
                 if (s[7] == 'L') {
                   if (s[8] == 'S') {
-                    return T_SIGNALS;
+                    return T_Q_SIGNALS;
+                  }
+                }
+              }
+            }
+          }
+        }
+      } else if (s[2] == 'F') {
+        if (s[3] == 'O') {
+          if (s[4] == 'R') {
+            if (s[5] == 'E') {
+              if (s[6] == 'A') {
+                if (s[7] == 'C') {
+                  if (s[8] == 'H') {
+                    return T_Q_FOREACH;
                   }
                 }
               }

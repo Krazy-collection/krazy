@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -160,8 +160,6 @@ public:
     Symbol *lookat(Identifier *id) const;
     Symbol *lookat(int operatorId) const;
 
-    unsigned useCount() const;
-    Use *useAt(unsigned index) const;
     void addUse(unsigned sourceOffset, Name *name);
 
 private:
@@ -182,10 +180,6 @@ private:
 
     Symbol **_hash;
     int _hashSize;
-
-    Use *_uses;
-    int _allocatedUses;
-    int _useCount;
 };
 
 CPLUSPLUS_END_NAMESPACE

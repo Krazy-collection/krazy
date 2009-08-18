@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -94,6 +94,15 @@ FullySpecifiedType CheckDeclarator::check(PtrOperatorAST *ptrOperators,
     return switchFullySpecifiedType(previousType);
 }
 
+FullySpecifiedType CheckDeclarator::check(ObjCMethodPrototypeAST *methodPrototype,
+                                          Scope *scope)
+{
+    Scope *previousScope = switchScope(scope);
+    accept(methodPrototype);
+    (void) switchScope(previousScope);
+    return _fullySpecifiedType;
+}
+
 DeclaratorAST *CheckDeclarator::switchDeclarator(DeclaratorAST *declarator)
 {
     DeclaratorAST *previousDeclarator = _declarator;
@@ -128,13 +137,11 @@ bool CheckDeclarator::visit(DeclaratorAST *ast)
     accept(ast->postfix_declarators);
     accept(ast->core_declarator);
 
-    // ### check the initializer
-    // FullySpecifiedType exprTy = semantic()->check(ast->initializer, _scope);
+    if (ast->initializer) {
+        FullySpecifiedType exprTy = semantic()->check(ast->initializer, _scope);
 
-    if (ast->initializer && _fullySpecifiedType) {
-        if (Function *funTy = _fullySpecifiedType->asFunctionType()) {
+        if (Function *funTy = _fullySpecifiedType->asFunctionType())
             funTy->setPureVirtual(true);
-        }
     }
 
     return false;
@@ -162,9 +169,9 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     fun->setReturnType(_fullySpecifiedType);
 
     if (ast->parameters) {
-        DeclarationAST *parameter_declarations = ast->parameters->parameter_declarations;
-        for (DeclarationAST *decl = parameter_declarations; decl; decl = decl->next) {
-            semantic()->check(decl, fun->arguments());
+        DeclarationListAST *parameter_declarations = ast->parameters->parameter_declarations;
+        for (DeclarationListAST *decl = parameter_declarations; decl; decl = decl->next) {
+            semantic()->check(decl->declaration, fun->arguments());
         }
 
         if (ast->parameters->dot_dot_dot_token)
@@ -236,6 +243,39 @@ bool CheckDeclarator::visit(ReferenceAST *ast)
     FullySpecifiedType ty(refTy);
     _fullySpecifiedType = ty;
     accept(ast->next);
+    return false;
+}
+
+bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
+{
+    FullySpecifiedType returnType = semantic()->check(ast->type_name, _scope);
+
+    unsigned location = ast->firstToken();
+
+    Name *name = semantic()->check(ast->selector, _scope);
+
+    ObjCMethod *method = control()->newObjCMethod(location, name);
+    ast->symbol = method;
+    method->setSourceLocation(location);
+    method->setScope(_scope);
+    method->setVisibility(semantic()->currentVisibility());
+    method->setReturnType(returnType);
+
+    if (ast->selector && ast->selector->asObjCSelectorWithArguments()) {
+        // TODO: check the parameters (EV)
+        //    fun->setVariadic(...);
+        // TODO: add arguments (EV)
+        for (ObjCMessageArgumentDeclarationListAST *it = ast->arguments; it; it = it->next) {
+            ObjCMessageArgumentDeclarationAST *argDecl = it->argument_declaration;
+
+            semantic()->check(argDecl, method->arguments());
+        }
+    }
+
+    _fullySpecifiedType = FullySpecifiedType(method);
+
+    // TODO: check which specifiers are allowed here (EV)
+
     return false;
 }
 

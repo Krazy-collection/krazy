@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -55,6 +55,7 @@
 #include "Names.h"
 #include "CoreTypes.h"
 #include "Symbols.h"
+#include "Scope.h"
 #include <cassert>
 
 CPLUSPLUS_BEGIN_NAMESPACE
@@ -73,6 +74,10 @@ Name *CheckName::check(NameAST *name, Scope *scope)
     Name *previousName = switchName(0);
     Scope *previousScope = switchScope(scope);
     accept(name);
+
+    if (_name && name)
+        name->name = _name;
+
     (void) switchScope(previousScope);
     return switchName(previousName);
 }
@@ -91,6 +96,28 @@ Name *CheckName::check(NestedNameSpecifierAST *nested_name_specifier, Scope *sco
 
     (void) switchScope(previousScope);
     return switchName(previousName);
+}
+
+Name *CheckName::check(ObjCSelectorAST *args, Scope *scope)
+{
+    Name *previousName = switchName(0);
+    Scope *previousScope = switchScope(scope);
+
+    accept(args);
+
+    (void) switchScope(previousScope);
+    return switchName(previousName);
+}
+
+void CheckName::check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope)
+{
+    Name *previousName = switchName(0);
+    Scope *previousScope = switchScope(scope);
+
+    accept(arg);
+
+    (void) switchScope(previousScope);
+    (void) switchName(previousName);
 }
 
 Name *CheckName::switchName(Name *name)
@@ -344,6 +371,54 @@ bool CheckName::visit(TemplateIdAST *ast)
         _name = control()->templateNameId(id, &templateArguments[0],
                                           templateArguments.size());
     ast->name = _name;
+    return false;
+}
+
+bool CheckName::visit(ObjCSelectorWithoutArgumentsAST *ast)
+{
+    std::vector<Name *> names;
+    Identifier *id = identifier(ast->name_token);
+    names.push_back(control()->nameId(id));
+    _name = control()->selectorNameId(&names[0], names.size(), false);
+    ast->selector_name = _name;
+
+    return false;
+}
+
+bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
+{
+    std::vector<Name *> names;
+    for (ObjCSelectorArgumentListAST *it = ast->selector_arguments; it; it = it->next) {
+        Identifier *id =  identifier(it->argument->name_token);
+        Name *name = control()->nameId(id);
+
+        names.push_back(name);
+    }
+    _name = control()->selectorNameId(&names[0], names.size(), true);
+    ast->selector_name = _name;
+
+    return false;
+}
+
+bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
+{
+    FullySpecifiedType type;
+
+    if (ast->type_name)
+        type = semantic()->check(ast->type_name, _scope);
+
+    if (ast->param_name_token) {
+        Identifier *id = identifier(ast->param_name_token);
+        _name = control()->nameId(id);
+        ast->name = _name;
+
+        Argument *arg = control()->newArgument(ast->firstToken(), _name);
+        ast->argument = arg;
+        arg->setType(type);
+        arg->setInitializer(false);
+        _scope->enterSymbol(arg);
+    }
+
     return false;
 }
 

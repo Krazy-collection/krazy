@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -74,6 +74,8 @@ public:
     FullySpecifiedType check(PtrOperatorAST *ptrOperators, FullySpecifiedType type,
                              Scope *scope);
 
+    FullySpecifiedType check(ObjCMethodPrototypeAST *methodPrototype, Scope *scope);
+
     FullySpecifiedType check(ExpressionAST *expression, Scope *scope);
 
     void check(DeclarationAST *declaration, Scope *scope, Scope *templateParameters = 0);
@@ -84,14 +86,27 @@ public:
 
     Name *check(NestedNameSpecifierAST *name, Scope *scope);
 
+    Name *check(ObjCSelectorAST *args, Scope *scope);
+    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);
+
+    void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
+
+    bool skipFunctionBodies() const;
+    void setSkipFunctionBodies(bool skipFunctionBodies);
+
     int currentVisibility() const;
     int switchVisibility(int visibility);
+
+    int currentObjCVisibility() const;
+    int switchObjCVisibility(int visibility);
 
     int currentMethodKey() const;
     int switchMethodKey(int methodKey);
 
     int visibilityForClassKey(int tokenKind) const;
     int visibilityForAccessSpecifier(int tokenKind) const;
+    int visibilityForObjCAccessSpecifier(int tokenKind) const;
+    bool isObjCClassMethod(int tokenKind) const;
 
 private:
     class Data;

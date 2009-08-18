@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -208,13 +208,33 @@ bool CheckExpression::visit(TemplateIdAST *ast)
     return false;
 }
 
-bool CheckExpression::visit(NewExpressionAST *)
+bool CheckExpression::visit(NewExpressionAST *ast)
 {
-    // ### FIXME
-    //FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
-    //FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
-    // ### process new-typeid
+    if (ast->new_placement) {
+        for (ExpressionListAST *it = ast->new_placement->expression_list; it; it = it->next) {
+            FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+            Q_UNUSED(exprTy)
+        }
+    }
+
+    FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
+
+    if (ast->new_type_id) {
+        FullySpecifiedType ty = semantic()->check(ast->new_type_id->type_specifier, _scope);
+        Q_UNUSED(ty)
+
+        for (NewArrayDeclaratorAST *it = ast->new_type_id->new_array_declarators; it; it = it->next) {
+            FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+            Q_UNUSED(exprTy)
+        }
+    }
+
     // ### process new-initializer
+    if (ast->new_initializer) {
+        FullySpecifiedType exprTy = semantic()->check(ast->new_initializer->expression, _scope);
+        Q_UNUSED(exprTy)
+    }
+
     return false;
 }
 
@@ -360,6 +380,31 @@ bool CheckExpression::visit(MemberAccessAST *ast)
 {
     if (Name *name = semantic()->check(ast->member_name, _scope))
         _scope->addUse(ast->member_name->firstToken(), name);
+    return false;
+}
+
+bool CheckExpression::visit(ObjCMessageExpressionAST *ast)
+{
+    semantic()->check(ast->receiver_expression, _scope);
+
+    if (Name *name = semantic()->check(ast->selector, _scope))
+        _scope->addUse(ast->selector->firstToken(), name);
+
+    accept(ast->argument_list);
+    return false;
+}
+
+bool CheckExpression::visit(ObjCEncodeExpressionAST * /*ast*/)
+{
+    // TODO: visit the type name, but store the type here? (EV)
+    return true;
+}
+
+bool CheckExpression::visit(ObjCSelectorExpressionAST *ast)
+{
+    if (Name *name = semantic()->check(ast->selector, _scope))
+        _scope->addUse(ast->selector->firstToken(), name);
+
     return false;
 }
 

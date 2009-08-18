@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -55,6 +55,7 @@
 #include "MemoryPool.h"
 #include "SymbolVisitor.h"
 #include "NameVisitor.h"
+#include "Scope.h"
 #include <cstddef>
 #include <cassert>
 
@@ -158,6 +159,8 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *
     : _control(translationUnit->control()),
       _sourceLocation(sourceLocation),
       _sourceOffset(0),
+      _startOffset(0),
+      _endOffset(0),
       _name(0),
       _hashCode(0),
       _storage(Symbol::NoStorage),
@@ -216,7 +219,7 @@ void Symbol::setSourceLocation(unsigned sourceLocation)
 
         const Token &tk = unit->tokenAt(sourceLocation);
 
-        _isGenerated = tk.generated;
+        _isGenerated = tk.f.generated;
         _sourceOffset = tk.offset;
     }
 }
@@ -245,11 +248,32 @@ StringLiteral *Symbol::fileId() const
     return fileId;
 }
 
+void Symbol::getPosition(unsigned *line, unsigned *column, StringLiteral **fileId) const
+{ translationUnit()->getPosition(_sourceOffset, line, column, fileId); }
+
+void Symbol::getStartPosition(unsigned *line, unsigned *column, StringLiteral **fileId) const
+{ translationUnit()->getPosition(_startOffset, line, column, fileId); }
+
+void Symbol::getEndPosition(unsigned *line, unsigned *column, StringLiteral **fileId) const
+{ translationUnit()->getPosition(_endOffset, line, column, fileId); }
+
 const char *Symbol::fileName() const
 { return fileId()->chars(); }
 
 unsigned Symbol::fileNameLength() const
 { return fileId()->size(); }
+
+unsigned Symbol::startOffset() const
+{ return _startOffset; }
+
+void Symbol::setStartOffset(unsigned offset)
+{ _startOffset = offset; }
+
+unsigned Symbol::endOffset() const
+{ return _endOffset; }
+
+void Symbol::setEndOffset(unsigned offset)
+{ _endOffset = offset; }
 
 Name *Symbol::identity() const
 {
@@ -273,6 +297,14 @@ void Symbol::setName(Name *name)
     }
 }
 
+Identifier *Symbol::identifier() const
+{
+    if (_name)
+        return _name->identifier();
+
+    return 0;
+}
+
 Scope *Symbol::scope() const
 { return _scope; }
 
@@ -280,6 +312,61 @@ void Symbol::setScope(Scope *scope)
 {
     assert(! _scope);
     _scope = scope;
+}
+
+Scope *Symbol::enclosingNamespaceScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isNamespaceScope())
+        return _scope;
+
+    return _scope->enclosingNamespaceScope();
+}
+
+Scope *Symbol::enclosingClassScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isClassScope())
+        return _scope;
+
+    return _scope->enclosingClassScope();
+}
+
+Scope *Symbol::enclosingEnumScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isEnumScope())
+        return _scope;
+
+    return _scope->enclosingEnumScope();
+}
+
+Scope *Symbol::enclosingFunctionScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isFunctionScope())
+        return _scope;
+
+    return _scope->enclosingFunctionScope();
+}
+
+Scope *Symbol::enclosingBlockScope() const
+{
+    if (! _scope)
+        return 0;
+
+    else if (_scope->isBlockScope())
+        return _scope;
+
+    return _scope->enclosingBlockScope();
 }
 
 unsigned Symbol::index() const
@@ -365,5 +452,20 @@ bool Symbol::isArgument() const
 
 bool Symbol::isBaseClass() const
 { return asBaseClass() != 0; }
+
+bool Symbol::isObjCClass() const
+{ return asObjCClass() != 0; }
+
+bool Symbol::isObjCForwardClassDeclaration() const
+{ return asObjCForwardClassDeclaration() != 0; }
+
+bool Symbol::isObjCProtocol() const
+{ return asObjCProtocol() != 0; }
+
+bool Symbol::isObjCForwardProtocolDeclaration() const
+{ return asObjCForwardProtocolDeclaration() != 0; }
+
+bool Symbol::isObjCMethod() const
+{ return asObjCMethod() != 0; }
 
 CPLUSPLUS_END_NAMESPACE

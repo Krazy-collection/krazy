@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -75,7 +75,8 @@ public:
     enum Visibility {
         Public,
         Protected,
-        Private
+        Private,
+        Package
     };
 
 public:
@@ -109,11 +110,24 @@ public:
     /// Returns this Symbol's file name length.
     unsigned fileNameLength() const;
 
+    unsigned startOffset() const;
+    void setStartOffset(unsigned offset);
+
+    unsigned endOffset() const;
+    void setEndOffset(unsigned offset);
+
+    void getPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0) const;
+    void getStartPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0) const;
+    void getEndPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0) const;
+
     /// Returns this Symbol's name.
     Name *name() const;
 
     /// Sets this Symbol's name.
     void setName(Name *name); // ### dangerous
+
+    /// Returns this Symbol's (optional) identifier
+    Identifier *identifier() const;
 
     /// Returns this Symbol's storage class specifier.
     int storage() const;
@@ -196,6 +210,21 @@ public:
     /// Returns true if this Symbol is a ForwardClassDeclaration.
     bool isForwardClassDeclaration() const;
 
+    /// Returns true if this Symbol is an Objective-C Class declaration.
+    bool isObjCClass() const;
+
+    /// Returns true if this Symbol is an Objective-C Class forward declaration.
+    bool isObjCForwardClassDeclaration() const;
+
+    /// Returns true if this Symbol is an Objective-C Protocol declaration.
+    bool isObjCProtocol() const;
+
+    /// Returns true if this Symbol is an Objective-C Protocol forward declaration.
+    bool isObjCForwardProtocolDeclaration() const;
+
+    /// Returns true if this Symbol is an Objective-C method declaration.
+    bool isObjCMethod() const;
+
     virtual const ScopedSymbol *asScopedSymbol() const { return 0; }
     virtual const Enum *asEnum() const { return 0; }
     virtual const Function *asFunction() const { return 0; }
@@ -208,6 +237,11 @@ public:
     virtual const Argument *asArgument() const { return 0; }
     virtual const BaseClass *asBaseClass() const { return 0; }
     virtual const ForwardClassDeclaration *asForwardClassDeclaration() const { return 0; }
+    virtual const ObjCClass *asObjCClass() const { return 0; }
+    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const { return 0; }
+    virtual const ObjCProtocol *asObjCProtocol() const { return 0; }
+    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const { return 0; }
+    virtual const ObjCMethod *asObjCMethod() const { return 0; }
 
     virtual ScopedSymbol *asScopedSymbol() { return 0; }
     virtual Enum *asEnum() { return 0; }
@@ -221,6 +255,11 @@ public:
     virtual Argument *asArgument() { return 0; }
     virtual BaseClass *asBaseClass() { return 0; }
     virtual ForwardClassDeclaration *asForwardClassDeclaration() { return 0; }
+    virtual ObjCClass *asObjCClass() { return 0; }
+    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() { return 0; }
+    virtual ObjCProtocol *asObjCProtocol() { return 0; }
+    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() { return 0; }
+    virtual ObjCMethod *asObjCMethod() { return 0; }
 
     /// Returns this Symbol's type.
     virtual FullySpecifiedType type() const = 0;
@@ -234,6 +273,21 @@ public:
     Name *identity() const;
 
     bool isGenerated() const;
+
+    /// Returns the eclosing namespace scope.
+    Scope *enclosingNamespaceScope() const;
+
+    /// Returns the enclosing class scope.
+    Scope *enclosingClassScope() const;
+
+    /// Returns the enclosing enum scope.
+    Scope *enclosingEnumScope() const;
+
+    /// Returns the enclosing function scope.
+    Scope *enclosingFunctionScope() const;
+
+    /// Returns the enclosing Block scope.
+    Scope *enclosingBlockScope() const;
 
     void setScope(Scope *scope); // ### make me private
     void setSourceLocation(unsigned sourceLocation); // ### make me private
@@ -250,6 +304,8 @@ private:
     Control *_control;
     unsigned _sourceLocation;
     unsigned _sourceOffset;
+    unsigned _startOffset;
+    unsigned _endOffset;
     Name *_name;
     unsigned _hashCode;
     int _storage;

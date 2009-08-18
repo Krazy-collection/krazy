@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -89,6 +89,10 @@ public:
                                      unsigned nameCount,
                                      bool isGlobal = false);
 
+    SelectorNameId *selectorNameId(Name *const *names,
+                                   unsigned nameCount,
+                                   bool hasArguments);
+
     /// Returns a Type object of type VoidType.
     VoidType *voidType();
 
@@ -115,7 +119,7 @@ public:
     NamedType *namedType(Name *name);
 
     /// Creates a new Declaration symbol.
-    Declaration *newDeclaration(unsigned sourceLocation, Name *name = 0);
+    Declaration *newDeclaration(unsigned sourceLocation, Name *name);
 
     /// Creates a new Argument symbol.
     Argument *newArgument(unsigned sourceLocation, Name *name = 0);
@@ -147,25 +151,42 @@ public:
     /// Creates a new ForwardClassDeclaration symbol.
     ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, Name *name = 0);
 
+    /// Creates a new Objective-C class symbol.
+    ObjCClass *newObjCClass(unsigned sourceLocation, Name *name = 0);
+
+    /// Creates a new Objective-C class forward declaration symbol.
+    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name = 0);
+
+    /// Creates a new Objective-C protocol symbol.
+    ObjCProtocol *newObjCProtocol(unsigned sourceLocation, Name *name = 0);
+
+    /// Creates a new Objective-C protocol forward declaration symbol.
+    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name = 0);
+
+    /// Creates a new Objective-C method symbol.
+    ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name = 0);
+
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
     Identifier *findOrInsertIdentifier(const char *chars);
 
     typedef const Identifier *const *IdentifierIterator;
+    typedef const StringLiteral *const *StringLiteralIterator;
+    typedef const NumericLiteral *const *NumericLiteralIterator;
 
     IdentifierIterator firstIdentifier() const;
     IdentifierIterator lastIdentifier() const;
+
+    StringLiteralIterator firstStringLiteral() const;
+    StringLiteralIterator lastStringLiteral() const;
+
+    NumericLiteralIterator firstNumericLiteral() const;
+    NumericLiteralIterator lastNumericLiteral() const;
 
     StringLiteral *findOrInsertStringLiteral(const char *chars, unsigned size);
     StringLiteral *findOrInsertStringLiteral(const char *chars);
 
     NumericLiteral *findOrInsertNumericLiteral(const char *chars, unsigned size);
     NumericLiteral *findOrInsertNumericLiteral(const char *chars);
-
-    StringLiteral *findOrInsertFileName(const char *chars, unsigned size);
-    StringLiteral *findOrInsertFileName(const char *chars);
-
-    unsigned fileNameCount() const;
-    StringLiteral *fileNameAt(unsigned index) const;
 
 private:
     class Data;

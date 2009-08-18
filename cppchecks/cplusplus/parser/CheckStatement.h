@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -75,6 +75,8 @@ protected:
     virtual bool visit(DoStatementAST *ast);
     virtual bool visit(ExpressionOrDeclarationStatementAST *ast);
     virtual bool visit(ExpressionStatementAST *ast);
+    virtual bool visit(ForeachStatementAST *ast);
+    virtual bool visit(ObjCFastEnumerationAST *ast);
     virtual bool visit(ForStatementAST *ast);
     virtual bool visit(IfStatementAST *ast);
     virtual bool visit(LabeledStatementAST *ast);

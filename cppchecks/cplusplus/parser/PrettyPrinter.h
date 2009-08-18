@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 
@@ -34,6 +34,7 @@
 #include "ASTVisitor.h"
 
 #include <iosfwd>
+#include <QtCore/QByteArray>
 
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
@@ -43,7 +44,7 @@ class CPLUSPLUS_EXPORT PrettyPrinter: protected ASTVisitor
 public:
     PrettyPrinter(Control *control, std::ostream &out);
 
-    void operator()(AST *ast);
+    void operator()(AST *ast, const QByteArray &contents);
 
 protected:
     virtual bool visit(AccessDeclarationAST *ast);
@@ -148,10 +149,14 @@ protected:
     void indent();
     void deindent();
     void newline();
+    void outToken(unsigned token);
 
 private:
-    std::ostream &out;
-    unsigned depth;
+    std::ostream &_out;
+    unsigned _depth;
+
+    unsigned _lastToken;
+    QByteArray _contents;
 };
 
 CPLUSPLUS_END_NAMESPACE

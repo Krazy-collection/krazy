@@ -235,7 +235,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
   {
     // Ath this point m_currentDoc is the document that is include or the root
     // file if sourceNeeded is called for the first time.
-    QByteArray const previousFile = m_env.currentFile;
+    QString const previousFile = m_env.currentFile;
     unsigned const previousLine = m_env.currentLine;
 
     m_env.currentFile = m_currentDoc->fileName().toUtf8();

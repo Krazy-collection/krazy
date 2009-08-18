@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -63,6 +63,7 @@ public:
     virtual ~CheckSpecifier();
 
     FullySpecifiedType check(SpecifierAST *specifier, Scope *scope);
+    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);
 
 protected:
     SpecifierAST *switchSpecifier(SpecifierAST *specifier);
@@ -78,6 +79,8 @@ protected:
     virtual bool visit(EnumSpecifierAST *ast);
     virtual bool visit(TypeofSpecifierAST *ast);
     virtual bool visit(AttributeSpecifierAST *ast);
+
+    virtual bool visit(ObjCTypeNameAST *ast);
 
 private:
     SpecifierAST *_specifier;

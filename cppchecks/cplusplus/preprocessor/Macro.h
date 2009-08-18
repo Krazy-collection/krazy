@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 /*
@@ -80,10 +80,10 @@ public:
     void addFormal(const QByteArray &formal)
     { _formals.append(formal); }
 
-    QByteArray fileName() const
+    QString fileName() const
     { return _fileName; }
 
-    void setFileName(const QByteArray &fileName)
+    void setFileName(const QString &fileName)
     { _fileName = fileName; }
 
     unsigned line() const
@@ -93,22 +93,22 @@ public:
     { _line = line; }
 
     bool isHidden() const
-    { return _hidden; }
+    { return f._hidden; }
 
     void setHidden(bool isHidden)
-    { _hidden = isHidden; }
+    { f._hidden = isHidden; }
 
     bool isFunctionLike() const
-    { return _functionLike; }
+    { return f._functionLike; }
 
     void setFunctionLike(bool isFunctionLike)
-    { _functionLike = isFunctionLike; }
+    { f._functionLike = isFunctionLike; }
 
     bool isVariadic() const
-    { return _variadic; }
+    { return f._variadic; }
 
     void setVariadic(bool isVariadic)
-    { _variadic = isVariadic; }
+    { f._variadic = isVariadic; }
 
     QString toString() const;
 
@@ -117,22 +117,23 @@ public:
     unsigned _hashcode;
 
 private:
+    struct Flags
+    {
+        unsigned _hidden: 1;
+        unsigned _functionLike: 1;
+        unsigned _variadic: 1;
+    };
+
     QByteArray _name;
     QByteArray _definition;
     QVector<QByteArray> _formals;
-    QByteArray _fileName;
+    QString _fileName;
     unsigned _line;
 
     union
     {
         unsigned _state;
-
-        struct
-        {
-            unsigned _hidden: 1;
-            unsigned _functionLike: 1;
-            unsigned _variadic: 1;
-        };
+        Flags f;
     };
 };
 

@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -53,7 +53,7 @@
 #include "ASTfwd.h"
 #include "Token.h"
 #include "Array.h"
-#include <cstdio>
+#include <stdio.h> // for FILE*
 #include <vector> // ### remove me
 
 CPLUSPLUS_BEGIN_HEADER
@@ -118,6 +118,7 @@ public:
         ParseTranlationUnit,
         ParseDeclaration,
         ParseExpression,
+        ParseDeclarator,
         ParseStatement
     };
 
@@ -125,6 +126,14 @@ public:
 
     void resetAST();
     void release();
+
+    void getTokenStartPosition(unsigned index, unsigned *line,
+                               unsigned *column = 0,
+                               StringLiteral **fileName = 0) const;
+
+    void getTokenEndPosition(unsigned index, unsigned *line,
+                             unsigned *column = 0,
+                             StringLiteral **fileName = 0) const;
 
     void getPosition(unsigned offset,
                      unsigned *line,
@@ -140,6 +149,8 @@ public:
     void pushPreprocessorLine(unsigned offset,
                               unsigned line,
                               StringLiteral *fileName);
+
+    unsigned findPreviousLineOffset(unsigned tokenIndex) const;
 
 public:
     struct PPLine {
@@ -179,16 +190,17 @@ private:
     MemoryPool *_pool;
     AST *_ast;
     TranslationUnit *_previousTranslationUnit;
+    struct Flags {
+        unsigned _tokenized: 1;
+        unsigned _parsed: 1;
+        unsigned _blockErrors: 1;
+        unsigned _skipFunctionBody: 1;
+        unsigned _qtMocRunEnabled: 1;
+        unsigned _objCEnabled: 1;
+    };
     union {
         unsigned _flags;
-        struct {
-            unsigned _tokenized: 1;
-            unsigned _parsed: 1;
-            unsigned _blockErrors: 1;
-            unsigned _skipFunctionBody: 1;
-            unsigned _qtMocRunEnabled: 1;
-            unsigned _objCEnabled: 1;
-        };
+        Flags f;
     };
 };
 

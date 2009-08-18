@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -72,6 +72,14 @@ QualifiedNameId::~QualifiedNameId()
 
 void QualifiedNameId::accept0(NameVisitor *visitor)
 { visitor->visit(this); }
+
+Identifier *QualifiedNameId::identifier() const
+{
+    if (Name *u = unqualifiedNameId())
+        return u->identifier();
+
+    return 0;
+}
 
 unsigned QualifiedNameId::nameCount() const
 { return _nameCount; }
@@ -225,6 +233,9 @@ void OperatorNameId::accept0(NameVisitor *visitor)
 int OperatorNameId::kind() const
 { return _kind; }
 
+Identifier *OperatorNameId::identifier() const
+{ return 0; }
+
 bool OperatorNameId::isEqualTo(const Name *other) const
 {
     const OperatorNameId *o = other->asOperatorNameId();
@@ -246,6 +257,9 @@ void ConversionNameId::accept0(NameVisitor *visitor)
 FullySpecifiedType ConversionNameId::type() const
 { return _type; }
 
+Identifier *ConversionNameId::identifier() const
+{ return 0; }
+
 bool ConversionNameId::isEqualTo(const Name *other) const
 {
     const ConversionNameId *c = other->asConversionNameId();
@@ -254,5 +268,62 @@ bool ConversionNameId::isEqualTo(const Name *other) const
     return _type.isEqualTo(c->type());
 }
 
+SelectorNameId::SelectorNameId(Name *const names[],
+                               unsigned nameCount,
+                               bool hasArguments)
+    : _names(0),
+      _nameCount(nameCount),
+      _hasArguments(hasArguments)
+{
+    if (_nameCount) {
+        _names = new Name *[_nameCount];
+        std::copy(&names[0], &names[nameCount], _names);
+    }
+}
+
+SelectorNameId::~SelectorNameId()
+{ delete[] _names; }
+
+void SelectorNameId::accept0(NameVisitor *visitor)
+{ visitor->visit(this); }
+
+Identifier *SelectorNameId::identifier() const
+{
+    // FIXME: (EV)
+    return nameAt(0)->identifier();
+}
+
+unsigned SelectorNameId::nameCount() const
+{ return _nameCount; }
+
+Name *SelectorNameId::nameAt(unsigned index) const
+{ return _names[index]; }
+
+Name *const *SelectorNameId::names() const
+{ return _names; }
+
+bool SelectorNameId::hasArguments() const
+{ return _hasArguments; }
+
+bool SelectorNameId::isEqualTo(const Name *other) const
+{
+    const SelectorNameId *q = other->asSelectorNameId();
+    if (! q)
+        return false;
+    else if (hasArguments() != q->hasArguments())
+        return false;
+    else {
+        const unsigned count = nameCount();
+        if (count != q->nameCount())
+            return false;
+        for (unsigned i = 0; i < count; ++i) {
+            Name *l = nameAt(i);
+            Name *r = q->nameAt(i);
+            if (! l->isEqualTo(r))
+                return false;
+        }
+    }
+    return true;
+}
 
 CPLUSPLUS_END_NAMESPACE

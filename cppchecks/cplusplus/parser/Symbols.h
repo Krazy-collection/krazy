@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -338,17 +338,17 @@ protected:
 private:
     Scope *_templateParameters;
     FullySpecifiedType _returnType;
+    struct Flags {
+        unsigned _isVariadic: 1;
+        unsigned _isPureVirtual: 1;
+        unsigned _isConst: 1;
+        unsigned _isVolatile: 1;
+        unsigned _isAmbiguous: 1;
+        unsigned _methodKey: 3;
+    };
     union {
         unsigned _flags;
-
-        struct {
-            unsigned _isVariadic: 1;
-            unsigned _isPureVirtual: 1;
-            unsigned _isConst: 1;
-            unsigned _isVolatile: 1;
-            unsigned _isAmbiguous: 1;
-            unsigned _methodKey: 3;
-        };
+        Flags f;
     };
     Scope *_arguments;
 };
@@ -461,6 +461,178 @@ private:
     Key _key;
     Scope *_templateParameters;
     Array<BaseClass *> _baseClasses;
+};
+
+class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol
+{
+public:
+    ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ObjCForwardProtocolDeclaration();
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const
+    { return this; }
+
+    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+
+private:
+};
+
+class CPLUSPLUS_EXPORT ObjCProtocol: public ScopedSymbol, public Type
+{
+public:
+    ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ObjCProtocol();
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    // Type's interface
+    virtual bool isEqualTo(const Type *other) const;
+
+    virtual const ObjCProtocol *asObjCProtocol() const
+    { return this; }
+
+    virtual ObjCProtocol *asObjCProtocol()
+    { return this; }
+
+    virtual const ObjCProtocol *asObjCProtocolType() const
+    { return this; }
+
+    virtual ObjCProtocol *asObjCProtocolType()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+    virtual void accept0(TypeVisitor *visitor);
+
+private:
+    Array<ObjCProtocol *> _protocols;
+};
+
+class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol
+{
+public:
+    ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ObjCForwardClassDeclaration();
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const
+    { return this; }
+
+    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+
+private:
+};
+
+class CPLUSPLUS_EXPORT ObjCClass: public ScopedSymbol, public Type
+{
+public:
+    ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ObjCClass();
+
+    bool isInterface() const { return _isInterface; }
+    void setInterface(bool isInterface) { _isInterface = isInterface; }
+
+    bool isCategory() const { return _categoryName != 0; }
+    Name *categoryName() const { return _categoryName; }
+    void setCategoryName(Name *categoryName) { _categoryName = categoryName; }
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    // Type's interface
+    virtual bool isEqualTo(const Type *other) const;
+
+    virtual const ObjCClass *asObjCClass() const
+    { return this; }
+
+    virtual ObjCClass *asObjCClass()
+    { return this; }
+
+    virtual const ObjCClass *asObjCClassType() const
+    { return this; }
+
+    virtual ObjCClass *asObjCClassType()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+    virtual void accept0(TypeVisitor *visitor);
+
+private:
+    bool _isInterface;
+    Name *_categoryName;
+    Array<ObjCClass *> _baseClasses;
+    Array<ObjCProtocol *> _protocols;
+};
+
+class CPLUSPLUS_EXPORT ObjCMethod: public ScopedSymbol, public Type
+{
+public:
+    ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ObjCMethod();
+
+    FullySpecifiedType returnType() const;
+    void setReturnType(FullySpecifiedType returnType);
+
+    /** Convenience function that returns whether the function returns something (including void). */
+    bool hasReturnType() const;
+
+    unsigned argumentCount() const;
+    Symbol *argumentAt(unsigned index) const;
+    Scope *arguments() const;
+
+    /** Convenience function that returns whether the function receives any arguments. */
+    bool hasArguments() const;
+
+    bool isVariadic() const;
+    void setVariadic(bool isVariadic);
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    // Type's interface
+    virtual bool isEqualTo(const Type *other) const;
+
+    virtual const ObjCMethod *asObjCMethod() const
+    { return this; }
+
+    virtual ObjCMethod *asObjCMethod()
+    { return this; }
+
+    virtual const ObjCMethod *asObjCMethodType() const
+    { return this; }
+
+    virtual ObjCMethod *asObjCMethodType()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+    virtual void accept0(TypeVisitor *visitor);
+
+private:
+    FullySpecifiedType _returnType;
+    struct Flags {
+        unsigned _isVariadic: 1;
+    };
+    union {
+        unsigned _flags;
+        Flags f;
+    };
+    Scope *_arguments;
 };
 
 CPLUSPLUS_END_NAMESPACE

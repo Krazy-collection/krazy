@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -63,12 +63,15 @@ public:
     Name();
     virtual ~Name();
 
+    virtual Identifier *identifier() const = 0;
+
     bool isNameId() const;
     bool isTemplateNameId() const;
     bool isDestructorNameId() const;
     bool isOperatorNameId() const;
     bool isConversionNameId() const;
     bool isQualifiedNameId() const;
+    bool isSelectorNameId() const;
 
     virtual const NameId *asNameId() const { return 0; }
     virtual const TemplateNameId *asTemplateNameId() const { return 0; }
@@ -76,6 +79,7 @@ public:
     virtual const OperatorNameId *asOperatorNameId() const { return 0; }
     virtual const ConversionNameId *asConversionNameId() const { return 0; }
     virtual const QualifiedNameId *asQualifiedNameId() const { return 0; }
+    virtual const SelectorNameId *asSelectorNameId() const { return 0; }
 
     virtual NameId *asNameId() { return 0; }
     virtual TemplateNameId *asTemplateNameId() { return 0; }
@@ -83,6 +87,7 @@ public:
     virtual OperatorNameId *asOperatorNameId() { return 0; }
     virtual ConversionNameId *asConversionNameId() { return 0; }
     virtual QualifiedNameId *asQualifiedNameId() { return 0; }
+    virtual SelectorNameId *asSelectorNameId() { return 0; }
 
     virtual bool isEqualTo(const Name *other) const = 0;
 

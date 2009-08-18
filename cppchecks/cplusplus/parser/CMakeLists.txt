@@ -2,6 +2,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(cplusplus_SRCS
     AST.cpp
+    ASTClone.cpp
+    ASTVisit.cpp
     ASTVisitor.cpp
     Array.cpp
     CheckDeclaration.cpp

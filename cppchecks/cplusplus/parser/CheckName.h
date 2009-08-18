@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -63,6 +63,8 @@ public:
 
     Name *check(NameAST *name, Scope *scope);
     Name *check(NestedNameSpecifierAST *name, Scope *scope);
+    Name *check(ObjCSelectorAST *args, Scope *scope);
+    void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
 
 protected:
     Name *switchName(Name *name);
@@ -76,6 +78,11 @@ protected:
     virtual bool visit(SimpleNameAST *ast);
     virtual bool visit(DestructorNameAST *ast);
     virtual bool visit(TemplateIdAST *ast);
+
+    // ObjC
+    virtual bool visit(ObjCSelectorWithoutArgumentsAST *ast);
+    virtual bool visit(ObjCSelectorWithArgumentsAST *ast);
+    virtual bool visit(ObjCMessageArgumentDeclarationAST *ast);
 
 private:
     Name *_name;

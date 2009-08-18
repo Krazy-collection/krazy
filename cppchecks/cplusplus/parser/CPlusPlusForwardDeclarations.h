@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -49,7 +49,7 @@
 #ifndef CPLUSPLUS_CPLUSPLUSFORWARDDECLARATIONS_H
 #define CPLUSPLUS_CPLUSPLUSFORWARDDECLARATIONS_H
 
-#ifdef HAVE_QT
+#ifndef CPLUSPLUS_WITH_NO_QT
 #  include <QtCore/qglobal.h>
 #  define CPLUSPLUS_BEGIN_HEADER
 #  define CPLUSPLUS_END_HEADER
@@ -109,6 +109,7 @@ class DestructorNameId;
 class OperatorNameId;
 class ConversionNameId;
 class QualifiedNameId;
+class SelectorNameId;
 
 // types
 class FullySpecifiedType;
@@ -140,8 +141,14 @@ class Class;
 class Enum;
 class ForwardClassDeclaration;
 
-class Use;
 class Token;
+
+// Objective-C symbols
+class ObjCClass;
+class ObjCForwardClassDeclaration;
+class ObjCProtocol;
+class ObjCForwardProtocolDeclaration;
+class ObjCMethod;
 
 CPLUSPLUS_END_NAMESPACE
 CPLUSPLUS_END_HEADER

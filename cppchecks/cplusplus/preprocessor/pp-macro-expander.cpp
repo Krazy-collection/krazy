@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 
@@ -108,7 +108,7 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
             __result->append(QByteArray::number(env->currentLine));
             __result->append(' ');
             __result->append('"');
-            __result->append(env->currentFile);
+            __result->append(env->currentFile.toUtf8());
             __result->append('"');
             __result->append('\n');
             ++lines;
@@ -244,16 +244,14 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
                 {
                     if (fast_name == "__LINE__")
                     {
-                        char buf [16];
-                        const size_t count = qsnprintf (buf, 16, "%d", env->currentLine + lines);
-                        __result->append(buf, count);
+                        __result->append(QByteArray::number(env->currentLine + lines));
                         continue;
                     }
 
                     else if (fast_name == "__FILE__")
                     {
                         __result->append('"');
-                        __result->append(env->currentFile);
+                        __result->append(env->currentFile.toUtf8());
                         __result->append('"');
                         continue;
                     }

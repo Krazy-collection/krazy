@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact:  Qt Software Information (qt-info@nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** Commercial Usage
 **
@@ -23,7 +23,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
-** contact the sales department at qt-sales@nokia.com.
+** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
 // Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
@@ -55,6 +55,7 @@
 #include "CoreTypes.h"
 #include "Symbols.h"
 #include "Control.h"
+#include "Literals.h"
 #include <cassert>
 
 CPLUSPLUS_BEGIN_NAMESPACE
@@ -121,6 +122,18 @@ void CheckDeclaration::checkFunctionArguments(Function *fun)
     }
 }
 
+unsigned CheckDeclaration::locationOfDeclaratorId(DeclaratorAST *declarator) const
+{
+    if (declarator && declarator->core_declarator) {
+        if (DeclaratorIdAST *declaratorId = declarator->core_declarator->asDeclaratorId())
+            return declaratorId->firstToken();
+        else if (NestedDeclaratorAST *nested = declarator->core_declarator->asNestedDeclarator())
+            return locationOfDeclaratorId(nested->declarator);
+    }
+
+    return 0;
+}
+
 bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 {
     FullySpecifiedType ty = semantic()->check(ast->decl_specifier_seq, _scope);
@@ -163,11 +176,13 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         FullySpecifiedType declTy = semantic()->check(it->declarator, qualTy,
                                                       _scope, &name);
 
-        unsigned location = 0;
-        if (it->declarator)
-            location = it->declarator->firstToken();
-        else
-            location = ast->firstToken();
+        unsigned location = locationOfDeclaratorId(it->declarator);
+        if (! location) {
+            if (it->declarator)
+                location = it->declarator->firstToken();
+            else
+                location = ast->firstToken();
+        }
 
         Function *fun = 0;
         if (declTy && 0 != (fun = declTy->asFunctionType())) {
@@ -186,6 +201,9 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         }
 
         Declaration *symbol = control()->newDeclaration(location, name);
+        symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
+        symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
+
         symbol->setType(control()->integerType(IntegerType::Int));
         symbol->setType(declTy);
 
@@ -206,6 +224,11 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             symbol->setStorage(Symbol::Mutable);
         else if (ty.isTypedef())
             symbol->setStorage(Symbol::Typedef);
+
+        if (it->declarator && it->declarator->initializer) {
+            FullySpecifiedType initTy = semantic()->check(it->declarator->initializer, _scope);
+            Q_UNUSED(initTy)
+        }
 
         *decl_it = new (translationUnit()->memoryPool()) List<Declaration *>();
         (*decl_it)->value = symbol;
@@ -228,7 +251,7 @@ bool CheckDeclaration::visit(AccessDeclarationAST *ast)
     semantic()->switchVisibility(visibility);
     if (ast->slots_token)
         semantic()->switchMethodKey(Function::SlotMethod);
-    else if (accessSpecifier == T_SIGNALS)
+    else if (accessSpecifier == T_Q_SIGNALS)
         semantic()->switchMethodKey(Function::SignalMethod);
     else
         semantic()->switchMethodKey(Function::NormalMethod);
@@ -259,6 +282,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     }
 
     Function *fun = funTy->asFunctionType();
+    fun->setStartOffset(tokenAt(ast->firstToken()).offset);
+    fun->setEndOffset(tokenAt(ast->lastToken()).offset);
     if (ast->declarator)
         fun->setSourceLocation(ast->declarator->firstToken());
     fun->setName(name);
@@ -279,30 +304,27 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     ast->symbol = fun;
     _scope->enterSymbol(fun);
 
-    if (ast->ctor_initializer) {
-        bool looksLikeCtor = false;
-        if (ty.isValid() || ! fun->identity())
-            looksLikeCtor = false;
-        else if (fun->identity()->isNameId() || fun->identity()->isTemplateNameId())
-            looksLikeCtor = true;
+    if (! semantic()->skipFunctionBodies()) {
+        if (ast->ctor_initializer) {
+            bool looksLikeCtor = false;
+            if (ty.isValid() || ! fun->identity())
+                looksLikeCtor = false;
+            else if (fun->identity()->isNameId() || fun->identity()->isTemplateNameId())
+                looksLikeCtor = true;
 
-        if (! looksLikeCtor) {
-            translationUnit()->error(ast->ctor_initializer->firstToken(),
-                                     "only constructors take base initializers");
+            if (! looksLikeCtor) {
+                translationUnit()->error(ast->ctor_initializer->firstToken(),
+                                         "only constructors take base initializers");
+            }
         }
-    }
 
-    const int previousVisibility = semantic()->switchVisibility(Symbol::Public);
-    const int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
+        const int previousVisibility = semantic()->switchVisibility(Symbol::Public);
+        const int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
 
-    semantic()->check(ast->function_body, fun->members());
+        semantic()->check(ast->function_body, fun->members());
 
-    semantic()->switchMethodKey(previousMethodKey);
-    semantic()->switchVisibility(previousVisibility);
-
-    if (ast->next && ast->next->asEmptyDeclaration()) {
-        translationUnit()->warning(ast->next->firstToken(),
-                                   "unnecessary semicolon after function block");
+        semantic()->switchMethodKey(previousMethodKey);
+        semantic()->switchVisibility(previousVisibility);
     }
 
     return false;
@@ -310,17 +332,15 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 
 bool CheckDeclaration::visit(LinkageBodyAST *ast)
 {
-    for (DeclarationAST *decl = ast->declarations; decl; decl = decl->next) {
-       semantic()->check(decl, _scope);
+    for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
+       semantic()->check(decl->declaration, _scope);
     }
     return false;
 }
 
 bool CheckDeclaration::visit(LinkageSpecificationAST *ast)
 {
-    for (DeclarationAST *decl = ast->declaration; decl; decl = decl->next) {
-        semantic()->check(decl, _scope);
-    }
+    semantic()->check(ast->declaration, _scope);
     return false;
 }
 
@@ -335,14 +355,11 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
         sourceLocation = ast->identifier_token;
 
     Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
+    ns->setStartOffset(tokenAt(ast->firstToken()).offset);
+    ns->setEndOffset(tokenAt(ast->lastToken()).offset);
     ast->symbol = ns;
     _scope->enterSymbol(ns);
     semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
-
-    if (ast->next && ast->next->asEmptyDeclaration()) {
-        translationUnit()->warning(ast->next->firstToken(),
-                                   "unnecessary semicolon after namespace");
-    }
 
     return false;
 }
@@ -354,10 +371,13 @@ bool CheckDeclaration::visit(NamespaceAliasDefinitionAST *)
 
 bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 {
-    unsigned sourceLocation = 0;
-
-    if (ast->declarator)
-        sourceLocation = ast->declarator->firstToken();
+    unsigned sourceLocation = locationOfDeclaratorId(ast->declarator);
+    if (! sourceLocation) {
+        if (ast->declarator)
+            sourceLocation = ast->declarator->firstToken();
+        else
+            sourceLocation = ast->firstToken();
+    }
 
     Name *argName = 0;
     FullySpecifiedType ty = semantic()->check(ast->type_specifier, _scope);
@@ -376,9 +396,8 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
 bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 {
     Scope *previousScope = switchScope(new Scope(_scope->owner()));
-    for (DeclarationAST *param = ast->template_parameters; param;
-            param = param->next) {
-       semantic()->check(param, _scope);
+    for (DeclarationListAST *param = ast->template_parameters; param; param = param->next) {
+       semantic()->check(param->declaration, _scope);
     }
 
     Scope *templateParameters = switchScope(previousScope);
@@ -442,6 +461,166 @@ bool CheckDeclaration::visit(UsingDirectiveAST *ast)
         translationUnit()->error(ast->firstToken(),
                                  "using-directive not within namespace or block scope");
 
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCProtocolForwardDeclarationAST *ast)
+{
+    const unsigned sourceLocation = ast->firstToken();
+
+    List<ObjCForwardProtocolDeclaration *> **symbolIter = &ast->symbols;
+    for (IdentifierListAST *it = ast->identifier_list; it; it = it->next) {
+        unsigned declarationLocation;
+        if (it->name)
+            declarationLocation = it->name->firstToken();
+        else
+            declarationLocation = sourceLocation;
+
+        Name *protocolName = semantic()->check(it->name, _scope);
+        ObjCForwardProtocolDeclaration *fwdProtocol = control()->newObjCForwardProtocolDeclaration(sourceLocation, protocolName);
+        fwdProtocol->setStartOffset(tokenAt(ast->firstToken()).offset);
+        fwdProtocol->setEndOffset(tokenAt(ast->lastToken()).offset);
+
+        _scope->enterSymbol(fwdProtocol);
+
+        *symbolIter = new (translationUnit()->memoryPool()) List<ObjCForwardProtocolDeclaration *>();
+        (*symbolIter)->value = fwdProtocol;
+        symbolIter = &(*symbolIter)->next;
+    }
+
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
+{
+    unsigned sourceLocation;
+    if (ast->name)
+        sourceLocation = ast->name->firstToken();
+    else
+        sourceLocation = ast->firstToken();
+
+    Name *protocolName = semantic()->check(ast->name, _scope);
+    ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, protocolName);
+    protocol->setStartOffset(tokenAt(ast->firstToken()).offset);
+    protocol->setEndOffset(tokenAt(ast->lastToken()).offset);
+    ast->symbol = protocol;
+
+    _scope->enterSymbol(protocol);
+
+    // TODO EV: walk protocols and method prototypes
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCClassForwardDeclarationAST *ast)
+{
+    const unsigned sourceLocation = ast->firstToken();
+
+    List<ObjCForwardClassDeclaration *> **symbolIter = &ast->symbols;
+    for (IdentifierListAST *it = ast->identifier_list; it; it = it->next) {
+        unsigned declarationLocation;
+        if (it->name)
+            declarationLocation = it->name->firstToken();
+        else
+            declarationLocation = sourceLocation;
+
+        Name *className = semantic()->check(it->name, _scope);
+        ObjCForwardClassDeclaration *fwdClass = control()->newObjCForwardClassDeclaration(sourceLocation, className);
+        fwdClass->setStartOffset(tokenAt(ast->firstToken()).offset);
+        fwdClass->setEndOffset(tokenAt(ast->lastToken()).offset);
+
+        _scope->enterSymbol(fwdClass);
+
+        *symbolIter = new (translationUnit()->memoryPool()) List<ObjCForwardClassDeclaration *>();
+        (*symbolIter)->value = fwdClass;
+        symbolIter = &(*symbolIter)->next;
+    }
+
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
+{
+    unsigned sourceLocation;
+    if (ast->class_name)
+        sourceLocation = ast->class_name->firstToken();
+    else
+        sourceLocation = ast->firstToken();
+
+    Name *className = semantic()->check(ast->class_name, _scope);
+    ObjCClass *klass = control()->newObjCClass(sourceLocation, className);
+    klass->setStartOffset(tokenAt(ast->firstToken()).offset);
+    klass->setEndOffset(tokenAt(ast->lastToken()).offset);
+    ast->symbol = klass;
+
+    klass->setInterface(ast->interface_token != 0);
+
+    if (ast->category_name) {
+        Name *categoryName = semantic()->check(ast->category_name, _scope);
+        klass->setCategoryName(categoryName);
+    }
+
+    // TODO: super-class, and protocols (EV)
+    _scope->enterSymbol(klass);
+
+    int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Protected);
+
+    if (ast->inst_vars_decl) {
+        for (DeclarationListAST *it = ast->inst_vars_decl->instance_variables; it; it = it->next) {
+            semantic()->check(it->declaration, klass->members());
+        }
+    }
+
+    (void) semantic()->switchObjCVisibility(Function::Public);
+
+    for (DeclarationListAST *it = ast->member_declarations; it; it = it->next) {
+        semantic()->check(it->declaration, klass->members());
+    }
+
+    (void) semantic()->switchObjCVisibility(previousObjCVisibility);
+
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
+{
+    if (!ast->method_prototype)
+        return false;
+
+    FullySpecifiedType ty = semantic()->check(ast->method_prototype, _scope);
+    ObjCMethod *methodType = ty.type()->asObjCMethodType();
+    if (!methodType)
+        return false;
+
+    Symbol *symbol;
+    if (!ast->function_body) {
+        Declaration *decl = control()->newDeclaration(ast->firstToken(), methodType->name());
+        decl->setType(methodType);
+        symbol = decl;
+    } else {
+        if (!semantic()->skipFunctionBodies()) {
+            semantic()->check(ast->function_body, methodType->members());
+        }
+
+        symbol = methodType;
+    }
+
+    symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
+    symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
+    symbol->setVisibility(semantic()->currentVisibility());
+
+    if (semantic()->isObjCClassMethod(ast->method_prototype->method_type_token))
+        symbol->setStorage(Symbol::Static);
+
+    _scope->enterSymbol(symbol);
+
+    return false;
+}
+
+bool CheckDeclaration::visit(ObjCVisibilityDeclarationAST *ast)
+{
+    int accessSpecifier = tokenKind(ast->visibility_token);
+    int visibility = semantic()->visibilityForObjCAccessSpecifier(accessSpecifier);
+    semantic()->switchObjCVisibility(visibility);
     return false;
 }
 
