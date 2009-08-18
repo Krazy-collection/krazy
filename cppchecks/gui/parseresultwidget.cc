@@ -292,7 +292,7 @@ void ParseResultWidget::openIncConfig()
     while (!file.atEnd())
     {
       QString line = file.readLine().trimmed();
-       includePaths << line;
+      includePaths << line;
     }
     m_ui->m_localIncludeDirsList->addItems(includePaths);
   }
