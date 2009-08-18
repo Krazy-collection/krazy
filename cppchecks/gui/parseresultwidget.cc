@@ -50,6 +50,8 @@ ParseResultWidget::ParseResultWidget()
 {
   m_ui->setupUi(this);
   connect(m_ui->m_openFileButton, SIGNAL(clicked()), this, SLOT(openFile()));
+  connect(m_ui->m_reloadFileButton, SIGNAL(clicked()), this, SLOT(reloadFile()));
+
   connect(m_ui->m_treeView, SIGNAL(clicked(QModelIndex const &)),
           this, SLOT(onIncludeClicked(QModelIndex const &)));
   connect(m_ui->m_preprocessedCheck, SIGNAL(stateChanged(int)),
@@ -65,6 +67,7 @@ ParseResultWidget::ParseResultWidget()
 
   m_ui->splitter->setStretchFactor(1, 4);
   m_ui->m_preprocessedCheck->setEnabled(false);
+  m_ui->m_reloadFileButton->setEnabled(false);
 }
 
 ParseResultWidget::~ParseResultWidget()
@@ -213,8 +216,14 @@ void ParseResultWidget::onTreeTypeChanged(int index)
 void ParseResultWidget::openFile()
 {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                 QDir::current().path(),
-                                                 tr("C/C++ files (*.h *.hpp *.cc *.cpp)"));
+                                                        QDir::current().path(),
+                                                        tr("C/C++ files (*.h *.hpp *.cc *.cpp)"));
+  openFile(fileName);
+  m_ui->m_reloadFileButton->setEnabled(true);
+}
+
+void ParseResultWidget::openFile(QString &fileName)
+{
   if (!fileName.isEmpty())
   {
     if (m_includeTreeModel)
@@ -287,4 +296,10 @@ void ParseResultWidget::openIncConfig()
     }
     m_ui->m_localIncludeDirsList->addItems(includePaths);
   }
+}
+
+void ParseResultWidget::reloadFile()
+{
+  QString fileName = m_rootDoc->absoluteFileName();
+  openFile(fileName);
 }

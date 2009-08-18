@@ -54,7 +54,9 @@ class ParseResultWidget : public QWidget
     void onStateChanged(int);
     void onTreeTypeChanged(int index);
     void openFile();
+    void openFile(QString &fileName);
     void openIncConfig();
+    void reloadFile();
 
   private: // Functions
     QStringList globalIncludePaths() const;
