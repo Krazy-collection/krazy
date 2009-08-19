@@ -131,7 +131,7 @@ my ($priority)  = '';
 my ($strict)    = '';
 my ($output)    = '';
 my ($skip)      = "/////";            # hopefully a regex that matches nothing
-my ($export)    = 'text';
+my ($export)    = '';
 my ($title)     = "$Prog Analysis";
 my ($cms)       = "KDE";
 my ($rev)       = '';
@@ -305,6 +305,7 @@ if ( !$ignorerc ) {
     $ds{'PRIORITY'} = $pds{'PRIORITY'} if ($pds{'PRIORITY'});
     $ds{'STRICT'}   = $pds{'STRICT'} if ($pds{'STRICT'});
     $ds{'OUTPUT'}   = $pds{'OUTPUT'} if ($pds{'OUTPUT'});
+    $ds{'EXPORT'}   = $pds{'EXPORT'} if ($pds{'EXPORT'});
   }
 }
 
@@ -316,6 +317,10 @@ $skip = $ds{'SKIPREGEX'}    if (exists( $ds{'SKIPREGEX'} ) );
 $priority = $ds{'PRIORITY'} if (!$priority && $ds{'PRIORITY'});
 $strict = $ds{'STRICT'}     if (!$strict && $ds{'STRICT'});
 $output = $ds{'OUTPUT'}     if ($ds{'OUTPUT'});
+$export = $ds{'EXPORT'}     if (!$export && $ds{'EXPORT'});
+
+# fallback defaults
+$export = "text" if (!$export);
 $quiet = 1 if ( !$quiet && $output eq "quiet" );
 $brief = 1 if ( !$brief && $output eq "brief" );
 
@@ -328,6 +333,7 @@ $brief = 1 if ( !$brief && $output eq "brief" );
 #    print "PRIORITY $priority\n" if ($priority);
 #    print "STRICT $strict\n"     if ($strict);
 #    print "OUTPUT $output\n"     if ($output);
+#    print "EXPORT $export\n"     if ($export);
 # }
 
 my ($p);
@@ -1192,10 +1198,6 @@ Output in one of the following formats:
      textlist -> plain old text, 1 offending file-per-line
      textedit -> text formatted for IDEs, 1 issue-per-line
                  the format is:  file:line-number:issue
-     ebn -> English Breakfast Network style
-     ebnlxr -> English Breakfast Network style, with links to lxr.kde.org
-     html -> plain old html
-     htmllxr -> plain old html, with links to lxr.kde.org
      xml -> XML formatted
 
 =item B<--title>
@@ -1204,8 +1206,8 @@ Give the output report a project title.
 
 =item B<--cms>
 
-An acronym for "component/module/subdir".  Used to write the breadcrumbs line
-in the ebn and html export.  Must be a slash-delimited triple containing the
+An acronym for "component/module/subdir".  Used to write the breadcrumbs
+line in the xml export.  Must be a slash-delimited triple containing the
 component, module, and subdir which is being scanned.
 
 =item B<--rev>
@@ -1424,7 +1426,7 @@ or B<--list-types> options it will exit with status=0.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008 by Allen Winter <winter@kde.org>
+Copyright (c) 2005-2009 by Allen Winter <winter@kde.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1466,7 +1468,7 @@ within the KDE directory structure but above a project subdir
 
 =head1 SEE ALSO
 
-krazyrc(5), krazy2all(1), krazy2ebn(1)
+krazyrc(5), krazy2all(1), krazy2xml(1)
 
 Ben Meyer's kdetestscripts - Automated scripts are to catch problems in KDE,
 L<http://websvn.kde.org/trunk/playground/base/kdetestscripts>.

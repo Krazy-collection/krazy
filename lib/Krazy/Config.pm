@@ -49,6 +49,7 @@ $VERSION = 1.20;
 # PRIORITY <low|normal|high|important|all>
 # STRICT <normal|super|all>
 # OUTPUT <quiet|brief|normal>
+# EXPORT <text|textlist|textedit|xml>
 # IGNORESUBS subdir1[,subdir2,...]
 # IGNOREMODS module1[,module2,...]
 #
@@ -58,7 +59,7 @@ $VERSION = 1.20;
 # The directive is case-insensitive.
 #==============================================================================
 
-my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,@rcIgSubsList,@rcIgModsList);
+my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,$rcExport,@rcIgSubsList,@rcIgModsList);
 my($CWD);
 
 sub ParseKrazyRC {
@@ -77,6 +78,7 @@ sub ParseKrazyRC {
   $rcPriority   = "";
   $rcStrict     = "";
   $rcOutput     = "";
+  $rcExport     = "";
   @rcIgSubsList = ();
   @rcIgModsList = ();
 
@@ -107,6 +109,8 @@ sub ParseKrazyRC {
       &strict($arg);
     } elsif ( $directive eq "OUTPUT" ) {
       &output($arg);
+    } elsif ( $directive eq "EXPORT" ) {
+      &export($arg);
     } else {
       print "Invalid directive $directive, line $linecnt, $rcfile... exiting\n";
       close(F);
@@ -123,6 +127,7 @@ sub ParseKrazyRC {
   $directives{'PRIORITY'}   = $rcPriority;
   $directives{'STRICT'}     = $rcStrict;
   $directives{'OUTPUT'}     = $rcOutput;
+  $directives{'EXPORT'}     = $rcExport;
   @{$directives{'IGSUBSLIST'}} = deDupe(@rcIgSubsList);
   @{$directives{'IGMODSLIST'}} = deDupe(@rcIgModsList);
   return %directives;
@@ -241,6 +246,20 @@ sub output {
     exit 1;
   }
   $rcOutput = $args;
+}
+
+sub export {
+  my ($args) = @_;
+  if ( !defined($args) ) {
+    print "missing EXPORT argument in .krazy...exiting\n";
+    exit 1;
+  }
+  $args=lc($args);
+  if ( !&validateExportType($args) ) {
+    print "invalid EXPORT argument \"$args\" in .krazy... exiting\n";
+    exit 1;
+  }
+  $rcExport = $args;
 }
 
 1;

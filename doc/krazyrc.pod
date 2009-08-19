@@ -61,6 +61,18 @@ Set the output level. Must be one of "quiet", "brief", "all".
 
 "all" is the normal mode and prints all checker summaries
 
+=item EXPORT export-type
+
+Set the default export-type value. Must be one of the following:
+
+"text" (default)
+
+"textlist" prints 1 offending file-per-line
+
+"textedit" prints text formatted for IDEs, 1 issue-per-line
+
+"xml" prints XML formatted intended for follow-on processing
+
 =item IGNORESUBS subdir1[,subdir2,...]
 
 Do not run Krazy on the specified list of subdirectories.
