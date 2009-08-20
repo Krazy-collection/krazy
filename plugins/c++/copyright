@@ -185,6 +185,6 @@ sub Version {
 }
 
 sub Explain {
-  print "All source files must contain a copyright header which identifies the copyright holder(s) together with a e-mail address that can be used to reach the copyright holder.  One copyright holder per line, with real email addresses please. For details regarding KDE's licensing policy please visit <http://techbase.kde.org/Policies/Licensing_Policy>.  A typical copyright looks like: \"Copyright 2002,2005-2006 Joe Hacker \<joe.hacker\@kde.org>\\"\n";
+  print "All source files must contain a copyright header which identifies the copyright holder(s) together with a e-mail address that can be used to reach the copyright holder.  One copyright holder per line, with real email addresses please. For details regarding KDE's licensing policy please visit <http://techbase.kde.org/Policies/Licensing_Policy>.  A typical copyright looks like: \"Copyright 2002,2005-2006 Joe Hacker \<joe.hacker\@kde.org\>\"\n";
   exit 0 if &explainArg();
 }
