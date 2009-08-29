@@ -34,6 +34,7 @@ inline \
 license \
 nullstrassign \
 nullstrcompare \
+operators \
 postfixop \
 qmethods \
 qminmax \
