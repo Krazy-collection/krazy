@@ -79,13 +79,21 @@ Do not run Krazy on the specified list of subdirectories.
 These must be KDE "project" subdirectories that reside at
 the top level of a KDE module.
 
-IGNORESUBS is an administrator directive used only by the krazyebn(1) program.
+IGNORESUBS is an administrator directive used only by the krazy2xml(1) program.
+
+=item EXTRASUBS subdir1[,subdir2,...]
+
+Run Krazy on the specified list of subdirectories.
+These must be KDE "project" subdirectories that reside at
+the top level of a KDE module.
+
+EXTRASUBS is an administrator directive used only by the krazy2xml(1) program.
 
 =item IGNOREMODS module1[,module2,...]
 
 Do not run Krazy on the specified list of KDE modules.
 
-IGNOREMODS is an administrator directive used only by the krazyebn(1) program.
+IGNOREMODS is an administrator directive used only by the krazy2xml(1) program.
 
 =back
 

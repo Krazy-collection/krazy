@@ -86,20 +86,20 @@ if ( hostname() =~ m/englishbreakfast/ ) {
 } else {
 
   # my system settings for testing
-  $tempdir    = '/home/developer/data/krazy2/temp';
-  $destdir    = '/home/developer/data/krazy2/reports';
+  $tempdir    = '/home/winterz/local/src/krazy2/temp';
+  $destdir    = '/home/winterz/local/src/krazy2/reports';
   $comp       = 'kde-4.x';
   $module     = '';
-  $trunk      = '/home/developer/data/kde/trunk';
-  $krazy      = '/home/developer/local/bin/krazy2';
-  $plgpth     = '/home/developer/local/lib/krazy2/krazy-plugins';
-  $xtrpth     = '/home/developer/local/krazy2/krazy-extras';
+  $trunk      = '/data/kde/trunk';
+  $krazy      = '/usr/local/Krazy2/bin/krazy2';
+  $plgpth     = '/usr/local/Krazy2/lib/krazy2/krazy-plugins';
+  $xtrpth     = '/usr/local/Krazy2/lib/krazy2/krazy-extras';
   $md5        = '/usr/bin/md5sum';
   $svn        = '/usr/bin/svn info';
-  $repos      = '/home/developer/data/kde';
+  $repos      = '/data/kde';
   $checks     = '--check typedefs'; # Only execute some checks, so we don't have to wait an eternity.
   $saxon      = '/usr/bin/saxon8';
-  $stylesheet = '/home/developer/local/share/xsl/krazy-main.xsl';
+  $stylesheet = '/usr/local/Krazy2/share/xsl/krazy-main.xsl';
 }
 
 #END OF SETTINGS
@@ -167,6 +167,7 @@ my (@gIgSubsList) = ( #subdirs to ignore in all modules
   "applnk",
   "admin"
 );
+my (@gExSubsList);   # extra subdirs to include in all modules
 my ($defRegex)   = "/////";
 my ($gSkipRegex) = "$defRegex";    #regex of stuff to skip in a subdir
 my ($gPriority)  = "high";         #priority. default is high
@@ -177,6 +178,7 @@ my (@gExtraList);                  #extra plugins. default is none
 
 # Per Module settings
 my (@mIgSubsList);
+my (@mExSubsList);
 my ($mSkipRegex) = "";
 my ($mPriority) = "";
 my ($mStrict) = "";
@@ -286,6 +288,7 @@ sub mergeComponentSettings {
 
   @gIgModsList = @{ $d{'IGMODSLIST'} } if ( $#{ $d{'IGMODSLIST'} } >= 0 );
   @gIgSubsList = @{ $d{'IGSUBSLIST'} } if ( $#{ $d{'IGSUBSLIST'} } >= 0 );
+  @gExSubsList = @{ $d{'IGEXTRASLIST'} } if ( $#{ $d{'IGEXTRASLIST'} } >= 0 );
 
   if ( $d{'SKIPREGEX'} ) {
     $gSkipRegex = $d{'SKIPREGEX'};
@@ -311,6 +314,10 @@ sub mergeModuleSettings {
   @mIgSubsList = @gIgSubsList;
   push( @mIgSubsList, @{ $d{'IGSUBSLIST'} } ) if ( $#{ $d{'IGSUBSLIST'} } >= 0 );
   deDupe(@mIgSubsList);
+
+  @mExSubsList = @gExSubsList;
+  push( @mExSubsList, @{ $d{'IGEXTRASLIST'} } ) if ( $#{ $d{'IGEXTRASLIST'} } >= 0 );
+  deDupe(@mExSubsList);
 
   $mSkipRegex = $gSkipRegex;
   my ($tmpstr) = "";
@@ -386,6 +393,7 @@ sub doItForList {
   my ( $s, $is );
   my ($checksum);
   my ( $out, @issues, $iss );
+  push(@subdirs, @mExSubsList);
   if ( $#subdirs >= 0 ) {
     for $s (@subdirs) {
 
@@ -708,15 +716,15 @@ __END__
 
 =head1 NAME
 
-krazy2ebn - KDE source code checking for the English Breakfast Network (EBN)
+krazy2xml - KDE source code checking for the English Breakfast Network (EBN)
 
 =head1 SYNOPSIS
 
-krazy2ebn [options]
+krazy2xml [options]
 
 =head1 DESCRIPTION
 
-krazy2ebn is a big wrapper around krazy(1) for no obvious use other than
+krazy2xml is a big wrapper around krazy(1) for no obvious use other than
 generating Code Checking Quality reports on the English Breakfast Network.
 
 =head1 OPTIONS
@@ -764,11 +772,11 @@ module and subdir.
 
 =item Process all modules within component extragear
 
- % krazy2ebn --component=extragear
+ % krazy2xml --component=extragear
 
 =item Process module kdelibs within component kde-4.0
 
- % krazy2ebn --component=kde-4.0 --module=kdelibs
+ % krazy2xml --component=kde-4.0 --module=kdelibs
 
 =back
 
@@ -786,9 +794,9 @@ where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/lo
 
 =head1 EXIT STATUS
 
-In normal operation, krazy2ebn exits with status 0.
+In normal operation, krazy2xml exits with status 0.
 
-If a command line option was incorrectly provided, krazy2ebn exits with
+If a command line option was incorrectly provided, krazy2xml exits with
 status=1.
 
 If krazy2 was envoked with the B<--help> or B<--version> options it

@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007 by Allen Winter <winter@kde.org>                             #
+# Copyright 2007,2009 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -29,7 +29,7 @@ use Cwd;
 use Krazy::Utils;
 
 use Exporter;
-$VERSION = 1.20;
+$VERSION = 1.30;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(ParseKrazyRC);
@@ -51,6 +51,7 @@ $VERSION = 1.20;
 # OUTPUT <quiet|brief|normal>
 # EXPORT <text|textlist|textedit|xml>
 # IGNORESUBS subdir1[,subdir2,...]
+# EXTRASUBS subdir1[,subdir2,...]
 # IGNOREMODS module1[,module2,...]
 #
 # Multiple directives may be specified per file; they will be combined in
@@ -59,7 +60,7 @@ $VERSION = 1.20;
 # The directive is case-insensitive.
 #==============================================================================
 
-my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,$rcExport,@rcIgSubsList,@rcIgModsList);
+my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,$rcExport,@rcIgSubsList,@rcExSubsList,@rcIgModsList);
 my($CWD);
 
 sub ParseKrazyRC {
@@ -80,6 +81,7 @@ sub ParseKrazyRC {
   $rcOutput     = "";
   $rcExport     = "";
   @rcIgSubsList = ();
+  @rcExSubsList = ();
   @rcIgModsList = ();
 
   while ( $line = <F> ) {
@@ -99,6 +101,8 @@ sub ParseKrazyRC {
       &excludes($arg);
     } elsif ( $directive eq "IGNORESUBS" ) {
       &ignoreSubs($arg);
+    } elsif ( $directive eq "EXTRASUBS" ) {
+      &extraSubs($arg);
     } elsif ( $directive eq "IGNOREMODS" ) {
       &ignoreMods($arg);
     } elsif ( $directive eq "SKIP" ) {
@@ -129,6 +133,7 @@ sub ParseKrazyRC {
   $directives{'OUTPUT'}     = $rcOutput;
   $directives{'EXPORT'}     = $rcExport;
   @{$directives{'IGSUBSLIST'}} = deDupe(@rcIgSubsList);
+  @{$directives{'IGEXTRASLIST'}} = deDupe(@rcExSubsList);
   @{$directives{'IGMODSLIST'}} = deDupe(@rcIgModsList);
   return %directives;
 }
@@ -179,6 +184,15 @@ sub ignoreSubs {
     exit 1;
   }
   push( @rcIgSubsList, split( ",", $args ) );
+}
+
+sub extraSubs {
+  my ($args) = @_;
+  if ( !defined($args) ) {
+    print "missing EXTRASUBS arguments in .krazy...exiting\n";
+    exit 1;
+  }
+  push( @rcExSubsList, split( ",", $args ) );
 }
 
 sub ignoreMods {
