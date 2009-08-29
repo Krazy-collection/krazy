@@ -358,7 +358,7 @@ working dir is above a project subdir, then a F<.krazy> file will not be read.
 
 =head1 SEE ALSO
 
-krazyrc(5), krazy2(1), krazy2ebn(1)
+krazyrc(5), krazy2(1), krazy2xml(1)
 
 =head1 AUTHORS
 

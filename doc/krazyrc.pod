@@ -95,7 +95,7 @@ Copyright 2005-2009 by Allen Winter <winter@kde.org>
 
 =head1 SEE ALSO
 
-krazy2(1), krazy2all(1), krazy2ebn(1), perlreftut(1)
+krazy2(1), krazy2all(1), krazy2xml(1), perlreftut(1)
 
 =head1 AUTHORS
 
