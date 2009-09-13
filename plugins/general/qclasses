@@ -108,7 +108,7 @@ while ($linecnt < $#lines) {
   &doIt($line,"QFileDialog","KFileDialog",'');
   &doIt($line,"QProgressDialog","KProgressDialog",'');
   &doIt($line,"QSplashScreen","KSplashScreen",'');
-  &doIt($line,"QSystemTrayIcon","KSystemTrayIcon",'');
+  &doIt($line,"QSystemTrayIcon","KNotificationItem",'');
   &doIt($line,"QDialog","KDialog",'');
   &doIt($line,"QLineEdit","KLineEdit",'');
   &doIt($line,"QTabBar","KTabBar",'');
