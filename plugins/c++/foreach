@@ -106,6 +106,8 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/\(\s*(::)?(Types)::\w+\s\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?typename\sT/);
     next if ($line =~ m/\(\s*[:\w]+::(List|const_reference|value_type)\s\w+\s*,/);
+    # known enums. not much else to do except hard-code them as we find 'em.
+    next if ($line =~ m/\(\s*(ElectricBorder|Direction)\s\w+\s*,/);
 
     # see if the iterator variable is declared a pointer a couple lines above
     if ($line =~ m/(foreach|Q_FOREACH)\s*\(\s*(\w+)\s*,/) {
@@ -161,6 +163,6 @@ sub Version {
 }
 
 sub Explain {
-  print "When not using POD types (int, double, pointer, ...) you should use const & for your foreach variables. There are two reasons for this: 1) Prevents you from the mistake of writing foreach loops that modify the list, that is \'foreach(Foo f, list) f.a = f.b = f.c = 0;\' compiles but does not modify the contents of list 2) Saves a copy constructor call for each of the list elements\nDo not call values in Hashes/Maps/Sets inside foreach loops.\n";
+  print "When not using POD types (int, double, pointer, ...) you should use const & for your foreach variables. There are two reasons for this: 1) Prevents you from the mistake of writing foreach loops that modify the list, that is \'foreach(Foo f, list) f.a = f.b = f.c = 0;\' compiles but does not modify the contents of list 2) Saves a copy constructor call for each of the list elements\nDo not call values in Hashes/Maps/Sets inside foreach loops.\nRead <http://tsdgeos.blogspot.com/2009/04/how-to-make-foreach-loops-that-dont.html> for more information about iterating over QHash values and keys.";
   exit 0 if &explainArg();
 }
