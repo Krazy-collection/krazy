@@ -137,7 +137,7 @@ sub check_file
     my $correction;
     for my $word ( split /[^\w']/ )    # \W would split on apostrophe
     {
-      if($word eq "internet") {
+      if($word eq "internet" && $original !~ m/applications-internet/) {
         #FIXME: do something smarter than this to check capitalization probs.
         $correction = "Internet";
       } else {
