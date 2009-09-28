@@ -98,6 +98,10 @@ sub check_file
 
   close $fh or warn "Failed to close: '$filename': $!";
 
+  if ( &fileType($filename) eq "c++") {
+    @contents = &RemoveCondBlockC($Prog,@contents);
+  }
+
   my $original;
   my $cnt = 0;
   my $linecnt = 0;
