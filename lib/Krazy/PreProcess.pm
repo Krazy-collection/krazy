@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007 by Allen Winter <winter@kde.org>                             #
+# Copyright 2007,2009 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -27,7 +27,7 @@ use Exporter;
 $VERSION = 1.00;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(RemoveCommentsC RemoveIfZeroBlockC RemoveCommentsFDO);
+@EXPORT = qw(RemoveCommentsC RemoveIfZeroBlockC RemoveCondBlockC RemoveCommentsFDO);
 @EXPORT_OK = qw();
 
 # Replace C-style comments with whitespace in C/C++ source.
@@ -67,6 +67,34 @@ sub RemoveIfZeroBlockC {
       next;
     }
     if ( $data_lines[$i] =~ m/^\s*#\s*if\s+0\b/ ) {
+      $inblock = 1;
+      $data_lines[$i++] = "\n";
+      next;
+    }
+    $i++;
+  }
+
+  #return array
+  return @data_lines;
+}
+
+# Replace //krazy:cond=checker blocks with whitespace in C++ source.
+# Very stupid. Doesn't handle nested blocks. Doesn't handle C-style comments.
+sub RemoveCondBlockC {
+
+  my($checker,@data_lines) = @_;
+
+  my($i) = 0;
+  my($inblock) = 0;
+  while ( $i < $#data_lines ) {
+    if ( $inblock == 1 ) {
+      if ( $data_lines[$i] =~ m+//.*[Kk]razy:endcond+ ) {
+ 	$inblock = 0;
+      }
+      $data_lines[$i++] = "\n";
+      next;
+    }
+    if ( $data_lines[$i] =~ m+//.*[Kk]razy:cond=.*$checker+ ) {
       $inblock = 1;
       $data_lines[$i++] = "\n";
       next;
