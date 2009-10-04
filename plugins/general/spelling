@@ -322,6 +322,7 @@ advertize              advertise
 afganistan             afghanistan
 agressive              aggressive
 agressively            aggressively
+aligement              alignment
 alignement             alignment
 allign                 align
 alligned               aligned
@@ -601,9 +602,9 @@ coordiator             coordinator
 coordiators            coordinators
 copys                  copies
 coresponding           corresponding
-corrent                correct
 corrdinate             coordinate
 corrdinates            coordinates
+corrent                correct
 correponds             corresponds
 costraints             constraints
 coudn't                couldn't
@@ -877,6 +878,9 @@ exlusively             exclusively
 exmaple                example
 exmaples               examples
 experienceing          experiencing
+expet                  expect
+expeted                expected
+expets                 expects
 explicitely            explicitly
 explicity              explicitly
 explit                 explicit
@@ -1149,6 +1153,7 @@ labelling              labeling
 lauch                  launch
 lauching               launching
 layed                  laid
+leace                  lease
 learnt                 learned
 leats                  least
 lenght                 length
@@ -1242,6 +1247,8 @@ neccesary              necessary
 neccesarily            necessarily
 neccessary             necessary
 neccessarily           necessarily
+neccessities           necessities
+neccessity             necessity
 necessery              necessary
 necesserily            necessarily
 nedd                   need
@@ -1717,6 +1724,7 @@ susbstitutes           substitutes
 swaped                 swapped
 synchonization         synchronization
 synchonizations        synchronizations
+synchroneously         synchronously
 synchronisation        synchronization
 synchronisations       synchronizations
 synchronisation        synchronization
@@ -1731,7 +1739,6 @@ syncronizes            synchronizes
 syncronize             synchronize
 syncronizing           synchronizing
 syncronous             synchronous
-synchroneously         synchronously
 syncrounous            synchronous
 syndrom                syndrome
 syndroms               syndromes
