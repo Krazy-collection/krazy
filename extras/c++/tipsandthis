@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "tipsandthis";
-my($Version) = "1.5";
+my($Version) = "1.6";
 
 &parseArgs();
 
@@ -92,7 +92,7 @@ my($line,$lline,$sline);
 my($type,$name,$key);
 my($linecnt) = 0;
 my($slinecnt);
-my($hasToolTip,$hasWhatsThis,$hasStatusTip,$hasHelpText);
+my($hasToolTip,$hasWhatsThis,$hasStatusTip,$hasHelpText,$isSep);
 while ($linecnt < $#lines) {
   $lline = $line;
   $line = $lines[$linecnt++];
@@ -217,6 +217,7 @@ foreach my $w (keys %Widgets) {
   $hasWhatsThis=0;
   $hasStatusTip=0;
   $hasHelpText=0;
+  $isSep=0;
 
   next if ($Widgets{$w}{'type'} ne "KAction");
 
@@ -230,7 +231,10 @@ foreach my $w (keys %Widgets) {
     $hasWhatsThis = 1 if ($line =~ m/$Widgets{$w}{'name'}->setWhatsThis/);
     $hasStatusTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setStatusTip/);
     $hasHelpText = 1 if ($line =~ m/$Widgets{$w}{'name'}->setHelpText/);
+    $isSep = 1 if ($line =~ m/$Widgets{$w}{'name'}->setSeparator/);
   }
+
+  next if( $isSep );
 
   if (!$hasWhatsThis) {
     $wAcnt++;
