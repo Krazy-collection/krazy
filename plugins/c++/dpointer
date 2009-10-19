@@ -165,11 +165,13 @@ while ($linecnt < $#lines) {
             print "=> $line\n" if (&verboseArg());
           } else {
             # perhaps a non-const d-pointer
-            if ($line =~ m/Private/ && $line !~ m/\(.*Private.*\)/ &&
+            if (($line =~ m/Private/ && $line !~ m/\(.*Private.*\)/ ||
+                 $line =~ m/Priv/    && $line !~ m/\(.*Priv.*\)/) &&
                 $line !~ m/class/ && $line !~ m/struct/ &&
                 $line !~ m/std::auto_ptr/ &&
                 $line !~ m/QSharedDataPointer/ && $line !~ m/QExplicitlySharedDataPointer/ && $line !~ m/KSharedPtr/ && $line !~ m/Q_DISABLE_COPY/) {
               if ($line !~ m/Private[[:alpha:]]*[[:space:]]*\*[[:space:]]*const/ &&
+                  $line !~ m/Priv[[:alpha:]]*[[:space:]]*\*[[:space:]]*const/ &&
                   $line !~ m/\(\)/ &&        #d_func() stuff
                   !$krazyexclude &&          #allow non-const dpointer
 		  !$stuff{$CNAME}{'excluded'} #exclude class from all checks
@@ -333,7 +335,7 @@ sub Priv {
   return 0 unless(length($l));
 
   #we found a dpointer
-  if ($l =~ m/Private/) {
+  if ($l =~ m/Priv/ || $l =~ m/Private/) {
     $stuff{$CNAME}{'dpointer'} = 1;
     return 0;
   }
