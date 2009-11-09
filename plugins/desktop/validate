@@ -50,7 +50,7 @@ my($Version) = "1.4";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
@@ -67,7 +67,7 @@ open(F, "$f") || die "Couldn't open $f";
 my($line);
 my($isa)=0;
 while ($line = <F>) {
-  exit 0
+  Exit 0
     if ($line =~ m+^\s*Type=Service+ ||          # ignore Service files
 	$line =~ m+^\s*Type=AkonadiAgent+ ||     # ignore AkonadiAgent files
 	$line =~ m+^\s*Type=AkonadiResource+ ||  # ignore AkonadiResource files
@@ -77,30 +77,30 @@ while ($line = <F>) {
   $isa=1 if ($line =~ m+^\[Desktop Entry\]+);
 }
 close(F);
-exit 0 if (!$isa); #exit if not a true desktop file
+Exit 0 if (!$isa); #exit if not a true desktop file
 
 #now process the file
 my($cnt) = &processFile($f);
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
-  exit $cnt;
+  Exit $cnt;
 }
 
 sub Help {
   print "Validates desktop files using 'desktop-file-validate'\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Please make sure your .desktop files conform to the freedesktop.org standard. See the spec at <http://standards.freedesktop.org/desktop-entry-spec/latest>\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }
 
 sub processFile() {

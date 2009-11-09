@@ -52,7 +52,7 @@ my($Version) = "1.2";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
@@ -61,7 +61,7 @@ if (fileType($f) eq "c++"){
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 my(@data_lines) = <F>;
 close(F);
@@ -134,7 +134,7 @@ while ($linecnt < $#lines) {
 my($total_count) = $acnt + $ecnt + $mcnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   if (!&quietArg()) {
     print "using debug areas: $alstr ($acnt)" if ($acnt);
@@ -144,20 +144,20 @@ if (!$total_count) {
     print "using endl: $elstr ($ecnt)" if ($ecnt);
     print "\n";
   }
-  exit $total_count;
+  Exit $total_count;
 }
 
 sub Help {
   print "Check for kDebug issues\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "No need to print the method name or a trailing endl with kDebug and friends -- all that is done for you as if by magic.\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

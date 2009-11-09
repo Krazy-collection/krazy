@@ -27,7 +27,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -38,6 +38,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 use strict;
 use Getopt::Long;
 use Cwd 'abs_path';
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::Utils;
 
 my($Prog) = "kclasses";
 my($Version) = "1.0";
@@ -57,7 +60,7 @@ if (!GetOptions('help' => \$help, 'version' => \$version,
 &Help() if $help;
 &Version() if $version;
 &Explain() if $explain;
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 my($absf) = abs_path($f);
@@ -66,7 +69,7 @@ if ($installed && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!$quiet);
-  exit 0;
+  Exit 0;
 }
 
 my(@data_lines) = <F>;
@@ -106,11 +109,11 @@ while ($linecnt < $#lines) {
 
 if (!$cnt) {
   print "okay\n" if (!$quiet);
-  exit 0;
+  Exit 0;
 } else {
   $lstr =~ s/,$//;
   print "$lstr ($cnt)\n" if (!$quiet);
-  exit $cnt;
+  Exit $cnt;
 }
 
 sub doIt() {
@@ -135,15 +138,15 @@ or include <KAction> or include <kaction.h> or QList<KAction> or QList<KAction*>
 
 sub Help {
   print "Check for KDE classes that should not be used\n";
-  exit 0 if $help;
+  Exit 0 if $help;
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  Exit 0 if $version;
 }
 
 sub Explain {
   print "Use Qt classes in the public API instead of the KDE counterparts.\n";
-  exit 0 if $explain;
+  Exit 0 if $explain;
 }

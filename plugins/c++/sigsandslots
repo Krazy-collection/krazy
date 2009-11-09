@@ -51,7 +51,7 @@ my($Version) = "1.3";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
@@ -60,7 +60,7 @@ if (&installedArg() && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 my(@data_lines) = <F>;
 close(F);
@@ -111,7 +111,7 @@ while ($linecnt < $#lines) {
 my($total_count) = $sig_cnt + $slot_cnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   if (!&quietArg()) {
     print "signals: $sig_str ($sig_cnt)" if ($sig_cnt);
@@ -119,20 +119,20 @@ if (!$total_count) {
     print "slots: $slot_str ($slot_cnt)" if ($slot_cnt);
     print "\n";
   }
-  exit $total_count;
+  Exit $total_count;
 }
 
 sub Help {
   print "Check for signals: and slots:\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "In the libraries, use Q_SIGNALS: and Q_SLOTS: instead of signals: and slots: They are syntactically equivalent and should be used to avoid conflicts with boost signals, and with python's use of \"slots\" in its headers.\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

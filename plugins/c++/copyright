@@ -51,7 +51,7 @@ my($Version) = "1.6";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 open(F, "$f") || die "Couldn't open $f";
@@ -168,23 +168,23 @@ if (! $found) {
 
 if (! $tags ) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   print "missing tags: $tags ($cnt)\n" if (!&quietArg());
-  exit $cnt;
+  Exit $cnt;
 }
 
 sub Help {
   print "Check for an acceptable copyright\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "All source files must contain a copyright header which identifies the copyright holder(s) together with a e-mail address that can be used to reach the copyright holder.  One copyright holder per line, with real email addresses please. For details regarding KDE's licensing policy please visit <http://techbase.kde.org/Policies/Licensing_Policy>.  A typical copyright looks like: \"Copyright 2002,2005-2006 Joe Hacker \<joe.hacker\@kde.org\>\"\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

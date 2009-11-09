@@ -50,7 +50,7 @@ my($Version) = "<version>";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 # Check Condition
 #my($f) = $ARGV[0];
@@ -75,23 +75,23 @@ if ($#ARGV != 0){ &Help(); exit 0; }
 
 #if (!$cnt) {
 #  print "okay\n" if (!&quietArg());
-#  exit 0;
+#  Exit 0;
 #} else {
 #  print "$lstr ($cnt)\n" if (!&quietArg());
-#  exit $cnt;
+#  Exit $cnt;
 #}
 
 sub Help {
   print "Check for <condition>\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "<describe problem with solution.>\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

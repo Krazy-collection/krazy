@@ -52,7 +52,7 @@ my($Version) = "1.10";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 my($absf) = abs_path($f);
@@ -65,7 +65,7 @@ if ($absf !~ m+/kdesupport/+ &&
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 my(@data_lines) = <F>;
 close(F);
@@ -121,11 +121,11 @@ while ($linecnt < $#lines) {
 
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   $lstr =~ s/,$//;
   print "$lstr ($cnt)\n" if (!&quietArg());
-  exit $cnt;
+  Exit $cnt;
 }
 
 sub doIt() {
@@ -181,15 +181,15 @@ sub whiteList {
 
 sub Help {
   print "Check for Qt classes that should not be used\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Don't use Qt 4 classes that are deprecated. Additionally make sure to use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. <http://techbase.kde.org/Policies/API_to_Avoid> *Please* *refer* *to* *the* *API* *documentation* *for* *details* *before* *porting* *to* *the* *K* *classes*.\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

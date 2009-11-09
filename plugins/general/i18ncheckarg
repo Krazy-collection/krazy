@@ -56,6 +56,9 @@ use strict;
 use Getopt::Long;
 use XML::LibXML;
 use POSIX qw{floor ceil};
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::Utils;
 
 my($Prog) = "i18ncheckarg";
 my($Version) = "1.1";
@@ -85,7 +88,7 @@ if (!GetOptions('krazy' => \$krazy, 'help' => \$help, 'version' => \$version,
 &Help() if $help;
 &Version() if $version;
 &Explain() if $explain;
-if ($#ARGV != 0 and not $allsources) { &Help(); exit 0; }
+if ($#ARGV != 0 and not $allsources) { &Help(); Exit 0; }
 
 # ------------------------------------------------------------------------------
 # Globals.
@@ -1404,17 +1407,17 @@ sub descend_tree {
 
 sub Help {
   print "Check validity of i18n calls\n";
-  exit 0 if $help;
+  Exit 0 if $help;
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  Exit 0 if $version;
 }
 
 sub Explain {
   print "Make the translators' job easier and detect problems in the usage of the i18n() calls. When the fix is not clear, check the Techbase article at <http://techbase.kde.org/Development/Tutorials/Localization/i18n_Krazy> for more information.\n";
-  exit 0 if $explain;
+  Exit 0 if $explain;
 }
 
 # ------------------------------------------------------------------------------
@@ -1441,8 +1444,8 @@ my $cnt =   $gg_nwgaps + $gg_ncount + $gg_nqnumber + $gg_nkfmtnum
           + $gg_novermax + $gg_nlegplu + $gg_nkuit + $gg_nambi;
 if ($cnt == 0) {
     print "okay\n" if (!$quiet);
-    exit 0;
+    Exit 0;
 }
 else {
-    exit $cnt;
+    Exit $cnt;
 }

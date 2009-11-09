@@ -29,11 +29,11 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.12;
+$VERSION = 1.13;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topModule topProject fileType fileTypeDesc findFiles asOf
-             deDupe addRegEx
+             Exit deDupe addRegEx
              addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
@@ -84,6 +84,15 @@ sub topProject {
   my($subdir);
   ($module,$subdir) = split("/",$module);
   return "$top/$module/$subdir";
+}
+
+# Exit a checker with the number of issues
+sub Exit {
+  my($issues)=@_;
+  if($issues > 0) {
+    print "ISSUES=$issues\n";
+  }
+  exit $issues;
 }
 
 # remove duplicate entries from a list

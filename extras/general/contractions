@@ -29,7 +29,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #   --version:       print one-line version information and exit
 #   --priority:      report issues of the specified priority only
 #   --strict:        report issues with the specified strictness level only
-#   --explain:       print an explanation with solving instructions, then exit
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -51,7 +51,7 @@ my($Version) = "1.6";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
@@ -147,10 +147,10 @@ foreach $line (@lines) {
 
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   print "$lstr ($cnt)\n" if (!&quietArg());
-  exit $cnt;
+  Exit $cnt;
 }
 
 # search the previous $n lines for a pattern $p
@@ -168,15 +168,15 @@ sub searchBack {
 
 sub Help {
   print "Check for contractions in strings\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "The KDE Style Guide recommends not using contractions in strings. For example: \"don't\" should be changed to \"do not\".  Contractions used in comments are ok.\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

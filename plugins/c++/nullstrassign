@@ -51,14 +51,14 @@ my($Version) = "1.5";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
 # skip C source files
 if ($f =~ m/\.c$/) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 
 #open file and slurp it in
@@ -100,23 +100,23 @@ foreach $line (@lines) {
 
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   print "$lstr ($cnt)\n" if (!&quietArg());
-  exit $cnt;
+  Exit $cnt;
 }
 
 sub Help {
   print "Check for assignments to QString::null\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Do not assign QString::null or QString() to a QString.  Instead use the .clear() method.  For example, \"str = QString::null\" becomes \"str.clear()\". When returning an empty string from a method use \"return QString()\"  When passing an empty string use \"QString()\".";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

@@ -27,7 +27,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
-#   --explain:       print an explanation with solving instructions, then exit
+#   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
@@ -37,6 +37,10 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 use strict;
 use Getopt::Long;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
 
 my($Prog) = "constmethods";
 my($Version) = "1.0";
@@ -56,7 +60,7 @@ if (!GetOptions('help' => \$help, 'version' => \$version,
 &Help() if $help;
 &Version() if $version;
 &Explain() if $explain;
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 # Check Condition
 my($f) = $ARGV[0];
@@ -65,7 +69,7 @@ if (($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!$quiet);
-  exit 0;
+  Exit 0;
 }
 
 #open file and slurp it in
@@ -135,10 +139,10 @@ close(F);
 
 if (!$cnt) {
   print "okay\n" if (!$quiet);
-  exit 0;
+  Exit 0;
 } else {
   print "$lstr ($cnt)\n" if (!$quiet);
-  exit $cnt;
+  Exit $cnt;
 }
 
 # determine if the current line $l has a class, checking the previous line $l1
@@ -252,15 +256,15 @@ sub searchBack {
 
 sub Help {
   print "[TEST] Check for class methods that should be declared \'const\'\n";
-  exit 0 if $help;
+  Exit 0 if $help;
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if $version;
+  Exit 0 if $version;
 }
 
 sub Explain {
   print "As a general rule methods should be const except when it's not possible to make them such. See <http://developer.kde.org/~wheeler/cpp-pitfalls.html>.\n";
-  exit 0 if $explain;
+  Exit 0 if $explain;
 }

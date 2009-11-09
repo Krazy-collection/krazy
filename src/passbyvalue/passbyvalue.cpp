@@ -412,6 +412,7 @@ main( int argc, char **argv )
         return 0;
     }
 
+    fprintf(stderr, "ISSUES=%d\n", nastyCount);
     return nastyCount;
 }
 /* kate: space-indent on; indent-width 4; */

@@ -52,14 +52,14 @@ my($Version) = "1.4";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
 # skip C source files
 if ($f =~ m/\.c$/) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 
 #open file and slurp it in
@@ -118,24 +118,24 @@ foreach $line (@lines) {
 my($total_count) = $min_cnt + $max_cnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   print "MIN: $min_str ($min_cnt) MAX: $max_str ($max_cnt)\n" if (!&quietArg());
-  exit $total_count;
+  Exit $total_count;
 }
 
 sub Help {
   print "Check for QMIN and QMAX macros\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Obsolete macros QMIN(), Q_MIN(), QMAX() and Q_MAX() should be replaced by the qMin() and qMax() functions.\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }
 

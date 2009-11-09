@@ -53,7 +53,7 @@ my($Version) = "1.13";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
@@ -62,7 +62,7 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 my(@data_lines) = <F>;
 close(F);
@@ -247,7 +247,7 @@ foreach $line (@lines) {
 my($total_count) = $cnt + $scnt + $rcnt + $xcnt + $tcnt + $spcnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   if (!&quietArg()) {
     print "$lstr ($cnt)\n" if ($cnt);
@@ -257,20 +257,20 @@ if (!$total_count) {
     print "$tlstr ($tcnt)\n" if ($tcnt);
     print "$splstr ($spcnt)\n" if ($spcnt);
   }
-  exit $total_count;
+  Exit $total_count;
 }
 
 sub Help {
   print "Check single-char QString operations for efficiency\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Adding single characters to a QString is faster if the characters are QChars and not QStrings.  For example: QString path = oldpath + \"/\" + base is better written as QString path = oldpath + \'/\' + base. Same holds for arguments to QString::startsWith(), QString::endsWith(), QString::remove(), QString::section(), and QString::split(). Use QString::remove() instead of QString::replace(foo,\"\")\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

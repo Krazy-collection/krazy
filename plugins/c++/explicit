@@ -60,7 +60,7 @@ my($Version) = "1.4";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
@@ -69,7 +69,7 @@ if (($f =~ m/\.h$/ || $f =~ m/\.hxx$/) && $f !~ m+/tests/+) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 my(@data_lines) = <F>;
 close(F);
@@ -166,10 +166,10 @@ while ($linecnt < $#lines) {
 
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   print "$lstr ($cnt)\n" if (!&quietArg());
-  exit $cnt;
+  Exit $cnt;
 }
 
 sub Section {
@@ -329,15 +329,15 @@ sub searchBackWithStop {
 
 sub Help {
   print "Check for C++ ctors that should be declared \'explicit\'\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Make all C++ class constructors that can be used with only one required argument \'explicit\' to minimize wrong use of the class. Do this to avoid mistaken implicit constructor ambiguities. Copy constructors should not be explicit.\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

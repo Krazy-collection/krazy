@@ -52,7 +52,7 @@ my($Version) = "1.1";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 my($absf) = abs_path($f);
@@ -62,7 +62,7 @@ if (fileType($f) eq "c++"){
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 my(@data_lines) = <F>;
 close(F);
@@ -105,11 +105,11 @@ while ($linecnt < $#lines) {
 
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   $lstr =~ s/,$//;
   print "$lstr ($cnt)\n" if (!&quietArg());
-  exit $cnt;
+  Exit $cnt;
 }
 
 sub doIt() {
@@ -137,15 +137,15 @@ sub eNum() {
 
 sub Help {
   print "Check for Qt enums that should not be used\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "For Qt color enums please use KColorScheme whereever possible; or at least use Oxygen color instead.\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

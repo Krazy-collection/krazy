@@ -53,7 +53,7 @@ my($Version) = "1.8";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
@@ -62,7 +62,7 @@ if (&installedArg() && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 my(@data_lines) = <F>;
 close(F);
@@ -197,12 +197,12 @@ while ($linecnt < $#lines) {
 
 if (!$cnt && !$ccnt && !$mcnt) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   print "$lstr ($cnt)\n" if (!&quietArg() && $cnt);
   print "$clstr ($ccnt)\n" if (!&quietArg() && $ccnt);
   print "$mlstr ($mcnt)\n" if (!&quietArg() && $mcnt);
-  exit $cnt+$ccnt+$mcnt;
+  Exit $cnt+$ccnt+$mcnt;
 }
 
 sub Section {
@@ -436,15 +436,15 @@ sub searchBackWithStop {
 
 sub Help {
   print "Check public classes with private members or d-pointer issues\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "In order to more easily maintain binary compatibility, a public class in an installed header should not contain private members -- use d-pointers instead. Application headers should not mix d-pointers and private members. Also ensure  that the d-pointer is \'const\' to avoid modifying it by mistake. Please follow the guidelines in the d-pointers section of <http://techbase.kde.org/Policies/Library_Code_Policy#D-Pointers>.\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }

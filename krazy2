@@ -47,10 +47,13 @@
 #   2. must require one command line argument which is the file to test
 #   3. must exit with status 0, and print "okay" if the file passes the test
 #   4. must exit with non-zero status (=total failures) if file fails the test
-#   5. must print a string to standard output showing line number(s) that
+#   5. if issues are encountered, the final line printed should be "ISSUES=N", where N
+#      is the total number of issues found.  Krazy2 assumes this is the last line of
+#      output, even if the plugin prints more information after the "ISSUES=N" line.
+#   6. must print a string to standard output showing line number(s) that
 #      fail the test.
-#   6. the plugin should be a quick test of a source code file
-#   7. the --explain option must print an explanation of why the offending
+#   7. the plugin should be a quick test of a source code file
+#   8. the --explain option must print an explanation of why the offending
 #      code is a problem, along with instructions on how to fix the code.
 #
 # Program options:
@@ -112,7 +115,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.9';    #split line so MakeMaker can find the version here
+ $VERSION = '2.10';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -570,13 +573,23 @@ for $ftype (@types) {
       if ( !$dryrun ) {
         $pid = open( SANE, "$p $opts $insopt \'$f\' 2>/dev/null |" )
           or print STDERR "Cannot run: &basename($p)\n";
+        my($issues) = -1;
         while (<SANE>) {
           chomp($_);
-          $result{$p} .= "\t" . $f . ": " . $_ . "\n"
-            unless ( $_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+ );
+          if($_ =~ m/^ISSUES=(\d+)/) {
+            $issues = $1;
+            last;
+          } else {
+            $result{$p} .= "\t" . $f . ": " . $_ . "\n"
+              unless ( $_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+ );
+          }
         }
         close(SANE);
-        $status{$p} += $? >> 8;  #TODO:invent another way to get #issues
+        if ($issues < 0) {
+          #maybe the checker didn't print the ISSUES=N line, so use the old exit status
+          $issues = $? >> 8;
+        }
+        $status{$p} += $issues;
       } else {
         print "$p $opts $insopt $f\n";
       }
@@ -1385,18 +1398,24 @@ must require one command line argument which is the file to test.
 must exit with status 0, and print "okay" if the file passes the test.
 
 =item 4.
-must exit with non-zero status (=total issues) if issues are encountered.
+must exit with non-zero status if issues are encountered.
 
 =item 5.
-must print a string to standard output showing line number(s) that fail the test.
+if issues are encountered, the final line printed should be "ISSUES=N",
+where N is the total number of issues found.  Krazy2 assumes this is the
+last line of output, even if the plugin prints more information after
+the "ISSUES=N" line.
 
 =item 6.
-the plugin should be a quick test of a source code file.
+must print a string to standard output showing line number(s) that fail the test.
 
 =item 7.
-the --explain option must print an explanation of why the offending code is a problem, along with instructions on how to fix the code.
+the plugin should be a quick test of a source code file.
 
 =item 8.
+the --explain option must print an explanation of why the offending code is a problem, along with instructions on how to fix the code.
+
+=item 9.
 I<finally, and importantly, the plugin must eliminate false positives as much as possible.>
 
 =back

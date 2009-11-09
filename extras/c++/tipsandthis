@@ -52,7 +52,7 @@ my($Version) = "1.6";
 &Help() if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); exit 0; }
+if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
@@ -61,7 +61,7 @@ if (&fileType($f) eq "c++" && $f =~ /\.(cpp|cxx|cc)$/) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 }
 my(@data_lines) = <F>;
 close(F);
@@ -99,7 +99,7 @@ while ($linecnt < $#lines) {
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
     print "okay\n" if (!&quietArg());
-    exit 0;
+    Exit 0;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
@@ -295,7 +295,7 @@ my ($total_count) =
 
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
-  exit 0;
+  Exit 0;
 } else {
   if (!&quietArg()) {
     print "$tlstr ($tcnt)\n" if ($tcnt);
@@ -309,7 +309,7 @@ if (!$total_count) {
     print "$hAlstr ($hAcnt)\n" if ($hAcnt);
     print "$wAlstr ($wAcnt)\n" if ($wAcnt);
   }
-  exit $total_count;
+  Exit $total_count;
 }
 
 sub widgetName {
@@ -357,15 +357,15 @@ sub widgetType {
 
 sub Help {
   print "Check for missing tooltips or whatsThis\n";
-  exit 0 if &helpArg();
+  Exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  exit 0 if &versionArg();
+  Exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Please provide tooltips and whatsThis strings to help the user make informed choices.  KAction's should use setStatusTip instead of setToolTip.\n";
-  exit 0 if &explainArg();
+  Exit 0 if &explainArg();
 }
