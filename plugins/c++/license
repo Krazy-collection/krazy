@@ -118,13 +118,13 @@ foreach my $a (@ARGV) {
     last;
   }
   if ($a eq "--help") {
-    &Help(); Exit 0;
+    &Help(); exit 0;
   }
   if ($a eq "--version") {
-    &Version(); Exit 0;
+    &Version(); exit 0;
   }
   if ($a eq "--explain") {
-    &Explain(); Exit 0;
+    &Explain(); exit 0;
   }
 }
 if ($krazy == 1) {
@@ -142,7 +142,7 @@ if ($krazy == 1) {
 }
 
 #code for non-Krazy usage start here
-Exit 1 if (!&GetOptions('verbose' => \$verbose, 'quiet' => \$quiet));
+exit 1 if (!&GetOptions('verbose' => \$verbose, 'quiet' => \$quiet));
 
 my $had_error = 0;
 foreach my $f (@ARGV) {
@@ -153,8 +153,8 @@ foreach my $f (@ARGV) {
     $had_error |= $r;
 }
 
-Exit 1 if $had_error;
-Exit 0;
+exit 1 if $had_error;
+exit 0;
 
 ### end main
 sub checkLicense($)
@@ -250,15 +250,15 @@ sub checkLicense($)
 
 sub Help {
   print "Check for an acceptable license\n";
-  Exit 0 if &helpArg();
+  exit 0 if &helpArg();
 }
 
 sub Version {
   print "$Prog, version $Version\n";
-  Exit 0 if &versionArg();
+  exit 0 if &versionArg();
 }
 
 sub Explain {
   print "Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed.  For details regarding KDE's licensing policy please visit <http://techbase.kde.org/Policies/Licensing_Policy>.\n";
-  Exit 0 if &explainArg();
+  exit 0 if &explainArg();
 }
