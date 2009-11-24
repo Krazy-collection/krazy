@@ -18,6 +18,12 @@ like so:
 
   % ./install.sh /another/location
 
+If your Qt4 'qmake' has another name (some distros do this, for example
+Fedora11 calls it 'qmake-qt4'), then set the QMAKE environment variable
+before calling install.sh.  For example:
+
+  % QMAKE=qmake-qt4 ./install.sh
+
 Next you must add /usr/local/Krazy2/bin (or /another/location/bin)
 to your execute path.
 

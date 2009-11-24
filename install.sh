@@ -20,8 +20,10 @@ if ( test `hostname | egrep -c englishbreakfast` -gt 0 ) then
 else
   EBN=0
   TOP=/usr/local/Krazy2
-  # Assumed to be in the PATH
-  QMAKE=qmake
+  if ( test -z "$QMAKE") then
+    # Assumed to be in the PATH
+    QMAKE=qmake
+  fi
 fi
 
 #or pass TOP in as the first command line option
