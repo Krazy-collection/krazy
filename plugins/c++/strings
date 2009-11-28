@@ -67,6 +67,8 @@ close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+# Remove Krazy conditional blocks
+@lines = RemoveCondBlockC( $Prog, @lines );
 
 my($dcnt) = 0;
 my($linecnt) = 0;
