@@ -45,7 +45,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "operators";
-my($Version) = "1.0";
+my($Version) = "1.1";
 
 &parseArgs();
 
@@ -253,6 +253,9 @@ sub Ops {
 
   #did we find a comparison operator?
   if ($l =~ m/\s\&?operator\s*(==|\!=|<=|<|>=|>)\(.*\)/) {
+    #skip friends
+    return 0 if ($l =~ m/^\s*friend/);
+
     return 1 if ($l !~ m/\)\s*const/);
   }
   return 0;
