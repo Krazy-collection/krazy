@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "strings";
-my($Version) = "1.0";
+my($Version) = "1.1";
 
 &parseArgs();
 
