@@ -88,7 +88,7 @@ sub RemoveCondBlockC {
   my($inblock) = 0;
   while ( $i < $#data_lines ) {
     if ( $inblock == 1 ) {
-      if ( $data_lines[$i] =~ m+//.*[Kk]razy:endcond+ ) {
+      if ( $data_lines[$i] =~ m+//.*[Kk]razy:endcond.*$checker+ ) {
  	$inblock = 0;
       }
       $data_lines[$i++] = "\n";
