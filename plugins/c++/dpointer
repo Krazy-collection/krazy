@@ -168,6 +168,7 @@ while ($linecnt < $#lines) {
             if (($line =~ m/Private/ && $line !~ m/\(.*Private.*\)/ ||
                  $line =~ m/Priv/    && $line !~ m/\(.*Priv.*\)/) &&
                 $line !~ m/class/ && $line !~ m/struct/ &&
+                $line !~ m/boost::shared_ptr/ &&
                 $line !~ m/std::auto_ptr/ &&
                 $line !~ m/QSharedDataPointer/ && $line !~ m/QExplicitlySharedDataPointer/ && $line !~ m/KSharedPtr/ && $line !~ m/Q_DISABLE_COPY/) {
               if ($line !~ m/Private[[:alpha:]]*[[:space:]]*\*[[:space:]]*const/ &&
