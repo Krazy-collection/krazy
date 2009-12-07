@@ -283,7 +283,8 @@ foreach $line (@lines) {
   }
 
   if ($line =~ m/[[:space:]]*while[[:space:]]\(/ && $line !~ m/\{$/ && !&endOkCond($line) && $line !~ m/\;$/) {
-    if ($line !~ m/\}[[:space:]]*while/) { # exclude the do-while
+    if (!&searchForward('\)\s*{\s*$',$linecnt,5) &&
+        $line !~ m/\}[[:space:]]*while/) { # exclude the do-while
       $Issues{'WHILEBRACE'}{'count'}++;
       if ($Issues{'WHILEBRACE'}{'count'} == 1) {
 	$Issues{'WHILEBRACE'}{'lines'} = "line\#" . $linecnt;
