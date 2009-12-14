@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2007 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2007,2009 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -98,7 +98,7 @@ foreach $line (@lines) {
   if ($line =~ m/[^[:alnum:]_]Q_?MIN[^[:alnum:]_]/ ) {
     $min_cnt++;
     if ($min_cnt == 1) {
-      $min_str = "line\#" . $linecnt;
+      $min_str = "using QMIN line\#" . $linecnt;
     } else {
       $min_str = $min_str . "," . $linecnt;
     }
@@ -107,7 +107,7 @@ foreach $line (@lines) {
   if ($line =~ m/[^[:alnum:]_]Q_?MAX[^[:alnum:]_]/ ) {
     $max_cnt++;
     if ($max_cnt == 1) {
-      $max_str = "line\#" . $linecnt;
+      $max_str = "using QMAX line\#" . $linecnt;
     } else {
       $max_str = $max_str . "," . $linecnt;
     }
@@ -120,7 +120,8 @@ if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
-  print "MIN: $min_str ($min_cnt) MAX: $max_str ($max_cnt)\n" if (!&quietArg());
+  print "$min_str ($min_cnt)\n" if (!&quietArg() && $min_cnt);
+  print "$max_str ($max_cnt)\n" if (!&quietArg() && $max_cnt);
   Exit $total_count;
 }
 
