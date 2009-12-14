@@ -92,7 +92,7 @@ foreach my $line (@lines) {
       last if ($line =~ m/\/\/.*TRUE/);
       $true_cnt++;
       if ($true_cnt == 1) {
-        $true_str = "line\#" . $line_cnt;
+        $true_str = "using TRUE line\#" . $line_cnt;
       } else {
         $true_str = $true_str . "," . $line_cnt;
       }
@@ -108,7 +108,7 @@ foreach my $line (@lines) {
       last if ($line =~ m/\/\/.*FALSE/);
       $false_cnt++;
       if ($false_cnt == 1) {
-        $false_str = "line\#" . $line_cnt;
+        $false_str = "using FALSE line\#" . $line_cnt;
       } else {
         $false_str = $false_str . "," . $line_cnt;
       }
@@ -121,7 +121,8 @@ if (!$true_cnt && !$false_cnt) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
-  print "TRUE: $true_str ($true_cnt) FALSE: $false_str ($false_cnt)\n" if (!&quietArg());
+  print "$true_str ($true_cnt)\n" if (!&quietArg() && $true_cnt);
+  print "$false_str ($false_cnt)\n" if (!&quietArg() && $false_cnt);
   Exit $true_cnt + $false_cnt;
 }
 
