@@ -272,12 +272,15 @@ foreach $type ( keys %xCheckers ) {
 # Parse .krazy file(s)
 my(%ds);
 if ( !$ignorerc ) {
+  my ($rcfile);
   # read directives from the user' .krazy in their home dir.
-  my ($rcfile) = $HOME . "/.krazy";
-  %ds = &ParseKrazyRC($rcfile);
+  if ( defined($HOME) && $HOME ) { # just in case $HOME isn't set
+    $rcfile = $HOME . "/.krazy";
+    %ds = &ParseKrazyRC($rcfile);
+  }
 
   # read directives from the project's .krazy
-  $rcfile="";
+  $rcfile = "";
   my ($projpath) = &topProject($CWD);
   if ($projpath) {
     $rcfile = $projpath . "/.krazy";
