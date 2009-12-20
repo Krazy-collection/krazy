@@ -358,6 +358,10 @@ anwered                answered
 anwers                 answers
 anwser                 answer
 anwsers                answers
+apear                  appear
+apearance              appearance
+apeared                appeared
+apears                 appears
 aplication             application
 aplications            applications
 appeareance            appearance
@@ -768,9 +772,17 @@ discpline              discipline
 discription            description
 discriptions           descriptions
 disppear               disappear
+disppearance           disappearance
 disppeared             disappeared
 disppears              disappears
+dissappear             disappear
+dissappearance         disappearance
+dissappeared           disappeared
+dissappears            disappears
+dissassemble           disassemble
+dissassembled          disassembled
 dissassembler          disassembler
+dissassembles          disassembles
 dissassembly           disassembly
 distingush             distinguish
 distingushed           distinguished
@@ -905,7 +917,9 @@ featues                features
 feeded                 fed
 filsystem              filesystem
 filsystems             filesystems
+finded                 found
 firware                firmware
+firts                  first
 fisrt                  first
 fixiated               fixated
 fixiate                fixate
@@ -1348,6 +1362,8 @@ particip               participle
 particularily          particularly
 paticular              particular
 pendings               pending
+percentate             percentage
+percentates            percentages
 percetage              percentage
 percetages             percentages
 perfomance             performance
@@ -1681,6 +1697,7 @@ streches               stretches
 #incorrect spelling    correction
 
 striked                stroked
+stucked                stuck
 stucture               structure
 stuctures              structures
 styleshet              stylesheet
@@ -1757,6 +1774,8 @@ sytem                  system
 sytems                 systems
 talbs                  tables
 talse                  false
+targget                target
+tartget                target
 tecnologies            technologies
 tecnology              technology
 tempararily            temporarily
@@ -1816,10 +1835,12 @@ trasfers               transfers
 traveller              traveler
 travellers             travelers
 travelling             traveling
+trhee                  three
 triggerg               triggering
 triggerred             triggered
 truely                 truly
 trys                   tries
+typess                 types
 uglyness               ugliness
 unabiguous             unambiguous
 unabiguousness         unambiguousness
@@ -1907,6 +1928,8 @@ whish                  wish
 whishes                wishes
 whitch                 which
 whith                  with
+whithin                within
+whitin                 within
 
 #incorrect spelling    correction
 
