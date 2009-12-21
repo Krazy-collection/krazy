@@ -117,9 +117,12 @@ sub check_file
       $cnt = 0;
       last;
     }
-    next if ($original =~ m+http://+ ||
-             $original =~ m+https://+ ||
-             $original =~ m+ftp://+);  # skip lines with urls
+
+    next if ( fileType($filename) eq "c++" &&
+              ($original =~ m+http://+ ||
+               $original =~ m+https://+ ||
+               $original =~ m+ftp://+)  # skip lines with urls
+            );
 
     next if (fileType($filename) eq "desktop" &&
 	     ($original =~ m+^Comment\[.*\]+ ||
