@@ -115,7 +115,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.10';    #split line so MakeMaker can find the version here
+ $VERSION = '2.11';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -270,12 +270,25 @@ foreach $type ( keys %xCheckers ) {
 &ListTypes() if $listtypes;
 
 # Parse .krazy file(s)
-my(%ds);
+my(%ds,%pds);
+$ds{'EXTRA'}     = $pds{'EXTRA'} = "";
+$ds{'CHECK'}     = $pds{'CHECK'} = "";
+$ds{'EXCLUDE'}   = $pds{'EXCLUDE'} = "";
+$ds{'SKIPREGEX'} = $pds{'SKIPREGEX'} = "";
+$ds{'PRIORITY'}  = $pds{'PRIORITY'} = "";
+$ds{'STRICT'}    = $pds{'STRICT'} = "";
+$ds{'OUTPUT'}    = $pds{'OUTPUT'} = "";
+$ds{'EXPORT'}    = $pds{'EXPORT'} = "";
+
 if ( !$ignorerc ) {
   my ($rcfile);
+
   # read directives from the user' .krazy in their home dir.
+  $rcfile = "";
   if ( defined($HOME) && $HOME ) { # just in case $HOME isn't set
     $rcfile = $HOME . "/.krazy";
+  }
+  if ($rcfile && -f $rcfile) {
     %ds = &ParseKrazyRC($rcfile);
   }
 
@@ -291,39 +304,31 @@ if ( !$ignorerc ) {
     }
   }
   if ($rcfile && -f $rcfile) {
-    my(%pds);
     %pds = &ParseKrazyRC($rcfile);
-
-    #Merge the directives from the possible 2 .krazy files
-    if (exists($ds{'EXCLUDE'}) && exists($pds{'EXCLUDE'})) {
-      $ds{'EXCLUDE'} = &addCommaSeparated($ds{'EXCLUDE'},$pds{'EXCLUDE'});
-    }
-    if (exists($ds{'EXCLUDE'}) && exists($pds{'EXCLUDE'})) {
-      $ds{'CHECK'} = &addCommaSeparated($ds{'CHECK'},$pds{'CHECK'});
-    }
-    if (exists($ds{'EXCLUDE'}) && exists($pds{'EXCLUDE'})) {
-      $ds{'EXTRA'} = &addCommaSeparated($ds{'EXTRA'},$pds{'EXTRA'});
-    }
-    if (exists($ds{'EXCLUDE'}) && exists($pds{'EXCLUDE'})) {
-      $ds{'SKIPREGEX'} = &addRegEx($ds{'SKIPREGEX'},$pds{'SKIPREGEX'});
-    }
-
-    $ds{'PRIORITY'} = $pds{'PRIORITY'} if ($pds{'PRIORITY'});
-    $ds{'STRICT'}   = $pds{'STRICT'} if ($pds{'STRICT'});
-    $ds{'OUTPUT'}   = $pds{'OUTPUT'} if ($pds{'OUTPUT'});
-    $ds{'EXPORT'}   = $pds{'EXPORT'} if ($pds{'EXPORT'});
   }
+
+  #Merge the directives from the possible 2 .krazy files
+  $ds{'EXCLUDE'}   = &addCommaSeparated( $ds{'EXCLUDE'} , $pds{'EXCLUDE'});
+  $ds{'CHECK'}     = &addCommaSeparated( $ds{'CHECK'},    $pds{'CHECK'});
+  $ds{'EXTRA'}     = &addCommaSeparated( $ds{'EXTRA'},    $pds{'EXTRA'});
+  $ds{'SKIPREGEX'} = &addRegEx(          $ds{'SKIPREGEX'},$pds{'SKIPREGEX'});
+
+  #override directives from the possible 2 .krazy files
+  $ds{'PRIORITY'} = $pds{'PRIORITY'} if ($pds{'PRIORITY'});
+  $ds{'STRICT'}   = $pds{'STRICT'}   if ($pds{'STRICT'});
+  $ds{'OUTPUT'}   = $pds{'OUTPUT'}   if ($pds{'OUTPUT'});
+  $ds{'EXPORT'}   = $pds{'EXPORT'}   if ($pds{'EXPORT'});
 }
 
 # override .krazy file settings with command line settings
-$extra   = $ds{'EXTRA'}     if (!$extra && exists($ds{'EXTRA'}));
-$only    = $ds{'CHECK'}     if (!$only && exists($ds{'CHECK'}));
-$exclude = $ds{'EXCLUDE'}   if (!$exclude && exists( $ds{'EXCLUDE'}));
-$skip = $ds{'SKIPREGEX'}    if (exists( $ds{'SKIPREGEX'} ) );
-$priority = $ds{'PRIORITY'} if (!$priority && $ds{'PRIORITY'});
-$strict = $ds{'STRICT'}     if (!$strict && $ds{'STRICT'});
-$output = $ds{'OUTPUT'}     if ($ds{'OUTPUT'});
-$export = $ds{'EXPORT'}     if (!$export && $ds{'EXPORT'});
+$extra    = $ds{'EXTRA'}     if (!$extra    && $ds{'EXTRA'});
+$only     = $ds{'CHECK'}     if (!$only     && $ds{'CHECK'});
+$exclude  = $ds{'EXCLUDE'}   if (!$exclude  && $ds{'EXCLUDE'});
+$skip     = $ds{'SKIPREGEX'} if (              $ds{'SKIPREGEX'});
+$priority = $ds{'PRIORITY'}  if (!$priority && $ds{'PRIORITY'});
+$strict   = $ds{'STRICT'}    if (!$strict   && $ds{'STRICT'});
+$output   = $ds{'OUTPUT'}    if (              $ds{'OUTPUT'});
+$export   = $ds{'EXPORT'}    if (!$export   && $ds{'EXPORT'});
 
 # fallback defaults
 $export = "text" if (!$export);
