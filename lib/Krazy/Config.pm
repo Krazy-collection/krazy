@@ -94,29 +94,29 @@ sub ParseKrazyRC {
     ( $directive, $arg ) = split( " ", $line );
     $directive = uc($directive);
     if ( $directive eq "EXTRA" ) {
-      &extras($arg);
+      &extras($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "CHECK" ) {
-      &checks($arg);
+      &checks($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "EXCLUDE" ) {
-      &excludes($arg);
+      &excludes($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "IGNORESUBS" ) {
-      &ignoreSubs($arg);
+      &ignoreSubs($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "EXTRASUBS" ) {
-      &extraSubs($arg);
+      &extraSubs($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "IGNOREMODS" ) {
-      &ignoreMods($arg);
+      &ignoreMods($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "SKIP" ) {
-      &skips($arg);
+      &skips($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "PRIORITY" ) {
-      &priority($arg);
+      &priority($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "STRICT" ) {
-      &strict($arg);
+      &strict($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "OUTPUT" ) {
-      &output($arg);
+      &output($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "EXPORT" ) {
-      &export($arg);
+      &export($arg, $linecnt, $rcfile);
     } else {
-      print "Invalid directive $directive, line $linecnt, $rcfile... exiting\n";
+      print "Invalid directive $directive, line $linecnt, $rcfile\n";
       close(F);
       exit 1;
     }
@@ -139,9 +139,9 @@ sub ParseKrazyRC {
 }
 
 sub extras {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing EXTRA arguments in .krazy...exiting\n";
+    print "missing EXTRA arguments, line $l, $f\n";
     exit 1;
   }
   if ( !$rcExtra ) {
@@ -152,9 +152,9 @@ sub extras {
 }
 
 sub checks {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing CHECK arguments in .krazy...exiting\n";
+    print "missing CHECK arguments, line $l, $f\n";
     exit 1;
   }
   if ( !$rcOnly ) {
@@ -165,9 +165,9 @@ sub checks {
 }
 
 sub excludes {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing EXCLUDE arguments in .krazy...exiting\n";
+    print "missing EXCLUDE arguments, line $l, $f\n";
     exit 1;
   }
   if ( !$rcExclude ) {
@@ -178,36 +178,36 @@ sub excludes {
 }
 
 sub ignoreSubs {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing IGNORESUBS arguments in .krazy...exiting\n";
+    print "missing IGNORESUBS arguments, line $l, $f\n";
     exit 1;
   }
   push( @rcIgSubsList, split( ",", $args ) );
 }
 
 sub extraSubs {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing EXTRASUBS arguments in .krazy...exiting\n";
+    print "missing EXTRASUBS arguments, line $l, $f\n";
     exit 1;
   }
   push( @rcExSubsList, split( ",", $args ) );
 }
 
 sub ignoreMods {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing IGNOREMODS arguments in .krazy...exiting\n";
+    print "missing IGNOREMODS arguments, line $l, $f\n";
     exit 1;
   }
   push( @rcIgModsList, split( ",", $args ) );
 }
 
 sub skips {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing SKIP arguments in .krazy...exiting\n";
+    print "missing SKIP arguments, line $l, $f\n";
     exit 1;
   }
   $args =~ s+\\\|+|+g;
@@ -221,56 +221,56 @@ sub skips {
 }
 
 sub priority {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing PRIORITY argument in .krazy...exiting\n";
+    print "missing PRIORITY argument, line $l, $f\n";
     exit 1;
   }
   $args=lc($args);
   if ( !&validatePriorityType($args) ) {
-    print "invalid PRIORITY argument \"$args\" in .krazy... exiting\n";
+    print "invalid PRIORITY argument \"$args\", line $l, $f\n";
     exit 1;
   }
   $rcPriority = $args;
 }
 
 sub strict {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing STRICT argument in .krazy...exiting\n";
+    print "missing STRICT argument, line $l, $f\n";
     exit 1;
   }
   $args=lc($args);
   if ( !&validateStrictType($args) ) {
-    print "invalid STRICT argument \"$args\" in .krazy... exiting\n";
+    print "invalid STRICT argument \"$args\", line $l, $f\n";
     exit 1;
   }
   $rcStrict = $args;
 }
 
 sub output {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing OUTPUT argument in .krazy...exiting\n";
+    print "missing OUTPUT argument, line $l, $f\n";
     exit 1;
   }
   $args=lc($args);
   if ( !&validateOutputType($args) ) {
-    print "invalid OUTPUT argument \"$args\" in .krazy... exiting\n";
+    print "invalid OUTPUT argument \"$args\", line $l, $f\n";
     exit 1;
   }
   $rcOutput = $args;
 }
 
 sub export {
-  my ($args) = @_;
+  my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing EXPORT argument in .krazy...exiting\n";
+    print "missing EXPORT argument, line $l, $f\n";
     exit 1;
   }
   $args=lc($args);
   if ( !&validateExportType($args) ) {
-    print "invalid EXPORT argument \"$args\" in .krazy... exiting\n";
+    print "invalid EXPORT argument \"$args\", line $l, $f\n";
     exit 1;
   }
   $rcExport = $args;
