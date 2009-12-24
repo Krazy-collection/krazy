@@ -45,7 +45,7 @@ my ($strict)    = '';
 my ($check)     = '';
 my ($exclude)   = '';
 my ($extra)     = '';
-my ($export)    = 'text';
+my ($export)    = '';
 my ($title)     = '';
 my ($cms)       = '';
 
