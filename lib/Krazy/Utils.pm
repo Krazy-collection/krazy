@@ -72,18 +72,16 @@ sub topModule {
 sub topProject {
   my($in) = @_;
   my($apath) = abs_path($in);
-  $apath =~ s+/kdebase/apps/+/kdebase-apps/+;
-  $apath =~ s+/kdebase/runtime/+/kdebase-runtime/+;
-  $apath =~ s+/kdebase/workspace/+/kdebase-workspace/+;
-  my($top) = $apath;
-  $top =~ s+/$ModRegex/.*++;
-  return "" if ( $top eq $apath );
-  my($module) = $apath;
-  $module =~ s+$top/++;
-  return "" if ( $module eq $top ); # not in a KDE module
-  my($subdir);
-  ($module,$subdir) = split("/",$module);
-  return "$top/$module/$subdir";
+
+  my($module) = topModule($in);
+  return "" if (!$module);
+  $apath =~ s+^$module/++;
+
+  my($subdir,$project);
+  ($subdir,$project) = split("/",$apath);
+  return "" if (!$subdir || !$project);
+
+  return "$module/$subdir/$project";
 }
 
 # Exit a checker with the number of issues
