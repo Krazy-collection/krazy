@@ -990,9 +990,15 @@ sub printOOPS {
         $l =~ s/[[:alpha:]]*$//g;
         $l =~ s/^[[:alpha:]]*//g;
         $hint = $l;
-        $hint =~ s/\d+://;
+        $hint =~ s/\d+\s*://;
         $l =~ s/:\[.*\]//g;
+        $l =~ s/\s*$//;
         $hint = "" if ($hint eq $l);
+        if ($hint) {
+          #prepend 1 leading space
+          $hint =~ s/^\s*//;
+          $hint = " " . $hint;
+        }
         print "$f:$l:$subissue$issue$hint\n";
       }
     } elsif ( $export eq "xml" ) {
@@ -1039,7 +1045,7 @@ sub printOOPS {
       if ($lines =~ m/(\d+)\s*(\w*\[\w*\]),?#?/) {
         $lines =~ s/(\d+)\s*(\w*\[\w*\]),?#?/            <line issue="$2">$1<\/line>\n/g;
       } elsif ($lines =~ m/(\d+)\s*(\[[\s\w]+\]),*/) {
-          $lines =~ s/(\d+)\s*(\[[\s\w]+\]),*/            <line issue="$2">$1<\/line>\n/g;
+          $lines =~ s/(\d+)\s*\[([\s\w]+)\],*/            <line issue="$2">$1<\/line>\n/g;
       } elsif ($lines =~ /(\d+),?/) {
           $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
       }
