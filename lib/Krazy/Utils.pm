@@ -107,9 +107,6 @@ sub deDupe {
 sub addRegEx {
   my ($r1,$r2) = @_;
 
-  $r1 =~ s+\|+\\\|+g;
-  $r2 =~ s+\|+\\\|+g;
-
   if ($r1) {
     if ($r2) {
       $r1 .= "\\|" . $r2;
