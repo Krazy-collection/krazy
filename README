@@ -59,6 +59,14 @@ Exempting lines, files and directories from the checks:
   into kdepimlib/kcal
   SKIP /libical/\|/versit/\|fred\.c
 
+6. Exempting blocks of code within C++ file
+  Start the exclude block with a C++ comment like this
+  //krazy:cond=<name1[,name2,...,nameN]>
+  <code goes here>
+  End the exclude block with another C++ comment like this
+  //krazy:endcond=<name1[,name2,...,nameN]>
+  Where nameX is the name of one of the plugins
+
 Note: The comments need to be C++ comments and cannot be embedded
       into C comments, so if you need to exempt a plain C file
       use a .krazy file and the SKIP directive.
