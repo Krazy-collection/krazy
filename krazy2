@@ -624,7 +624,7 @@ if ( !$quiet ) {
     next unless ( $#{ $pCheckers{$ftype} } >= 0 );
     $st = 0;
     my ($pth) = ${ $pCheckers{$ftype} }[0];
-    &printFType( $pth, $ftype ) if (!$brief);
+    &printFType( $pth, $ftype ) if (!$brief || $export eq "xml");
     for $p ( sort @{ $pCheckers{$ftype} } ) {
       $st++;
       $use = `$p --help 2>/dev/null`;
@@ -652,7 +652,7 @@ if ( !$quiet ) {
         }
       }
       print "\n" if ($cline ne "" && $export ne "textlist" && $export ne "textedit");
-      print "      </check>\n" if ( $export eq "xml" );
+      print "      </check>\n" if ( $cline ne "" && $export eq "xml" );
     }
 
     print "    </file-type>\n" if ( $export eq "xml" );
@@ -793,7 +793,7 @@ sub printList {
 # List function: print a list of all checker programs available to run.
 sub List {
   my ( $prog, $use, $type );
-  
+
   if ( $export =~ "xml" ) {
     &printXmlHeader();
     print "  <file-types>\n";
