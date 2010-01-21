@@ -32,8 +32,8 @@ use Exporter;
 $VERSION = 1.13;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(topModule topProject fileType fileTypeDesc findFiles asOf
-             Exit deDupe addRegEx
+@EXPORT = qw(topComponent topModule topProject tweakPath Exit
+             fileType fileTypeDesc findFiles asOf deDupe addRegEx
              addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
@@ -41,47 +41,58 @@ $VERSION = 1.13;
 @EXPORT_OK = qw();
 
 my(@tmp);
-my($ModRegex) = "(kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|sdk|toys|utils|velop|vplatform|webdev|support|review)|extragear|playground|koffice)";
+my($CompRegex) = "trunk/(KDE|extragear|kdereview|kdesupport|koffice)|branches/KDE";
+my($ModRegex) = "(kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|plasma-addons|sdk|toys|utils|webdev|office|security|sysadmin|review|support|koffice))";
+
+#the path might be regularly used symlinks, so undo that
+sub tweakPath {
+  my($in) = @_;
+  $in =~ s+/kdebase/apps/+/kdebase-apps/+;
+  $in =~ s+/kdebase/runtime/+/kdebase-runtime/+;
+  $in =~ s+/kdebase/workspace/+/kdebase-workspace/+;
+  return "$in";
+}
+
+#full path to the top of the component where the specified file resides
+sub topComponent {
+  my($in) = @_;
+  my($apath) = tweakPath(abs_path($in));
+  my($bot) = $apath;
+  $bot =~ s+.*/$CompRegex/++;
+  return "" if ($bot eq $apath);  #not a component path
+  return $apath if (!$bot);
+  $apath =~ s+$bot++;
+  return $apath;
+}
 
 #full path to the top of the module where the specified file resides
 sub topModule {
   my($in) = @_;
-  my($apath) = abs_path($in);
-  $apath =~ s+/kdebase/apps/+/kdebase-apps/+;
-  $apath =~ s+/kdebase/runtime/+/kdebase-runtime/+;
-  $apath =~ s+/kdebase/workspace/+/kdebase-workspace/+;
-  my($top) = $apath;
-  $top =~ s+/$ModRegex/.*++;
-  if ( $top eq $apath ) {
-    return "" unless
-      ($apath =~ m+trunk/KDE+ ||
-       $apath =~ m+trunk/extragear+ ||
-       $apath =~ m+trunk/playground+ ||
-       $apath =~ m+trunk/koffice+ ||
-       $apath =~ m+trunk/kdereview+ ||
-       $apath =~ m+trunk/kdesupport+ ||
-       $apath =~ m+branches/KDE+);
-  }
-  my($module) = $apath;
-  $module =~ s+$top/++;
-  $module =~ s+/.*++;
-  return "$top/$module";
+  my($apath) = tweakPath(abs_path($in));
+  my($cpath) = topComponent($in);
+  return "" if (!$cpath);
+
+  my($mpath) = $apath;
+  $mpath =~ s+$cpath++;
+  $mpath =~ s+^/++;
+  $mpath =~ s+/.*++;
+  return "" if (!$mpath);
+  return "$cpath/$mpath";
 }
 
 #full path to the top of the project dir where the specified file resides
 sub topProject {
   my($in) = @_;
-  my($apath) = abs_path($in);
+  my($apath) = tweakPath(abs_path($in));
+  my($mpath) = topModule($in);
+  return "" if (!$mpath);
 
-  my($module) = topModule($in);
-  return "" if (!$module);
-  $apath =~ s+^$module/++;
-
-  my($subdir,$project);
-  ($subdir,$project) = split("/",$apath);
-  return "" if (!$subdir || !$project);
-
-  return "$module/$subdir/$project";
+  my($ppath) = $apath;
+  $ppath =~ s+$mpath++;
+  $ppath =~  s+^/++;
+  $ppath =~ s+/.*++;
+  return "" if (!$ppath);
+  return "$mpath/$ppath";
 }
 
 # Exit a checker with the number of issues
