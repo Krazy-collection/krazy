@@ -37,8 +37,11 @@ if test "$TOP" = "--help"; then
 fi
 
 if ( test `$QMAKE -query QT_VERSION | egrep -c '^4'` -eq 0 ) then
-  echo "The qmake found in your \$PATH is not the Qt4 version"
-  echo "Please put your Qt4 bin directory first. Exiting..."
+  echo "The qmake found in your \$PATH is not the Qt4 version."
+  echo "You can solve this by:"
+  echo "- prepending your Qt4 bin directory to your \$PATH"
+  echo "- setting \$QMAKE to the name of the Qt4 version of qmake"
+  echo "Exiting..."
   exit 1
 fi
 
