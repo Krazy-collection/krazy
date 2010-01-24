@@ -32,12 +32,12 @@ install:: all
 	fi
 
 	@if test ! -d $(DESTDIR)/man5; then \
-		mkdir -p $(DESTDIR)/$(PREFIX)/share/man/man5 || exit 1; \
+		mkdir -p $(DESTDIR)/$(PREFIX)/man/man5 || exit 1; \
 	fi
 
 	list=krazyrc.5; for man in $$list; do \
 		echo "Installing man page $$man"; \
-		mv -f $$man $(DESTDIR)/$(PREFIX)/share/man/man5/$$man; \
+		mv -f $$man $(DESTDIR)/$(PREFIX)/man/man5/$$man; \
 	done
 
 clean:
