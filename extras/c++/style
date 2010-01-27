@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2009 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2010 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -130,6 +130,7 @@ foreach $line (@lines) {
   next if ($line =~ m/#[[:space:]]*define/);
   next if ($line =~ m/#[[:space:]]*undef/);
   next if ($line =~ m/#[[:space:]]*warning/);
+  next if ($line =~ m/#[[:space:]]*error/);
 
   $tline = $line;
   if ($line =~ m+//+ && $line !~ m+".*//.*"+) {
