@@ -153,19 +153,14 @@ sub Help {
   print "            do NOT run the specified checker program(s)\n";
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
   print "         add the specified \"extra\" program(s) to the checker list\n";
-  print "  --export <text|textlist|textedit|ebn|ebnlxr|html|htmllxr>\n";
+  print "  --export <text|textlist|textedit|xml>\n";
   print "            output in one of the following formats:\n";
   print "              text (default)\n";
   print "              textlist -> plain old text, 1 offending file-per-line\n";
   print "              textedit -> text formatted for IDEs, 1 issue-per-line\n";
-  print "              ebn -> English Breakfast Network style\n";
-  print "              ebnlxr -> English Breakfast Network style,\n";
-  print "                        with links to lxr.kde.org\n";
-  print "              html -> plain old html\n";
-  print "              htmllxr -> plain old html,\n";
-  print "                         with links to lxr.kde.org\n";
+  print "              xml -> XML formatted\n";
   print "  --title:  give the output a project title\n";
-  print "  --cms     component/module/subdir triple for html and ebn exports\n";
+  print "  --cms     component/module/subdir triple for XML\n";
   print "  --ignorerc: ignore .krazy files\n";
   print "  --dry-run don't execute the checks; only show what would be run\n";
   print "  --brief:  print only checks with at least 1 issue\n";
@@ -264,16 +259,13 @@ Add the specified "extra" program(s) to the list of checkers to run.
 Use the --list option to show the list of available "extra" checkers; they
 will be marked with the tag [EXTRA] by the checker description line.
 
-=item B<--export> <text|textlist|textedit|ebn|ebnlxr|html|htmllxr>
+=item B<--export> <text|textlist|textedit|xml>
 
 Output in one of the following formats:
      text (default)
      textlist -> plain old text, 1 offending file-per-line
      textedit -> text formatted for IDEs, 1 issue-per-line (file:line:issue)
-     ebn -> English Breakfast Network style
-     ebnlxr -> English Breakfast Network style, with links to lxr.kde.org
-     html -> plain old html
-     htmllxr -> plain old html, with links to lxr.kde.org
+     xml -> XML formatted
 
 =item B<--title>
 
@@ -282,8 +274,8 @@ Give the output report a project title.
 =item B<--cms>
 
 An acronym for "component/module/subdir".  Used to write the breadcrumbs line
-in the ebn and html export.  Must be a slash-delimited triple containing the
-component, module, and subdir which is being scanned.
+in the XML output.  Must be a slash-delimited triple containing the component,
+module, and subdir which is being scanned.
 
 =item B<--brief>
 
