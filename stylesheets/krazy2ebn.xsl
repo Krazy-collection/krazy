@@ -34,6 +34,9 @@
           <!-- Just leave out the component if both component and are the same -->
           <xsl:value-of select="''" />
         </xsl:when>
+        <xsl:when test="matches($component, 'bundled-apps')">
+          <xsl:value-of select="''"/>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$component" />
         </xsl:otherwise>
