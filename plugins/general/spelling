@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2009 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2010 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2003 by Dirk Mueller <mueller@kde.org>                        #
 # Copyright (C) 2004 Richard Evans <rich@ridas.com>                           #
 #                                                                             #
@@ -129,6 +129,7 @@ sub check_file
 	      $original =~ m+^Keywords\[.*\]+ ||
 	      $original =~ m+^X-KDE-Keywords\[.*\]+ ||
 	      $original =~ m+^Name\[.*\]+ ||
+	      $original =~ m+^Description\[.*\]+ ||
 	      $original =~ m+^GenericName\[.*\]+));
 
     next if (fileType($filename) eq "c++" &&
