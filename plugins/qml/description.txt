@@ -1,0 +1,1 @@
+Checks for Qt Declarative Ui (QML) files

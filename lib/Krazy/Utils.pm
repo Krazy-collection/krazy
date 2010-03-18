@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2008 by Allen Winter <winter@kde.org>                        #
+# Copyright 2007-2010 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -188,6 +188,8 @@ sub fileType {
     return "kpartgui";
   } elsif ( $f =~ m/tips$/ ) {
     return "tips";
+  } elsif ( $f =~ m/\.qml$/ ) {
+    return "qml";
   }
   return "";
 }
@@ -195,20 +197,24 @@ sub fileType {
 sub fileTypeDesc {
   my ($t) = @_;
 
-  if ($t eq "c++") {
+  if ( $t eq "c++" ) {
     return "C/C++ source code";
-  } elsif ($t eq "desktop") {
+  } elsif ( $t eq "desktop" ) {
     return "Freedesktop.org desktop files";
-  } elsif ($t eq "designer") {
+  } elsif ( $t eq "designer" ) {
     return "Qt Designer files";
-  } elsif ($t eq "kconfigxt") {
+  } elsif ( $t eq "kconfigxt" ) {
     return "KConfigXT XML files";
-  } elsif ($t eq "messages") {
+  } elsif ( $t eq "po" ) {
+    return "GNU gettext files";
+  } elsif ( $t eq "messages" ) {
     return "Messages.sh files";
-  } elsif ($t eq "kpartgui") {
+  } elsif ( $t eq "kpartgui" ) {
     return "KPartGUI files";
-  } elsif ($t eq "tips") {
+  } elsif ( $t eq "tips" ) {
     return "Tips files";
+  } elsif ( $t eq "qml") {
+    return "Qt Declarative UI files";
   }
   return "";
 }

@@ -119,6 +119,18 @@ else
   fi
 fi
 
+#install Parallel-Fork-BossWorker
+cd Parallel-Fork-BossWorker-0.03 && \
+perl Makefile.PL PREFIX=$TOP
+stat=$?
+if ( test $stat -ne 0 ) then
+  exit $stat
+fi
+make && \
+make install && \
+make realclean
+cd ..
+
 #build and install non-binary plugins
 cd plugins && \
 make install PREFIX=$TOP && \
