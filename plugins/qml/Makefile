@@ -23,6 +23,7 @@ PLUGINS = \
 PLUGINLNS = \
 iconnames \
 endswithnewline \
+license \
 spelling
 
 #default installation location
