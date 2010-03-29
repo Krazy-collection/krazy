@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2009 by Allen Winter <winter@kde.org>                         #
+# Copyright (C) 2009-2010 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -250,6 +250,8 @@ sub Ops {
   my($lp,$l,$l1) = @_;
 
   return 0 if ($l =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
+  return 0 if ($l !~ m+^\s*bool+); # must start with a bool
 
   #did we find a comparison operator?
   if ($l =~ m/\s\&?operator\s*(==|\!=|<=|<|>=|>)\(.*\)/) {
