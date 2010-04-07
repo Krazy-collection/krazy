@@ -167,6 +167,7 @@ sub whiteList {
       $l =~ m/QUrl::fromPercentEncoding/ ||
       $l =~ m/QUrl::toAce/ ||
       $l =~ m/QUrl::fromAce/ ||
+      $l =~ m/QLineEdit::dropEvent/ ||
       $l =~ m/QDialog::DialogCode/ ||
       $l =~ m/QDialog::accept/ ||
       $l =~ m/QDialog::reject/ ||
