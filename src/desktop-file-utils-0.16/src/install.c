@@ -1,3 +1,28 @@
+/* vim: set ts=2 sw=2 et: */
+
+/*
+ * Copyright (C) 2002, 2004  Red Hat, Inc.
+ * Copyright (C) 2006-2008  Vincent Untz
+ *
+ * Program written by Havoc Pennington <hp@pobox.com>
+ *                    Ray Strode <rstrode@redhat.com>
+ *                    Vincent Untz <vuntz@gnome.org>
+ *
+ * update-desktop-database is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * update-desktop-database is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with update-desktop-database; see the file COPYING.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite
+ * 330, Boston, MA 02111-1307, USA.
+ */
 
 #include <config.h>
 
@@ -54,7 +79,7 @@ files_are_the_same (const char *first,
       g_printerr (_("Could not stat \"%s\": %s\n"), first, g_strerror (errno));
       return TRUE;
     }
-  
+
   return ((first_sb.st_dev == second_sb.st_dev) &&
           (first_sb.st_ino == second_sb.st_ino) &&
           /* Broken paranoia in case an OS doesn't use inodes or something */
@@ -76,7 +101,7 @@ rebuild_cache (const char  *dir,
   retval = g_spawn_sync (NULL, argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL,
                          NULL, NULL, &exit_status, &spawn_error);
 
-  if (spawn_error != NULL) 
+  if (spawn_error != NULL)
     {
       g_propagate_error (err, spawn_error);
       return FALSE;
@@ -95,12 +120,12 @@ process_one_file (const char *filename,
   GKeyFile *kf = NULL;
   GError *rebuild_error;
   GSList *tmp;
-  
+
   kf = g_key_file_new ();
   if (!g_key_file_load_from_file (kf, filename,
-			          G_KEY_FILE_KEEP_COMMENTS|
-				  G_KEY_FILE_KEEP_TRANSLATIONS,
-				  err)) {
+                                  G_KEY_FILE_KEEP_COMMENTS|
+                                  G_KEY_FILE_KEEP_TRANSLATIONS,
+                                  err)) {
     g_key_file_free (kf);
     return;
   }
@@ -119,7 +144,7 @@ process_one_file (const char *filename,
   if (copy_generic_name_to_name)
     dfu_key_file_copy_key (kf, GROUP_DESKTOP_ENTRY, "GenericName",
                                GROUP_DESKTOP_ENTRY, "Name");
-  
+
   /* Mark file as having been processed by us, so automated
    * tools can check that desktop files went through our
    * munging
@@ -167,7 +192,7 @@ process_one_file (const char *filename,
 
   dirname = g_path_get_dirname (filename);
   basename = g_path_get_basename (filename);
-  
+
   if (vendor_name && !g_str_has_prefix (basename, vendor_name))
     {
       char *new_base;
@@ -182,13 +207,13 @@ process_one_file (const char *filename,
 
   g_free (dirname);
   g_free (basename);
-  
+
   if (!dfu_key_file_to_file (kf, new_filename, err)) {
     g_key_file_free (kf);
     g_free (new_filename);
     return;
   }
-  
+
   g_key_file_free (kf);
 
   /* Load and validate the file we just wrote */
@@ -196,7 +221,10 @@ process_one_file (const char *filename,
     {
       g_set_error (err, G_KEY_FILE_ERROR, G_KEY_FILE_ERROR_PARSE,
                    _("Failed to validate the created desktop file"));
-      g_unlink (new_filename);
+
+      if (!files_are_the_same (filename, new_filename))
+        g_unlink (new_filename);
+
       g_free (new_filename);
       return;
     }
@@ -208,7 +236,9 @@ process_one_file (const char *filename,
                    _("Failed to set permissions %o on \"%s\": %s"),
                    permissions, new_filename, g_strerror (errno));
 
-      g_unlink (new_filename);
+      if (!files_are_the_same (filename, new_filename))
+        g_unlink (new_filename);
+
       g_free (new_filename);
       return;
     }
@@ -229,7 +259,7 @@ process_one_file (const char *filename,
       if (rebuild_error != NULL)
         g_propagate_error (err, rebuild_error);
     }
-  
+
   g_free (new_filename);
 }
 
@@ -416,7 +446,7 @@ parse_options_callback (const gchar  *option_name,
                        _("Can only specify --vendor once"));
           return FALSE;
         }
-      
+
       vendor_name = g_strdup (value);
     }
 
@@ -469,7 +499,7 @@ parse_options_callback (const gchar  *option_name,
     {
       unsigned long ul;
       char *end;
-      
+
       end = NULL;
       ul = strtoul (value, &end, 8);
       if (*value && end && *end == '\0')
@@ -478,7 +508,7 @@ parse_options_callback (const gchar  *option_name,
         {
           g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
                        _("Could not parse mode string \"%s\""), value);
-          
+
           return FALSE;
         }
     }
@@ -503,7 +533,7 @@ parse_options_callback (const gchar  *option_name,
     {
         g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
                      _("Unknown option \"%s\""), option_name);
-        
+
         return FALSE;
     }
 
@@ -518,9 +548,9 @@ main (int argc, char **argv)
   GError* err = NULL;
   int i;
   mode_t dir_permissions;
-  
+
   setlocale (LC_ALL, "");
-  
+
   context = g_option_context_new ("");
   g_option_context_add_main_entries (context, options, NULL);
 
@@ -532,21 +562,21 @@ main (int argc, char **argv)
   g_option_context_parse (context, &argc, &argv, &err);
 
   if (err != NULL) {
-	  g_printerr ("%s\n", err->message);
-	  g_printerr (_("Run '%s --help' to see a full list of available command line options.\n"), argv[0]);
-	  g_error_free (err);
-	  return 1;
+    g_printerr ("%s\n", err->message);
+    g_printerr (_("Run '%s --help' to see a full list of available command line options.\n"), argv[0]);
+    g_error_free (err);
+    return 1;
   }
 
   if (vendor_name == NULL && g_getenv ("DESKTOP_FILE_VENDOR"))
     vendor_name = g_strdup (g_getenv ("DESKTOP_FILE_VENDOR"));
-  
+
   if (copy_generic_name_to_name && copy_name_to_generic_name)
     {
       g_printerr (_("Specifying both --copy-name-to-generic-name and --copy-generic-name-to-name at once doesn't make much sense.\n"));
       return 1;
     }
-  
+
   if (target_dir == NULL && g_getenv ("DESKTOP_FILE_INSTALL_DIR"))
     target_dir = g_strdup (g_getenv ("DESKTOP_FILE_INSTALL_DIR"));
 
@@ -565,7 +595,7 @@ main (int argc, char **argv)
     dir_permissions |= 0001;
 
   g_mkdir_with_parents (target_dir, dir_permissions);
-  
+
   i = 0;
   while (args && args[i])
     {
@@ -577,10 +607,10 @@ main (int argc, char **argv)
                       args[i], err->message);
 
           g_error_free (err);
-          
+
           return 1;
         }
-      
+
       ++i;
     }
 
@@ -590,7 +620,7 @@ main (int argc, char **argv)
 
       return 1;
     }
-  
+
   g_option_context_free (context);
 
   return 0;

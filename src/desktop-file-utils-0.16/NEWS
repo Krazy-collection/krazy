@@ -1,4 +1,50 @@
 ============
+Version 0.16
+============
+
+ desktop-file-install
+   - do not unlink the destination file if it's the same as the source file in
+     desktop-file-install (Vincent)
+
+ desktop-file-validate
+   - check that a main category is included in the Categories (Vincent)
+   - check that categories required by another one are present (Vincent)
+   - do not always show warnings about KDE specific uses (Vincent)
+   - check that the Comment does not look like the Name and the GenericName
+     (Vincent)
+   - display error about multiple keys with the same name earlier (Vincent)
+   - improve MIME type check to make sure that the MIME types are valid
+     (Vincent)
+   - add LXDE in the list of registered OnlyShowIn values (Vincent)
+   - add "warning" to error strings to make them easily greppable (Vincent)
+   - handle AutostartCondition key, as proposed for the autostart specification
+     and used in GNOME (Vincent)
+   - accept empty Categories key as valid (Vincent)
+   - make new errors non-fatal to give some time to maintainers to fix their
+     .desktop file after a release of desktop-file-utils (Vincent)
+   - plug leak (Vincent)
+   - code cleanups (Vincent)
+
+ update-desktop-database
+   - improve MIME type check to make sure that the MIME types are valid
+     (Vincent)
+   - improve error messages (Erik Hovland, Vincent)
+   - fix format string vulnerability warning (Vincent)
+
+ misc
+   - use AM_SILENT_RULES (Vincent)
+   - improve build system (Vincent)
+
+============
+Version 0.15
+============
+
+  o make the extension check for Icon key a warning instead of an error for now
+    (Ray Strode)
+  o Fix a crash in update-desktop-database when there's no group (Vincent)
+  o Fix a crash in the validator happening for very small lines (Vincent)
+
+============
 Version 0.14
 ============
 

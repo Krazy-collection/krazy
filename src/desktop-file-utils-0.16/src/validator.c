@@ -1,22 +1,25 @@
 /* validator.c: validate a desktop entry file
- * 
- * Copyright (C) 2007 Vincent Untz <vuntz@gnome.org>
+ * vim: set ts=2 sw=2 et: */
+
+/*
+ * Copyright (C) 2007, 2008 Vincent Untz <vuntz@gnome.org>
  *
  * A really small portion of this code comes from the old validator.c.
- * Authors of the old validator.c are:
- *  Mark McLoughlin
- *  Havoc Pennington
- * 
+ * The old validator.c was Copyright (C) 2002, 2004  Red Hat, Inc.
+ * It was written by:
+ *  Mark McLoughlin <mark@skynet.ie>
+ *  Havoc Pennington <hp@pobox.com>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
@@ -25,7 +28,7 @@
 
 #include "validate.h"
 
-static gboolean   warn_kde = TRUE;
+static gboolean   warn_kde = FALSE;
 static gboolean   no_warn_deprecated = FALSE;
 static char     **filename = NULL;
 
@@ -36,7 +39,7 @@ static GOptionEntry option_entries[] = {
   { NULL }
 };
 
-int 
+int
 main (int argc, char *argv[])
 {
   GOptionContext *context;

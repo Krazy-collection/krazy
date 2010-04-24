@@ -1,0 +1,3745 @@
+commit 347947381fe6ff56c18415223205aa0b52a02230
+Author: Vincent Untz <vuntz@gnome.org>
+Date:   2010-02-17
+
+    Handle some exceptions to be a bit more flexible
+
+    There are known exceptions like misc/ultravox that we should support.
+
+    We should also recommend to use a valid alias instead of an invalid
+    mime
+    type (for example, flv-application/octet-stream should be replaced
+    with
+    video/x-flv).
+
+M	src/mimeutils.c
+
+commit be3aec1ebb3a335bc757bb4588609ca2c2722e7c
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Make the invalid mime type error non-fatal for now
+
+M	src/validate.c
+
+commit 847c557baf630adaa03ebb8fbb179bc3dbbeb492
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Fix wrong return value in case of error
+
+    FALSE was used instead of MU_INVALID.
+
+M	src/mimeutils.c
+
+commit 377e919087cf2711f31cee7c06b40401e4a70fde
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Fix warning for X- media types not showing
+
+M	src/mimeutils.c
+
+commit 520a9e3bb976b6877ee697ae6f6d0cc5a23b1ba5
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Handle some fdo media types correctly
+
+    inode, x-content and x-directory are used already, and should be
+    considered as special case (even though they haven't be registered
+    with
+    IANA).
+
+    Note that x-directory is discouraged, though, since inode/directory
+    replaces it.
+
+M	src/mimeutils.c
+
+commit 0a2a429ca2943f7b329d9a90f4950588a56f9f15
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Make some of the new errors non-fatal for now
+
+    Making errors introduced in a release fatal will annoy many people.
+    They're still marked as errors and will be visible (so fixable), but
+    they won't make the program return 1, so people can still work.
+
+    They should be marked as fatal after the release.
+
+M	src/validate.c
+
+commit baf763143043b9be48ef8dc8bf7050f418aa0bb2
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Accept empty Categories key as valid
+
+    It's really like not having the Categories key at all, which is valid.
+
+M	src/validate.c
+
+commit 06c29d6e1246cc63c9c0296c96ea7885f982f868
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Mark the AutostartCondition key as an Application key
+
+M	src/validate.c
+
+commit ca41044f3d2311ad4300cdfc864a670e7f772626
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Use g_utf8_strchr instead of strchr to be on the safe side
+
+    Since the string can be UTF-8, it's better to make sure we look for a
+    character in a UTF-8-compatible way.
+
+M	src/validate.c
+
+commit 2b51e462ce272dd829dc8f7bb4339b47243ee1c5
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Use G_DIR_SEPARATOR instead of '/'
+
+M	src/validate.c
+
+commit 31585ac26ff458159b01c6bcfcf1405e164d6448
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Handle AutostartCondition key
+
+    While this never really made it into the autostart specification, it's
+    in use now. And it was well-received when proposed, so it will
+    probably
+    enter the specification.
+
+    https://bugs.freedesktop.org/show_bug.cgi?id=20627
+
+M	src/validate.c
+
+commit 08892f7b705b8c92aaa9b7a2872e0ded3f96f6d6
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Tweak an error string
+
+M	src/update-desktop-database.c
+
+commit 681d5173684a8a758d913e52cc704e3dab3d562c
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Improve one string for translation
+
+    This also fix https://bugs.freedesktop.org/show_bug.cgi?id=24924 as a
+    side-effect.
+
+M	src/update-desktop-database.c
+
+commit 2ef8bc132a15cb02e5bbb424bc79d4c1c4fad0e0
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Mark all output strings as translatable
+
+M	src/update-desktop-database.c
+
+commit 25b0d59ab575e434f040face089e6ba83ab0b807
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Consistent use of quotes in error messages
+
+M	src/update-desktop-database.c
+
+commit 843e5f4cd8680f57add251c745d19ba2db38d05e
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Improve error messages
+
+    Loosely based on patch from Erik Hovland <erik@hovland.org>
+
+    https://bugs.freedesktop.org/show_bug.cgi?id=20039
+
+M	src/update-desktop-database.c
+
+commit fdb63c3d0416d8d54747f14f66b635ebf241a852
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Update copyrights, and add vim modelines
+
+M	src/install.c
+M	src/keyfileutils.c
+M	src/keyfileutils.h
+M	src/mimeutils.c
+M	src/mimeutils.h
+M	src/update-desktop-database.c
+M	src/validate.c
+M	src/validate.h
+M	src/validator.c
+
+commit 5bc232624ba230b35d9088abdd001f15ff13055e
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-17
+
+    Fix indentation and remove trailing spaces
+
+M	src/install.c
+M	src/mimeutils.c
+M	src/update-desktop-database.c
+M	src/validate.c
+M	src/validator.c
+
+commit 7240dff57b6e4fd4e1a03167bab402e69356e3c7
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-16
+
+    Generate bzip2 tarballs
+
+M	configure.in
+
+commit abaf456abfecd26c18e4241edb40c177161487c1
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-16
+
+    Do not try to use versioned binaries of automake/aclocal
+
+    We were trying to use binaries versioned 1.7 which is quite old
+    anyway.
+    Any real build system will have non-versioned binaries.
+
+M	autogen.sh
+
+commit 91bce492f1cddea3c43cbf9fbbf136d87d8c9acb
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-16
+
+    Add a DOAP file
+
+A	desktop-file-utils.doap
+
+commit d7b231ad854a4695e2261d87910b148f80c9af33
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-16
+
+    Remove .cvsignore files
+
+D	.cvsignore
+D	misc/.cvsignore
+D	src/.cvsignore
+
+commit 4dd06da006711e69de7a76f1ea799e446f95dc78
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-16
+
+    Put commit message guidelines in ChangeLog
+
+M	ChangeLog
+C100	ChangeLog	ChangeLog.pre-git
+
+commit 07a6e2688bfaba6872ca1495fffbd7bbe17022d3
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2010-02-16
+
+    Use git.mk from pango to autogenerate .gitignore files
+
+M	Makefile.am
+A	git.mk
+M	misc/Makefile.am
+M	src/Makefile.am
+
+commit 1ca85988dec761535699d3cb14ba8a551411a4d6
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2009-07-21
+
+    use AM_SILENT_RULES if available for a quiet build
+
+    2009-07-21	Vincent Untz  <vuntz@gnome.org>
+
+	* configure.in: use AM_SILENT_RULES if available for a quiet build
+	* configure.in:
+	* Makefile.am: use the m4 directory as macro dir
+
+M	.cvsignore
+M	ChangeLog
+M	Makefile.am
+M	configure.in
+
+commit 54e7d80e9dc2042ce0331cf65af2fb85c2960962
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2009-01-10
+
+    add "warning" to the error strings that are output when fixing
+    the desktop
+
+    2009-01-10	Vincent Untz  <vuntz@gnome.org>
+
+	* src/validate.c: (desktop_file_fixup): add "warning" to the error
+	strings that are output when fixing the desktop file so that
+	people can
+	learn about the errors and directly fix them.
+	Fix bug #18206.
+
+M	ChangeLog
+M	src/validate.c
+
+commit db8e1039fbd4e9e9e23273bb49ea9922dd8d595c
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2009-01-10
+
+    add LXDE in the list of registered OnlyShowIn values.
+
+    2009-01-10	Vincent Untz  <vuntz@gnome.org>
+
+	* src/validate.c: add LXDE in the list of registered OnlyShowIn
+	values.
+
+M	ChangeLog
+M	src/validate.c
+
+commit b8f66b528a0d6b5c64140304f39b50a01497e846
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-12-10
+
+    fix warning in a comment
+
+    2008-12-10	Vincent Untz  <vuntz@gnome.org>
+
+	* src/mimeutils.c: fix warning in a comment
+
+M	ChangeLog
+M	src/mimeutils.c
+
+commit 8fa7b28e36a81d74b671339bbbdde11a6ded2c98
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-04-27
+
+    Be stricter for the MIME type check. It's actually a bit too strict
+    right
+
+    2008-04-28	Vincent Untz  <vuntz@gnome.org>
+
+	Be stricter for the MIME type check. It's actually a bit too
+	strict
+	right now, see the TODO at the beginning of mimeutils.c to know
+	how to
+	improve things a bit.
+
+	* src/Makefile.am:
+	* src/mimeutils.[ch]: add new files
+	* src/update-desktop-database.c: (process_desktop_file): use the
+	improved mu_mime_type_is_valid() function instead of
+	is_valid_mime_type()
+	* src/validate.c: (handle_mime_key): use the improved
+	mu_mime_type_is_valid() function instead of a trivial check
+
+M	ChangeLog
+M	src/Makefile.am
+A	src/mimeutils.c
+A	src/mimeutils.h
+M	src/update-desktop-database.c
+M	src/validate.c
+
+commit 3425eaf5d0e55c4e1c853f6af6e846c7763ba48a
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-04-26
+
+    check that the Comment does not look like the Name of the GenericName
+
+    2008-04-26	Vincent Untz  <vuntz@gnome.org>
+
+	* src/validate.c: (handle_comment_key): check that the Comment
+	does not
+	look like the Name of the GenericName
+	(validate_keys_for_current_group): instead of storing only the
+	information that a group contain a key, also link to the content
+	of the
+	key. Also report the error of multiple keys with the same name the
+	first time we have a key (instead of the second time).
+	Plug a small leak.
+
+M	ChangeLog
+M	src/validate.c
+
+commit 834fdc1f65043704962dcf26b9aa5194338eec91
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-04-26
+
+    make a few more structure static, change the way we store data
+    about the
+
+    2008-04-26	Vincent Untz  <vuntz@gnome.org>
+
+	* src/validate.c: make a few more structure static, change the
+	way we
+	store data about the know catgories so that we have more
+	information
+	(like dependencies)
+	(handle_categories_key): updated for the previous change. We now
+	additionally check that categories required by another one
+	are present.
+	Fix bug #15672.
+	* src/validator.c: init warn_kde to FALSE. Fix the "warnings
+	about KDE
+	specific uses are always shown" bug.
+
+M	ChangeLog
+M	src/validate.c
+M	src/validator.c
+
+commit b2c108e4782a25545aa57c9d8add5c4ab01801cc
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-04-26
+
+    at least one main category must be included in the Categories. Output
+    an
+
+    2008-04-26	Vincent Untz  <vuntz@gnome.org>
+
+	* src/validate.c: (handle_categories_key): at least one main
+	category
+	must be included in the Categories. Output an error if it's
+	not the
+	case.
+
+M	ChangeLog
+M	src/validate.c
+
+commit 83e6050a2501379a7709379e9dfdf656738a7148
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-03-06
+
+    don't unlink the destination file if it's the same as the source
+    file in
+
+    2008-03-06	Vincent Untz  <vuntz@gnome.org>
+
+	* src/install.c: (process_one_file): don't unlink the destination
+	file
+	if it's the same as the source file in case of errors.
+	Fix bug #14851.
+
+M	ChangeLog
+M	src/install.c
+
+commit 32ee3cdb6fa4a19fb3c42943fe9d2040560a2232
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-02-11
+
+    post-release bump to 0.16
+
+    2008-02-11	Vincent Untz  <vuntz@gnome.org>
+
+	* configure.in: post-release bump to 0.16
+
+M	ChangeLog
+M	configure.in
+
+commit 173011c1a206d83d8a1e7b4032ba68c49a440b52
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-02-11
+
+    version 0.15
+
+    2008-02-11	Vincent Untz  <vuntz@gnome.org>
+
+	* NEWS: version 0.15
+
+M	ChangeLog
+M	NEWS
+
+commit 19efaabf2b610205b1e93489e3084e3d62bc54b7
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-02-05
+
+    Fix crash with really small lines that are invalid, like just
+    "a". Fox bug
+
+    2008-02-05	Vincent Untz  <vuntz@gnome.org>
+
+	Fix crash with really small lines that are invalid, like just "a".
+	Fox bug #14386.
+
+	* src/validate.c: (validate_line_looks_like_group): only return
+	something in *group if the group argument is not NULL, and if
+	the line
+	is actually a group one
+	(validate_parse_line): ensure we pass NULL initial values to some
+	functions, and don't leak key and value when processing a
+	key-value
+	line before the first group
+
+M	ChangeLog
+M	src/validate.c
+
+commit b4fa107d134594bd02cce266be09cd68de0a9d3d
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2008-01-20
+
+    don't get the MimeType key from the first start group (which might not
+
+    2008-01-20	Vincent Untz  <vuntz@gnome.org>
+
+	* src/update-desktop-database.c: (process_desktop_file): don't
+	get the
+	MimeType key from the first start group (which might not exist),
+	but
+	from the Desktop Entry group
+	Fix GNOME bug #509526.
+	* src/validate.c: (handle_icon_key): mention that Ray's change is
+	temporary
+
+M	ChangeLog
+M	src/update-desktop-database.c
+M	src/validate.c
+
+commit c6b970d37acd2882adb538e9d1723ed661d0ca94
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2007-12-14
+
+    Consider icon names with extensions a warning and not an error
+    for now.
+
+    2006-11-07	Ray Strode  <rstrode@redhat.com>
+
+	* src/validate.c: Consider icon names with extensions a
+	warning and not an error for now.
+
+M	ChangeLog
+M	src/validate.c
+
+commit b589d7e7d731ecb948c8e91077110c9e09707276
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-09-01
+
+    post-release bump to 0.15
+
+    2007-09-01	Vincent Untz  <vuntz@gnome.org>
+
+	* configure.in: post-release bump to 0.15
+
+M	ChangeLog
+M	configure.in
+
+commit a09004c7102dfda947fb48078e749a81373f147e
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-09-01
+
+    version 0.14
+
+    2007-09-01	Vincent Untz  <vuntz@gnome.org>
+
+	* NEWS: version 0.14
+
+M	ChangeLog
+M	NEWS
+
+commit 4c0877d7e6d832754064d6613eed69edbd5626e4
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-09-01
+
+    small improvements
+
+    2007-09-01	Vincent Untz  <vuntz@gnome.org>
+
+	* README: small improvements
+
+M	ChangeLog
+M	README
+
+commit e08e4ea54ab1c90475f4a52bee98e234e7c79d1a
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-09-01
+
+    validate the desktop file after modifying its content, but before
+    doing
+
+    2007-09-01	Vincent Untz  <vuntz@gnome.org>
+
+	* src/install.c: (process_one_file): validate the desktop
+	file after
+	modifying its content, but before doing anything else, so that we
+	don't unlink the original file if the created one is not valid.
+	Also, unlink the created file if it's not valid.
+
+M	ChangeLog
+M	src/install.c
+
+commit c7d783c84eec8d07049ab01988e4da43559ce80f
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-09-01
+
+    Don't exit(), but let the main() function do it with a proper error
+
+    2007-09-01	Vincent Untz  <vuntz@gnome.org>
+
+	Don't exit(), but let the main() function do it with a proper
+	error
+	message.
+
+	* src/install.c: (files_are_the_same): it's useless to exit()
+	here if
+	we can't stat() the files. Just continue the operations without
+	removing the original file, that's the best option.
+	(process_one_file): don't exit(), but set the GError
+
+M	ChangeLog
+M	src/install.c
+
+commit 740682d75b9ea0cb2934b26f4730c0171f497cb6
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-09-01
+
+    require glib 2.8.0 kill (main): directly use g_mkdir_with_parents()
+
+    2007-09-01	Vincent Untz  <vuntz@gnome.org>
+
+	* configure.in: require glib 2.8.0
+	* src/install.c: (mkdir_and_parents): kill
+	(main): directly use g_mkdir_with_parents()
+
+M	ChangeLog
+M	configure.in
+M	src/install.c
+
+commit 5acb0c711dff9406bffdeb62427b3be004cc14f9
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-09-01
+
+    simplify the code with a macro (parse_options_callback): if
+
+    2007-09-01	Vincent Untz  <vuntz@gnome.org>
+
+	* src/install.c: (process_one_file): simplify the code with
+	a macro
+	(parse_options_callback): if --add-category="GNOME;GTK" is
+	passed as
+	argument, parse the list of categories instead of assuming
+	the user
+	only gave one category.
+	Fix bug #12207.
+
+M	ChangeLog
+M	src/install.c
+
+commit 532f7f7e30d54bf87f93ffa66dd503b8bff70e0c
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-08-18
+
+    handle -m too. Fix bug #12018. Patch by Matthias Clasen
+
+    2007-08-18	Vincent Untz  <vuntz@gnome.org>
+
+	* src/install.c: (parse_options_callback): handle -m too.
+	Fix bug #12018.
+	Patch by Matthias Clasen <mclasen@redhat.com>
+
+M	ChangeLog
+M	src/install.c
+
+commit cf94986afb2eeb2ff0294e4448980f4030880a9e
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-08-18
+
+    Handle X-Foo in environments. Based on patch by Stanislav Brabec
+
+    2007-08-18	Vincent Untz  <vuntz@gnome.org>
+
+	Handle X-Foo in environments.
+	Based on patch by Stanislav Brabec <sbrabec@suse.cz>.
+	Fix bug #11565.
+
+	* src/validate.c: (handle_show_in_key): handle "X-Foo" and
+	change the
+	error message to mention X-
+	(handle_categories_key): change a bit the error message to
+	mention X-
+
+M	ChangeLog
+M	src/validate.c
+
+commit 9dec6ec674c88c9a8a6ab4aa9e71e3d9075faf22
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-07-27
+
+    new, checks that the value is either an absolute path to a file,
+    or that
+
+    2007-07-27	Vincent Untz  <vuntz@gnome.org>
+
+	* src/validate.c: (handle_icon_key): new, checks that the value is
+	either an absolute path to a file, or that the value looks like an
+	icon name without an extension (png, xpm or svg). Rejects relative
+	pathes too.
+
+M	ChangeLog
+M	src/validate.c
+
+commit 5052214fbc3702cbd9aa6911890b8bd155674fbd
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-07-08
+
+    pass the GError to g_key_file_load_from_file(), so we know when
+    we can't
+
+    2007-07-08	Vincent Untz  <vuntz@gnome.org>
+
+	* src/install.c: (process_one_file): pass the GError to
+	g_key_file_load_from_file(), so we know when we can't load a
+	file and
+	print an error about this. Fix bug #11500.
+
+M	ChangeLog
+M	src/install.c
+
+commit 0d4df0787ab377628575e5eff01bb16bc46300e3
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-06-30
+
+    updated to desktop entry spec 1.0. Patch by Ville Skyttä
+
+    2007-06-30	Vincent Untz  <vuntz@gnome.org>
+
+	* misc/desktop-entry-mode.el: updated to desktop entry spec 1.0.
+	Patch by Ville Skyttä <ville.skytta@iki.fi>
+
+M	ChangeLog
+M	misc/desktop-entry-mode.el
+
+commit 352e54d67ec2c156800a771e1f42e2a48f873776
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-06-04
+
+    post-release bump to 0.14
+
+    2007-06-05	Vincent Untz  <vuntz@gnome.org>
+
+	* configure.in: post-release bump to 0.14
+
+M	ChangeLog
+M	configure.in
+
+commit 4687bbc89ea9a3f01fa47452aaa4c3d825aab5e5
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-06-04
+
+    version 0.13
+
+    2007-06-05	Vincent Untz  <vuntz@gnome.org>
+
+	* NEWS: version 0.13
+
+M	ChangeLog
+M	NEWS
+
+commit c8e0949e5b24de6f343ed302c59be06116f5a14e
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-06-04
+
+    add myself update URL of the desktop entry spec
+
+    2007-06-05	Vincent Untz  <vuntz@gnome.org>
+
+	* AUTHORS: add myself
+	* src/validator.c: (main): update URL of the desktop entry spec
+
+M	AUTHORS
+M	ChangeLog
+M	src/validator.c
+
+commit 80a1c932b9e90caaf75857a3dd8ebfcd77fa93a5
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-06-04
+
+    check if we have a vendor name before using it (main): fix bug when no
+
+    2007-06-04	Vincent Untz  <vuntz@gnome.org>
+
+	* src/install.c: (process_one_file): check if we have a vendor
+	name
+	before using it
+	(main): fix bug when no vendor name or target dir is specified
+	(we'd
+	use an empty string in this case), don't require vendor name
+	Fix bug #9988
+
+M	ChangeLog
+M	src/install.c
+
+commit 14f6fe3f1eb4699d5020e2b4ea729419b898abc2
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-06-04
+
+    Don't use GKeyFile in the validator, so we really control everything.
+
+    2007-06-04	Vincent Untz  <vuntz@gnome.org>
+
+	Don't use GKeyFile in the validator, so we really control
+	everything.
+
+	* src/validate.c: remove some FIXME/TODO
+	(validate_string_key): use g_ascii_iscntrl() instead of
+	!g_ascii_isprint(), small update for the current group
+	(validate_localestring_key): small update for the current group,
+	don't
+	use GKeyFile
+	(validate_boolean_key): small update for the current group
+	(validate_numeric_key): ditto
+	(validate_string_regexp_list_key): use g_ascii_iscntrl()
+	instead of
+	!g_ascii_isprint(), small update for the current group
+	(handle_type_key): small update for the current group
+	(handle_version_key): ditto
+	(handle_show_in_key): ditto
+	(handle_exec_key): ditto
+	(handle_path_key): ditto
+	(handle_mime_key): ditto
+	(handle_categories_key): small update for the current group, don't
+	use GKeyFile
+	(handle_actions_key): ditto
+	(handle_dev_key): ditto
+	(handle_mountpoint_key): ditto
+	(handle_encoding_key): ditto
+	(validate_desktop_key): ditto, the value is an argument now
+	(validate_keys_for_current_group): renamed from
+	validate_keys_for_group(), small update for the current group,
+	don't
+	use GKeyFile and build a hashtable of all the keys in the current
+	group, also don't validate the key for Desktop Entry groups if the
+	name of the key couldn't be validated since this means we'll get
+	another error
+	(validate_group_name): use g_ascii_iscntrl() instead of
+	!g_ascii_isprint()
+	(validate_groups_and_keys): killed
+	(validate_required_keys): don't use GKeyFile
+	(validate_line_is_comment): new
+	(validate_line_looks_like_group): new
+	(validate_line_looks_like_entry): new
+	(validate_parse_line): new
+	(validate_parse_data): new (inspired from gkeyfile.c)
+	(validate_flush_parse_buffer): new (inspired from gkeyfile.c)
+	(validate_parse_from_fd): new (inspired from gkeyfile.c)
+	(validate_load_and_parse): new (inspired from gkeyfile.c)
+	(groups_hashtable_free): new
+	(desktop_file_validate): updated
+	(desktop_file_fixup): small update to avoid confusion
+	* src/validator.c: (main): fix leak
+
+M	ChangeLog
+M	src/validate.c
+M	src/validator.c
+
+commit 4aab76b0fb470a1fcda17a6458ce210d44548478
+Author: Vincent Untz <vuntz@gnome.org>
+Date:	2007-03-15
+
+    remove mention of desktop-menu-tool kill, was useless and deprecated
+
+    2007-03-15	Vincent Untz  <vuntz@gnome.org>
+
+	* README: remove mention of desktop-menu-tool
+	* acconfig.h: kill, was useless and deprecated
+
+	* src/eggintl.h: kill, was useless since quite some time
+
+	* autogen.sh:
+	* configure.in: updated because of src/desktop_file.h removal
+
+	* src/Makefile.am: updated for file removals/additions
+	* src/desktop_file.[ch]: removed. We don't use this anymore
+	(it was
+	based on GnomeDesktopItem which nobody maintains and is too
+	complex
+	for what we need)
+	* keyfileutils.[ch]: new, contains some useful functions based on
+	GKeyFile
+	* src/install.c: updated for changes (GnomeDesktopFile ->
+	GKeyFile)
+	(process_one_file): ditto
+	also, improves a bit the --help output
+	* src/validate.[ch]: pretty much a rewrite. This is based
+	on GKeyFile
+	for now, but it'll be moved to a small parser soon, so we are not
+	limited because of the GKeyFile parser. The validator verifies
+	more
+	things, warns about usage of deprecated stuff, and contains
+	some other
+	nice improvements. It probably contains some bugs, though.
+	* src/validator.c: updated (well, rewritten, since it's only the
+	main() function). We also now have some command line arguments:
+	--warn-kde to warn about usage of KDE reserved stuff
+	--no-warn-deprecated to not warn about usage of deprecated stuff
+
+M	ChangeLog
+M	README
+D	acconfig.h
+M	autogen.sh
+M	configure.in
+M	src/Makefile.am
+D	src/desktop_file.c
+D	src/desktop_file.h
+D	src/eggintl.h
+M	src/install.c
+A	src/keyfileutils.c
+A	src/keyfileutils.h
+M	src/validate.c
+M	src/validate.h
+M	src/validator.c
+
+commit 818536c358d110f695c68566a23d393a19d71904
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-08
+
+    post-release bump to 0.13.
+
+    2006-11-08	Ray Strode  <rstrode@redhat.com>
+
+	* configure.in: post-release bump to 0.13.
+
+M	ChangeLog
+M	configure.in
+
+commit 521e2e104b12fa993083b97ebb26602a00030af9
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-08
+
+    update news file
+
+    2006-11-08	Ray Strode  <rstrode@redhat.com>
+
+	* NEWS: update news file
+
+M	ChangeLog
+M	NEWS
+
+commit 5424a4d0ea07609d863c29db01f59aab16352272
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-07
+
+    If a desktop file contains "Applications" instead of "Application"
+    make
+
+    2006-11-07	Ray Strode  <rstrode@redhat.com>
+
+	* src/validate.c: If a desktop file contains
+	"Applications" instead of "Application" make the warning
+	reflect that.
+
+M	ChangeLog
+M	src/validate.c
+
+commit 46a49431585b61d3190cd19e7b16c6ff1179485b
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-07
+
+    Print a warning instead of an error if categories aren't defined
+    by the
+
+    2006-11-07	Ray Strode  <rstrode@redhat.com>
+
+	* src/validate.c: Print a warning instead of an error
+	if categories aren't defined by the spec.  Give special
+	handling to the "Application" category since it's not
+	defined by the spec, but is in wide use, and can be
+	translated to one of the "main categories". (gnome bug
+	343799 comment 8)
+
+M	ChangeLog
+M	src/validate.c
+
+commit 56dc8a2254fbaa8c7688594f59f841e444263208
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-07
+
+    Validate keywords as localestrings instead of strings (red hat bug
+
+    2006-11-07	Ray Strode  <rstrode@redhat.com>
+
+	* src/validate.c: Validate keywords as localestrings
+	 instead of strings (red hat bug 172423).  Patch from
+	 Ville Skyttä <ville.skytta@iki.fi>
+
+M	ChangeLog
+M	src/validate.c
+
+commit 0d12a284aa29366c367ae9f7baea154b0350b177
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-07
+
+    update categories to match the latest version of the desktop menu
+
+    2006-11-07	Ray Strode  <rstrode@redhat.com>
+
+	* src/validate.c: update categories
+	to match the latest version of the desktop menu
+	specification, and reorder to make it easier to resync
+	in the future.	Patch from
+	Ville Skyttä <ville.skytta@iki.fi> (red hat bug 212705)
+
+M	ChangeLog
+M	src/validate.c
+
+commit a594d4d44a10cec75bbc298303490e1bb51827b8
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-07
+
+    apply fixes from Ville Skyttä <ville.skytta@iki.fi> to match
+    the latest
+
+    2006-11-07	Ray Strode  <rstrode@redhat.com>
+
+	* misc/desktop-entry-mode.el: apply fixes
+	from Ville Skyttä <ville.skytta@iki.fi> to match the
+	latest version of the spec
+
+M	ChangeLog
+M	misc/desktop-entry-mode.el
+
+commit d983e48807739779c09eb1bf2a336d891176839c
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-06
+
+    fix a couple of mem leaks. Patch from Pascal Terjan (gnoem bug 345686)
+
+    2006-11-06	Ray Strode <rstrode@redhat.com>
+
+	* src/desktop_file.c:
+	fix a couple of mem leaks.  Patch from Pascal Terjan
+	(gnoem bug 345686)
+
+M	ChangeLog
+M	src/desktop_file.c
+
+commit 0f0075ce04abe3a56c87e0eeb8384e994de06c7d
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-06
+
+    move g_free inside if branch to prevent a double free in the else
+    case.
+
+    2006-11-06	Ray Strode <rstrode@redhat.com>
+
+	* src/desktop_file.c:
+	move g_free inside if branch to prevent a double free in
+	the else case. Patch from Pascal Terjan (gnome bug
+	345309)
+
+M	ChangeLog
+M	src/desktop_file.c
+
+commit 5c9975bd94829b98b403139be12fc976803c9fb3
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-06
+
+    fix category typos: TeminalEmulator -> TerminalEmulator ScreenSaver ->
+
+    2006-11-06	Ray Strode <rstrode@redhat.com>
+
+	* src/validate.c: fix category typos:
+	TeminalEmulator -> TerminalEmulator
+	ScreenSaver -> Screensaver
+	spotted by Vincent Fretin (in gnome bug
+	342799)
+
+M	ChangeLog
+M	src/validate.c
+
+commit 65c2b4aa37ea0b17b834cbad32103e61c7a0e43f
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-11-06
+
+    add patch from Vincent Untz to not validate categories that start
+    with X-
+
+    2006-11-06	Ray Strode <rstrode@redhat.com>
+
+	* src/validate.c: add patch from Vincent Untz to
+	not validate categories that start with X-
+	(gnome bug 343799)
+
+M	ChangeLog
+M	src/validate.c
+
+commit 2b2c0821053619399b11fd8edbaf3d85ad531289
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-07-26
+
+    remove from cvs
+
+    2006-07-25	Ray Strode <rstrode@redhat.com>
+
+	* src/egg*: remove from cvs
+
+M	ChangeLog
+D	src/eggdesktopentries.c
+D	src/eggdesktopentries.h
+D	src/eggdirfuncs.c
+D	src/eggdirfuncs.h
+
+commit 6332730f526dd007e233cdc15a982ac9d1532b12
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-04-18
+
+    post-release bump to 0.12.
+
+    2006-04-18	Ray Strode <rstrode@redhat.com>
+
+	* configure.in: post-release bump to 0.12.
+
+M	ChangeLog
+M	configure.in
+
+commit 035b15e8e1f0e4f8ee42fa5f6b86f7b96cdf9e2c
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-04-18
+
+    ==================== 0.11 ====================
+
+M	ChangeLog
+M	NEWS
+
+commit a41d9e0323054501356beccde6321268372eb237
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2006-04-18
+
+    Validate that desktop file categories match those specified in
+    the spec.
+
+    2006-04-18	Ray Strode <rstrode@redhat.com>
+
+	Validate that desktop file categories match those
+	specified in the spec.	Patch from Emmet Hikory
+	<emmet.hikory@gmail.com> and
+	Vincent Untz <vuntz@gnome.org> (bug 3337786)
+
+	* src/validate.c (validate_categories): new
+	function to ensure that categories are known.
+
+    2006-04-18	Vincent Untz  <vuntz@gnome.org>
+
+	Use GKeyFile instead and kill egg-* usage (bug 319987).
+
+	* src/Makefile.am: remove egg-*
+	* src/update-desktop-database.c: (process_desktop_file):
+	use GKeyFile
+	(get_default_search_path): use g_get_system_data_dirs()
+
+    2006-04-18	Vincent Untz  <vuntz@gnome.org>
+
+	Port to GOption (bug 338575)
+
+	* configure.in: remove the check for popt, depend on glib >= 2.6.0
+	* src/install.c: (parse_options_callback): rewritten
+	(main): port to GOption
+	* src/update-desktop-database.c: (sync_database): remove warning
+	(main): port to GOption
+
+M	ChangeLog
+M	configure.in
+M	src/Makefile.am
+M	src/install.c
+M	src/update-desktop-database.c
+M	src/validate.c
+
+commit e0d6b8a0dd16fed932d287990b44261c5fe087eb
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2005-08-31
+
+    resync from libegg to fix grammar error spotted by Moritz Barsnick
+
+    2005-08-31	Ray Strode  <rstrode@redhat.com>
+
+	* src/eggdesktopentries.[ch]:
+	resync from libegg to fix grammar error spotted by
+	Moritz Barsnick <moritz@barsnick.net>.	(this code
+	should really be changed to use gkeyfile)
+
+M	ChangeLog
+M	src/eggdesktopentries.c
+
+commit b3ccf461e7a547f9404e58be5a9bcdfcd405de0c
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2005-01-10
+
+    NULL terminate default search path. Spotted by Mike Hearn
+    <mike@navi.cx>
+
+    2005-01-09	Ray Strode  <rstrode@redhat.com>
+
+	* src/update-desktop-database.c:
+	NULL terminate default search path.  Spotted by
+	Mike Hearn <mike@navi.cx>
+
+M	ChangeLog
+M	src/update-desktop-database.c
+
+commit 14f79f1ee66203e4b67080f7e1436cb751c5b22a
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-11-23
+
+    Patch from Ville Skyttä <ville.skytta@iki.fi>
+
+    2004-11-23	Mark McLoughlin  <mark@skynet.ie>
+
+	Patch from Ville Skyttä <ville.skytta@iki.fi>
+
+	* src/desktop_file.c: fix the lang -> encoding mapping
+	to what the Desktop Entry Specification specifies.
+
+M	.cvsignore
+M	ChangeLog
+M	src/desktop_file.c
+
+commit 43b3a2940c5c8d2a6141610b640a977e254f06c8
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-11-11
+
+    post-release bump to 0.11.
+
+    2004-11-11	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: post-release bump to 0.11.
+
+M	ChangeLog
+M	configure.in
+
+commit 779a20fdeedc000b49e84a7fa4da4f654509427a
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-11-11
+
+    Version 0.10.
+
+    2004-11-11	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: Version 0.10.
+
+M	ChangeLog
+M	NEWS
+
+commit 86c5304b82f5027dc242cfd19072800bfba8300d
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-11-11
+
+    update
+
+M	src/.cvsignore
+
+commit a6177c3e65189ecc5cd22c8d6e1f0a2c183b6b6b
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-11-11
+
+    fix uninitialized variable.
+
+    2004-11-11	Mark McLoughlin  <mark@skynet.ie>
+
+	    * src/desktop_file.c:
+	    (gnome_desktop_file_remove_string_from_list):
+	    fix uninitialized variable.
+
+	    * configure.in: modernize a bit, don't check for gnome-vfs,
+	    remove --enable-tests etc.
+
+	    * src/Makefile.am: remove a bunch of stuff.
+
+	    * src/canonicalize.[ch],
+	      src/dfu-test.[ch],
+	      src/gen-compat-tree.c,
+	      src/gen_table.py,
+	      src/menu-entries.[ch],
+	      src/menu-layout.[ch],
+	      src/menu-method.c,
+	      src/menu-modules.conf,
+	      src/menu-monitor.[ch],
+	      src/menu-overrides.[ch],
+	      src/menu-parser.[ch],
+	      src/menu-process.[ch],
+	      src/menu-tree-cache.[ch],
+	      src/menu-util.[ch],
+	      src/menu.h,
+	      src/vfolder-parser.[ch],
+	      src/vfolder-query.[ch]: remove all this menu stuff. Its now
+	    in GNOME itself.
+
+	    * test/*: remove empty dir;
+
+	    * Makefile.am: don't build tests dir.
+
+M	ChangeLog
+M	Makefile.am
+M	configure.in
+M	src/Makefile.am
+D	src/canonicalize.c
+D	src/canonicalize.h
+M	src/desktop_file.c
+D	src/dfu-test.c
+D	src/dfu-test.h
+D	src/gen-compat-tree.c
+D	src/gen_table.py
+D	src/menu-entries.c
+D	src/menu-entries.h
+D	src/menu-layout.c
+D	src/menu-layout.h
+D	src/menu-method.c
+D	src/menu-modules.conf
+D	src/menu-monitor.c
+D	src/menu-monitor.h
+D	src/menu-overrides.c
+D	src/menu-overrides.h
+D	src/menu-parser.c
+D	src/menu-parser.h
+D	src/menu-process.c
+D	src/menu-process.h
+D	src/menu-tree-cache.c
+D	src/menu-tree-cache.h
+D	src/menu-util.c
+D	src/menu-util.h
+D	src/menu.h
+D	src/vfolder-parser.c
+D	src/vfolder-parser.h
+D	src/vfolder-query.c
+D	src/vfolder-query.h
+D	test/.cvsignore
+D	test/Makefile.am
+
+commit 5a3d85fd005d8c0e5b4be07e66eee904bf29a31a
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-10-18
+
+    Error out if trying to add key-value pair to comment group (Patch from
+
+    2004-10-18	Ray Strode  <rstrode@redhat.com>
+
+	* src/eggdesktopentries.c:
+	(egg_desktop_entries_parse_entry):
+	Error out if trying to add key-value pair to comment
+	group  (Patch from Miloslav Trmac <mitr@redhat.com>)
+
+M	ChangeLog
+M	src/eggdesktopentries.c
+
+commit 1906d103c6894063d1c716b15db9cbfafe292e98
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-09-28
+
+    post-release bump to 0.10.
+
+    2004-09-28	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: post-release bump to 0.10.
+
+M	ChangeLog
+M	configure.in
+
+commit 5cc73be19b4ac76b26b8107f0cabdff8af3914e0
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-09-28
+
+    Version 0.9.
+
+    2004-09-28	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: Version 0.9.
+
+M	ChangeLog
+M	NEWS
+
+commit de080d604ddacd47c63fc05083db909197c4a0b8
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-09-28
+
+    Don't put the if clause where the else clause should go and vice versa
+
+    2004-09-27	Ray Strode  <rstrode@redhat.com>
+
+	* src/eggdesktopentries
+	(egg_desktop_entries_get_locale_encoding):
+	Don't put the if clause where the else clause should
+	go and vice versa (Spotted by Nicholas Miell,
+	http://bugzilla.gnome.org/show_bug.cgi?id=153759)
+
+M	ChangeLog
+M	src/eggdesktopentries.c
+
+commit 3bb75ce0253afb5f6bf95f786f8207ed09381a8e
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-09-27
+
+    Bounds check before doing array assignment
+
+    2004-09-29	Ray Strode  <rstrode@redhat.com>
+
+	* src/desktop_file.c:
+	(gnome_desktop_file_remove_string_from_list):
+	Bounds check before doing array assignment
+
+	* src/eggdesktopentries
+	(egg_desktop_entries_get_locale_country):
+	Don't put the if clause where the else clause should
+	go and vice versa (Spotted by Nicholas Miell,
+	http://bugzilla.gnome.org/show_bug.cgi?id=153759)
+
+M	ChangeLog
+M	src/desktop_file.c
+M	src/eggdesktopentries.c
+
+commit d9f9ac33c979755c887a1b3c8b63b4926c641ce1
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-09-23
+
+    Fix --remove-show-in option
+
+    2004-09-23	Ray Strode  <rstrode@redhat.com>
+
+	* src/desktop_file.c:
+	(gnome_desktop_file_remove_string_from_list):
+	Fix --remove-show-in option
+
+M	ChangeLog
+M	src/desktop_file.c
+
+commit a9ba8ec24628ca86e6e138e4ca1b371f0ced7710
+Author: Dan Williams <dcbw@redhat.com>
+Date:	2004-09-13
+
+    Don't try to dispose of 'entries' if it's NULL, since then
+
+    2004-09-13	Dan Williams <dcbw@redhat.com>
+
+	* src/eggdesktopentreis.c:
+	(egg_desktop_entries_new_from_file): Don't try to
+	dispose of 'entries' if it's NULL, since then
+	egg_desktop_entries_free() prints out failure
+	messages.
+
+M	ChangeLog
+M	src/eggdesktopentries.c
+
+commit fda9ed5ca911030991e03b7cf7fc761056c1d154
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-09-08
+
+    New macros for printing at various verbosity levels
+    (is_valid_mime_type):
+
+    2004-09-08	Ray Strode  <rstrode@redhat.com>
+
+	* src/update-desktop-database.c:
+	(udd_print), (udd_verbose_print):
+	New macros for printing at various verbosity levels
+	(is_valid_mime_type): give better error messages
+	(process_desktop_files): print unparsable desktop
+	files by default without verbose mode.	Inform user
+	of desktop files that lack mime type keys in verbose
+	mode.
+	(open_temp_cache_file): change file mode of temp
+	file to reflect user's umask.
+	(print_desktop_dirs),
+	(main): use new udd_verbose_print macro
+
+M	ChangeLog
+M	src/update-desktop-database.c
+
+commit 4e7026a15d22bd5af7184b2bf737ceb57c85f7a5
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-09-03
+
+    sync with libegg
+
+    2004-09-03	Ray Strode  <rstrode@redhat.com>
+
+	* src/egg*.[ch]: sync with libegg
+
+M	ChangeLog
+M	src/eggdesktopentries.c
+M	src/update-desktop-database.c
+
+commit 44faedeccad07671e2f21e756a744966aadc1fbe
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-09-03
+
+    forgotten news for 0.8
+
+M	NEWS
+
+commit 6f6ec0efffeba7cca274e8f1400cdafa11c6a638
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-09-03
+
+    post-release bump to 0.9.
+
+    2004-09-03	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: post-release bump to 0.9.
+
+M	ChangeLog
+M	configure.in
+
+commit ab6d4f29f7aae1d2e537bfb01afe2842f7b0b702
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-09-03
+
+    Version 0.8.
+
+    2004-09-03	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: Version 0.8.
+
+M	ChangeLog
+
+commit 3fd76a0061e1dca888d045a63424a71edaa3dfb0
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-09-02
+
+    Fixes empty subdirs not getting removed.
+
+    2004-09-02	Mark McLoughlin  <mark@skynet.ie>
+
+	    Fixes empty subdirs not getting removed.
+
+	    * src/menu-process.c: (process_only_unallocated): check
+	    whether
+	    the subdir has no entries, not this dir.
+
+M	ChangeLog
+M	src/menu-process.c
+
+commit 04926109349b90b66863cc522d27aab126049e17
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-09-02
+
+    always invalidate the cache, even if a file has just changed -
+    we need to
+
+    2004-09-02	Mark McLoughlin  <mark@skynet.ie>
+
+	    * src/menu-entries.c:
+	    (handle_cached_dir_changed): always invalidate the cache,
+	    even if a file has just changed - we need to re-read the
+	    categories and such.
+	    (cached_dir_get_full_path): append a "/" between path
+	    elements - trying to read /usrshareapplications isn't
+	    going to work, is it?
+
+M	ChangeLog
+M	src/menu-entries.c
+
+commit 99c42dd7f32176a07deac8b0885a724d75d9c203
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-09-02
+
+    Don't crash if the tree has already been freed.
+
+    2004-09-02	Mark McLoughlin  <mark@skynet.ie>
+
+	    * src/menu-process.c: (handle_menu_node_menu_changed):
+	    Don't crash if the tree has already been freed.
+
+M	ChangeLog
+M	src/menu-process.c
+
+commit f6b82d1ae48432e4f80496d6a0aa64c1f3598cde
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-09-02
+
+    sync with libegg
+
+    2004-09-02	Ray Strode  <rstrode@redhat.com>
+
+	* src/egg*.[ch]: sync with libegg
+
+M	ChangeLog
+M	src/eggdesktopentries.c
+M	src/eggdesktopentries.h
+M	src/eggdirfuncs.c
+M	src/eggdirfuncs.h
+M	src/update-desktop-database.c
+
+commit 2b41b33c7c9866d18d89adfbfa4494569a8cd4b0
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-08-29
+
+    Patch from Dan Williams <dcbw@redhat.com>
+
+    2004-08-29	Mark McLoughlin  <mark@skynet.ie>
+
+	    Patch from Dan Williams <dcbw@redhat.com>
+
+	    * src/menu-method.c: add a reasonable set of schemes.
+
+M	ChangeLog
+M	src/menu-method.c
+
+commit b9671cfbb70f3f9c28089faebb1b8a69bd2d3f8d
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-08-29
+
+    add an only_show_in arg. (desktop_entry_tree_cache_unref: free
+
+    2004-08-29	Mark McLoughlin  <mark@skynet.ie>
+
+	    * src/menu-tree-cache.[ch]:
+	    (desktop_entry_tree_cache_new): add an only_show_in arg.
+	    (desktop_entry_tree_cache_unref: free only_show_in.
+	    (reload_entry): pass in only_show_in when loading the
+	    tree.
+
+	    * src/menu-method.c: (menu_method_new): set only-show-in
+	    to GNOME.
+
+	    * src/gen-compat-tree.c: (process_one_file): don't
+	    set an only-show-in name. Might want a command line
+	    argument for this at some point.
+
+M	ChangeLog
+M	src/gen-compat-tree.c
+M	src/menu-method.c
+M	src/menu-tree-cache.c
+M	src/menu-tree-cache.h
+
+commit 6b76fd581e24d0845fe8a1707a80260bff4d48de
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-08-29
+
+    Another patch from Dan with some minor changes.
+
+    2004-08-29	Mark McLoughlin  <mark@skynet.ie>
+
+	    Another patch from Dan with some minor changes.
+
+	    * src/menu-process.[ch]:
+	    (desktop_entry_tree_get_mtime): accessor for mtime.
+	    (build_tree): set the mtime to the time which we
+	    build the tree.
+
+	    * src/menu-method.c:
+	    (fill_in_generic_dir_info),
+	    (fill_in_generic_file_info): set mtime/ctime.
+
+M	ChangeLog
+M	src/menu-method.c
+M	src/menu-process.c
+M	src/menu-process.h
+
+commit aae23b7a07bb99ab295572899b93c678c516281f
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-08-29
+
+    Patch to make the menu method notice changes in the entry directories
+    and
+
+    2004-08-29	Mark McLoughlin  <mark@skynet.ie>
+
+	    Patch to make the menu method notice changes in the entry
+	    directories and re-load the menus. Re-worked version of
+	    a patch from Dan Williams <dcbw@redhat.com>
+
+	    * src/Makefile.am: build menu-monitor.[ch]
+
+	    * src/menu-entries.[ch]:
+	    (entry_directory_add_monitor),
+	    (entry_directory_remove_monitor),
+	    (entry_directory_list_add_monitors),
+	    (entry_directory_list_remove_monitors): add API to support
+	    monitoring the contents of entry directories.
+
+	    * src/menu-layout.[ch]:
+	    (menu_node_menu_add_monitor),
+	    (menu_node_menu_remove_monitor): add API to support monitoring
+	    menu nodes.
+
+	    * src/menu-process.[ch]:
+	    (desktop_entry_tree_add_monitor),
+	    (desktop_entry_tree_remove_monitor): add API to support
+	    monitoring
+	    the entry tree. Right now, only changes in the entry
+	    directories are
+	    noticed and not the menu files themselves.
+
+	    * src/menu-tree-cache.c: use the entry tree monitoring API and
+	    rebuild if it changes.
+
+	    * src/menu-monitor.[ch]: add silly monitor abstraction.
+
+	    * src/menu-method.c: implement the monitor abstraction
+	    with gnome-vfs
+	    monitors.
+
+M	ChangeLog
+M	src/Makefile.am
+M	src/menu-entries.c
+M	src/menu-entries.h
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-method.c
+A	src/menu-monitor.c
+A	src/menu-monitor.h
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/menu-tree-cache.c
+M	src/menu-tree-cache.h
+
+commit 5ca04aeb574652e77e2d1cc7446cd0217bd0e6f3
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-08-29
+
+    remove FIXME to disable removing empty submenus. menu-spec says the
+
+    2004-08-29	Mark McLoughlin  <mark@skynet.ie>
+
+	    * src/menu-process.c: (process_only_unallocated): remove
+	    FIXME to disable removing empty submenus. menu-spec says
+	    the default value for the "show_empty" attribute in
+	    DefaultLayout is "false" so ...
+
+M	ChangeLog
+M	src/menu-process.c
+
+commit f36c875da8a83e629fbf389d1056ef421adf934f
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-08-29
+
+    Based on a patch from Dan Williams <dcbw@redhat.com>
+
+    2004-08-29	Mark McLoughlin  <mark@skynet.ie>
+
+	    Based on a patch from Dan Williams <dcbw@redhat.com>
+
+	    * src/menu-entries.[ch]:
+	    (entry_get_nodisplay): add accessor for nodisplay flag
+	    (entry_new_desktop_from_file): return NULL if NoDisplay=TRUE
+	    (entry_new_directory_from_file): set the nodisplay flag if
+	    NoDisplay=TRUE.
+
+	    * src/menu-process.c: (tree_node_from_menu_node): if the
+	    last .directory has NoDisplay=true treat it as if the
+	    <Menu> had a <Deleted>
+
+M	ChangeLog
+M	src/.cvsignore
+M	src/menu-entries.c
+M	src/menu-entries.h
+M	src/menu-process.c
+
+commit 732183a20f0c4814da404cfec3b87b31071fd899
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-08-29
+
+    don't include desktop_file.h
+
+    2004-08-29	Mark McLoughlin  <mark@skynet.ie>
+
+	    * src/menu-process.h: don't include desktop_file.h
+
+	    * src/menu-util.h: don't include menu-layout.h
+
+M	ChangeLog
+M	src/menu-process.h
+M	src/menu-util.h
+
+commit 2fcb4b84c1f87d39a2b748e1216e60a9b2ff635a
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-08-25
+
+    don't leak the entry sets. Patch from Kjartan Maraas in rh bug #130673
+
+    2004-08-25	Mark McLoughlin  <mark@skynet.ie>
+
+	    * src/menu-process.c: (resolve_legacy_dir),
+	    (tree_node_from_menu_node): don't leak the entry
+	    sets. Patch from Kjartan Maraas in rh bug #130673
+
+	    * src/menu-method.c: (menu_method_get_info):
+	    free the resolved path. Another leak from rh bug #130673
+
+M	ChangeLog
+M	src/menu-method.c
+M	src/menu-process.c
+
+commit 0903e4a3f1f39b908c2240a698431bd0df617272
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-07-22
+
+    sync with libegg
+
+    2004-07-22	Ray Strode  <rstrode@redhat.com>
+
+	* src/egg*.[ch]: sync with libegg
+
+	* src/update-desktop-database.c: fix calls to work
+	with changed api
+
+M	ChangeLog
+M	src/eggdesktopentries.c
+M	src/eggdesktopentries.h
+M	src/eggdirfuncs.c
+M	src/update-desktop-database.c
+
+commit 7fc55f50ebc307ad19fb9fb315231304f10b6093
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-07-22
+
+    post-release bump to 0.8.
+
+    2004-07-22	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: post-release bump to 0.8.
+
+M	ChangeLog
+M	configure.in
+
+commit eb0fb5ceb5be7c4e3b3539519e1e1d12f7929a21
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-07-22
+
+    Version 0.7.
+
+    2004-07-22	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: Version 0.7.
+
+M	ChangeLog
+M	NEWS
+M	configure.in
+
+commit a74ca8bbc26da1ba024e7f6feeacbe9e5eada61f
+Author: Jonathan Blandford <jrb@gnome.org>
+Date:	2004-07-22
+
+    Make pass distcheck.
+
+    Wed Jul 21 22:48:33 2004  Jonathan Blandford  <jrb@gnome.org>
+
+	    * src/Makefile.am:
+	    * misc/Makefile.am: Make pass distcheck.
+
+M	ChangeLog
+M	misc/Makefile.am
+M	src/Makefile.am
+
+commit f11686f02711fdb88b0ee977fcf31140ae74b0ff
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-07-21
+
+    add new --add-mime-type and --remove-mime-type options to make it
+    easy to
+
+    2004-07-21	Ray Strode  <rstrode@redhat.com>
+
+	* src/install.c: (main)
+	(process_one_file):
+	(parse_options_callback):
+	add new --add-mime-type and --remove-mime-type options
+	to make it easy to dynamically add and remove mime
+	types from a desktop file.
+
+M	ChangeLog
+M	src/install.c
+
+commit 4879cb46c884908ee61b502f89737c4a9812f2c7
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-07-21
+
+    add new --rebuild-mime-info-cache option (str_has_prefix): this
+    function
+
+    2004-07-21	Ray Strode  <rstrode@redhat.com>
+
+	* src/install.c: (main)
+	(rebuild_cache),
+	(process_one_file):
+	add new --rebuild-mime-info-cache option
+	(str_has_prefix): this function is now in glib,
+	so remove it here and use it from there.
+
+M	ChangeLog
+M	src/install.c
+
+commit 88729a7224944c31ac82081b73bab45cdbd26682
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-07-21
+
+    Return 1 on failure, even in quiet mode.
+
+    2004-07-21	Ray Strode  <rstrode@redhat.com>
+
+	* src/update-desktop-database.c: Return 1 on failure,
+	      even in quiet mode.
+
+M	ChangeLog
+M	src/update-desktop-database.c
+
+commit 01ea154d0a7a1543042bf5138490012eb3cd40ff
+Author: Ray Strode <rstrode@redhat.com>
+Date:	2004-07-15
+
+    add update-desktop-database
+
+    2004-07-15	Ray Strode  <rstrode@redhat.com>
+
+	* src/Makefile.am: add update-desktop-database
+
+	* src/eggdesktopentries.[ch]
+	  src/eggdirfuncs.[ch]
+	  src/eggintl.h: new desktop file parser
+
+	* src/gen-compat-tree.c
+	  src/install.c:  #include <locale.h>
+
+	* src/update-desktop-database.c: creates
+	  cache of mime type / desktop-file-id
+	  associations.
+
+M	ChangeLog
+M	src/Makefile.am
+A	src/eggdesktopentries.c
+A	src/eggdesktopentries.h
+A	src/eggdirfuncs.c
+A	src/eggdirfuncs.h
+A	src/eggintl.h
+M	src/gen-compat-tree.c
+M	src/install.c
+A	src/update-desktop-database.c
+
+commit 4d0df47a06fcda8f27f4f9b64d575fedc434b8e2
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-04-22
+
+    hush
+
+M	misc/.cvsignore
+
+commit 404051fd0f15c5249996aa3d903d88f5cb364ada
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-04-19
+
+    install the elisp.
+
+    2004-04-19	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in,
+	      misc/Makefile.am: install the elisp.
+
+M	ChangeLog
+M	configure.in
+M	misc/Makefile.am
+
+commit d819beb1eaa1ea56c8b4e4b356fce939dbb059ae
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-04-19
+
+    Patch from Ville Skyttä <ville.skytta@iki.fi>
+
+    2004-04-19	Mark McLoughlin  <mark@skynet.ie>
+
+	    Patch from Ville Skyttä <ville.skytta@iki.fi>
+
+	    * misc/desktop-entry-mode.el: make it work a bit better
+	    with GNU emacs.
+
+M	ChangeLog
+M	misc/.cvsignore
+M	misc/desktop-entry-mode.el
+
+commit 2c3507439353c540bf6c97ef44b9d450cab4dfe2
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-04-19
+
+    add forgotten Makefile
+
+A	misc/Makefile.am
+
+commit d8acd71129ddeccbed216f53e8e078f291fbda2b
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-04-18
+
+    Patch from Ville Skyttä <ville.skytta@iki.fi> with some minor
+    changes.
+
+    2004-04-18	Mark McLoughlin  <mark@skynet.ie>
+
+	    Patch from Ville Skyttä <ville.skytta@iki.fi> with some
+	    minor changes.
+
+	    * src/validate.c:
+	    (print_fatal), (print_warning): take a filename arg and
+	    say whether its an error or warning.
+	    (validate_only_show_in): actually validate against registered
+	    OnlyShowIn values.
+	    (key_table): upd. for latest spec.
+	    (enum_keys): check for keys that are reserved for KDE.
+	    (required_section): improve validation here.
+
+	    * src/validator.c: (main): fixup the error messages.
+
+M	ChangeLog
+M	src/validate.c
+M	src/validator.c
+
+commit b722c62c54b795ac8fcb72d7c2a3701d66a4ed77
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-04-18
+
+    Warning fixes.
+
+    2004-04-18	Mark McLoughlin  <mark@skynet.ie>
+
+	    Warning fixes.
+
+	    * src/menu-entries.c:
+	    (entry_cache_atom_name),
+	    (entry_cache_clear_unused): mark as unused.
+
+	    * src/menu-method.c:
+	    (menu_method_ref), (menu_method_unref): ditto.
+
+	    * src/vfolder-parser.c:
+	    (add_context_to_error), (locate_attributes): kill these.
+
+	    * src/menu-process.c:
+	    (menu_node_resolve_files_recursive): add a missing break;
+	    (foreach_dir): try to fixup this and give up - something
+	    is very broken here.
+
+M	ChangeLog
+M	src/menu-entries.c
+M	src/menu-method.c
+M	src/menu-process.c
+M	src/vfolder-parser.c
+
+commit d17d002c67a517fa894b5606b122aa65522d4337
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-04-18
+
+    add Emacs desktop entry mode from Ville Skyttä <ville.skytta@iki.fi>
+
+    2004-04-18	Mark McLoughlin  <mark@skynet.ie>
+
+	    * misc/desktop-entry-mode.el: add Emacs desktop entry
+	    mode from Ville Skyttä <ville.skytta@iki.fi>
+
+M	ChangeLog
+M	Makefile.am
+M	configure.in
+A	misc/.cvsignore
+A	misc/desktop-entry-mode.el
+
+commit b32d8b2a1921e4adbfb1e2f3162e8f7cee200133
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-04-18
+
+    shush
+
+M	.cvsignore
+
+commit 574af0b8681a144a393b8f2869671e51afc1bcdb
+Author: Dan Williams <dcbw@redhat.com>
+Date:	2004-03-24
+
+    Bump to version 0.6 in preparation for a release.
+
+M	ChangeLog
+M	configure.in
+
+commit 036d4c21a8d5b3f16f37ce4e8a8f7ab33d29b729
+Author: Dan Williams <dcbw@redhat.com>
+Date:	2004-03-22
+
+    src/gen-compat-tree.c src/menu-entries.c src/menu-entries.h
+
+    2004-03-21	Dan Williams  <dcbw@redhat.com>
+
+	* src/gen-compat-tree.c
+	  src/menu-entries.c
+	  src/menu-entries.h
+	  src/menu-layout.h
+	  src/menu-method.c
+	  src/menu-modules.conf
+	  src/menu-parser.c
+	  src/menu-process.c
+	  src/menu-process.h
+	  src/Makefile.am
+
+	  Apply Frederic Crozat's patch to bring d-f-u up
+	  to the freedesktop.org Menu Spec 0.8.  Approved
+	  by havoc.
+
+M	ChangeLog
+M	src/Makefile.am
+M	src/gen-compat-tree.c
+M	src/menu-entries.c
+M	src/menu-entries.h
+M	src/menu-layout.h
+M	src/menu-method.c
+M	src/menu-modules.conf
+M	src/menu-parser.c
+M	src/menu-process.c
+M	src/menu-process.h
+
+commit f003793aa7a371e500e1d261cca7020d213ed09a
+Author: Dan Williams <dcbw@redhat.com>
+Date:	2004-03-21
+
+    Don't crash when a .desktop file is a symlink pointing to a
+    nonexistent
+
+    2004-03-21	Dan Williams  <dcbw@redhat.com>
+
+	* src/menu-entries.c: Don't crash when a .desktop
+	file is a symlink pointing to a nonexistent file.
+
+M	ChangeLog
+M	src/menu-entries.c
+
+commit 0bacbc6e3bbbc008b1dd1997b2382538f84670e5
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-03-01
+
+    Version 0.5.
+
+    2004-03-01	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: Version 0.5.
+
+    2004-03-01	Mark McLoughlin  <mark@skynet.ie>
+
+	    Patch from Dan Williams to not segfault with .desktop
+	    files with comments at the start.
+
+	    * src/validate.c: (enum_sections), (enum_actions):
+	    Don't crap out if the section or action name is
+	    NULL.
+
+M	ChangeLog
+M	configure.in
+M	src/validate.c
+
+commit 9716fcd495f7a5876129f41e5bc860dc22d536a0
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-02-19
+
+    Version 0.4
+
+    2004-02-19	Mark McLoughlin  <mark@skynet.ie>
+
+	    * configure.in: Version 0.4
+
+M	ChangeLog
+M	configure.in
+M	src/Makefile.am
+
+commit 1cc71ab56de69bdf16bec6ad3c021809758b01ef
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-02-19
+
+    Add support for .desktop files which contains Actions. Verify that the
+
+    2004-02-19	Mark McLoughlin  <mark@skynet.ie>
+
+	    Add support for .desktop files which contains Actions. Verify
+	    that the Actions key and Desktop Action sections match up
+	    and that each Desktop Action section has an Exec key.
+
+	    * src/validate.c:
+	    (enum_sections): record the name of the main section and
+	    allow Desktop Action sections.
+	    (required_section): return the name of the main section.
+	    (required_keys): actually check for these keys in the correct
+	    section.
+	    (enum_actions), (error_orphaned_action),
+	    (required_actions): make sure the Actions key and Desktop
+	    Actions
+	    sections match up.
+	    (desktop_file_validate): upd.
+
+M	ChangeLog
+M	src/validate.c
+
+commit e5178a6e260fdd4d98d25630f2721cec77eea11f
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-02-19
+
+    hush puppies
+
+A	src/.cvsignore
+A	test/.cvsignore
+
+commit 212304203a637227dc5f4451c5c24bb5d527f2e6
+Author: Mark McLoughlin <mark@skynet.ie>
+Date:	2004-02-19
+
+    shush
+
+A	.cvsignore
+
+commit 40b5b6cb7f8e8d2678c4de3ea7133988ece58c1f
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-10-24
+
+    don't return an entry's parent, only return a subdir at the exact path
+
+    2003-10-23	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c (tree_node_find_subdir): don't return an
+	entry's parent, only return a subdir at the exact path
+
+M	ChangeLog
+M	src/menu-process.c
+
+commit cd253d7315b8cfbef387ed40ae6c4270797b5d64
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-10-23
+
+    implement <Move> operation
+
+    2003-10-23	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c: implement <Move> operation
+
+	* src/menu-process.c (menu_node_strip_duplicate_children): fix
+	to keep later rather than earlier <Menu> nodes
+	(move_children): drop the <Name> node from the source <Menu>
+
+	* src/menu-parser.c (end_element_handler): don't add context to
+	error messages that already have it
+
+	* src/menu-parser.c (fixup_move_node): new code to canonicalize
+	and verify move nodes
+
+M	ChangeLog
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-parser.c
+M	src/menu-process.c
+
+commit 9026bd0d2c5976ef43f490cbb5c187e2de8e48bd
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-10-23
+
+    add support for OnlyUnallocated element, passes 1 more test
+
+    2003-10-23	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c (process_only_unallocated)
+	(tree_node_from_menu_node): add support for OnlyUnallocated
+	element, passes 1 more test
+
+M	ChangeLog
+M	src/menu-process.c
+
+commit 4e31d2235f5b96c80fac2e4f5820bfba29142616
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-10-23
+
+    Localizing the menu paths gets us another 2 passes with the test
+    suite.
+
+    2003-10-23	Havoc Pennington  <hp@redhat.com>
+
+	    Localizing the menu paths gets us another 2 passes with
+	    the test
+	suite.
+
+	* src/menu-process.c (localized_path_for_entry): new function
+	(foreach_print): localize the paths that are outputted with
+	--test-results as the test suite wants that.
+
+M	ChangeLog
+M	src/menu-process.c
+M	src/menu-process.h
+
+commit b569aaccf68a490a1b9c725c202075745c82171e
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-10-21
+
+    change to alloc the TreeNode in here instead of separately then
+
+    2003-10-20	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c (tree_node_from_menu_node): change to alloc
+	the TreeNode in here instead of separately then
+	fill_tree_node_from_menu_node
+	(tree_node_from_menu_node): handle <Deleted>/<NotDeleted>
+
+M	ChangeLog
+M	src/menu-process.c
+
+commit 91932e984d02f53d74f276fbb8725944e7d397a7
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-10-17
+
+    include full menu paths
+
+    2003-10-16	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c (foreach_dir): include full menu paths
+
+	* src/gen-compat-tree.c (process_one_file): search for relative
+	filenames in the XDG paths
+
+	* src/menu-tree-cache.c (cache_lookup): fix GError pileup
+
+	* src/gen-compat-tree.c: add --verbose option
+
+M	ChangeLog
+M	src/gen-compat-tree.c
+M	src/menu-process.c
+M	src/menu-tree-cache.c
+
+commit 8ce78fa6a2f9a3130d9830fd5851bc59f692aa50
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-07-17
+
+    add a bunch of #ifdef READ_ONLY sections for using the backend without
+
+    2003-07-17	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-method.c: add a bunch of #ifdef READ_ONLY sections for
+	using the backend without editing
+
+M	ChangeLog
+M	src/menu-method.c
+
+commit 098322cac733cdec68af17d7b8525982311641e9
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-06-11
+
+    diff old vs. new tree and store the list of changes
+
+    2003-06-11	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-tree-cache.c (reload_entry): diff old vs. new tree and
+	store the list of changes
+
+	* src/menu-method.c (do_monitor_add, do_monitor_cancel):
+	monitoring using the tree diff stuff.
+
+	* src/menu-process.c (desktop_entry_tree_diff): finish
+	implementing this
+
+M	ChangeLog
+M	src/menu-method.c
+M	src/menu-process.c
+M	src/menu-tree-cache.c
+M	src/menu-tree-cache.h
+
+commit db41e321537333d3606bf27b3e49e17886e02784
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2003-06-11
+
+    add but doesn't work yet, just syncing with work computer
+
+    2003-06-11	Havoc Pennington  <hp@pobox.com>
+
+	* src/menu-process.c (desktop_entry_tree_diff): add but
+	doesn't work yet, just syncing with work computer
+
+M	ChangeLog
+M	src/menu-process.c
+M	src/menu-process.h
+
+commit 7af5e7979cece5de7970a4f809d1511740d7d67e
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-06-06
+
+    make this return NOT_PERMITTED rather than NOT_SUPPORTED
+
+    2003-06-06	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-method.c (do_set_file_info): make this return
+	NOT_PERMITTED rather than NOT_SUPPORTED
+	(fill_in_generic_dir_info): fill in the uid/gid fields
+	(fill_in_generic_file_info): ditto
+	(menu_method_get_info): fill in file_info->name
+	(do_check_same_fs): implement
+
+M	ChangeLog
+M	src/menu-method.c
+
+commit 1b3ef9fbb92a3d8dde18120a9b9d4e1d19f150ae
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-06-06
+
+    mark cache valid again after reloading stuff, makes things a whole lot
+
+    2003-06-06	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-tree-cache.c (reload_entry): mark cache valid again
+	after reloading stuff, makes things a whole lot faster.
+
+	* src/menu-method.c: convert some GError to GnomeVFSResult, and
+	return GNOME_VFS_ERROR_INVALID_URI when passed a non-.desktop
+	or non-.directory file.
+	(dir_handle_new): remove extra unref on the DesktopEntryTree
+
+M	ChangeLog
+M	src/menu-method.c
+M	src/menu-process.c
+M	src/menu-tree-cache.c
+
+commit 8717fa173adacea5519ccb228a0fd0c7689cbb34
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-06-06
+
+    Last bugfix so we can display redhat-menus pretty OK
+
+    2003-06-06	Havoc Pennington  <hp@redhat.com>
+
+	Last bugfix so we can display redhat-menus pretty OK
+
+	* src/menu-process.c (node_menu_compare_func): make this consider
+	whether the menu nodes have the same parent, so we don't
+	consolidate dups that aren't children of the same menu
+	(menu_node_strip_duplicate_children): use node_menu_compare_func
+	instead of node_compare_func to see if two menu nodes are dups
+
+	* src/menu-layout.c (menu_node_get_depth): new
+
+M	ChangeLog
+M	src/menu-entries.c
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-process.c
+
+commit 960d29872085d285eccd284f4e1663b49cd3b791
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-06-05
+
+    set name of the menu file on root node
+
+    2003-06-05	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-parser.c (menu_load): set name of the menu file on
+	root node
+
+	* src/menu-entries.c (cached_dir_lookup): fix logic a bit
+
+	* src/menu-process.c (menu_node_resolve_files_recursive):
+	implement DefaultAppDirs, DefaultDirectoryDirs, DefaultMergeDirs
+
+	* src/menu-util.c (init_xdg_paths): move here
+
+	* src/menu-process.c (move_children): fix memleak and a crash
+	when moving children to an empty node
+
+	* src/menu-util.c (g_string_append_random_ascii): fix warnings
+
+	* src/menu-parser.c: add <DefaultMergeDirs/> support
+
+M	ChangeLog
+M	src/menu-entries.c
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-parser.c
+M	src/menu-process.c
+M	src/menu-tree-cache.c
+M	src/menu-util.c
+M	src/menu-util.h
+
+commit 886db179daa8fb482fc8989a625143ee8864b242
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-06-02
+
+    put applications-edits under "menus"
+    (desktop_entry_tree_cache_create):
+
+    2003-06-02	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-tree-cache.c (try_create_overrides): put
+	applications-edits under "menus"
+	(desktop_entry_tree_cache_create): can't create a menu with
+	same name as a directory; and don't create random mktmp names,
+	that was just crack
+
+	* src/menu-layout.c
+	(menu_node_remove_redundancy): fix this function to be able to
+	remove redundancy despite intervening nodes.
+
+	* src/menu-process.c (desktop_entry_tree_exclude)
+	(desktop_entry_tree_include): add new nodes in root <Menu>, not to
+	root of layout tree
+	(menu_node_find_submenu): fix assertion
+	(tree_node_find_subdir_or_entry): fix to return the right value
+
+	* src/menu-tree-cache.c (reload_entry): fix unref/free of NULL
+	fields.
+	(lookup_canonical_entry): fix bug where we didn't fill
+	in entry->create_chaining_to correctly
+
+	* src/menu-method.c (menu_method_resolve_uri): fix bug where
+	we passed wrong args to menu_method_get_tree
+
+M	ChangeLog
+M	src/menu-layout.c
+M	src/menu-method.c
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/menu-tree-cache.c
+
+commit 6790909e981587d6c7306de126101cc6a00fd259
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2003-06-01
+
+    implement (desktop_entry_tree_cache_mkdir): implement
+
+    2003-05-31	Havoc Pennington  <hp@pobox.com>
+
+	* src/menu-tree-cache.c (desktop_entry_tree_cache_rmdir):
+	implement
+	(desktop_entry_tree_cache_mkdir): implement
+
+	* src/menu-process.c (desktop_entry_tree_mkdir): implement
+	(desktop_entry_tree_rmdir): implement
+
+	* src/menu-overrides.c: handle overriding a desktop file
+	with a '/' in the name
+
+	* src/menu-method.c (menu_method_unlink): implement
+
+	* src/menu-process.c (desktop_entry_tree_exclude): implement
+
+	* src/menu-tree-cache.c (desktop_entry_tree_cache_delete):
+	implement
+
+M	ChangeLog
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-method.c
+M	src/menu-overrides.c
+M	src/menu-overrides.h
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/menu-tree-cache.c
+M	src/menu-tree-cache.h
+M	src/menu-util.c
+M	src/menu-util.h
+
+commit e650a5c592c0cc61bf6c81b24b82c92748f07927
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2003-05-31
+
+    move some functions that didn't make sense in other files into here
+
+    2003-05-31	Havoc Pennington  <hp@pobox.com>
+
+	* src/menu-util.c: move some functions that didn't make sense
+	in other files into here
+
+	* src/menu-process.c (menu_node_resolve_files_recursive): fix bug
+	where we used an uninitialized variable
+
+M	ChangeLog
+M	src/Makefile.am
+M	src/canonicalize.c
+M	src/menu-entries.c
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-method.c
+M	src/menu-overrides.c
+M	src/menu-overrides.h
+M	src/menu-parser.c
+M	src/menu-process.c
+A	src/menu-util.c
+A	src/menu-util.h
+
+commit 2f385d64991be70d6bb50eff260b6f9a48c29fe2
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-30
+
+    hack (menu_node_ensure_child): hack (desktop_entry_tree_include): hack
+
+    2003-05-30	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c (menu_node_find_submenu): hack
+	(menu_node_ensure_child): hack
+	(desktop_entry_tree_include): hack
+
+	* src/menu-method.c: hack
+
+	* src/menu-tree-cache.c (desktop_entry_tree_cache_create): hack
+
+M	ChangeLog
+M	src/menu-layout.h
+M	src/menu-method.c
+M	src/menu-overrides.c
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/menu-tree-cache.c
+M	src/menu-tree-cache.h
+
+commit 18c81bf0e85df9a7ee8d3ea063f758976abf43a9
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-29
+
+    new
+
+    2003-05-29	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-method.c (menu_method_resolve_uri_writable): new
+
+	* src/menu-tree-cache.c (desktop_entry_tree_cache_override): new
+
+	* src/menu-entries.c (entry_cache_invalidate): new
+
+	* src/menu-process.c (merge_resolved_copy_of_children): lots of
+	fixing
+
+	* src/menu-layout.c (menu_node_steal): fix to update
+	node->parent->children pointer
+
+	* src/gen-compat-tree.c (process_one_file): fix build
+
+M	ChangeLog
+M	src/menu-entries.c
+M	src/menu-entries.h
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-method.c
+M	src/menu-overrides.c
+M	src/menu-parser.c
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/menu-tree-cache.c
+M	src/menu-tree-cache.h
+M	src/vfolder-parser.c
+
+commit 2da219479f1dd0f267607b3d273899f6963e669b
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-29
+
+    fix build
+
+    2003-05-29	Havoc Pennington  <hp@redhat.com>
+
+	* src/gen-compat-tree.c (process_one_file): fix build
+
+M	ChangeLog
+M	src/gen-compat-tree.c
+
+commit d6f012c8d4d36cb77f19a1e4a91c17474a2ffcea
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-29
+
+    add allow_missing_basename argument
+
+    2003-05-28	Havoc Pennington  <hp@redhat.com>
+
+	* src/canonicalize.c (g_canonicalize_file_name): add
+	allow_missing_basename argument
+
+	* src/menu-tree-cache.c (init_xdg_paths): hack to pass in
+	the create_chaining_to to desktop_entry_tree_load()
+
+	* src/menu-method.c (menu_method_get_tree): adapt to new API
+
+	* src/menu-process.c (desktop_entry_tree_load): take
+	an argument which is the menu file to chain to
+	in a newly-created menu file
+
+	* src/menu-layout.c (menu_cache_get_menu_for_file):
+	same, allow specifying a file to chain to if we
+	create a new menu file
+
+M	ChangeLog
+M	src/Makefile.am
+M	src/canonicalize.c
+M	src/canonicalize.h
+M	src/menu-entries.c
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-method.c
+M	src/menu-overrides.c
+M	src/menu-overrides.h
+M	src/menu-parser.c
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/menu-tree-cache.c
+M	src/menu-tree-cache.h
+
+commit a7bfa852da88ec7be894684b5037c9a80d9df98d
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-21
+
+    Enough bugfixes to be able to view a sample menu in nautilus and
+    launch
+
+    2003-05-21	Havoc Pennington  <hp@redhat.com>
+
+	    Enough bugfixes to be able to view a sample menu in
+	    nautilus and
+	launch apps.
+
+	* src/menu-process.c (tree_node_find_subdir_or_entry): fill in the
+	node when we are loading a .desktop file
+
+	* src/menu-method.c (menu_method_get_info): new function
+	(do_get_file_info): change so we can stat a directory,
+	doh
+
+	* src/menu-process.c (tree_node_find_subdir_or_entry): handle '/'
+
+M	ChangeLog
+M	src/menu-method.c
+M	src/menu-process.c
+
+commit 5a4c5b172c9a0ddee78524b8e8ed5639944e1465
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-21
+
+    implement directory of .desktop file overrides
+
+    2003-05-21	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-overrides.c: implement directory of .desktop file
+	overrides
+
+	* src/menu-layout.c (g_file_save_atomically): export
+
+M	ChangeLog
+M	src/menu-layout.c
+M	src/menu-layout.h
+A	src/menu-overrides.c
+A	src/menu-overrides.h
+
+commit 35cb1a6884dead580b7a2c0056253896007f1af8
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-20
+
+    code stuff, gnomevfs-ls/gnomevfs-cat/gnomevfs-info are now up and
+    running.
+
+    2003-05-20	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-method.c: code stuff,
+	gnomevfs-ls/gnomevfs-cat/gnomevfs-info are now up and running.
+
+	* src/menu-process.c (tree_node_find_subdir_or_entry): fix
+
+	* src/menu-tree-cache.c (parse_search_path_and_prepend): fix
+	(init_xdg_paths): fix
+
+	* src/Makefile.am: fix to link the menu-* sources into the VFS
+	module.
+
+M	ChangeLog
+M	src/Makefile.am
+M	src/menu-entries.c
+M	src/menu-layout.c
+M	src/menu-method.c
+M	src/menu-modules.conf
+M	src/menu-parser.c
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/menu-tree-cache.c
+
+commit 361071b919aa3031bd6b295c5430bd8d77544c6f
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-15
+
+    hacking
+
+    2003-05-15	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-method.c: hacking
+
+	* src/menu-process.c (tree_node_find_subdir): fix so we don't
+	ignore trailing junk on paths
+	(desktop_entry_tree_resolve_path): new
+
+M	ChangeLog
+M	src/menu-method.c
+M	src/menu-process.c
+M	src/menu-process.h
+
+commit df4c3bcb31cf668f30cf82a1f869e0cd339e39cb
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-14
+
+    quick implementation without file change monitoring.
+
+    2003-05-14	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-tree-cache.c: quick implementation without file change
+	monitoring.
+
+M	ChangeLog
+M	src/Makefile.am
+M	src/menu-method.c
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/menu-tree-cache.c
+M	src/menu-tree-cache.h
+
+commit 336f02b3fc0a9dae50624a7ccbab27500372933e
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-13
+
+    new file to store cache of DesktopEntryTree
+
+    2003-05-13	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-tree-cache.c: new file to store cache of
+	DesktopEntryTree
+
+M	ChangeLog
+M	src/Makefile.am
+M	src/menu-method.c
+M	src/menu-process.c
+M	src/menu-process.h
+A	src/menu-tree-cache.c
+A	src/menu-tree-cache.h
+
+commit 9d901a7f4feb34d48f40a8705d522fac66ef61e9
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-12
+
+    fix a bunch of compiler warnings (desktop_file_fixup): add code to fix
+
+    2003-05-12	Havoc Pennington  <hp@redhat.com>
+
+	* src/validate.c: fix a bunch of compiler warnings
+	(desktop_file_fixup): add code to fix semicolon termination of
+	string lists if necessary.
+
+	* src/desktop_file.c (gnome_desktop_file_merge_string_into_list):
+	handle case where existing list is missing ';' at the end;
+	patch from Adrian Reber
+
+M	ChangeLog
+M	src/desktop_file.c
+M	src/menu-method.c
+M	src/validate.c
+
+commit 349c98626c6357e6cf25326baf357a856f1b240d
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-12
+
+    automake, aclocal 1.7
+
+    2003-05-12	Havoc Pennington  <hp@redhat.com>
+
+	* autogen.sh (ACLOCAL): automake, aclocal 1.7
+
+	* configure.in: check for optional gnome-vfs, not required
+	of course, just a hack to share some menu code for now.
+
+	* src/menu-method.c, src/Makefile.am: gnome-vfs boilerplate,
+	doesn't yet do anything.
+
+M	ChangeLog
+M	autogen.sh
+M	configure.in
+M	src/Makefile.am
+A	src/menu-method.c
+A	src/menu-modules.conf
+
+commit 1f34cb995e6ac5befdf56a7ebb6fae3b7b16a151
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2003-05-10
+
+    implement serialization of the "DOM tree" of menu nodes so that we can
+
+    2003-05-10	Havoc Pennington  <hp@pobox.com>
+
+	* src/menu-layout.c (menu_node_append_to_string): implement
+	serialization of the "DOM tree" of menu nodes so that we can
+	resave after editing.
+	(menu_node_append_child): fix this, it was messing up order
+	of nodes
+	(menu_cache_sync_for_file): implement doing the standard
+	write-to-tmp-and-rename hoop-jumping.
+
+M	ChangeLog
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-parser.c
+M	src/menu-process.c
+
+commit f67acc13aff1f1975b0e420c879f5afb89786a30
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-09
+
+    use a quark scheme for entry->categories to save time/memory
+
+    2003-05-09	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-entries.c: use a quark scheme for entry->categories
+	to save time/memory
+
+	* src/desktop_file.c (parse_key_value): fix a memory leak
+
+M	ChangeLog
+M	src/desktop_file.c
+M	src/gen-compat-tree.c
+M	src/menu-entries.c
+M	src/menu-entries.h
+
+commit 72cbb370318d2d484248d0b94cd507cb29730572
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-09
+
+    refactor this to use MenuCache and EntryCache and as a result
+    make more
+
+    2003-05-09	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c: refactor this to use MenuCache and
+	EntryCache and as a result make more sense.
+
+	* src/menu-layout.c: add MenuCache object; don't track
+	is_file_root; don't try to autodrop cache when a menu
+	node is unref'd (didn't work anyway).
+
+	* src/menu-entries.c: invent an EntryCache object to get rid of
+	global variables
+
+M	ChangeLog
+M	src/gen-compat-tree.c
+M	src/menu-entries.c
+M	src/menu-entries.h
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/menu.h
+
+commit e434380b935a1984fb4b4f256647fedc0fb1190a
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2003-05-09
+
+    make @ a valid byte in locale names, patch from Richi Plana
+
+    2003-05-09	Havoc Pennington  <hp@pobox.com>
+
+	* src/desktop_file.c: make @ a valid byte in locale names, patch
+	from Richi Plana
+
+M	ChangeLog
+M	src/desktop_file.c
+
+commit d5336e6b1da6dc5993b48c7e091b4693d379fcdb
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-08
+
+    sort entries by basename
+
+    2003-05-08	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c (fill_tree_node_from_menu_node): sort entries
+	by basename
+
+M	ChangeLog
+M	src/menu-process.c
+
+commit cf667e29c1854de40ed4522c62dac70eb54253b5
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-08
+
+    fix list manipulation screwup that caused obscure memory error
+
+    2003-05-08	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-entries.c (entry_directory_list_add): fix list
+	manipulation screwup that caused obscure memory error
+	(find_value): fix bug that made it not work, and avoid extra
+	strlen calls
+
+	* src/menu-layout.h: add macros to disable verbose mode
+
+M	ChangeLog
+M	src/menu-entries.c
+M	src/menu-layout.h
+M	src/menu-process.c
+
+commit f10d0e2fc86e43674f7801562f62744ad7bf7a98
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-06
+
+    add ability to print in the format of test suite expected results file
+
+    2003-05-06	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c (foreach_print): add ability to print in the
+	format of test suite expected results file
+
+M	ChangeLog
+M	src/gen-compat-tree.c
+M	src/menu-process.c
+M	src/menu-process.h
+
+commit 87fa08c52c1b01ac9a6ae1928e9fd7cce4b71dad
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-05
+
+    allow nodes with NULL dir_entry, the menu spec allows
+    that. (foreach_dir,
+
+    2003-05-05	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c (tree_node_free_if_broken): allow nodes with
+	NULL dir_entry, the menu spec allows that.
+	(foreach_dir, foreach_print): assorted fixes, can now print a
+	trivial two-item menu.
+
+M	ChangeLog
+M	src/dfu-test.c
+M	src/menu-process.c
+M	src/menu-process.h
+
+commit 3b6274f2646fd5bd2334c72543e717203738add3
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-02
+
+    create the node->app_dirs node->dir_dirs objects and account for
+
+    2003-05-02	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-layout.c (menu_node_menu_ensure_entry_lists): create
+	the node->app_dirs node->dir_dirs objects and account for
+	MENU_NODE_ROOT node type
+
+M	ChangeLog
+M	src/menu-layout.c
+
+commit 7bb06d10749e9e7cfcdd7e81bcba51e9b30a4185
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-02
+
+    use basedir stuff stored on root node instead of dealing with it
+    in this
+
+    2003-05-02	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-process.c: use basedir stuff stored on root node
+	instead of dealing with it in this file
+
+	* src/menu-parser.c (menu_load): set basedir
+
+	* src/menu-layout.c (menu_node_copy_one): copy fields in MenuNode
+	"subclasses"
+	(menu_node_get_basedir): new
+	(menu_node_get_content_as_path): new
+
+	* configure.in: add more compiler warnings, and --enable-tests
+
+	* src/menu-layout.c (dfu_test_menu_nodes): start setting up unit
+	test stuff
+
+M	ChangeLog
+M	configure.in
+M	src/Makefile.am
+M	src/desktop_file.c
+A	src/dfu-test.c
+A	src/dfu-test.h
+M	src/menu-entries.c
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-parser.c
+M	src/menu-process.c
+M	test/Makefile.am
+D	test/all-tests.sh
+D	test/run-test.c
+D	test/test-data-01/desktop-entries/gnome-terminal.desktop
+D	test/test-data-01/desktop-entries/kde-KMail.desktop
+D	test/test-data-01/test01.menu
+D	test/test-data-01/test01.results
+
+commit f89f7608c1fd54eced4ce406c22c471d4ff86411
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2003-05-02
+
+    implement (desktop_entry_tree_foreach): implement
+
+    2003-05-01	Havoc Pennington  <hp@pobox.com>
+
+	* src/menu-process.c (desktop_entry_tree_print): implement
+	(desktop_entry_tree_foreach): implement
+
+	* src/menu-entries.c (entry_set_new): fix to init to all bits zero
+
+M	ChangeLog
+M	src/gen-compat-tree.c
+M	src/menu-entries.c
+M	src/menu-process.c
+M	src/menu-process.h
+
+commit 8f1b0e36649e3ef93393c6edaba56a11e89c4078
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-01
+
+    change to only warn about invalid keys, don't die (enum_keys): remove
+
+    2003-05-01	Havoc Pennington  <hp@redhat.com>
+
+	* src/validate.c: change to only warn about invalid keys, don't
+	die
+	(enum_keys): remove warning about Icon field with no .png
+	extension
+	(desktop_file_validate): fix to reset fatal_error_occurred on each
+	call
+
+	* src/gen-compat-tree.c: hook up the new menu code, so we can
+	start debugging
+
+	* src/validate.c: allow GenericName, StartupNotify, StartupWMClass
+
+	* src/menu-parser.c: got it compiling, most code should be there,
+	untested
+
+M	ChangeLog
+M	README
+M	src/gen-compat-tree.c
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-parser.c
+M	src/menu-process.c
+M	src/menu-process.h
+M	src/validate.c
+M	src/vfolder-parser.c
+M	src/vfolder-query.c
+M	src/vfolder-query.h
+
+commit 8edbe57d225a317b40ed49e959a375c9edbbff76
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-05-01
+
+    got it compiling, most code should be there, untested
+
+    2003-05-01	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-parser.c: got it compiling, most code should be there,
+	untested
+
+M	ChangeLog
+M	configure.in
+M	src/Makefile.am
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-parser.c
+M	src/menu-parser.h
+
+commit 73baa8239a6be957e7831f20cda971f9c180733f
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-04-30
+
+    more random hacking, syncing between computers
+
+    2003-04-30	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-parser.c: more random hacking, syncing between
+	computers
+
+M	ChangeLog
+M	src/menu-entries.c
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-parser.c
+M	src/menu-parser.h
+
+commit 87f5833e4f2553d9836f3f41da0911513b116746
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2003-04-30
+
+    skeletal noncompiling base file for menu xml parser thing
+
+    2003-04-30	Havoc Pennington  <hp@pobox.com>
+
+	* src/menu-parser.c: skeletal noncompiling base file for menu xml
+	parser thing
+
+M	ChangeLog
+A	src/menu-parser.c
+A	src/menu-parser.h
+
+commit 11f3ada037c9ca03ec528c5947684145a6901ee1
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2003-04-11
+
+    don't stop checking as soon as we see an Encoding field. Fix from
+    Ville
+
+    2003-04-11	Havoc Pennington  <hp@redhat.com>
+
+	* src/validate.c (required_keys): don't stop checking as soon as
+	we see an Encoding field. Fix from Ville Skytta
+	<ville.skytta@iki.fi>
+
+M	ChangeLog
+M	src/validate.c
+
+commit fd5d068c71f30cfd3baadc326c2bd7167336c620
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-12-23
+
+    allow specifying expected name of directory nodes, and allow
+    quoting names
+
+    2002-12-21	Havoc Pennington  <hp@pobox.com>
+
+	* test/run-test.c (main): allow specifying expected name of
+	directory nodes, and allow quoting names and entry filenames so we
+	can test for handling of whitespace etc.
+
+M	ChangeLog
+M	src/menu-layout.h
+A	src/menu.h
+M	test/Makefile.am
+A	test/all-tests.sh
+M	test/run-test.c
+A	test/test-data-01/desktop-entries/gnome-terminal.desktop
+A	test/test-data-01/desktop-entries/kde-KMail.desktop
+A	test/test-data-01/test01.menu
+A	test/test-data-01/test01.results
+
+commit 8d70254d7ab5850228634f71bbc2cc4e9f5f9653
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-12-16
+
+    rename since glib 2.2 now has the symbol
+
+    2002-12-15	Havoc Pennington  <hp@pobox.com>
+
+	* src/vfolder-query.c (my_str_has_suffix): rename since glib 2.2
+	now has the symbol
+
+	* src/menu-process.c (tree_node_find_subdir): fix compilation
+
+	* test/run-test.c (main): add a start on a test program, which
+	takes a file describing the menu file to load and the expected
+	results of parsing that menu file, and checks whether the right
+	results are generated.
+
+M	ChangeLog
+M	Makefile.am
+M	configure.in
+M	src/menu-layout.c
+M	src/menu-process.c
+M	src/vfolder-query.c
+A	test/Makefile.am
+A	test/run-test.c
+
+commit 21659e07c876bb66fbe16a11b211322424e96e06
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-11-21
+
+    fix a bug (find_subdir in iter not dir)
+
+    2002-11-21	Havoc Pennington  <hp@redhat.com>
+
+	* src/menu-entries.c (cached_dir_find_entry): fix a bug
+	(find_subdir in iter not dir)
+
+	* src/menu-process.c (fill_tree_node_from_menu_node): fill in a
+	name for each TreeNode
+
+M	ChangeLog
+M	src/menu-entries.c
+M	src/menu-entries.h
+M	src/menu-process.c
+M	src/menu-process.h
+
+commit 12fcf30e6f1040bfd5d9139d1329e96af053b0d6
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-11-18
+
+    sync
+
+M	src/menu-entries.c
+M	src/menu-entries.h
+M	src/menu-layout.c
+M	src/menu-layout.h
+M	src/menu-process.c
+
+commit 7eb20ca89df580031e2561b9e804b3306cf57fed
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-11-18
+
+    commit some more hacking on new menu format
+
+M	src/Makefile.am
+M	src/canonicalize.c
+M	src/menu-entries.c
+M	src/menu-entries.h
+M	src/menu-layout.c
+M	src/menu-layout.h
+A	src/menu-process.c
+A	src/menu-process.h
+
+commit 9ad85a6e66f8f55300e18849caa9d86d093242df
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-11-17
+
+    sync some hacking on new menu spec
+
+A	src/canonicalize.c
+A	src/canonicalize.h
+A	src/menu-entries.c
+A	src/menu-entries.h
+A	src/menu-layout.c
+A	src/menu-layout.h
+
+commit b535a3cfffc97d053203eff003fe1d84c2fb053f
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-08-07
+
+    add another unlink() for .directory files
+
+    2002-08-06	Havoc Pennington  <hp@redhat.com>
+
+	* src/vfolder-query.c (symlink_recurse_nodes): add another
+	unlink() for .directory files
+
+M	ChangeLog
+M	src/vfolder-query.c
+
+commit 7fa8528c3ceff10a166e8403da3f3337d0537010
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-08-07
+
+    unlink symlink before trying to create it again, to avoid errors
+    and be
+
+    2002-08-06	Havoc Pennington  <hp@redhat.com>
+
+	* src/vfolder-query.c (symlink_recurse_nodes): unlink symlink
+	before trying to create it again, to avoid errors and be sure
+	we replace the old link.
+
+M	ChangeLog
+M	src/vfolder-query.c
+
+commit cfd78005708d5bebd2f00be5176ec2eb8ffbecdd
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-08-04
+
+    create target directory if it doesn't exist.
+
+    2002-08-04	Havoc Pennington  <hp@redhat.com>
+
+	* src/install.c (main): create target directory if it doesn't
+	exist.
+
+	* configure.in: 0.3
+
+M	ChangeLog
+A	INSTALL
+M	configure.in
+M	src/install.c
+
+commit 0a4715e8a7371b1bdda57c558f158cee34ccf0f6
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-08-02
+
+    when complaining about a duplicate, say where the other one is.
+
+    2002-08-01	Havoc Pennington  <hp@redhat.com>
+
+	* src/vfolder-query.c (add_or_free_desktop_file): when complaining
+	about a duplicate, say where the other one is.
+	(load_tree): only read DATADIR/applications if the menu file
+	didn't specify any directories.
+
+M	ChangeLog
+M	src/vfolder-query.c
+
+commit 7e1c8495091d3f04911619656edb7a8e6f739b8c
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-08-02
+
+    when complaining about a duplicate, say where the other one is.
+
+    2002-08-01	Havoc Pennington  <hp@redhat.com>
+
+	* src/vfolder-query.c (add_or_free_desktop_file): when complaining
+	about a duplicate, say where the other one is.
+
+M	ChangeLog
+M	src/vfolder-query.c
+
+commit 2eeb9f0ab3ba404b83197d489ee327b09be29085
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-07-24
+
+    actually get rid of desktop files that should not be shown following
+
+    2002-07-24	Havoc Pennington  <hp@redhat.com>
+
+	* src/vfolder-query.c (add_or_free_desktop_file): actually
+	get rid of desktop files that should not be shown following
+	OnlyShowIn
+
+M	ChangeLog
+M	src/vfolder-query.c
+
+commit 363a9f309a4f648a1b5ce97da16e097a3e12dfda
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-07-22
+
+    add --print-available option
+
+    2002-07-22	Havoc Pennington  <hp@redhat.com>
+
+	* src/gen-compat-tree.c: add --print-available option
+
+	* src/vfolder-query.c: add function to print out all the
+	desktop files that would be used by a menu file
+
+M	ChangeLog
+M	src/gen-compat-tree.c
+M	src/vfolder-query.c
+M	src/vfolder-query.h
+
+commit e97999c4970661aaa0e7fa6cca9d4aaa98431d2a
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-07-09
+
+    fix up "KDE Desktop Entry"
+
+    2002-07-09	Havoc Pennington  <hp@redhat.com>
+
+	* src/validate.c (desktop_file_fixup): fix up "KDE Desktop Entry"
+
+	* src/desktop_file.c (gnome_desktop_file_rename_section): new
+	function
+	(gnome_desktop_file_has_section): new function
+
+M	ChangeLog
+M	src/desktop_file.c
+M	src/desktop_file.h
+M	src/validate.c
+
+commit d664c3712d85e76872942577be628b2cfe2e551e
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-07-09
+
+    fix a memmove to use bytes instead of number of lines, fixes a crash
+
+    2002-07-09	Havoc Pennington  <hp@redhat.com>
+
+	* src/desktop_file.c (gnome_desktop_file_unset_internal): fix a
+	memmove to use bytes instead of number of lines, fixes a crash
+
+M	ChangeLog
+M	src/desktop_file.c
+
+commit 39cdf03f94ce8a511259019e9cfc67f7e9511a65
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-06-21
+
+    validate that KDE/GNOME are spelled all-caps in OnlyShowIn
+
+    2002-06-21	Havoc Pennington  <hp@redhat.com>
+
+	* src/validate.c: validate that KDE/GNOME are spelled all-caps in
+	OnlyShowIn
+
+	* src/install.c: add a --remove-key option to remove bogus keys
+
+	* src/validate.c (validate_strings): check that string list keys
+	end in a semicolon
+
+M	ChangeLog
+M	src/install.c
+M	src/validate.c
+
+commit d814b584606950ca5fa31c0ecbf3689ec2ca06be
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-06-21
+
+    implement --copy-name-to-generic-name, --copy-generic-name-to-name
+
+    2002-06-21	Havoc Pennington  <hp@redhat.com>
+
+	* src/install.c (process_one_file): implement
+	--copy-name-to-generic-name, --copy-generic-name-to-name
+
+	* src/desktop_file.c (gnome_desktop_file_copy_key): new function
+	(gnome_desktop_file_unset): new
+
+M	ChangeLog
+M	src/desktop_file.c
+M	src/desktop_file.h
+M	src/install.c
+
+commit a61a592df86e6868b5fe2c4db8ccb884a01d3278
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-06-16
+
+    fix delete_original flag so it actually gets filled in and works
+
+    2002-06-16	Havoc Pennington  <hp@pobox.com>
+
+	* src/install.c: fix delete_original flag so it actually gets
+	filled in and works
+
+M	ChangeLog
+M	src/install.c
+
+commit fdc95762963d7c0cf41dc053f7f5fe79c7350738
+Author: Havoc Pennington <hp@redhat.com>
+Date:	2002-06-05
+
+    0.2 version
+
+    2002-06-05	Havoc Pennington  <hp@redhat.com>
+
+	* configure.in: 0.2 version
+
+	* src/Makefile.am (desktop_menu_tool_SOURCES): rename
+	desktop-menu-gen-compat-dir to desktop-menu-tool
+
+M	ChangeLog
+M	configure.in
+M	src/Makefile.am
+M	src/gen-compat-tree.c
+
+commit 8e875e276160aa3b8f4df878da54dd48d31b892d
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-26
+
+    add OnlyShowIn support.
+
+    2002-05-25	Havoc Pennington  <hp@pobox.com>
+
+	* src/vfolder-query.c (add_or_free_desktop_file): add OnlyShowIn
+	support.
+
+M	ChangeLog
+M	src/gen-compat-tree.c
+M	src/vfolder-query.c
+M	src/vfolder-query.h
+
+commit 1b44e0fe285649a0ded80537ef1ac8bed0bbc412
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-26
+
+    Add the create-a-dir-of-symlinks support.
+
+    2002-05-25	Havoc Pennington  <hp@pobox.com>
+
+	* src/vfolder-query.c (desktop_file_tree_write_symlink_dir):
+	Add the create-a-dir-of-symlinks support.
+
+	* src/desktop_file.c (gnome_desktop_file_merge_string_into_list):
+	fix bug when adding the first string in the list.
+
+	* src/vfolder-query.c: handle OnlyUnallocated correctly
+
+M	ChangeLog
+M	src/desktop_file.c
+M	src/gen-compat-tree.c
+M	src/vfolder-query.c
+M	src/vfolder-query.h
+
+commit ea3ae9af38c5b91639b230230abcd89dbfb4d399
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-25
+
+    handle OnlyUnallocated correctly
+
+    2002-05-25	Havoc Pennington  <hp@pobox.com>
+
+	* src/vfolder-query.c: handle OnlyUnallocated correctly
+
+M	ChangeLog
+M	src/vfolder-query.c
+
+commit 8747f23472c676050ed20779a372594a415bd88b
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-25
+
+    sync
+
+M	src/desktop_file.c
+M	src/vfolder-parser.c
+M	src/vfolder-parser.h
+M	src/vfolder-query.c
+
+commit ae2e0112247e2051365fa4b16d8c143760c0c6e9
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-25
+
+    roughly functional folder parser, now need to do queries
+
+M	ChangeLog
+M	src/Makefile.am
+M	src/desktop_file.c
+M	src/gen-compat-tree.c
+M	src/install.c
+M	src/validate.c
+M	src/validate.h
+M	src/validator.c
+M	src/vfolder-parser.c
+M	src/vfolder-parser.h
+M	src/vfolder-query.c
+
+commit fb84475184e0db6d0290a5c37669dfa1b3fe13a3
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-25
+
+    add missing file
+
+A	src/gen-compat-tree.c
+
+commit 3bca6ce565162dc8d438d8d90f89057b566609e1
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-24
+
+    sync
+
+M	src/Makefile.am
+M	src/desktop_file.c
+M	src/desktop_file.h
+M	src/validate.c
+M	src/vfolder-parser.c
+M	src/vfolder-parser.h
+A	src/vfolder-query.c
+A	src/vfolder-query.h
+
+commit f18dad8924d65ccf912998563ced1bd8fc2787b9
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-23
+
+    sync
+
+M	src/vfolder-parser.c
+
+commit cac685aa505c0d314d4feb4bd1528ad4e498d414
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-22
+
+    making a backup
+
+M	src/vfolder-parser.c
+M	src/vfolder-parser.h
+
+commit e5472f378207808d909441d2819c99bcb56ccf72
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-21
+
+    sketch out the code via cut-and-paste
+
+A	src/vfolder-parser.c
+A	src/vfolder-parser.h
+
+commit 4c1df1e03626592d022c1a5aad7ef4b4b8f175b3
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-21
+
+    some stuff that should have been commited a while ago
+
+M	README
+M	src/install.c
+
+commit 510b2cf30369d4197814eb86cd611b5b2c4a2c71
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-09
+
+    validate the generated file not the original, and fix certain
+    problems such as a broken Encoding field automatically.
+
+M	src/desktop_file.c
+M	src/install.c
+M	src/validate.c
+
+commit 21c4ab5ffe06c93a6dbab90d3dc5033457e51ef1
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-08
+
+    add validation to the desktop file installer
+
+M	src/Makefile.am
+M	src/desktop_file.h
+M	src/install.c
+M	src/validate.c
+A	src/validate.h
+A	src/validator.c
+
+commit d9670add585b1a240241267f7a8d401c42a6147c
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-08
+
+    add/remove category/onlyshowin implemented
+
+M	src/desktop_file.c
+M	src/desktop_file.h
+M	src/install.c
+
+commit 81f02fc96534f4761313ef387fcb9490f568ab56
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-07
+
+    implement --add-category
+
+M	src/desktop_file.c
+M	src/desktop_file.h
+M	src/install.c
+
+commit 10afee4b6ceb1381cfcaad9ac23f76fc47d15b04
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-07
+
+    initial desktop_file_set_raw implementation
+
+M	src/desktop_file.c
+M	src/desktop_file.h
+
+commit 2404e9496031da3870292198272634e0575a11e6
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-07
+
+    sync, includes fixes from Alex
+
+M	src/desktop_file.c
+M	src/desktop_file.h
+M	src/install.c
+M	src/validate.c
+
+commit 384b863f6308a38fbcaa134afd519ec41bacf562
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-06
+
+    fixes
+
+M	src/install.c
+
+commit ecdd19e0847789f0572e0b9c1d3901b459d28b9b
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-06
+
+    initial sketching-out of desktop-file-install program
+
+M	configure.in
+M	src/Makefile.am
+M	src/desktop_file.c
+M	src/desktop_file.h
+A	src/gen_table.py
+M	src/install.c
+M	src/validate.c
+
+commit fe13f72775439d87973d2ab2467a9f52852e44be
+Author: Havoc Pennington <hp@pobox.com>
+Date:	2002-05-06
+
+    initial import
+
+A	AUTHORS
+A	COPYING
+A	ChangeLog
+A	Makefile.am
+A	NEWS
+A	README
+A	acconfig.h
+A	autogen.sh
+A	configure.in
+A	src/Makefile.am
+A	src/desktop_file.c
+A	src/desktop_file.h
+A	src/install.c
+A	src/validate.c
