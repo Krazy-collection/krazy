@@ -47,10 +47,14 @@ my($ModRegex) = "(kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|ac
 #the path might be regularly used symlinks, so undo that
 sub tweakPath {
   my($in) = @_;
-  $in =~ s+/kdebase/apps/+/kdebase-apps/+;
-  $in =~ s+/kdebase/runtime/+/kdebase-runtime/+;
-  $in =~ s+/kdebase/workspace/+/kdebase-workspace/+;
-  return "$in";
+  if (defined($in)) {
+    $in =~ s+/kdebase/apps/+/kdebase-apps/+;
+    $in =~ s+/kdebase/runtime/+/kdebase-runtime/+;
+    $in =~ s+/kdebase/workspace/+/kdebase-workspace/+;
+    return "$in";
+  } else {
+    return "";
+  }
 }
 
 #full path to the top of the component where the specified file resides
