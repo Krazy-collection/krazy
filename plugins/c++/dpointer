@@ -262,12 +262,12 @@ sub endClass {
   #       declaration in a private: section, skip forward to the end
   #       but be wary of things like enum { foo, bar, foobar };
   #       (and nested structs?)
-  return 0 if (&searchBackWithStop('^[[:space:]]*struct[[:space:]]',$lc-1,50,
+  return 0 if (&searchBackWithStop('^[[:space:]]*struct[[:space:]]',$lc-1,75,
 		  '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'));
   # enums don't have semicolons in them;
   # unless, of course, someone puts one at
   # the end of a doxygen line (why would they?)
-  return 0 if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]',$lc-1,50,
+  return 0 if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]',$lc-1,75,
 		  ';[[:space:]]*$|^[[:space:]]*private:'));
 
   #at end of class
