@@ -95,6 +95,7 @@ while ($linecnt < $#lines) {
     $var =~ s/!//;
 
     next if ($var =~ m/^return/);
+    next if ($var =~ m/^app/);
     $pat = "\\*\\s*" . $var . "\\s*=\\s*new\\s*\\w+\\(";
     if ($line =~ m/$var\.exec/ || &searchBack($pat,$linecnt,15)) {
       # don't complain if the exec is the last statement in a method
