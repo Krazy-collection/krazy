@@ -116,7 +116,7 @@ sub deDupe {
   foreach $item (@list) {
     push( @uniq, $item ) unless $seen{$item}++;
   }
-  @list = @uniq;
+  return @uniq;
 }
 
 sub addRegEx {

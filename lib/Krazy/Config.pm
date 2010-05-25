@@ -45,6 +45,8 @@ $VERSION = 1.30;
 # EXCLUDE plugin1[,plugin2,...] <regexp>
 # CHECK plugin1[,plugin2,...] <regexp>
 # EXTRA plugin1[,plugin2,...] <regexp>
+# TYPES type1[,type2,...]
+# EXCLUDETYPES type1[,type2,...]
 # SKIP regexp
 # PRIORITY <low|normal|high|important|all>
 # STRICT <normal|super|all>
@@ -60,7 +62,8 @@ $VERSION = 1.30;
 # The directive is case-insensitive.
 #==============================================================================
 
-my($rcExclude,$rcOnly,$rcExtra,$rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,$rcExport,@rcIgSubsList,@rcExSubsList,@rcIgModsList);
+my($rcExclude,$rcOnly,$rcExtra,$rcIncTypes,$rcExcTypes,$rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,$rcExport);
+my(@rcIgSubsList,@rcExSubsList,@rcIgModsList);
 my($CWD);
 
 sub ParseKrazyRC {
@@ -75,6 +78,8 @@ sub ParseKrazyRC {
   $rcExclude    = "";
   $rcOnly       = "";
   $rcExtra      = "";
+  $rcIncTypes   = "";
+  $rcExcTypes   = "";
   $rcSkipRegex  = "";
   $rcPriority   = "";
   $rcStrict     = "";
@@ -115,6 +120,10 @@ sub ParseKrazyRC {
       &output($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "EXPORT" ) {
       &export($arg, $linecnt, $rcfile);
+    } elsif ( $directive eq "TYPES" ) {
+      &types($arg, $linecnt, $rcfile );
+    } elsif ( $directive eq "EXCLUDETYPES" ) {
+      &excludeTypes($arg, $linecnt, $rcfile );
     } else {
       print "Invalid directive $directive, line $linecnt, $rcfile\n";
       close(F);
@@ -124,14 +133,16 @@ sub ParseKrazyRC {
   close(F);
 
   #return a hash of the directives
-  $directives{'EXCLUDE'}    = $rcExclude;
-  $directives{'CHECK'}      = $rcOnly;
-  $directives{'EXTRA'}      = $rcExtra;
-  $directives{'SKIPREGEX'}  = $rcSkipRegex;
-  $directives{'PRIORITY'}   = $rcPriority;
-  $directives{'STRICT'}     = $rcStrict;
-  $directives{'OUTPUT'}     = $rcOutput;
-  $directives{'EXPORT'}     = $rcExport;
+  $directives{'EXCLUDE'}      = $rcExclude;
+  $directives{'CHECK'}        = $rcOnly;
+  $directives{'EXTRA'}        = $rcExtra;
+  $directives{'TYPES'}        = $rcIncTypes;
+  $directives{'EXCLUDETYPES'} = $rcExcTypes;
+  $directives{'SKIPREGEX'}    = $rcSkipRegex;
+  $directives{'PRIORITY'}     = $rcPriority;
+  $directives{'STRICT'}       = $rcStrict;
+  $directives{'OUTPUT'}       = $rcOutput;
+  $directives{'EXPORT'}       = $rcExport;
   @{$directives{'IGSUBSLIST'}} = deDupe(@rcIgSubsList);
   @{$directives{'IGEXTRASLIST'}} = deDupe(@rcExSubsList);
   @{$directives{'IGMODSLIST'}} = deDupe(@rcIgModsList);
@@ -174,6 +185,32 @@ sub excludes {
     $rcExclude = $args;
   } else {
     $rcExclude .= "," . $args;
+  }
+}
+
+sub types {
+  my ($args,$l,$f) = @_;
+  if ( !defined($args) ) {
+    print "missing TYPES arguments, line $l, $f\n";
+    exit 1;
+  }
+  if ( !$rcIncTypes ) {
+    $rcIncTypes = $args;
+  } else {
+    $rcIncTypes .= "," . $args;
+  }
+}
+
+sub excludeTypes {
+  my ($args,$l,$f) = @_;
+  if ( !defined($args) ) {
+    print "missing EXCLUDETYPES arguments, line $l, $f\n";
+    exit 1;
+  }
+  if ( !$rcExcTypes ) {
+    $rcExcTypes = $args;
+  } else {
+    $rcExcTypes .= "," . $args;
   }
 }
 

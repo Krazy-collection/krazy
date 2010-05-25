@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the KDE source code                                         #
-# Copyright 2006-2008 by Allen Winter <winter@kde.org>                        #
+# Copyright 2006-2010 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -45,29 +45,33 @@ my ($strict)    = '';
 my ($check)     = '';
 my ($exclude)   = '';
 my ($extra)     = '';
+my ($inctypes)  = '';
+my ($exctypes)  = '';
 my ($export)    = '';
 my ($title)     = '';
 my ($cms)       = '';
 
 exit 1
   if ( !GetOptions(
-		   'help'      => \$help,
-		   'version'   => \$version,
-		   'list'      => \$list,
-		   'list-types'=> \$listtypes,
-		   'dry-run'   => \$dryrun,
-		   'ignorerc'  => \$ignorerc,
-		   'verbose'   => \$verbose,
-		   'brief'     => \$brief,
-		   'quiet'     => \$quiet,
-		   'priority=s'=> \$priority,
-		   'strict=s'  => \$strict,
-		   'check=s'   => \$check,
-		   'exclude=s' => \$exclude,
-		   'extra=s'   => \$extra,
-		   'export=s'  => \$export,
-		   'title=s'   => \$title,
-		   'cms=s'     => \$cms
+		   'help'           => \$help,
+		   'version'        => \$version,
+		   'list'           => \$list,
+		   'list-types'     => \$listtypes,
+		   'dry-run'        => \$dryrun,
+		   'ignorerc'       => \$ignorerc,
+		   'verbose'        => \$verbose,
+		   'brief'          => \$brief,
+		   'quiet'          => \$quiet,
+		   'priority=s'     => \$priority,
+		   'strict=s'       => \$strict,
+		   'check=s'        => \$check,
+		   'exclude=s'      => \$exclude,
+		   'extra=s'        => \$extra,
+                   'types=s'        => \$inctypes,
+                   'exclude-types=s'=> \$exctypes,
+		   'export=s'       => \$export,
+		   'title=s'        => \$title,
+		   'cms=s'          => \$cms
 		  )
      );
 
@@ -98,20 +102,22 @@ if ($export && !&validateExportType($export)) {
 
 # Options to pass to Krazy
 my ($opts) = "";
-$opts .= "--dry-run "            if ($dryrun);
-$opts .= "--ignorerc "           if ($ignorerc);
-$opts .= "--brief "              if ($brief);
-$opts .= "--quiet "              if ($quiet);
-$opts .= "--verbose "            if ($verbose);
-$opts .= "--check=$check "       if ($check);
-$opts .= "--exclude=$exclude "   if ($exclude);
-$opts .= "--extra=$extra "       if ($extra);
-$opts .= "--export=$export "     if ($export);
-$opts .= "--title=\"$title\" "   if ($title);
-$opts .= "--cms=$cms "           if ($cms);
-$opts .= "--priority=$priority " if ($priority);
-$opts .= "--strict=$strict "     if ($strict);
-$opts .= "--explain"             if ($export ne "textlist" && $export ne "textedit");
+$opts .= "--dry-run "                 if ($dryrun);
+$opts .= "--ignorerc "                if ($ignorerc);
+$opts .= "--brief "                   if ($brief);
+$opts .= "--quiet "                   if ($quiet);
+$opts .= "--verbose "                 if ($verbose);
+$opts .= "--check=$check "            if ($check);
+$opts .= "--exclude=$exclude "        if ($exclude);
+$opts .= "--extra=$extra "            if ($extra);
+$opts .= "--types=$inctypes "         if ($inctypes);
+$opts .= "--exclude-types=$exctypes " if ($exctypes);
+$opts .= "--export=$export "          if ($export);
+$opts .= "--title=\"$title\" "        if ($title);
+$opts .= "--cms=$cms "                if ($cms);
+$opts .= "--priority=$priority "      if ($priority);
+$opts .= "--strict=$strict "          if ($strict);
+$opts .= "--explain"                  if ($export ne "textlist" && $export ne "textedit");
 
 my($files) = &findFiles();
 my($cwd) = getcwd;
@@ -153,6 +159,10 @@ sub Help {
   print "            do NOT run the specified checker program(s)\n";
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
   print "         add the specified \"extra\" program(s) to the checker list\n";
+  print "  --types <type[,type1,type2,...,typeN]>:\n";
+  print "            check the specifed file type(s) only\n";
+  print "  --exclude-types <type[,type1,type2,...,typeN]>:\n";
+  print "            do NOT check the specified file type(s)\n";
   print "  --export <text|textlist|textedit|xml>\n";
   print "            output in one of the following formats:\n";
   print "              text (default)\n";
@@ -259,6 +269,14 @@ Add the specified "extra" program(s) to the list of checkers to run.
 Use the --list option to show the list of available "extra" checkers; they
 will be marked with the tag [EXTRA] by the checker description line.
 
+=item B<--types> <type[,type1,type2,...,typeN]>
+
+Check the specifed file type(s) only.
+
+=item B<--exclude-types> <type[,type1,type2,...,typeN]>
+
+Do NOT check the specified file type(s).
+
 =item B<--export> <text|textlist|textedit|xml>
 
 Output in one of the following formats:
@@ -315,7 +333,7 @@ or B<--list-types> options it will exit with status=0.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008 by Allen Winter <winter@kde.org>
+Copyright (c) 2005-2010 by Allen Winter <winter@kde.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

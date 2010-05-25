@@ -313,11 +313,11 @@ sub mergeModuleSettings {
 
   @mIgSubsList = @gIgSubsList;
   push( @mIgSubsList, @{ $d{'IGSUBSLIST'} } ) if ( $#{ $d{'IGSUBSLIST'} } >= 0 );
-  deDupe(@mIgSubsList);
+  @mIgSubsList = deDupe(@mIgSubsList);
 
   @mExSubsList = @gExSubsList;
   push( @mExSubsList, @{ $d{'IGEXTRASLIST'} } ) if ( $#{ $d{'IGEXTRASLIST'} } >= 0 );
-  deDupe(@mExSubsList);
+  @mExSubsList = deDupe(@mExSubsList);
 
   $mSkipRegex = $gSkipRegex;
   my ($tmpstr) = "";
@@ -337,15 +337,15 @@ sub mergeModuleSettings {
 
   @mExcludeList = @gExcludeList;
   push( @mExcludeList, split( ",", $d{'EXCLUDE'} ) ) if ( $d{'EXCLUDE'} );
-  deDupe(@mExcludeList);
+  @mExcludeList = deDupe(@mExcludeList);
 
   @mExtraList = @gExtraList;
   push( @mExtraList, split( ",", $d{'EXTRA'} ) ) if ( $d{'EXTRA'} );
-  deDupe(@mExtraList);
+  @mExtraList = deDupe(@mExtraList);
 
   @mCheckList = @gCheckList;
   push( @mCheckList, split( ",", $d{'CHECK'} ) ) if ( $d{'CHECK'} );
-  deDupe(@mCheckList);
+  @mCheckList = deDupe(@mCheckList);
 }
 
 #merge module-level directives with subdir-level directives
@@ -373,15 +373,15 @@ sub mergeSubdirSettings {
 
   @sExcludeList = @mExcludeList;
   push( @sExcludeList, split( ",", $d{'EXCLUDE'} ) ) if ( $d{'EXCLUDE'} );
-  deDupe(@sExcludeList);
+  @sExcludeList = deDupe(@sExcludeList);
 
   @sExtraList = @mExtraList;
   push( @sExtraList, split( ",", $d{'EXTRA'} ) ) if ( $d{'EXTRA'} );
-  deDupe(@sExtraList);
+  @sExtraList = deDupe(@sExtraList);
 
   @sCheckList = @mCheckList;
   push( @sCheckList, split( ",", $d{'CHECK'} ) ) if ( $d{'CHECK'} );
-  deDupe(@sCheckList);
+  @sCheckList = deDupe(@sCheckList);
 }
 
 sub doItForList {
@@ -675,7 +675,7 @@ sub createIgnorePage {
   print F "</div>\n";
   print F "</div>\n";
   print F "<div id=\"footer\">\n";
-  print F "<p>Site content Copyright 2005-2007 by Adriaan de Groot,<br/>\n";
+  print F "<p>Site content Copyright 2005-2010 by Adriaan de Groot,<br/>\n";
   print F "except images as indicated.</p>\n";
   print F "</div>\n";
   print F "</body>\n";
@@ -804,7 +804,7 @@ will exit with status=0.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 by Allen Winter <winter@kde.org>
+Copyright (c) 2005-2010 by Allen Winter <winter@kde.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
