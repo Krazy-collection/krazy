@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '0.1';    #split line so MakeMaker can find the version here
+ $VERSION = '2.75';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
