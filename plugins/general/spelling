@@ -710,6 +710,8 @@ desription             description
 desriptions            descriptions
 destiantion            destination
 destiantions           destinations
+detructor              destructor
+destrutor              destructor
 determien              determine
 determiend             determined
 determiens             determines
@@ -1173,6 +1175,7 @@ konstants              constants
 kscreensave            kscreensaver
 labell                 label
 labelling              labeling
+langauge               language
 lauch                  launch
 lauching               launching
 layed                  laid
@@ -1755,6 +1758,7 @@ synchroneously         synchronously
 synchronisation        synchronization
 synchronisations       synchronizations
 synchronisation        synchronization
+synchronitation        synchronization
 synchronisations       synchronizations
 synchronised           synchronized
 synchronises           synchronizes
@@ -1820,6 +1824,8 @@ transalted             translated
 transaltes             translates
 transation             transaction
 transations            transactions
+tranisition            transition
+tranisiton             transition
 transfered             transferred
 transfering            transferring
 transferrable          transferable
