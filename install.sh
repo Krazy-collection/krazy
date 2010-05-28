@@ -157,6 +157,12 @@ cd ..
 # rm -rf build
 # cd ..
 
+#build and install sets
+cd sets && \
+make install PREFIX=$TOP && \
+make realclean
+cd ..
+
 #install share stuff
 mkdir -p $TOP/share/dtd
 cd share && \
@@ -189,4 +195,6 @@ if ( test $EBN -eq 1 ) then
   chmod ug+w $TOP/lib/krazy2/krazy-extras/*
   chmod ug+w $TOP/lib/krazy2/krazy-extras/*/*
   chmod ug+w $TOP/lib/krazy2/krazy-helpers/*
+  chmod ug+w $TOP/lib/krazy2/krazy-sets/*
+  chmod ug+w $TOP/lib/krazy2/krazy-sets/*/*
 fi

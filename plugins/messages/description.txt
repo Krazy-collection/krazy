@@ -1,1 +1,1 @@
-Checks for Messages.sh files
+Checks for KDE Messages.sh files

@@ -1,4 +1,4 @@
-# krazy plugins/qml Makefile
+# krazy qt4 sets Makefile
 #
 # Copyright 2010 by Allen Winter <winter@kde.org>
 #
@@ -16,18 +16,32 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# list of all plugins to install
-PLUGINS = \
-
-# links to general purpose plugins
-PLUGINLNS = \
-iconnames \
+# links to c++ plugins
+CPP_PLUGINS = \
+captruefalse \
+constref \
+doublequote_chars \
+emptystrcompare \
 endswithnewline \
-license \
-spelling
+explicit \
+foreach \
+nullstrassign \
+nullstrcompare \
+operators \
+postfixop \
+qminmax \
+qobject \
+spelling \
+typedefs \
+
+# lines to qml plugins
+QML_PLUGINS = \
+
+# lines to designer plugins
+UI_PLUGINS = \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/qml
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/qt4
 
 all:
 
@@ -38,14 +52,19 @@ install::
 
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
-	list="$(PLUGINS)"; for plugin in $$list; do \
-		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
+	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing qt4 set c++ plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
 	done
-	list="$(PLUGINLNS)"; for plugin in $$list; do \
-		echo "Installing plugin link $$plugin"; \
-		ln -sf ../general/$$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
+	list="$(QML_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing qt4 set qml plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
 	done
+	list="$(UI_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing qt4 set designer plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/designer/$$plugin $(DESTDIR)$(INSTDIR)/designer-$$plugin; \
+	done
+
 
 clean:
 	@echo "Nothing to clean"

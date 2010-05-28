@@ -1,4 +1,4 @@
-# krazy plugins/qml Makefile
+# krazy sets Makefile
 #
 # Copyright 2010 by Allen Winter <winter@kde.org>
 #
@@ -16,38 +16,29 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# list of all plugins to install
-PLUGINS = \
-
-# links to general purpose plugins
-PLUGINLNS = \
-iconnames \
-endswithnewline \
-license \
-spelling
+# list of all set subdirs to install
+SUBDIRS = \
+c++ \
+qt4 \
+kde4 \
+foss \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/qml
+PREFIX=/usr/local
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy/krazy-sets
 
 all:
 
 install::
-	@if test ! -d $(DESTDIR)$(INSTDIR); then \
-		mkdir -p $(DESTDIR)$(INSTDIR) || exit 1; \
-	fi
-
-	cp -f description.txt $(DESTDIR)$(INSTDIR)
-
-	list="$(PLUGINS)"; for plugin in $$list; do \
-		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
-	done
-	list="$(PLUGINLNS)"; for plugin in $$list; do \
-		echo "Installing plugin link $$plugin"; \
-		ln -sf ../general/$$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
+	list="$(SUBDIRS)"; for dir in $$list; do \
+		echo "Installing set subdir $$dir"; \
+		( cd $$dir && make install ); \
 	done
 
 clean:
-	@echo "Nothing to clean"
+	list="$(SUBDIRS)"; for dir in $$list; do \
+		echo "Cleaning set subdir $$dir"; \
+		( cd $$dir && make clean ); \
+	done
 
 realclean: clean

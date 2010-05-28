@@ -28,10 +28,20 @@ Remove the specified plugins from the default set of checkers.
 =item CHECK plugin1[,plugin2,...]
 
 Run only the specified list of plugins from the default set of checkers.
+You may not combine this with the CHECKSET directive nor with the B<--check-sets> 
+command line option.
 
 I<Note>: the CHECK directive takes precedence over the EXCLUDE directive;
 i.e, plugins specified by the CHECK directive are always run, even if
 they are also specified in an EXCLUDE directive.
+
+
+=item CHECKSETS set1[,set2,...]
+
+Run the checker programs belonging to the specified set(s) only.
+You may not combine this with the CHECK directive nor with the B<--check> 
+command line option.
+
 
 =item EXTRA plugin1[,plugin2,...]
 

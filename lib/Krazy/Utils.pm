@@ -212,11 +212,11 @@ sub fileTypeDesc {
   } elsif ( $t eq "po" ) {
     return "GNU gettext files";
   } elsif ( $t eq "messages" ) {
-    return "Messages.sh files";
+    return "KDE Messages.sh files";
   } elsif ( $t eq "kpartgui" ) {
     return "KPartGUI files";
   } elsif ( $t eq "tips" ) {
-    return "Tips files";
+    return "KDE tip-of-the-day files";
   } elsif ( $t eq "qml") {
     return "Qt Declarative UI files";
   }

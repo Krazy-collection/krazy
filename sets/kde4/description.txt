@@ -1,0 +1,1 @@
+KDE4 source (C++, Qt Designer, FDO desktop files, etc.)

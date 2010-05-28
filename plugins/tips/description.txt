@@ -1,1 +1,1 @@
-Checks for tip-of-the-day files
+Checks for KDE tip-of-the-day files

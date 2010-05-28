@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007,2009 by Allen Winter <winter@kde.org>                        #
+# Copyright 2007,2009-2010 by Allen Winter <winter@kde.org>                   #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -29,7 +29,7 @@ use Cwd;
 use Krazy::Utils;
 
 use Exporter;
-$VERSION = 1.30;
+$VERSION = 1.50;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(ParseKrazyRC);
@@ -45,6 +45,7 @@ $VERSION = 1.30;
 # EXCLUDE plugin1[,plugin2,...] <regexp>
 # CHECK plugin1[,plugin2,...] <regexp>
 # EXTRA plugin1[,plugin2,...] <regexp>
+# CHECKSETS set1[,set2,...]
 # TYPES type1[,type2,...]
 # EXCLUDETYPES type1[,type2,...]
 # SKIP regexp
@@ -62,7 +63,8 @@ $VERSION = 1.30;
 # The directive is case-insensitive.
 #==============================================================================
 
-my($rcExclude,$rcOnly,$rcExtra,$rcIncTypes,$rcExcTypes,$rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,$rcExport);
+my($rcExclude,$rcOnly,$rcCheckSets,$rcExtra,$rcIncTypes,$rcExcTypes,
+   $rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,$rcExport);
 my(@rcIgSubsList,@rcExSubsList,@rcIgModsList);
 my($CWD);
 
@@ -77,6 +79,7 @@ sub ParseKrazyRC {
 
   $rcExclude    = "";
   $rcOnly       = "";
+  $rcCheckSets  = "";
   $rcExtra      = "";
   $rcIncTypes   = "";
   $rcExcTypes   = "";
@@ -102,6 +105,8 @@ sub ParseKrazyRC {
       &extras($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "CHECK" ) {
       &checks($arg, $linecnt, $rcfile);
+    } elsif ( $directive eq "CHECKSETS" ) {
+      &checksets($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "EXCLUDE" ) {
       &excludes($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "IGNORESUBS" ) {
@@ -135,6 +140,7 @@ sub ParseKrazyRC {
   #return a hash of the directives
   $directives{'EXCLUDE'}      = $rcExclude;
   $directives{'CHECK'}        = $rcOnly;
+  $directives{'CHECKSETS'}    = $rcCheckSets;
   $directives{'EXTRA'}        = $rcExtra;
   $directives{'TYPES'}        = $rcIncTypes;
   $directives{'EXCLUDETYPES'} = $rcExcTypes;
@@ -172,6 +178,19 @@ sub checks {
     $rcOnly = $args;
   } else {
     $rcOnly .= "," . $args;
+  }
+}
+
+sub checkSets {
+  my ($args,$l,$f) = @_;
+  if ( !defined($args) ) {
+    print "missing CHECKSETS arguments, line $l, $f\n";
+    exit 1;
+  }
+  if ( !$rcCheckSets ) {
+    $rcCheckSets = $args;
+  } else {
+    $rcCheckSets .= "," . $args;
   }
 }
 

@@ -1,4 +1,4 @@
-# krazy plugins/qml Makefile
+# krazy c++ sets Makefile
 #
 # Copyright 2010 by Allen Winter <winter@kde.org>
 #
@@ -16,18 +16,15 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# list of all plugins to install
-PLUGINS = \
-
-# links to general purpose plugins
-PLUGINLNS = \
-iconnames \
-endswithnewline \
-license \
-spelling
+# links to c++ plugins
+CPP_PLUGINS = \
+constref \
+explicit \
+operators \
+postfixop \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/qml
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/c++
 
 all:
 
@@ -38,13 +35,9 @@ install::
 
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
-	list="$(PLUGINS)"; for plugin in $$list; do \
-		echo "Installing plugin $$plugin"; \
-		cp -f $$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
-	done
-	list="$(PLUGINLNS)"; for plugin in $$list; do \
-		echo "Installing plugin link $$plugin"; \
-		ln -sf ../general/$$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
+	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing c++ set c++ plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
 	done
 
 clean:

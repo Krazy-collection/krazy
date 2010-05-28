@@ -790,6 +790,10 @@ KRAZY_EXTRA_PATH - this is a colon-separated list of paths which is
 searched when locating "extra" plugins. By default, the "extras" are searched
 for in the path F<$TOP/lib/krazy2/krazy-extras:krazy-extras>.
 
+KRAZY_SET_PATH - this is a colon-separated list of paths which is
+searched when locating checker sets. By default, the sets are searched
+for in the path F<$TOP/lib/krazy2/krazy-sets:krazy-sets>.
+
 where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/local/Krazy2>)
 
 =head1 EXIT STATUS
