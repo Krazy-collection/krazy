@@ -29,7 +29,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.75';    #split line so MakeMaker can find the version here
+ $VERSION = '2.85';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -43,6 +43,7 @@ my ($quiet)     = '';
 my ($priority)  = '';
 my ($strict)    = '';
 my ($check)     = '';
+my ($checksets) = '';
 my ($exclude)   = '';
 my ($extra)     = '';
 my ($inctypes)  = '';
@@ -65,6 +66,7 @@ exit 1
 		   'priority=s'     => \$priority,
 		   'strict=s'       => \$strict,
 		   'check=s'        => \$check,
+                   'check-sets=s'   => \$checksets,
 		   'exclude=s'      => \$exclude,
 		   'extra=s'        => \$extra,
                    'types=s'        => \$inctypes,
@@ -108,6 +110,7 @@ $opts .= "--brief "                   if ($brief);
 $opts .= "--quiet "                   if ($quiet);
 $opts .= "--verbose "                 if ($verbose);
 $opts .= "--check=$check "            if ($check);
+$opts .= "--check-sets=$checksets "   if ($checksets);
 $opts .= "--exclude=$exclude "        if ($exclude);
 $opts .= "--extra=$extra "            if ($extra);
 $opts .= "--types=$inctypes "         if ($inctypes);
@@ -155,6 +158,8 @@ sub Help {
   print "            use strictness to help filter out issues of less importance\n";
   print "  --check <prog[,prog1,prog2,...,progN]>\n";
   print "            run the specified sanity checker program(s) only\n";
+  print "  --check-sets <set[,set1,set2,...,setN]>\n";
+  print "            run the checker programs belonging to the specified set(s) only\n";
   print "  --exclude <prog[,prog1,prog2,...,progN]>\n";
   print "            do NOT run the specified checker program(s)\n";
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
@@ -258,6 +263,16 @@ Support strictness levels are:
 =item B<--check> <prog[,prog1,prog2,...,progN]>
 
 Run the specified checker program(s) only.
+You may not combine this option with B<--check-sets>.
+
+Use the B<--list> option to show the list of available checkers.
+
+=item B<--check-sets> <set[,set1,set2,...,setN]>
+
+Run the checker programs belonging to the specified set(s) only.
+You may not combine this option with B<--check>.
+
+Use the B<--list-sets> option to see the list of available check sets and programs.
 
 =item B<--exclude> <prog[,prog1,prog2,...,progN]>
 
