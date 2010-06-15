@@ -24,6 +24,7 @@
 #   --help:            display help message and exit
 #   --version:         display version information and exit
 #   --dry-run:         don't execute the checks; only show what would be run
+#   --with-sloccount   Run sloccount in each module
 #   --nodb:            don't execute any database commands
 #   --nosaxon          don't execute the xslt transformations.
 #   --component [comp] process component 'comp'
@@ -66,6 +67,7 @@ my ($checks);     # The list of checks to be executed.
 
 my ($saxon);      # fullpath to the saxon program
 my ($stylesheet); # full path to the main stylesheet (krazy-main.xsl)
+my ($sloccount);  # full path to sloccount executable
 
 if ( hostname() =~ m/englishbreakfast/ ) {
   $tempdir    = '/usr/local/www/data-ebn/krazy/temp';
@@ -83,6 +85,25 @@ if ( hostname() =~ m/englishbreakfast/ ) {
   $checks     = ''; # execute all checks.
   $saxon      = '/usr/local/bin/saxon';
   $stylesheet = '/usr/local/www/data-ebn/krazy/share/xsl/krazy-main.xsl';
+  $sloccount  = ''; # Not installed yet
+} elsif ( hostname() =~/bertjan/ ) {
+  # my system settings for testing
+  print 'Executing Bertjans setup!\n';
+  $tempdir    = '/home/bertjan-dev/krazy2/work/temp';
+  $destdir    = '/home/bertjan-dev/krazy2/work/reports';
+  $comp       = 'kde-4.4.0';
+  $module     = '';
+  $trunk      = '/home/bertjan-dev/krazy2/work';
+  $krazy      = '/home/bertjan-dev/local/bin/krazy2';
+  $plgpth     = '/home/bertjan-dev/local/lib/krazy2/krazy-plugins';
+  $xtrpth     = '/home/bertjan-dev/local/lib/krazy2/krazy-extras';
+  $md5        = '/usr/bin/md5sum';
+  $svn        = '/usr/bin/svn info';
+  $repos      = '/home/bertjan-dev/krazy2/work/kde-4.4.0';
+  $checks     = ''; #'--check typedefs'; # Only execute some checks, so we don't have to wait an eternity.
+  $saxon      = '/usr/bin/saxon8';
+  $stylesheet = '/usr/local/Krazy2/share/xsl/krazy-main.xsl';
+  $sloccount  = '/usr/bin/sloccount';
 } else {
 
   # my system settings for testing
@@ -100,6 +121,7 @@ if ( hostname() =~ m/englishbreakfast/ ) {
   $checks     = '--check typedefs'; # Only execute some checks, so we don't have to wait an eternity.
   $saxon      = '/usr/bin/saxon8';
   $stylesheet = '/usr/local/Krazy2/share/xsl/krazy-main.xsl';
+  $sloccount  = ''; # /usr/bin/sloccount';
 }
 
 #END OF SETTINGS
@@ -109,18 +131,20 @@ my ($version) = '';
 my ($dryrun)  = '';
 my ($nodb) = '';
 my ($nosaxon) = '';
+my ($countloc) = '';
 my ($reptitle) = '';
 
 exit 1
   if ( !GetOptions(
-       'help'        => \$help,
-       'version'     => \$version,
-       'dry-run'     => \$dryrun,
-       'nodb'        => \$nodb,
-       'nosaxon'     => \$nosaxon,
-       'component=s' => \$comp,
-       'module=s'    => \$module,
-       'title=s'     => \$reptitle
+       'help'           => \$help,
+       'version'        => \$version,
+       'dry-run'        => \$dryrun,
+       'nodb'           => \$nodb,
+       'nosaxon'        => \$nosaxon,
+       'with-sloccount' => \$countloc,
+       'component=s'    => \$comp,
+       'module=s'       => \$module,
+       'title=s'        => \$reptitle
       )
      );
 
@@ -406,6 +430,14 @@ sub doItForList {
         &createIgnorePage( "$out", "$comp/$module/$s" ) if (!$nosaxon);
       } else {
         &mergeSubdirSettings( "$trunk/$comp/$module/$s" );
+        if ($countloc) {
+          my $command = "$sloccount $comp/$module > $tempdir/$comp/$module/sloccount.output";
+          if ($dryrun) {
+            print "$command\n"; 
+          } else {
+            system("$command");
+          }
+        }
         &doIt( "$trunk/$comp/$module/$s", "$out", "$comp/$module/$s", $rev );
         if ( -f "$out/index.html" && `grep "Total Issues" $out/index.html` ) {
           (@issues) =
@@ -690,15 +722,16 @@ sub Help {
   &Version();
   print "KDE source code checking for the English Breakfast Network (EBN)\n\n";
   print "Usage: $Prog [OPTION]... FILE...\n";
-  print "  --help      display help message and exit\n";
-  print "  --version   display version information and exit\n";
-  print "  --dry-run   don't execute the checks; only show what would be run\n";
-  print "  --nodb      don't execute any database commands\n";
-  print "  --nosaxon   don't execute the xslt transformation\n";
-  print "  --component component to process (default=\"$comp\")\n";
-  print "  --module    [mod1<,mod2...>]\n";
-  print "              comma-separated list of modules to process (default=ALL)\n";
-  print "  --title     [title] the title to print on the output reports\n";
+  print "  --help           display help message and exit\n";
+  print "  --version        display version information and exit\n";
+  print "  --dry-run        don't execute the checks; only show what would be run\n";
+  print "  --nodb           don't execute any database commands\n";
+  print "  --nosaxon        don't execute the xslt transformation\n";
+  print "  --with-sloccount Run sloccount in each module\n";
+  print "  --component      component to process (default=\"$comp\")\n";
+  print "  --module [mod1<,mod2...>]\n";
+  print "                   comma-separated list of modules to process (default=ALL)\n";
+  print "  --title [title]  the title to print on the output reports\n";
 
   print "\n";
   exit 0 if $help;
