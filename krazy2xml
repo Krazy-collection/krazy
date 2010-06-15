@@ -88,6 +88,7 @@ if ( hostname() =~ m/englishbreakfast/ ) {
   $sloccount  = ''; # Not installed yet
 } elsif ( hostname() =~/bertjan/ ) {
   # my system settings for testing
+  # TODO: Make these settings properly configurable with a config file.
   print 'Executing Bertjans setup!\n';
   $tempdir    = '/home/bertjan-dev/krazy2/work/temp';
   $destdir    = '/home/bertjan-dev/krazy2/work/reports';
