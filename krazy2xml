@@ -432,7 +432,7 @@ sub doItForList {
       } else {
         &mergeSubdirSettings( "$trunk/$comp/$module/$s" );
         if ($countloc) {
-          my $command = "$sloccount $comp/$module > $tempdir/$comp/$module/sloccount.output";
+          my $command = "$sloccount $trunk/$comp/$module > $tempdir/$comp/$module/sloccount.output";
           if ($dryrun) {
             print "$command\n"; 
           } else {
