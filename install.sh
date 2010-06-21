@@ -13,10 +13,10 @@ if ( test $status -ne 0 ) then
 fi
 
 #change TOP to whatever you like for your top-level installation directory
-if ( test `hostname | egrep -c englishbreakfast` -gt 0 ) then
+if ( test `hostname | egrep -c www` -gt 0 ) then
   EBN=1
-  TOP=/usr/local/www/data-ebn/krazy
-  QMAKE=/usr/local/KDE4/bin/qmake
+  TOP=/mnt/ebn
+  QMAKE=/usr/bin/qmake
 else
   EBN=0
   TOP=/usr/local/Krazy2
