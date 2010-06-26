@@ -255,7 +255,6 @@ my (@subdirs);
 print "  Generating $comp/tool-list.xml\n";
 my $command = "$krazy --export=xml --list --explain > $tempdir/$comp/tool-list.xml";
 if ($dryrun) {
-  print "$command\n";
   $command = "echo " . "\'" . $command . "\'";
 }
 system("$command");
@@ -438,10 +437,11 @@ sub doItForList {
         if ($countloc) {
           my $command = "$sloccount $trunk/$comp/$module > $tempdir/$comp/$module/sloccount.output";
           if ($dryrun) {
-            print "$command\n"; 
-          } else {
-            system("$command");
+            $command = "echo " . "\'" . $command . "\'";
           }
+
+          system("$command");
+
         }
         &doIt( "$trunk/$comp/$module/$s", "$out", "$comp/$module/$s", $rev );
         if ( -f "$out/index.html" && `grep "Total Issues" $out/index.html` ) {
@@ -508,7 +508,6 @@ sub doIt {
   my ($command) =
  "cd $in; find . -name '*.tcc' -o -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh -o -name '*.rc' -o -name tips -o -name '*.qml' -type f | grep -v '$skip' | xargs $krazy $checks --ignorerc $priority $strict --export=xml --explain --title \"$title\" -cms $cms --rev $rev $exclude $extra > $out/result.xml";
   if ($dryrun) {
-    print "$command\n";
     $command = "echo " . "\'" . $command . "\'";
   }
   # Generate the xml report.
@@ -528,7 +527,6 @@ sub doIt {
     $command = "$saxon -im krazy2ebn $out/result.xml $stylesheet component=$component module=$module submodule=$subdir > $out/index.html";
 
     if ($dryrun) {
-      print "$command\n";
       $command = "echo " . "\'" . $command . "\'";
     }
 
