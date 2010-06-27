@@ -24,6 +24,11 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 # Tests KDE source for adherence to a coding style
 
+# Supports these environment variables:
+#  KRAZY_STYLE_CPPSTYLE: a predefined style, currently available styles are "kde" and "pim"
+#  KRAZY_STYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4
+#  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to 100)
+
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
@@ -38,6 +43,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
+use Env qw (KRAZY_STYLE_CPPSTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
 use Cwd 'abs_path';
 use Tie::IxHash;
 use FindBin qw($Bin);
@@ -45,7 +51,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.1";
+my($Version) = "1.2";
 
 &parseArgs();
 
@@ -69,13 +75,20 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/ ||
   Exit 0;
 }
 
-my($MODE)="kde";
-my($MAXLEN)=100; #default max line length
-my($OFFSET)=4; #default indent offset
-my($absf) = abs_path($f);
-if ($absf =~ m/kdepim/) {
-  $MODE="pim";
-  $OFFSET=2;
+$KRAZY_STYLE_LINEMAX = 100 if ( !$KRAZY_STYLE_LINEMAX );
+if ( !$KRAZY_STYLE_CPPSTYLE ) {
+  if ( abs_path($f) =~ m/kdepim/ ) {
+    $KRAZY_STYLE_CPPSTYLE = "pim";
+  } else {
+    $KRAZY_STYLE_CPPSTYLE = "kde";
+  }
+}
+if ( !$KRAZY_STYLE_OFFSET ) {
+  if ( $KRAZY_STYLE_CPPSTYLE eq "pim" ) {
+    $KRAZY_STYLE_OFFSET = 2;
+  } else {
+    $KRAZY_STYLE_OFFSET = 4;
+  }
 }
 
 #open file and slurp it in
@@ -167,7 +180,8 @@ foreach $line (@lines) {
   $pline =~ s/\(BerValue \*\*\)//g;
   $pline =~ s/\(sasl_conn_t \*\)//g;
 
-  if ($MODE eq "pim" && $pline =~ m/\(/ && $pline =~ m/\([[:alnum:]"'\(]/ || $line =~ m/\( {2,}/) {
+  if ($KRAZY_STYLE_CPPSTYLE eq "pim" &&
+      $pline =~ m/\(/ && $pline =~ m/\([[:alnum:]"'\(]/ || $line =~ m/\( {2,}/) {
     $Issues{'PARENSPACE'}{'count'}++;
     if ($Issues{'PARENSPACE'}{'count'} == 1) {
       $Issues{'PARENSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -177,7 +191,8 @@ foreach $line (@lines) {
     print "$linecnt (missing 1 space after '\(') => $line\n" if (&verboseArg());
   }
 
-  if ($MODE eq "kde" && $pline =~ m/\(/ && $line =~ m/\(\s/) {
+  if ($KRAZY_STYLE_CPPSTYLE eq "kde" &&
+      $pline =~ m/\(/ && $line =~ m/\(\s/) {
     $Issues{'PARENNOSPACE'}{'count'}++;
     if ($Issues{'PARENNOSPACE'}{'count'} == 1) {
       $Issues{'PARENNOSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -187,7 +202,8 @@ foreach $line (@lines) {
     print "$linecnt (no space after '\(') => $line\n" if (&verboseArg());
   }
 
-  if ($MODE eq "pim" && $pline =~ m/\)/ && $pline =~ m/[[:alnum:]"'\)]\)/ || $line =~ m/ {2,}\)/) {
+  if ($KRAZY_STYLE_CPPSTYLE eq "pim" &&
+      $pline =~ m/\)/ && $pline =~ m/[[:alnum:]"'\)]\)/ || $line =~ m/ {2,}\)/) {
     $Issues{'SPACEPAREN'}{'count'}++;
     if ($Issues{'SPACEPAREN'}{'count'} == 1) {
       $Issues{'SPACEPAREN'}{'lines'} = "line\#" . $linecnt;
@@ -197,7 +213,8 @@ foreach $line (@lines) {
     print "$linecnt (put 1 space before '\)') => $line\n" if (&verboseArg());
   }
 
-  if ($MODE eq "kde" && $pline =~ m/\)/ && $line =~ m/\s\)/) {
+  if ($KRAZY_STYLE_CPPSTYLE eq "kde" &&
+      $pline =~ m/\)/ && $line =~ m/\s\)/) {
     $Issues{'NOSPACEPAREN'}{'count'}++;
     if ($Issues{'NOSPACEPAREN'}{'count'} == 1) {
       $Issues{'NOSPACEPAREN'}{'lines'} = "line\#" . $linecnt;
@@ -528,7 +545,7 @@ foreach $line (@lines) {
   $tline = $line;
   $tline =~ s/^\s+//;
   $indent = length($line) - length($tline);
-  if ($indent % $OFFSET) {
+  if ($indent % $KRAZY_STYLE_OFFSET) {
     if (!&isOkEnd($lline)) {
       $Issues{'BADINDENTOFF'}{'count'}++;
       if ($Issues{'BADINDENTOFF'}{'count'} == 1) {
@@ -540,7 +557,7 @@ foreach $line (@lines) {
     }
   }
   if ($indent != $lindent) {
-    if (($indent-$OFFSET) != $lindent && ($indent+$OFFSET) != $lindent) {
+    if (($indent-$KRAZY_STYLE_OFFSET) != $lindent && ($indent+$KRAZY_STYLE_OFFSET) != $lindent) {
       if ($line !~ m/^{/ && $line !~ m/};$/ && $line !~ m/^\s*<</ && !&isClVi($line) && $line !~ m/^\s*$/ && !&isOkEnd($lline) && $lline !~ /break;$/ && $lline !~ /return;$/) {
 	$Issues{'BADINDENTOFF'}{'count'}++;
 	if ($Issues{'BADINDENTOFF'}{'count'} == 1) {
@@ -575,7 +592,7 @@ foreach $line (@lines) {
 	}
       }
   }
-  if ($MODE eq "pim" &&
+  if ($KRAZY_STYLE_CPPSTYLE eq "pim" &&
       (($line =~ m/^\s*public\s*:/ && $line !~ m/\s{2}public/) ||
        ($line =~ m/^\s*private\s*:/ && $line !~ m/\s{2}private/) ||
        ($line =~ m/^\s*protected\s*:/ && $line !~ m/\s{2}protected/) ||
@@ -622,7 +639,7 @@ foreach $line (@data_lines) {
     print "$linecnt (tailing whitespace) => $line\n" if (&verboseArg());
   }
 
-  if (length($line) > $MAXLEN) {
+  if (length($line) > $KRAZY_STYLE_LINEMAX) {
     $Issues{'LINELEN'}{'count'}++;
     if ($Issues{'LINELEN'}{'count'} == 1) {
       $Issues{'LINELEN'}{'lines'} = "line\#" . $linecnt;
@@ -782,7 +799,7 @@ sub initIssues() {
   $Issues{'TAB'}{'count'} = 0;
   $Issues{'TAB'}{'lines'} = '';
 
-  $Issues{'LINELEN'}{'issue'} = "Line longer than $MAXLEN characters";
+  $Issues{'LINELEN'}{'issue'} = "Line longer than $KRAZY_STYLE_LINEMAX characters";
   $Issues{'LINELEN'}{'count'} = 0;
   $Issues{'LINELEN'}{'lines'} = '';
 
