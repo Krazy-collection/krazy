@@ -6,7 +6,6 @@ include(CheckCXXCompilerFlag)
 set(QT_MIN_VERSION "4.5.0")
 find_package(Qt4 REQUIRED)
 
-set(CMAKE_INSTALL_RPATH ${CMAKE_PREFIX_PATH}/lib)
 check_cxx_compiler_flag(-fvisibility=hidden __KRAZY_HAVE_GCC_VISIBILITY)
 set( __KRAZY_HAVE_GCC_VISIBILITY ${__KDE_HAVE_GCC_VISIBILITY} CACHE BOOL "GCC support for hidden visibility")
 
