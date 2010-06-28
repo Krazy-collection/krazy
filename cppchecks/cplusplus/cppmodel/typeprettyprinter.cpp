@@ -30,7 +30,6 @@ using namespace CppModel;
 
 TypePrettyPrinter::TypePrettyPrinter(Overview const *overview)
     : m_overview(overview),
-      m_name(0),
       m_markArgument(0),
       m_showArgumentNames(false),
       m_showReturnTypes(false),
