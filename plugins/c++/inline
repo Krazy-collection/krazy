@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2008 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2008,2010 by Allen Winter <winter@kde.org>               #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -43,8 +43,9 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
+my($debug) = 0;  #set to go into debug mode
 my($Prog) = "inline";
-my($Version) = "1.10";
+my($Version) = "1.11";
 
 &parseArgs();
 
@@ -68,8 +69,9 @@ close(F);
 # Remove C-style comments and #if 0 blocks from the file input
 my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
 
-my($CNAME) = "";
-my($SECTION) = "";
+my($CNAME) = ""; #current class name
+my(@classes) = ();
+my(%stuff);
 my($cnt) = 0;
 my($linecnt) = 0;
 my($lstr) = "";
@@ -86,30 +88,36 @@ while ($linecnt < $#lines) {
   }
 
   $CNAME = &Cname($line,$lastl);
-  if ($CNAME ne "" && $line !~ m+//.*[Kk]razy:exclude=.*$Prog+) {
+  if ($CNAME ne "") {
     #found a public, exported class
-    $inlm = "";
 
+    $stuff{$CNAME}{'dpointer'} = 0;
+    $stuff{$CNAME}{'excluded'} = 0;       #is this class krazy excluded?
+    $stuff{$CNAME}{'section'} = "private";#default visibility in classes
+    $stuff{$CNAME}{'inlines'} = 0;        #count inlines
+    $stuff{$CNAME}{'inlineList'} = "";    #list of lines with inlines
+
+    print "CLASS: $CNAME\n" if ($debug);
     while ($linecnt < $#lines) {
       # search for a inline methods
       &Section($line);
       $lastl = $line;
       $line = $lines[$linecnt++];
       if (&Cname($line,$lastl)) { $linecnt--; last; }
-      last if (&endClass($line,$linecnt));
+      next if (&endClass($line,$linecnt));
 
       if ($line =~ m/^[[:space:]]*inline[[:space:]]/ || $line =~ m/{/) {
         # we found a possible problem inline method
         $inlm = $line;
 
         #look for an inline method (that isn't private)
-        if (&Inline($inlm,$linecnt) && ($SECTION ne "private")) {
+        if (&Inline($inlm,$linecnt) && ($stuff{$CNAME}{'section'} ne "private")) {
           # found an inline method
-          $cnt++;
-          if ($cnt == 1) {
-            $lstr = "line\#" . $linecnt;
+          $stuff{$CNAME}{'inlines'}++;
+          if ($stuff{$CNAME}{'inlines'} == 1) {
+            $stuff{$CNAME}{'inlineList'} = $linecnt;
           } else {
-            $lstr = $lstr . "," . $linecnt;
+            $stuff{$CNAME}{'inlineList'} .= "," . $linecnt;
           }
           print "=> $line\n" if (&verboseArg());
         }
@@ -117,8 +125,7 @@ while ($linecnt < $#lines) {
     }
   } else {
     #might find inlines outside of a class definition too
-    if ($line =~ m/^[[:space:]]*inline[[:space:]]/ &&
-	&Inline($line,$linecnt)) {
+    if ($line =~ m/^[[:space:]]*inline[[:space:]]/ && &Inline($line,$linecnt)) {
       $cnt++;
       if ($cnt == 1) {
 	$lstr = "line\#" . $linecnt;
@@ -138,15 +145,13 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-# determine if the current line $l has a class, checking the previous line $l1
-# for classes to ignore (like "template").  Must be a FOO_EXPORTed class.
-# return the class name, or empty if no class is found
 sub Cname {
   my($l,$l1) = @_;
   my($cname)="";
   $l =~ s+//.*++; #strip trailing C++ comment
   return 0 if ($l =~ m/_EXPORT_DEPRECATED/);
-  if ($l =~ m+^[[:space:]]*class[[:space:]].*+ && $l =~ m/_EXPORT/ && $l !~ m/;\s*$/ && $l !~ m/\\\s*$/) {
+  return 0 if ($l =~ m/_TEST_EXPORT/);
+  if ($l =~ m+^[[:space:]]*class[[:space:]].*+ && $l !~ m/;\s*$/ && $l !~ m/\\\s*$/) {
     if ($l1 !~ m/template/ && $l1 !~ m/#define[[:space:]]/) {
       $cname = $l;
       $cname =~ s/:.*$//;
@@ -154,6 +159,15 @@ sub Cname {
       $cname =~ s/[[:space:]]*class[[:space:]].*EXPORT[[:space:]]//;
       $cname =~ s/[[:space:]]*class[[:space:]]//;
       $cname =~ s/\s+$//;
+      if ($l =~ m/_EXPORT/) {
+        $stuff{$cname}{'exported'} = 1;
+      } else {
+        $stuff{$cname}{'exported'} = 0;
+      }
+      if ($#classes < 0 || $cname ne $classes[$#classes]) {
+        push(@classes,$cname);
+        print "push $cname, $#classes in stack\n" if ($debug);
+      }
     }
   }
   return $cname;
@@ -163,33 +177,67 @@ sub Cname {
 sub endClass {
   my($l,$lc) = @_;
   return 0 if ($l !~ m/^[[:space:]]*}[[:space:]]*;/);
-  return 0 if (&searchBackWithStop('^[[:space:]]*struct[[:space:]]',$lc-1,30,
+  # This is getting ridiculous
+  # TODO: do it the other way around: when we get to an opening enum or struct
+  #       declaration in a private: section, skip forward to the end
+  #       but be wary of things like enum { foo, bar, foobar };
+  #       (and nested structs?)
+  return 0 if (&searchBackWithStop('^[[:space:]]*struct[[:space:]]',$lc-1,75,
                   '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'));
   # enums don't have semicolons in them;
   # unless, of course, someone puts one at
   # the end of a doxygen line (why would they?)
-  return 0 if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]',$lc-1,30,';[[:space:]]*$|^[[:space:]]*private:'));
+  return 0 if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]',$lc-1,75,
+                  ';[[:space:]]*$|^[[:space:]]*private:'));
+
+  #at end of class
+  my($cclass) = $classes[$#classes];
+  if ($#classes >= 0) {
+    &chkInlines($cclass);
+  }
+  print "($lc) End Class $cclass ($l)\n" if ($debug);
+  pop(@classes);
+
+  if ($#classes >= 0) {
+    $CNAME = $classes[$#classes];
+    print "pop to class $CNAME, section $stuff{$CNAME}{'section'}, $#classes in stack\n" if ($debug);
+  }
   return 1;
+}
+
+sub chkInlines {
+  my($c) = @_;
+
+  if ($c ne "" && !$stuff{$c}{'excluded'} ) {
+    if ($cnt == 0) {
+      $lstr = "line\#" . $stuff{$c}{'inlineList'};
+    } else {
+      $lstr = $lstr . "," . $stuff{$c}{'inlineList'} if ($stuff{$c}{'inlineList'});
+    }
+    $cnt += $stuff{$c}{'inlines'};
+  }
 }
 
 sub Section {
   my($l) = @_;
-  if ($l =~ m/private/) {
-    $SECTION = "private";
+  if ($l =~ m/slots/i) {
+    $stuff{$CNAME}{'section'} = "slot";
+  } elsif ($l =~ m/signals/i) {
+    $stuff{$CNAME}{'section'} = "signal";
+  } elsif ($l =~ m/private\s*:/) {
+    $stuff{$CNAME}{'section'} = "private";
+    print "In private section of $CNAME\n" if ($debug);
   } elsif ($l =~ m/public/) {
-    $SECTION = "public";
+    $stuff{$CNAME}{'section'} = "public";
   } elsif ($l =~ m/protected/) {
-    $SECTION = "protected";
-  } elsif ($l =~ m/slot/i) {
-    $SECTION = "slot";
-  } elsif ($l =~ m/signal/i) {
-    $SECTION = "signal";
+    $stuff{$CNAME}{'section'} = "protected";
   }
 }
 
 # determine if the current line $l has an inline method
 sub Inline {
   my($l,$lc) = @_;
+
   #check the line $l for conditions where inline is ok within a class
   return 0 if ($l =~ m+[[:space:]]*operator+);
   return 0 if ($l =~ m+[[:space:]]*KDE_DEPRECATED[[:space:]]*+);
@@ -198,7 +246,7 @@ sub Inline {
   return 0 if ($l =~ m+//.*inline+); #if inline in a comment on the line
   return 0 if ($l =~ m+//.*in-line+);#if in-line in a comment on the line
 
-  return 0 if ($l =~ m+{\s*}+);
+#  return 0 if ($l =~ m+{\s*}+);
   return 0 if ($l =~ m+^\s*:+);
   return 0 if (&searchBack('[[:space:]]operator+',$lc,2));
   return 0 if (&searchBack('^\s*enum',$lc,2));
@@ -207,6 +255,7 @@ sub Inline {
   return 0 if (&searchBack('^\s*typedef',$lc,2));
   return 0 if (&searchBack('^\s*#define',$lc,5));
   return 0 if (&searchBack('^\s*template',$lc,25));
+  print "FOUND inline: $l\n" if ($debug);
   return 1;
 }
 
