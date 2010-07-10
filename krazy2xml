@@ -3,7 +3,7 @@
 ###############################################################################
 # Runs krazy over the KDE source code for the EnglishBreakfastNetwork (EBN)   #
 # Copyright 2006-2008,2010 by Allen Winter <winter@kde.org>                   #
-# Copyright 2009      by Bertjan Broeksema <b.broeksema@kdemail.net>          #
+# Copyright 2009-2010 by Bertjan Broeksema <b.broeksema@kdemail.net>          #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -69,23 +69,23 @@ my ($saxon);      # fullpath to the saxon program
 my ($stylesheet); # full path to the main stylesheet (krazy-main.xsl)
 my ($sloccount);  # full path to sloccount executable
 
-if ( hostname() =~ m/englishbreakfast/ ) {
-  $tempdir    = '/usr/local/www/data-ebn/krazy/temp';
-  $destdir    = '/usr/local/www/data-ebn/krazy/reports';
-  $comp       = 'kde-4.x';
+if ( hostname() =~ m/www/ ) {
+  $tempdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/temp';
+  $destdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/reports';
+  $comp       = 'kde-trunk';
   $module     = '';
-  $trunk      = '/usr/local/src';
-  $krazy      = '/usr/local/www/data-ebn/krazy/bin/krazy2';
-  $plgpth     = '/usr/local/www/data-ebn/krazy/lib/krazy2/krazy-plugins';
-  $xtrpth     = '/usr/local/www/data-ebn/krazy/lib/krazy2/krazy-extras';
-  $PSQL       = '/usr/local/bin/psql' if ( !$PSQL );
-  $md5        = '/sbin/md5';
-  $svn        = '/usr/local/bin/svnlook youngest';
-  $repos      = '/home/svn/home/kde';
+  $trunk      = '/mnt/ebn/src/kde-trunk';
+  $krazy      = '/mnt/ebn/bin/krazy2';
+  $plgpth     = '/mnt/ebn/lib/krazy2/krazy-plugins';
+  $xtrpth     = '/mnt/ebn/lib/krazy2/krazy-extras';
+  $PSQL       = '/usr/bin/psql' if ( !$PSQL );
+  $md5        = '/usr/bin/md5sum';
+  $svn        = '/usr/bin/svnlook youngest';
+  $repos      = '/mnt/ebn/svn/kde';
   $checks     = ''; # execute all checks.
-  $saxon      = '/usr/local/bin/saxon';
-  $stylesheet = '/usr/local/www/data-ebn/krazy/share/xsl/krazy-main.xsl';
-  $sloccount  = ''; # Not installed yet
+  $saxon      = '/usr/bin/saxon8';
+  $stylesheet = '/mnt/ebn/share/xsl/krazy-main.xsl';
+  $sloccount  = '/usr/bin/sloccount';
 } elsif ( hostname() =~/bertjan/ ) {
   # my system settings for testing
   # TODO: Make these settings properly configurable with a config file.
