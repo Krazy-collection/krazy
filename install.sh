@@ -189,12 +189,20 @@ rm -f $TOP/lib/krazy2/krazy-plugins/*/qconnect
 
 #permissions
 if ( test $EBN -eq 1 ) then
+  chgrp kde $TOP/bin/*
   chmod ug+w $TOP/bin/*
+  chgrp kde $TOP/lib/krazy2/krazy-plugins/*
   chmod ug+w $TOP/lib/krazy2/krazy-plugins/*
+  chgrp kde $TOP/lib/krazy2/krazy-plugins/*/*
   chmod ug+w $TOP/lib/krazy2/krazy-plugins/*/*
+  chgrp kde $TOP/lib/krazy2/krazy-extras/*
   chmod ug+w $TOP/lib/krazy2/krazy-extras/*
+  chgrp kde $TOP/lib/krazy2/krazy-extras/*/*
   chmod ug+w $TOP/lib/krazy2/krazy-extras/*/*
+  chgrp kde $TOP/lib/krazy2/krazy-helpers/*
   chmod ug+w $TOP/lib/krazy2/krazy-helpers/*
+  chgrp kde $TOP/lib/krazy2/krazy-sets/*
   chmod ug+w $TOP/lib/krazy2/krazy-sets/*
+  chgrp kde $TOP/lib/krazy2/krazy-sets/*/*
   chmod ug+w $TOP/lib/krazy2/krazy-sets/*/*
 fi
