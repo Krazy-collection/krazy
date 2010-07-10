@@ -116,7 +116,7 @@ if ( test $EBN -eq 0 ) then
   make distclean
   cd ../..
 else
-  if ( test ! -x /usr/local/bin/desktop-file-validate ) then
+  if ( test ! -x /usr/bin/desktop-file-validate ) then
     echo "Please install the desktop-file-utils package"
     echo "Exiting $0"
     exit 1
