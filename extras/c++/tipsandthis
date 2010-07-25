@@ -105,7 +105,7 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;  #skip C++ comments
 
   if ($line =~ m/new\sQ\w+/ || $line =~ m/new\s(KPIM::)*K(UrlRequester|ComboBox|LineEdit|TabBar|TextEdit|TimeEdit|DateEdit|Action)/) {
-    next if ($line =~ m/(Application|Buffer|Date|DBus|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|ActionCollection|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|Shortcut|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation|QGraphicsSimpleTextItem|SignalMapper|ScrollArea)/ && $line !~ m/(UrlRequester|LineEdit|ComboBox|TimeEdit|DateEdit|KAction)/);
+    next if ($line =~ m/(Application|Buffer|Date|DBus|Process|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|ActionCollection|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|Shortcut|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation|QGraphicsSimpleTextItem|SignalMapper|ScrollArea)/ && $line !~ m/(UrlRequester|LineEdit|ComboBox|TimeEdit|DateEdit|KAction)/);
     next if ($line =~ m/\(\s*new\s/ || $line =~ m/^\s*return\snew/);
 
     $sline = $line;
