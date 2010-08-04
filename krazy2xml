@@ -72,9 +72,9 @@ my ($sloccount);  # full path to sloccount executable
 if ( hostname() =~ m/www/ ) {
   $tempdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/temp';
   $destdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/reports';
-  $comp       = 'kde-trunk';
+  $comp       = 'kde-4.x';
   $module     = '';
-  $trunk      = '/mnt/ebn/src/kde-trunk';
+  $trunk      = '/mnt/ebn/src';
   $krazy      = '/mnt/ebn/bin/krazy2';
   $plgpth     = '/mnt/ebn/lib/krazy2/krazy-plugins';
   $xtrpth     = '/mnt/ebn/lib/krazy2/krazy-extras';
