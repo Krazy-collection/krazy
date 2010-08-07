@@ -1689,19 +1689,41 @@ I<finally, and importantly, the plugin must eliminate false positives as much as
 
 =head1 ENVIRONMENT
 
-KRAZY_PLUGIN_PATH - this is a colon-separated list of paths which is
+B<KRAZY_PLUGIN_PATH> - this is a colon-separated list of paths which is
 searched when locating plugins. By default, plugins are searched for in
 the path F<$TOP/lib/krazy2/krazy-plugins:krazy-plugins>.
 
-KRAZY_EXTRA_PATH - this is a colon-separated list of paths which is
+B<KRAZY_EXTRA_PATH> - this is a colon-separated list of paths which is
 searched when locating "extra" plugins. By default, the "extras" are searched
 for in the path F<$TOP/lib/krazy2/krazy-extras:krazy-extras>.
 
-KRAZY_SET_PATH - this is a colon-separated list of paths which is
+B<KRAZY_SET_PATH> - this is a colon-separated list of paths which is
 searched when locating checker sets. By default, the sets are searched
 for in the path F<$TOP/lib/krazy2/krazy-sets:krazy-sets>.
 
 where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/local/Krazy2>)
+
+B<KRAZY_STYLE_CPPSTYLE> - tells the "style" checker to follow the guidelines
+of the specified C++-style.  I<Note>: Krazy uses a heuristic to decide
+what type of C++-style to check against.  That heuristic isn't very smart;
+so use this setting to enforce the C++-style.
+
+C++-style must be one of the following:
+
+=over 2
+
+"kde" (default)
+
+"pim" kdepim style, see http://pim.kde.org/development/coding-korganizer.php
+
+=back
+
+B<KRAZY_STYLE_OFFSET> - tells the "style" checker to check for a basic
+indentation level, usually a small integer like 2 or 4. This value overrides
+the offset provided as part of the C++-style (see B<KRAZY_STYLE_CPPSTYLE>).
+
+B<KRAZY_STYLE_LINEMAX> - tells the "style" checker to check for lines longer
+than this number of characters.  The default is 100 characters.
 
 =head1 EXIT STATUS
 

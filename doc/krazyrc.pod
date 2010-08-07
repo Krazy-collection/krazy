@@ -35,13 +35,11 @@ I<Note>: the CHECK directive takes precedence over the EXCLUDE directive;
 i.e, plugins specified by the CHECK directive are always run, even if
 they are also specified in an EXCLUDE directive.
 
-
 =item CHECKSETS set1[,set2,...]
 
 Run the checker programs belonging to the specified set(s) only.
 You may not combine this with the CHECK directive nor with the B<--check> 
 command line option.
-
 
 =item EXTRA plugin1[,plugin2,...]
 
@@ -73,15 +71,21 @@ Set the strict value. Must be one of "normal", "super", "all".
 
 Set the output level. Must be one of "quiet", "brief", "all".
 
+=over 2
+
 "quiet" means no output is printed, even if --verbose is passed on the command line.
 
 "brief" will only print checker summaries if the check has at least 1 issue.
 
 "all" is the normal mode and prints all checker summaries
 
+=back
+
 =item EXPORT export-type
 
 Set the default export-type value. Must be one of the following:
+
+=over 2
 
 "text" (default)
 
@@ -91,13 +95,56 @@ Set the default export-type value. Must be one of the following:
 
 "xml" prints XML formatted intended for follow-on processing
 
+=back
+
+=item STYLE_CPPSTYLE C++-style
+
+Tell the "style" checker to follow the guidelines of the specified C++-style.
+
+C++-style must be one of the following:
+
+=over 2
+
+"kde" (default) 
+
+"pim" kdepim style, see http://pim.kde.org/development/coding-korganizer.php
+
+=back
+
+Note: Krazy uses a heuristic to decide what type of C++-style to check against.
+That heuristic isn't very smart; so use this setting to enforce the C++-style.
+
+Overrides the KRAZY_STYLE_CPPSTYLE environment variable, see krazy2(1).
+
+=item STYLE_OFFSET indent
+
+Tell the "style" checker to check for a basic indentation level, usually a
+small integer like 2 or 4.  This value overrides the offset provided as part
+of the C++-style (see STYLE_CPPSTYLE).
+
+Overrides the KRAZY_STYLE_OFFSET environment variable, see krazy2(1).
+
+=item STYLE_LINEMAX length
+
+Tell the "style" checker to check for lines longer than this number of characters.
+The default is 100 characters.
+
+Overrides the KRAZY_STYLE_LINEMAX environment variable, see krazy2(1).
+
+=back
+
+=head1 ADMIN DIRECTIVES
+
+This is a list of administrator directives used only by the krazy2xml(1) program
+and typically not interesting to the average user.
+
+=over 1
+
 =item IGNORESUBS subdir1[,subdir2,...]
 
 Do not run Krazy on the specified list of subdirectories.
 These must be KDE "project" subdirectories that reside at
 the top level of a KDE module.
-
-IGNORESUBS is an administrator directive used only by the krazy2xml(1) program.
 
 =item EXTRASUBS subdir1[,subdir2,...]
 
@@ -105,13 +152,11 @@ Run Krazy on the specified list of subdirectories.
 These must be KDE "project" subdirectories that reside at
 the top level of a KDE module.
 
-EXTRASUBS is an administrator directive used only by the krazy2xml(1) program.
-
 =item IGNOREMODS module1[,module2,...]
 
 Do not run Krazy on the specified list of KDE modules.
-
-IGNOREMODS is an administrator directive used only by the krazy2xml(1) program.
+These must be KDE "module" subdirectories that reside at
+the top level of a KDE component.
 
 =back
 

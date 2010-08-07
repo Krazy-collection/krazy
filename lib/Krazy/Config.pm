@@ -27,6 +27,7 @@ use strict;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 use Cwd;
 use Krazy::Utils;
+use Env qw (KRAZY_STYLE_CPPSTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
 
 use Exporter;
 $VERSION = 1.50;
@@ -56,6 +57,9 @@ $VERSION = 1.50;
 # IGNORESUBS subdir1[,subdir2,...]
 # EXTRASUBS subdir1[,subdir2,...]
 # IGNOREMODS module1[,module2,...]
+# STYLE_CPPSTYLE <kde|pim>
+# STYLE_OFFSET <integer > 0>
+# STYLE_LINEMAX <integer > 0>
 #
 # Multiple directives may be specified per file; they will be combined in
 # a logical way.
@@ -129,6 +133,10 @@ sub ParseKrazyRC {
       &types($arg, $linecnt, $rcfile );
     } elsif ( $directive eq "EXCLUDETYPES" ) {
       &excludeTypes($arg, $linecnt, $rcfile );
+    } elsif ( $directive eq "STYLE_CPPSTYLE" ||
+              $directive eq "STYLE_OFFSET" ||
+              $directive eq "STYLE_LINEMAX") {
+      &styleSettings( $directive, $arg, $linecnt, $rcfile );
     } else {
       print "Invalid directive $directive, line $linecnt, $rcfile\n";
       close(F);
@@ -230,6 +238,43 @@ sub excludeTypes {
     $rcExcTypes = $args;
   } else {
     $rcExcTypes .= "," . $args;
+  }
+}
+
+sub styleSettings {
+  my ($s, $args, $l, $f) = @_;
+  if ( !defined($args) ) {
+    print "missing $s arguments, line $l, $f\n";
+    exit 1;
+  }
+
+  if ($s eq "STYLE_CPPSTYLE") {
+    if ($args ne "kde" && $args ne "pim") {
+      print "invalid $s value \"$args\", line $l, $f\n";
+      print "legal values are: \"kde\" and \"pim\"\n";
+      exit 1;
+    } else {
+      $ENV{KRAZY_STYLE_CPPSTYLE} = $args;
+    }
+  } elsif ($s eq "STYLE_OFFSET") {
+    my ($offset) = sprintf("%d", $args);
+    if ($offset < 1) {
+      print "setting $s value less than 1, line $l, $f\n";
+      exit 1;
+    } else {
+      $ENV{KRAZY_STYLE_OFFSET} = $offset;
+    }
+  } elsif ($s eq "STYLE_LINEMAX") {
+    my ($max) = sprintf("%d",$args);
+    if ($max < 1) {
+      print "setting $s value less than 1, line $l, $f\n";
+      exit 1;
+    } else {
+      $ENV{KRAZY_STYLE_LINEMAX} = $max;
+    }
+  } else {
+    print "unknown style setting $s, line $l, $f\n";
+    exit 1;
   }
 }
 
