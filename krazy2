@@ -1712,7 +1712,7 @@ C++-style must be one of the following:
 
 =over 2
 
-"kde" (default)
+"kde" (default), see http://techbase.kde.org/Policies/Kdelibs_Coding_Style
 
 "pim" kdepim style, see http://pim.kde.org/development/coding-korganizer.php
 
