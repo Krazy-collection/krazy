@@ -96,6 +96,8 @@ while ($linecnt < $#lines) {
     }
     next if ($sep eq "\"");
     next if ($incpath =~ m:^(lib|kd)\w+/:);
+    next if ($incpath =~ m:^akonadi/kcal/:);
+    next if ($incpath =~ m:^phonon/:);
     next if (&isCamelCase($incpath));
     next if ($sep eq "<" && $incpath =~ m/^(c|io)/ && $incpath !~ m/\.h$/);
     next if ($sep eq "<" && $incpath =~ m/^config/ && $incpath =~ m/\.h$/);
