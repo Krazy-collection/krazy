@@ -181,9 +181,9 @@
         <div id="content">
           <div class="inside">
             <p style="font-size: x-small;font-style: sans-serif;">
-              <xsl:variable name="compurl" select="concat('/krazy2/index.php?component=',$component)" />
+              <xsl:variable name="compurl" select="concat('/krazy/index.php?component=',$component)" />
               <a href="/index.php">Home</a>&nbsp;&gt;&nbsp;
-              <a href="/krazy2/index.php">Krazy Code Checker</a>&nbsp;&gt;&nbsp;
+              <a href="/krazy/index.php">Krazy Code Checker</a>&nbsp;&gt;&nbsp;
               <a href="{$compurl}"><xsl:value-of select="$component" /></a>&nbsp;&gt;&nbsp;
               <a href="{concat($compurl, '&amp;module=', $module)}">
                 <xsl:value-of select="$module" /></a>&nbsp;&gt;&nbsp;
