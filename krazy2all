@@ -165,7 +165,7 @@ sub Help {
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
   print "         add the specified \"extra\" program(s) to the checker list\n";
   print "  --types <type[,type1,type2,...,typeN]>:\n";
-  print "            check the specifed file type(s) only\n";
+  print "            check the specified file type(s) only\n";
   print "  --exclude-types <type[,type1,type2,...,typeN]>:\n";
   print "            do NOT check the specified file type(s)\n";
   print "  --export <text|textlist|textedit|xml>\n";
@@ -286,7 +286,7 @@ will be marked with the tag [EXTRA] by the checker description line.
 
 =item B<--types> <type[,type1,type2,...,typeN]>
 
-Check the specifed file type(s) only.
+Check the specified file type(s) only.
 
 =item B<--exclude-types> <type[,type1,type2,...,typeN]>
 
