@@ -29,7 +29,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.85';    #split line so MakeMaker can find the version here
+ $VERSION = '2.90';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -37,6 +37,7 @@ my ($list)      = '';
 my ($listtypes) = '';
 my ($verbose)   = '';
 my ($ignorerc)  = '';
+my ($configf)   = '';
 my ($dryrun)    = '';
 my ($brief)     = '';
 my ($quiet)     = '';
@@ -60,6 +61,7 @@ exit 1
 		   'list-types'     => \$listtypes,
 		   'dry-run'        => \$dryrun,
 		   'ignorerc'       => \$ignorerc,
+                   'config=s'       => \$configf,
 		   'verbose'        => \$verbose,
 		   'brief'          => \$brief,
 		   'quiet'          => \$quiet,
@@ -106,6 +108,7 @@ if ($export && !&validateExportType($export)) {
 my ($opts) = "";
 $opts .= "--dry-run "                 if ($dryrun);
 $opts .= "--ignorerc "                if ($ignorerc);
+$opts .= "--config=$configf "         if ($configf);
 $opts .= "--brief "                   if ($brief);
 $opts .= "--quiet "                   if ($quiet);
 $opts .= "--verbose "                 if ($verbose);
@@ -138,49 +141,51 @@ sub Help {
   &Version();
   print "Run krazy2 on all the source in the current working directory\n\n";
   print "Usage: $Prog [OPTION]\n";
-  print "  --help    display help message and exit\n";
-  print "  --version display version information and exit\n";
-  print "  --list    list all the checker programs and exit\n";
+  print "  --help       display help message and exit\n";
+  print "  --version    display version information and exit\n";
+  print "  --list       list all the checker programs and exit\n";
   print "  --list-types list all the supported file types and exit\n";
   print "  --priority <low|normal|high|important|all>\n";
-  print "            report only issues with the specified priorities:\n";
-  print "              low -> print low priority issues only\n";
-  print "              normal -> print normal priority issues only\n";
-  print "              high -> print high priority issues only\n";
-  print "              important -> print issues with normal or high priority\n";
-  print "              all -> print all issues (default)\n";
-  print "            use priorities to help put the issues in fix-first order.\n";
+  print "               report only issues with the specified priorities:\n";
+  print "                 low -> print low priority issues only\n";
+  print "                 normal -> print normal priority issues only\n";
+  print "                 high -> print high priority issues only\n";
+  print "                 important -> print issues with normal or high priority\n";
+  print "                 all -> print all issues (default)\n";
+  print "               use priorities to help put the issues in fix-first order.\n";
   print "  --strict <normal|super|all>\n";
-  print "            report only issues matching the strictness level:\n";
-  print "              normal -> print non-super strict issues only\n";
-  print "              super -> print super strict issues only\n";
-  print "              all -> print all issues (default)\n";
-  print "            use strictness to help filter out issues of less importance\n";
+  print "               report only issues matching the strictness level:\n";
+  print "                 normal -> print non-super strict issues only\n";
+  print "                 super -> print super strict issues only\n";
+  print "                 all -> print all issues (default)\n";
+  print "               use strictness to help filter out issues of less importance\n";
   print "  --check <prog[,prog1,prog2,...,progN]>\n";
-  print "            run the specified sanity checker program(s) only\n";
+  print "               run the specified sanity checker program(s) only\n";
   print "  --check-sets <set[,set1,set2,...,setN]>\n";
-  print "            run the checker programs belonging to the specified set(s) only\n";
+  print "               run the checker programs belonging to the specified set(s) only\n";
   print "  --exclude <prog[,prog1,prog2,...,progN]>\n";
-  print "            do NOT run the specified checker program(s)\n";
+  print "               do NOT run the specified checker program(s)\n";
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
-  print "         add the specified \"extra\" program(s) to the checker list\n";
+  print "               add the specified \"extra\" program(s) to the checker list\n";
   print "  --types <type[,type1,type2,...,typeN]>:\n";
-  print "            check the specified file type(s) only\n";
+  print "               check the specified file type(s) only\n";
   print "  --exclude-types <type[,type1,type2,...,typeN]>:\n";
-  print "            do NOT check the specified file type(s)\n";
+  print "               do NOT check the specified file type(s)\n";
   print "  --export <text|textlist|textedit|xml>\n";
-  print "            output in one of the following formats:\n";
-  print "              text (default)\n";
-  print "              textlist -> plain old text, 1 offending file-per-line\n";
-  print "              textedit -> text formatted for IDEs, 1 issue-per-line\n";
-  print "              xml -> XML formatted\n";
-  print "  --title:  give the output a project title\n";
-  print "  --cms     component/module/subdir triple for XML\n";
-  print "  --ignorerc: ignore .krazy files\n";
-  print "  --dry-run don't execute the checks; only show what would be run\n";
-  print "  --brief:  print only checks with at least 1 issue\n";
-  print "  --quiet   suppress all output messages\n";
-  print "  --verbose print the offending content for each file processed\n";
+  print "               output in one of the following formats:\n";
+  print "                 text (default)\n";
+  print "                 textlist -> plain old text, 1 offending file-per-line\n";
+  print "                 textedit -> text formatted for IDEs, 1 issue-per-line\n";
+  print "                 xml -> XML formatted\n";
+  print "  --title:     give the output a project title\n";
+  print "  --cms        component/module/subdir triple for XML\n";
+  print "  --ignorerc:  ignore .krazy files\n";
+  print "  --config <krazyrc>\n";
+  print "               read settings from the specified config file\n";
+  print "  --dry-run    don't execute the checks; only show what would be run\n";
+  print "  --brief:     print only checks with at least 1 issue\n";
+  print "  --quiet      suppress all output messages\n";
+  print "  --verbose    print the offending content for each file processed\n";
   print "\n";
   exit 0 if $help;
 }
@@ -232,6 +237,12 @@ Print a list of the support file types and exit.
 =item B<--ignorerc>
 
 Ignore .krazy files.
+
+=item B<--config> <krazyrc>
+
+Read settings from the specified krazyrc configuration file only.
+All other configuration files will be ignored, including those
+found in the user's home directory or in the current working directory.
 
 =item B<--dry-run>
 

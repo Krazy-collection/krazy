@@ -20,10 +20,6 @@
 #                                                                             #
 ###############################################################################
 
-# TODO:
-#  --config=foo, read config file foo (and no other .krazy files)
-#  support more command line options in .krazy files (like <D>brief, <D>quiet, verbose,...)
-
 # Plugin-based: simply put your checker somewhere in $KRAZY_PLUGIN_PATH.
 # the checker program can be written in the language of your choice,
 # but it must follow the following rules:
@@ -53,52 +49,53 @@
 #      code is a problem, along with instructions on how to fix the code.
 #
 # Program options:
-#   --help:        display help message and exit
-#   --version:     display version information and exit
-#   --list:        print a list of all the checker programs
-#   --list-types:  print a list of all the supported file types
-#   --list-sets:   print a list of all the checker sets
-#   --explain:     if issues found, print an explanation along with
-#                  solving instructions at the end of each test
+#   --help:         display help message and exit
+#   --version:      display version information and exit
+#   --list:         print a list of all the checker programs
+#   --list-types:   print a list of all the supported file types
+#   --list-sets:    print a list of all the checker sets
+#   --explain:      if issues found, print an explanation along with
+#                   solving instructions at the end of each test
 #   --check <prog[,prog1,prog2,...,progN]>:
-#                  run the specified checker program(s) only
+#                   run the specified checker program(s) only
 #   --check-sets <set[,set1,set2,...,setN]>:
-#                  run the checker programs belonging to the specified set(s) only
+#                   run the checker programs belonging to the specified set(s) only
 #   --exclude <prog[,prog1,prog2,...,progN]>:
-#                  do NOT run the specified checker program(s)
+#                   do NOT run the specified checker program(s)
 #   --extra <prog[,prog1,prog2,...,progN]>:
-#                  add the specified "extra" program(s) to the list of checkers
+#                   add the specified "extra" program(s) to the list of checkers
 #   --types <type[,type1,type2,...,typeN]>:
-#                  check the specified file type(s) only
+#                   check the specified file type(s) only
 #   --exclude-types <type[,type1,type2,...,typeN]>:
-#                  do NOT check the specified file type(s)
+#                   do NOT check the specified file type(s)
 #   --priority <low|normal|high|important|all>
-#                  report only issues with the specified priorities:
-#                    low -> print low priority issues only
-#                    normal -> print normal priority issues only
-#                    high -> print high priority issues only
-#                    important -> print issues with normal or high priority
-#                    all -> print all issues (default)
-#                  use priorities to help put the issues in fix-first order.
+#                   report only issues with the specified priorities:
+#                     low -> print low priority issues only
+#                     normal -> print normal priority issues only
+#                     high -> print high priority issues only
+#                     important -> print issues with normal or high priority
+#                     all -> print all issues (default)
+#                   use priorities to help put the issues in fix-first order.
 #   --strict <normal|super|all>
-#                  report only issues matching the strictness level:
-#                    normal -> print non-super strict issues only
-#                    super -> print super strict issues only
-#                    all -> print all issues (default)
-#                  use strictness to help filter out issues of less importance
+#                   report only issues matching the strictness level:
+#                     normal -> print non-super strict issues only
+#                     super -> print super strict issues only
+#                     all -> print all issues (default)
+#                   use strictness to help filter out issues of less importance
 #   --export <text|textlist|textedit|xml>
-#                  output in one of the following formats:
-#                    text (default)
-#                    textlist -> plain old text, 1 offending file-per-line
-#                    textedit -> text formatted for IDEs, 1 issue-per-line
-#                    xml -> XML formatted
-#   --title:       give the output a project title.
-#   --rev:         subversion revision number
-#   --ignorerc:    ignore .krazy files
-#   --dry-run:     don't execute the checks; only show what would be run
-#   --brief:       print only checks with at least 1 issue
-#   --quiet:       suppress all output messages
-#   --verbose:     print the offending content for each file processed
+#                   output in one of the following formats:
+#                     text (default)
+#                     textlist -> plain old text, 1 offending file-per-line
+#                     textedit -> text formatted for IDEs, 1 issue-per-line
+#                     xml -> XML formatted
+#   --title:        give the output a project title.
+#   --rev:          subversion revision number
+#   --ignorerc:     ignore .krazy files
+#   --config <krazyrc> read settings from the specified config file
+#   --dry-run:      don't execute the checks; only show what would be run
+#   --brief:        print only checks with at least 1 issue
+#   --quiet:        suppress all output messages
+#   --verbose:      print the offending content for each file processed
 #
 use strict;
 use Getopt::Long;
@@ -118,7 +115,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.85';    #split line so MakeMaker can find the version here
+ $VERSION = '2.90';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -131,6 +128,7 @@ my ($quiet)     = '';
 my ($verbose)   = '';
 my ($dryrun)    = '';
 my ($ignorerc)  = '';
+my ($configf)   = '';
 my ($only)      = '';
 my ($checksets) = '';
 my ($exclude)   = '';
@@ -156,6 +154,7 @@ exit 1
        'list-sets'      => \$listsets,
        'dry-run'        => \$dryrun,
        'ignorerc'       => \$ignorerc,
+       'config=s'       => \$configf,
        'verbose'        => \$verbose,
        'brief'          => \$brief,
        'quiet'          => \$quiet,
@@ -378,28 +377,39 @@ $ds{'EXPORT'}       = $pds{'EXPORT'} = "";
 if ( !$ignorerc ) {
   my ($rcfile);
 
-  # read directives from the user' .krazy in their home dir.
-  $rcfile = "";
-  if ( defined($HOME) && $HOME ) { # just in case $HOME isn't set
-    $rcfile = $HOME . "/.krazy";
-  }
-  if ($rcfile && -f $rcfile) {
-    %ds = &ParseKrazyRC($rcfile);
-  }
-
-  # read directives from the project's .krazy
-  $rcfile = "";
-  my ($projpath) = &topProject($CWD);
-  if ($projpath) {
-    $rcfile = $projpath . "/.krazy";
-  } else {
-    if (!&topModule($CWD)) {
-      #not in a KDE project dir, so use the one in cwd
-      $rcfile = $CWD . "/.krazy";
+  if ($configf) {
+    $configf = glob($configf);
+    # read directives from the specified config file
+    if (! -f $configf) {
+      print "Specified config file \"$configf\" does not exist or is not readable.\n";
+      exit 1;
+    } else {
+      %ds = &ParseKrazyRC($configf);
     }
-  }
-  if ($rcfile && -f $rcfile) {
-    %pds = &ParseKrazyRC($rcfile);
+  } else {
+    # read directives from the user' .krazy in their home dir.
+    $rcfile = "";
+    if ( defined($HOME) && $HOME ) { # just in case $HOME isn't set
+      $rcfile = $HOME . "/.krazy";
+    }
+    if ($rcfile && -f $rcfile) {
+      %ds = &ParseKrazyRC($rcfile);
+    }
+
+    # read directives from the project's .krazy
+    $rcfile = "";
+    my ($projpath) = &topProject($CWD);
+    if ($projpath) {
+      $rcfile = $projpath . "/.krazy";
+    } else {
+      if (!&topModule($CWD)) {
+        #not in a KDE project dir, so use the one in cwd
+        $rcfile = $CWD . "/.krazy";
+      }
+    }
+    if ($rcfile && -f $rcfile) {
+      %pds = &ParseKrazyRC($rcfile);
+    }
   }
 
   #Merge the directives from the possible 2 .krazy files
@@ -840,51 +850,53 @@ sub Help {
   print "A KDE source code sanitizer.\n\n";
   print "Usage: $Prog [OPTION] [FILES]\n\n";
   print "When FILE is - read a list of files (1 file per line) from standard input.\n\n";
-  print "  --help    display help message and exit\n";
-  print "  --version display version information and exit\n";
-  print "  --list    print a list of all the checker programs\n";
+  print "  --help       display help message and exit\n";
+  print "  --version    display version information and exit\n";
+  print "  --list       print a list of all the checker programs\n";
   print "  --list-types print a list of all the supported file types\n";
   print "  --list-sets  print a list of all the checker sets\n";
   print "  --priority <low|normal|high|important|all>\n";
-  print "            report only issues with the specified priorities:\n";
-  print "              low -> print low priority issues only\n";
-  print "              normal -> print normal priority issues only\n";
-  print "              high -> print high priority issues only\n";
-  print "              important -> print issues with normal or high priority\n";
-  print "              all -> print all issues (default)\n";
-  print "            use priorities to help put the issues in fix-first order.\n";
+  print "               report only issues with the specified priorities:\n";
+  print "                 low -> print low priority issues only\n";
+  print "                 normal -> print normal priority issues only\n";
+  print "                 high -> print high priority issues only\n";
+  print "                 important -> print issues with normal or high priority\n";
+  print "                 all -> print all issues (default)\n";
+  print "               use priorities to help put the issues in fix-first order.\n";
   print "  --strict <normal|super|all>\n";
-  print "            report only issues matching the strictness level:\n";
-  print "              normal -> print non-super strict issues only\n";
-  print "              super -> print super strict issues only\n";
-  print "              all -> print all issues (default)\n";
-  print "            use strictness to help filter out issues of less importance\n";
-  print "  --explain print explanations with solving instructions\n";
+  print "               report only issues matching the strictness level:\n";
+  print "                 normal -> print non-super strict issues only\n";
+  print "                 super -> print super strict issues only\n";
+  print "                 all -> print all issues (default)\n";
+  print "               use strictness to help filter out issues of less importance\n";
+  print "  --explain    print explanations with solving instructions\n";
   print "  --check <prog[,prog1,prog2,...,progN]>\n";
-  print "            run the specified checker program(s) only\n";
+  print "               run the specified checker program(s) only\n";
   print "  --check-sets <set[,set1,set2,...,setN]>\n";
-  print "            run the checker programs belonging to the specified set(s) only\n";
+  print "               run the checker programs belonging to the specified set(s) only\n";
   print "  --exclude <prog[,prog1,prog2,...,progN]>\n";
-  print "            do NOT run the specified checker program(s)\n";
+  print "               do NOT run the specified checker program(s)\n";
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
-  print "            add the specified \"extra\" program(s) to the checker list\n";
+  print "               add the specified \"extra\" program(s) to the checker list\n";
   print "  --types <type[,type1,type2,...,typeN]>:\n";
-  print "            check the specified file type(s) only\n";
+  print "               check the specified file type(s) only\n";
   print "  --exclude-types <type[,type1,type2,...,typeN]>:\n";
-  print "            do NOT check the specified file type(s)\n";
+  print "               do NOT check the specified file type(s)\n";
   print "  --export <text|textlist|textedit|xml>\n";
-  print "            output in one of the following formats:\n";
-  print "              text (default)\n";
-  print "              textlist -> plain old text, 1 offending file-per-line\n";
-  print "              textedit -> text formatted for IDEs, 1 issue-per-line\n";
-  print "              xml -> XML formatted\n";
-  print "  --title   give the output a project title\n";
-  print "  --rev:    subversion revision number\n";
-  print "  --ignorerc: ignore .krazy files\n";
-  print "  --dry-run don't execute the checks; only show what would be run\n";
-  print "  --brief:  print only checks with at least 1 issue\n";
-  print "  --quiet   suppress all output messages\n";
-  print "  --verbose print the offending content for each file processed\n";
+  print "               output in one of the following formats:\n";
+  print "                 text (default)\n";
+  print "                 textlist -> plain old text, 1 offending file-per-line\n";
+  print "                 textedit -> text formatted for IDEs, 1 issue-per-line\n";
+  print "                 xml -> XML formatted\n";
+  print "  --title      give the output a project title\n";
+  print "  --rev:       subversion revision number\n";
+  print "  --ignorerc:  ignore .krazy files\n";
+  print "  --config <krazyrc>\n";
+  print "               read settings from the specified configfile\n";
+  print "  --dry-run    don't execute the checks; only show what would be run\n";
+  print "  --brief:     print only checks with at least 1 issue\n";
+  print "  --quiet      suppress all output messages\n";
+  print "  --verbose    print the offending content for each file processed\n";
   print "\n";
   exit 0 if $help;
 }
@@ -1426,6 +1438,12 @@ checker programs.
 =item B<--ignorerc>
 
 Ignore .krazy files.
+
+=item B<--config> <krazyrc>
+
+Read settings from the specified krazyrc configuration file only.
+All other configuration files will be ignored, including those
+found in the user's home directory or in the current working directory.
 
 =item B<--dry-run>
 
