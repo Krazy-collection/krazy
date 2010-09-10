@@ -603,6 +603,7 @@ foreach $line (@lines) {
        ($line =~ m/^\s*protected\sslots\s*:/ && $line !~ m/\s{2}protected/) ||
        ($line =~ m/^\s*protected\sQ_SLOTS\s*:/ && $line !~ m/\s{2}protected/) ||
        ($line =~ m/^\s*signals\s*:/ && $line !~ m/\s{2}signals/) ||
+       ($line =~ m/^\s*Q_OBJECT\s*:/ && $line !~ m/\s{2}Q_OBJECT/) ||
        ($line =~ m/^\s*k_dcop_signals\s*:/ && $line !~ m/\s{2}k_dcop_signals/) ||
        ($line =~ m/^\s*Q_SIGNALS\s*:/ && $line !~ m/\s{2}Q_SIGNALS/))
      ) {

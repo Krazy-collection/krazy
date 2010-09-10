@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.21";
+my($Version) = "1.22";
 
 &parseArgs();
 
@@ -104,6 +104,12 @@ while ($linecnt < $#lines) {
     next if ($sep eq "<" && $incpath =~ m/^ical/);
     next if ($sep eq "<" && $incpath =~ m/^uuid/);
     next if ($sep eq "<" && $incpath =~ m/^algorithm/);
+    next if ($sep eq "<" && $incpath =~ m/^calendarsupport/);
+    next if ($sep eq "<" && $incpath =~ m/^messagecomposer/);
+    next if ($sep eq "<" && $incpath =~ m/^messagecore/);
+    next if ($sep eq "<" && $incpath =~ m/^messagelist/);
+    next if ($sep eq "<" && $incpath =~ m/^messageviewer/);
+    next if ($sep eq "<" && $incpath =~ m/^incidenceeditor/);
     next if ($incpath eq "kdemacros.h");
 
     $cnt++;
