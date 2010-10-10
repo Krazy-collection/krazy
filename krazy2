@@ -1774,7 +1774,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 =head1 FILES
 
-F<.krazy> (see krazyrc(5))
+F<.krazy> (see krazyrc(3))
 
 krazy2 first parses a F<.krazy> file found in the user's home directory,
 if such a file exists.
@@ -1798,7 +1798,7 @@ within the KDE directory structure but above a project subdir
 
 =head1 SEE ALSO
 
-krazyrc(5), krazy2all(1), krazy2xml(1)
+krazyrc(3), krazy2all(1), krazy2xml(1)
 
 Ben Meyer's kdetestscripts - Automated scripts are to catch problems in KDE,
 L<http://websvn.kde.org/trunk/playground/base/kdetestscripts>.

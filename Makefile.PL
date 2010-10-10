@@ -26,6 +26,7 @@ WriteMakefile(
 	      'VERSION_FROM'    => 'krazy2',
 	      'ABSTRACT_FROM'   => 'krazy2',
 	      'EXE_FILES'       => ['krazy2','krazy2all','krazy2xml'],
+              'MAN3PODS'        => { 'doc/krazyrc.pod' => 'blib/man3/krazyrc.3' },
 	      'NORECURS'        => 1,
 	      'PREREQ_FATAL'    => true,
 	      'PREREQ_PM'       => { "HTML::Parser" => 2.20,

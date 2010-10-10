@@ -381,7 +381,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 =head1 FILES
 
-F<.krazy> (see krazyrc(5))
+F<.krazy> (see krazyrc(3))
 
 krazy2all looks up the current working directory tree for a F<.krazy> file
 in the project subdirectory.  Only F<.krazy> files found at the project
@@ -398,7 +398,7 @@ working dir is above a project subdir, then a F<.krazy> file will not be read.
 
 =head1 SEE ALSO
 
-krazyrc(5), krazy2(1), krazy2xml(1)
+krazyrc(3), krazy2(1), krazy2xml(1)
 
 =head1 AUTHORS
 

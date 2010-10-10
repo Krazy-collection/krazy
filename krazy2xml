@@ -889,7 +889,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 =head1 FILES
 
-krazyrc(5) files are processed in descending hierarchical order
+krazyrc(3) files are processed in descending hierarchical order
 with each sublevel setting appending in a logical way to the previous
 level settings. The following files are read:
  F<component/.krazy>
@@ -898,7 +898,7 @@ level settings. The following files are read:
 
 =head1 SEE ALSO
 
-krazyrc(5), krazy2(1), krazy2all(1)
+krazyrc(3), krazy2(1), krazy2all(1)
 
 =head1 AUTHORS
 

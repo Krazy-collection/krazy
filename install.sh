@@ -181,12 +181,6 @@ cd stylesheets && \
 cp *.xsl $TOP/share/xsl
 cd ..
 
-#build and install extra docs
-cd doc && \
-make install PREFIX=$TOP && \
-make realclean
-cd ..
-
 #remove old checkers no longer in use
 rm -f $TOP/lib/krazy2/krazy-plugins/*/contractions
 rm -f $TOP/lib/krazy2/krazy-plugins/*/qconnect
