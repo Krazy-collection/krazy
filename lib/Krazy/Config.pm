@@ -110,7 +110,7 @@ sub ParseKrazyRC {
     } elsif ( $directive eq "CHECK" ) {
       &checks($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "CHECKSETS" ) {
-      &checksets($arg, $linecnt, $rcfile);
+      &checkSets($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "EXCLUDE" ) {
       &excludes($arg, $linecnt, $rcfile);
     } elsif ( $directive eq "IGNORESUBS" ) {
