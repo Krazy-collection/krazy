@@ -32,7 +32,6 @@
 #        --priority:  print issues with the specified priority only
 #        --strict:    print issues according to the specified strictness
 #        --explain:   print an explanation with solving instructions
-#        --brief:     print only checks with at least 1 issue
 #        --quiet:     suppress all output messages
 #        --verbose:   print the offending content for each file processed
 #        --installed: file is to be installed.
@@ -94,6 +93,7 @@
 #   --config <krazyrc> read settings from the specified config file
 #   --dry-run:      don't execute the checks; only show what would be run
 #   --brief:        print only checks with at least 1 issue
+#   --no-brief:     print the result of all checks i.e, the opposite of brief (default)
 #   --quiet:        suppress all output messages
 #   --verbose:      print the offending content for each file processed
 #
@@ -115,7 +115,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.90';    #split line so MakeMaker can find the version here
+ $VERSION = '2.91';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -124,6 +124,7 @@ my ($list)      = '';
 my ($listtypes) = '';
 my ($listsets)  = '';
 my ($brief)     = '';
+my ($nobrief)   = '';
 my ($quiet)     = '';
 my ($verbose)   = '';
 my ($dryrun)    = '';
@@ -157,6 +158,7 @@ exit 1
        'config=s'       => \$configf,
        'verbose'        => \$verbose,
        'brief'          => \$brief,
+       'no-brief'       => \$nobrief,
        'quiet'          => \$quiet,
        'check=s'        => \$only,
        'check-sets=s'   => \$checksets,
@@ -445,6 +447,7 @@ $export    = $ds{'EXPORT'}       if (!$export    && $ds{'EXPORT'});
 $export = "text" if (!$export);
 $quiet = 1 if ( !$quiet && $output eq "quiet" );
 $brief = 1 if ( !$brief && $output eq "brief" );
+$brief = 0 if ( $nobrief );
 
 # if ($verbose) {
 #    print "\nDirectives:\n";
@@ -895,6 +898,7 @@ sub Help {
   print "               read settings from the specified configfile\n";
   print "  --dry-run    don't execute the checks; only show what would be run\n";
   print "  --brief:     print only checks with at least 1 issue\n";
+  print "  --no-brief:  print the result of all checks i.e, the opposite of brief (default)\n";
   print "  --quiet      suppress all output messages\n";
   print "  --verbose    print the offending content for each file processed\n";
   print "\n";
@@ -1511,6 +1515,11 @@ Subversion revision number to be printed on the output report, if provided.
 =item B<--brief>
 
 Only print the output for checkers that have at least 1 issue.
+
+=item B<--no-brief>
+
+Print the result of all checks i.e, the opposite of B<--brief>.
+This is the default output setting.
 
 =item B<--quiet>
 

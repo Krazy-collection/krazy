@@ -29,7 +29,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.90';    #split line so MakeMaker can find the version here
+ $VERSION = '2.91';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -40,6 +40,7 @@ my ($ignorerc)  = '';
 my ($configf)   = '';
 my ($dryrun)    = '';
 my ($brief)     = '';
+my ($nobrief)   = '';
 my ($quiet)     = '';
 my ($priority)  = '';
 my ($strict)    = '';
@@ -64,6 +65,7 @@ exit 1
                    'config=s'       => \$configf,
 		   'verbose'        => \$verbose,
 		   'brief'          => \$brief,
+                   'no-brief'       => \$nobrief,
 		   'quiet'          => \$quiet,
 		   'priority=s'     => \$priority,
 		   'strict=s'       => \$strict,
@@ -110,6 +112,7 @@ $opts .= "--dry-run "                 if ($dryrun);
 $opts .= "--ignorerc "                if ($ignorerc);
 $opts .= "--config=$configf "         if ($configf);
 $opts .= "--brief "                   if ($brief);
+$opts .= "--no-brief "                if ($nobrief);
 $opts .= "--quiet "                   if ($quiet);
 $opts .= "--verbose "                 if ($verbose);
 $opts .= "--check=$check "            if ($check);
@@ -184,6 +187,7 @@ sub Help {
   print "               read settings from the specified config file\n";
   print "  --dry-run    don't execute the checks; only show what would be run\n";
   print "  --brief:     print only checks with at least 1 issue\n";
+  print "  --no-brief:  print the result of all checks i.e, the opposite of brief (default)\n";
   print "  --quiet      suppress all output messages\n";
   print "  --verbose    print the offending content for each file processed\n";
   print "\n";
@@ -324,6 +328,11 @@ module, and subdir which is being scanned.
 =item B<--brief>
 
 Only print the output for checkers that have at least 1 issue.
+
+=item B<--no-brief>
+
+Print the result of all checks i.e, the opposite of B<--brief>.
+This is the default output setting.
 
 =item B<--quiet>
 
