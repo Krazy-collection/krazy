@@ -51,6 +51,7 @@ sub tweakPath {
     $in =~ s+/kdebase/apps/+/kdebase-apps/+;
     $in =~ s+/kdebase/runtime/+/kdebase-runtime/+;
     $in =~ s+/kdebase/workspace/+/kdebase-workspace/+;
+    $in =~ s+/kdepim/runtime/+/kdepim-runtime/+;
     return "$in";
   } else {
     return "";

@@ -54,6 +54,9 @@
         <xsl:when test="matches($module, 'kdebase-workspace')">
           <xsl:value-of select="'kdebase/workspace'"/>
         </xsl:when>
+        <xsl:when test="matches($module, 'kdepim-runtime')">
+          <xsl:value-of select="'kdepim/runtime'"/>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$module" />
         </xsl:otherwise>

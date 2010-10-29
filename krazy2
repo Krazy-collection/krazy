@@ -202,6 +202,7 @@ my ($CWD)          = getcwd;
 $CWD =~ s+/kdebase/apps/+/kdebase-apps/+;
 $CWD =~ s+/kdebase/runtime/+/kdebase-runtime/+;
 $CWD =~ s+/kdebase/workspace/+/kdebase-workspace/+;
+$CWD =~ s+/kdepim/runtime/+/kdepim-runtime/+;
 
 # Checkers hash has a list of all the plugins, by file type we support.
 tie my (%Checkers),  "Tie::IxHash";
