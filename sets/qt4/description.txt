@@ -1,1 +1,1 @@
-Qt4 source (C++, QML, Qt Designer)
+Qt4 source (C++, QML, Qt Designer, Qt Doc)

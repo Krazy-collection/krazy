@@ -934,6 +934,7 @@ sub initCheckers {
     'kpartgui'  => [],
     'tips'      => [],
     'qml'       => [],
+    'qdoc'      => [],
   );
   my ($type);
   foreach $type ( keys %Checkers ) {

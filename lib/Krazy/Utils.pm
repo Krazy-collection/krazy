@@ -29,7 +29,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.13;
+$VERSION = 1.14;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath Exit
@@ -195,6 +195,8 @@ sub fileType {
     return "tips";
   } elsif ( $f =~ m/\.qml$/ ) {
     return "qml";
+  } elsif ( $f =~ m/.qdoc$/ ) {
+    return "qdoc";
   }
   return "";
 }
@@ -220,6 +222,8 @@ sub fileTypeDesc {
     return "KDE tip-of-the-day files";
   } elsif ( $t eq "qml") {
     return "Qt Declarative UI files";
+  } elsif ( $t eq "qdoc" ) {
+    return "Qt documentation files";
   }
   return "";
 }

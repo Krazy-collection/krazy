@@ -34,11 +34,14 @@ qobject \
 spelling \
 typedefs \
 
-# lines to qml plugins
+# links to qml plugins
 QML_PLUGINS = \
 
-# lines to designer plugins
+# links to designer plugins
 UI_PLUGINS = \
+
+# links to qdoc plugins
+QDOC_PLUGINS = \
 
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/qt4
@@ -64,7 +67,10 @@ install::
 		echo "Installing qt4 set designer plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/designer/$$plugin $(DESTDIR)$(INSTDIR)/designer-$$plugin; \
 	done
-
+	list="$(QDOC_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing qt4 set qdoc plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/qdoc/$$plugin $(DESTDIR)$(INSTDIR)/qdoc-$$plugin; \
+	done
 
 clean:
 	@echo "Nothing to clean"
