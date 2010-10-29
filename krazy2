@@ -115,7 +115,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.91';    #split line so MakeMaker can find the version here
+ $VERSION = '2.92';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -216,9 +216,9 @@ tie my (%pCheckers), "Tie::IxHash";    # the final list
 tie my (%Sets), "Tie::IxHash";
 &initSets();
 
-############################################################
-# This section builds the list of checker programs to run. #
-############################################################
+######################################################################
+# This section builds the list of checker programs and checker sets. #
+######################################################################
 $KRAZY_PLUGIN_PATH =
   "$KRAZYPATH/lib64/krazy2/krazy-plugins:" .
   "$KRAZYPATH/lib/krazy2/krazy-plugins:"
@@ -296,64 +296,9 @@ foreach $set ( keys %Sets ) {
   }
 }
 
-# Generate a list of all the checker programs in the specified sets.
-my($prog,@set_progs);
-if ($checksets) {
-  foreach $set ( split( ",", $checksets ) ) {
-    if (!defined($Sets{$set})) {
-      print "No such check set \"$set\".\n";
-      print "Run $Prog --list-sets to see the list of available check sets.\n";
-      exit 1;
-    }
-    foreach $prog ( @{ $Sets{$set} } ) {
-      push( @set_progs, &basename($prog));
-    }
-  }
-  @set_progs = deDupe(@set_progs);
-}
-
-# Now subtract away the checkers that aren't found in the check sets.
-if ($checksets) {
-  my ($tprog,$sprog);
-  foreach $type ( keys %Checkers ) {
-    splice @tmp;
-    foreach $tprog ( @{ $Checkers{$type} } ) {
-      foreach $sprog ( @set_progs) {
-        my($st,$sp) = split("-",$sprog);
-        next unless ($st eq $type);
-        if ( &basename($tprog) eq $sp ) {
-          push( @tmp, $tprog);
-          last;
-        }
-      }
-    }
-    @{ $Checkers{$type} } = @tmp;
-  }
-}
-
-# Generate a hash of arrays containing the extra plugins for each supported type
-my ( $xp, @extra_paths );
-for $xp ( split( /:/, $KRAZY_EXTRA_PATH ) ) {
-  push( @extra_paths, $xp ) if ( -d $xp );
-}
-foreach $type ( keys %xCheckers ) {
-  splice @tpaths;
-  for $xp (@extra_paths) {
-    if ( -d "$xp/$type" ) {
-      push( @tpaths, "$xp/$type" );
-    }
-  }
-  if ( $#tpaths >= 0 ) {
-    @tmp = ();
-    find( \&buildExtraList, @tpaths );
-
-    sub buildExtraList {
-      -x && !-d && push( @tmp, $File::Find::name );
-    }
-    push @{ $xCheckers{$type} }, @tmp;
-  }
-}
-
+###############################################################
+# Invoke the --list options, which all exit after completing. #
+###############################################################
 # Print the list of available checker programs and exit.
 &List() if $list;
 
@@ -363,6 +308,9 @@ foreach $type ( keys %xCheckers ) {
 # Print the list of checker sets and exit.
 &ListSets() if $listsets;
 
+###############################################
+# This section parses the krazy config files. #
+###############################################
 # Parse .krazy file(s)
 my(%ds,%pds);
 $ds{'EXTRA'}        = $pds{'EXTRA'} = "";
@@ -463,6 +411,69 @@ $brief = 0 if ( $nobrief );
 #    print "OUTPUT $output\n"       if ($output);
 #    print "EXPORT $export\n"       if ($export);
 # }
+
+###########################################################################
+# Now, we munge together all the options to include and exclude checkers, #
+# and support checkset and extra checkers.                                #
+###########################################################################
+
+# Generate a list of all the checker programs in the specified sets.
+my($prog,@set_progs);
+if ($checksets) {
+  foreach $set ( split( ",", $checksets ) ) {
+    if (!defined($Sets{$set})) {
+      print "No such check set \"$set\".\n";
+      print "Run $Prog --list-sets to see the list of available check sets.\n";
+      exit 1;
+    }
+    foreach $prog ( @{ $Sets{$set} } ) {
+      push( @set_progs, &basename($prog));
+    }
+  }
+  @set_progs = deDupe(@set_progs);
+}
+
+# Now subtract away the checkers that aren't found in the check sets.
+if ($checksets) {
+  my ($tprog,$sprog);
+  foreach $type ( keys %Checkers ) {
+    splice @tmp;
+    foreach $tprog ( @{ $Checkers{$type} } ) {
+      foreach $sprog ( @set_progs) {
+        my($st,$sp) = split("-",$sprog);
+        next unless ($st eq $type);
+        if ( &basename($tprog) eq $sp ) {
+          push( @tmp, $tprog);
+          last;
+        }
+      }
+    }
+    @{ $Checkers{$type} } = @tmp;
+  }
+}
+
+# Generate a hash of arrays containing the extra plugins for each supported type
+my ( $xp, @extra_paths );
+for $xp ( split( /:/, $KRAZY_EXTRA_PATH ) ) {
+  push( @extra_paths, $xp ) if ( -d $xp );
+}
+foreach $type ( keys %xCheckers ) {
+  splice @tpaths;
+  for $xp (@extra_paths) {
+    if ( -d "$xp/$type" ) {
+      push( @tpaths, "$xp/$type" );
+    }
+  }
+  if ( $#tpaths >= 0 ) {
+    @tmp = ();
+    find( \&buildExtraList, @tpaths );
+
+    sub buildExtraList {
+      -x && !-d && push( @tmp, $File::Find::name );
+    }
+    push @{ $xCheckers{$type} }, @tmp;
+  }
+}
 
 my ($p);
 ## process extras
