@@ -1,0 +1,187 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2010 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for improperly initialized global static objects.
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "staticobjects";
+my($Version) = "0.1";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); Exit 0; }
+
+my($f) = $ARGV[0];
+
+# open file and slurp it in (C++ only)
+if (&fileType($f) eq "c++" && ($f !~ m/\.c$/ && $f !~ m/\.h$/ && $f !~ m/\.hxx$/)) {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+my(@data_lines) = <F>;
+close(F);
+
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+
+#remove cpp directives
+my($i)=0;
+while($i <= $#lines) {
+  $lines[$i] = "\n" if ($lines[$i] =~ m/^[[:space:]]*#/);
+  $i++;
+}
+
+#todo
+#static const char* endoscope_flagged_locations[endoscope_flagged_locations_count] = {0};
+#static char** s_qt_argv;
+
+# we don't know enums so that's a false positive we can't do anything about except to hardcode
+my($enum)="KdeLibraryPathsAdded";
+my($cpod)="unsigned char|char|QChar|wchar_t";
+my($ipod)="int|uint|uint32_t|qint8|quint8|qint16|quint16|qint32|quint32|quint64|qint64|unsigned|unsigned int|unsigned long|GLint|GLuint|ulong|long|pid_t";
+my($fpod)="float|double|qreal";
+my($pods)="$cpod" . "|" . "$ipod" . "|" . "$fpod";
+my($containers)="QHash|QMap";
+
+my($floatre) = "[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?";
+
+# Check Condition
+my($cnt) = 0;
+my($linecnt) = 0;
+my($line);
+my($lstr) = "";
+my($bc) = 0; #brace count
+
+while ($linecnt < $#lines) {
+  $line = $lines[$linecnt++];
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $cnt = 0;
+    last;
+  }
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  $bc += ($line =~ tr/{//);
+  $bc -= ($line =~ tr/}//);
+
+  if ($bc == 0 && $line =~ m/^\s*static\s/) {
+    next unless (searchBackWithStop("}",$linecnt-1,25,"{"));
+    next unless ($line =~ m/;\s*$/);
+
+    next if ($line =~ m/\)\s*;\s*$/ && $line !~ m/=/);  #probable function declaration
+
+    next if ($line =~ m/(const|\s)($pods)\s+\w+\s*;\s*$/);
+
+    next if ($line =~ m/=\s*(0|NULL)\s*;\s*$/);
+
+    next if ($line =~ m/\s($enum)\s\w+\s*=\s*\w+\s*;/); #enum assignment
+
+    next if ($line =~ m/(const|\s)bool\s+\w+\s*=\s*(true|false)/);
+    next if ($line =~ m/(const|\s)($cpod)\s+\w+\[\]\s*=\s*(L)?\"/);
+    next if ($line =~ m/(const|\s)($cpod)\s+\w+\[.*\]\s*=\s*(L)?\"/);
+
+    next if ($line =~ m/(const|\s)($ipod)\s+\w+\s*=\s*\w+/);
+    next if ($line =~ m/(const|\s)($fpod)\s+\w+\s*=\s$floatre/);
+
+    next if ($line =~ m/(const|\s)($pods)\s+\w+\s*\[.*\]\s*=\s*{/);
+    next if ($line =~ m/(const|\s)($pods)\s+\w+\s*\[.*\]\s*;\s*$/);
+
+    next if ($line =~ m/(const|\s)($containers)\s*</);
+
+    $cnt++;
+    if ($cnt == 1) {
+      $lstr = "line\#" . $linecnt;
+    } else {
+      $lstr = $lstr . "," . $linecnt;
+    }
+    print "=> $line\n" if (&verboseArg());
+  }
+}
+
+if (!$cnt) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+} else {
+  print "$lstr ($cnt)\n" if (!&quietArg());
+  Exit $cnt;
+}
+
+sub Help {
+  print "Check for improperly initialized global static objects\n";
+  Exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  Exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Global static objects in libraries should be avoided. You never know when the constructor will be run or if it will be run at all. See <http://techbase.kde.org/Policies/Library_Code_Policy#Static_Objects> for more info.";
+  Exit 0 if &explainArg();
+}
+
+# search the previous $n lines for a pattern $p
+# but stop if we encounter $s
+sub searchBackWithStop {
+  my($p,$l,$n,$s) = @_;
+  my($i);
+  $n = $#lines if ($#lines < $n);
+  for($i=1; $i<=$n; $i++) {
+    if ($lines[$l-$i] =~ $s) {
+      # stop searching
+      return 0;
+    }
+    if ($lines[$l-$i] =~ $p) {
+      # got a match
+      return 1;
+    }
+  }
+  return 1;
+}
+

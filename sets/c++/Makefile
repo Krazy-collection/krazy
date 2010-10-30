@@ -22,6 +22,7 @@ constref \
 explicit \
 operators \
 postfixop \
+staticobjects \
 
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/c++

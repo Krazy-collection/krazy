@@ -32,6 +32,7 @@ postfixop \
 qminmax \
 qobject \
 spelling \
+staticobjects \
 typedefs \
 
 # links to qml plugins

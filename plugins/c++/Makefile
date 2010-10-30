@@ -39,6 +39,7 @@ qminmax \
 qobject \
 qbytearray \
 sigsandslots \
+staticobjects \
 strings \
 syscalls \
 typedefs \

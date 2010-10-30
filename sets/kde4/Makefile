@@ -47,6 +47,7 @@ qminmax \
 qobject \
 sigsandslots \
 spelling \
+staticobjects \
 strings \
 syscalls \
 typedefs \
