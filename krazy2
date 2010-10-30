@@ -1081,8 +1081,8 @@ sub ListSets {
       $use = "(no description available)" if ( length($use) < 4 );
 
       $prprog = &basename($prog);
-      $prprog =~ s/^.*-//;
-      printf( "%18.18s: %s\n", $prprog, $use );
+#      $prprog =~ s/^.*-//;
+      printf( "%20.20s: %s\n", $prprog, $use );
     }
     print "\n";
   }
