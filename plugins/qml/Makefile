@@ -21,10 +21,11 @@ PLUGINS = \
 
 # links to general purpose plugins
 PLUGINLNS = \
+copyright \
 iconnames \
 endswithnewline \
 license \
-spelling
+spelling \
 
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/qml

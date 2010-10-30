@@ -36,12 +36,18 @@ typedefs \
 
 # links to qml plugins
 QML_PLUGINS = \
+endswithnewline \
+spelling \
 
 # links to designer plugins
 UI_PLUGINS = \
+endswithnewline \
+spelling \
 
 # links to qdoc plugins
 QDOC_PLUGINS = \
+endswithnewline \
+spelling \
 
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/qt4

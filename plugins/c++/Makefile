@@ -20,7 +20,6 @@
 PLUGINS = \
 captruefalse \
 constref \
-copyright \
 cpp \
 crashy \
 doublequote_chars \
@@ -46,6 +45,7 @@ typedefs \
 
 # links to general purpose plugins
 PLUGINLNS = \
+copyright \
 endswithnewline \
 i18ncheckarg \
 iconnames \

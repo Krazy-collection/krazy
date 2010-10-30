@@ -53,22 +53,37 @@ typedefs \
 
 # links to designer plugins
 UI_PLUGINS = \
+endswithnewline \
 fixuifiles \
+i18ncheckarg \
+qclasses \
+spelling \
 
 # links to desktop plugins
 DESKTOP_PLUGINS = \
+endswithnewline \
+iconnames \
+spelling \
 validate \
 
 # lines to kconfigxt plugins
 KCFG_PLUGINS = \
+endswithnewline \
+i18ncheckarg \
+spelling \
 validate \
 
 # links to kpartgui plugins
 RC_PLUGINS = \
+endswithnewline \
+i18ncheckarg \
+spelling \
 validate \
 
 # links to tips plugins
 TIPS_PLUGINS = \
+endswithnewline \
+spelling \
 
 # links to Messages.sh plugins
 MSG_PLUGINS = \
@@ -76,6 +91,11 @@ rcappend \
 
 # links to QML plugins
 QML_PLUGINS = \
+copyright \
+endswithnewline \
+iconnames \
+license \
+spelling \
 
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/kde4

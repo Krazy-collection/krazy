@@ -21,6 +21,11 @@ CPP_PLUGINS = \
 copyright \
 license \
 
+# links to QML plugins
+QML_PLUGINS = \
+copyright \
+license \
+
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/foss
 
@@ -34,8 +39,13 @@ install::
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
 	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set plugin link $$plugin"; \
+		echo "Installing foss set c++ plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
+	done
+
+	list="$(QML_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing foss set qml plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
 	done
 
 clean:

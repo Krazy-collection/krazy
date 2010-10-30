@@ -18,6 +18,7 @@
 
 # list of all plugins to install
 PLUGINS = \
+copyright \
 endswithnewline \
 iconnames \
 i18ncheckarg \
