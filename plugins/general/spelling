@@ -993,6 +993,7 @@ giudes                 guides
 globaly                globally
 goind                  going
 gostscript             ghostscript
+gramatics              grammar
 grapphis               graphics
 greyed                 grayed
 guaranted              guaranteed
@@ -1071,6 +1072,7 @@ indice                 index
 indictes               indicates
 infinitv               infinitive
 infomation             information
+informa                inform
 informaion             information
 informatation          information
 informationon          information
@@ -1198,6 +1200,7 @@ litteral               literal
 litterally             literally
 localisation           localization
 localisations          localizations
+localy                 locally
 looged                 logged
 losely                 loosely
 maange                 manage
@@ -1340,6 +1343,7 @@ orangeish              orangish
 orginate               originate
 orginated              originated
 orginates              originates
+orginating             originating
 originaly              originally
 orignal                original
 orignally              original
@@ -1354,6 +1358,7 @@ ouputs                 outputs
 ourselfes              ourselves
 outputing              outputting
 overidden              overridden
+overiden               overridden
 overriden              overridden
 ownes                  owns
 pakage                 package
@@ -1388,6 +1393,8 @@ phyiscally             physically
 plaform                platform
 plaforms               platforms
 plese                  please
+poer                   power
+poers                  powers
 politness              politeness
 posibilities           possibilities
 posibility             possibility
@@ -1863,6 +1870,7 @@ uncutt                 uncut
 underlieing            underlying
 underrrun              underrun
 underrruns             underruns
+understandement        understanding
 undesireable           undesirable
 undestood              understood
 undexpected            unexpected
@@ -1927,7 +1935,13 @@ voribis                vorbis
 vrtual                 virtual
 waranties              warranties
 waranty                warranty
+wast                   waste
+wastefull              wasteful
+wastefuly              wastefully
+wats                   waste
+watse                  waste
 watseful               wasteful
+watsefull              wasteful
 watsefully             wastefully
 weigth                 weight
 weigths                weights
@@ -1952,8 +1966,10 @@ wiev                   view
 wievs                  view
 wih                    with
 willl                  will
+withing                within
 wnat                   want
 workimg                working
+workin                 working
 workstatio             workstation
 workstatios            workstation
 woud                   would
