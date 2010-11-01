@@ -296,6 +296,28 @@ foreach $set ( keys %Sets ) {
   }
 }
 
+# Generate a hash of arrays containing the extra plugins for each supported type
+my ( $xp, @extra_paths );
+for $xp ( split( /:/, $KRAZY_EXTRA_PATH ) ) {
+  push( @extra_paths, $xp ) if ( -d $xp );
+}
+foreach $type ( keys %xCheckers ) {
+  splice @tpaths;
+  for $xp (@extra_paths) {
+    if ( -d "$xp/$type" ) {
+      push( @tpaths, "$xp/$type" );
+    }
+  }
+  if ( $#tpaths >= 0 ) {
+    @tmp = ();
+    find( \&buildExtraList, @tpaths );
+
+    sub buildExtraList {
+      -x && !-d && push( @tmp, $File::Find::name );
+    }
+    push @{ $xCheckers{$type} }, @tmp;
+  }
+}
 ###############################################################
 # Invoke the --list options, which all exit after completing. #
 ###############################################################
@@ -449,29 +471,6 @@ if ($checksets) {
       }
     }
     @{ $Checkers{$type} } = @tmp;
-  }
-}
-
-# Generate a hash of arrays containing the extra plugins for each supported type
-my ( $xp, @extra_paths );
-for $xp ( split( /:/, $KRAZY_EXTRA_PATH ) ) {
-  push( @extra_paths, $xp ) if ( -d $xp );
-}
-foreach $type ( keys %xCheckers ) {
-  splice @tpaths;
-  for $xp (@extra_paths) {
-    if ( -d "$xp/$type" ) {
-      push( @tpaths, "$xp/$type" );
-    }
-  }
-  if ( $#tpaths >= 0 ) {
-    @tmp = ();
-    find( \&buildExtraList, @tpaths );
-
-    sub buildExtraList {
-      -x && !-d && push( @tmp, $File::Find::name );
-    }
-    push @{ $xCheckers{$type} }, @tmp;
   }
 }
 
