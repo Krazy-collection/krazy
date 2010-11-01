@@ -35,6 +35,8 @@
 #   --title [title]    the title to print on the output reports
 #
 use strict;
+use Cwd;
+use Cwd 'abs_path';
 use Getopt::Long;
 use Env qw (PSQL);
 use Sys::Hostname;
@@ -47,6 +49,7 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Krazy::Config;
 use Krazy::Utils;
+use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
@@ -71,7 +74,31 @@ my ($saxon);      # fullpath to the saxon program
 my ($stylesheet); # full path to the main stylesheet (krazy-main.xsl)
 my ($sloccount);  # full path to sloccount executable
 
-if ( hostname() =~ m/www/ ) {
+my ($settings);   # fullpath to system settings 
+
+my ($KRAZYBINPATH) = dirname( abs_path($0) );
+my ($KRAZYPATH)    = dirname($KRAZYBINPATH);
+
+if (-e "$KRAZYPATH/conf/settings.yaml" ) {
+  $settings = LoadFile("$KRAZYPATH/conf/settings.yaml");
+
+  $tempdir    = $settings->{'tempdir'};
+  $destdir    = $settings->{'destdir'};
+  $comp       = $settings->{'comp'};
+  $module     = $settings->{'module'};
+  $trunk      = $settings->{'trunk'};
+  $krazy      = $settings->{'krazy'};
+  $plgpth     = $settings->{'plgpth'};
+  $xtrpth     = $settings->{'xtrpth'};
+  $PSQL       = $settings->{'PSQL'};
+  $md5        = $settings->{'md5'};
+  $svn        = $settings->{'svn'};
+  $repos      = $settings->{'repos'};
+  $checks     = $settings->{'checks'};
+  $saxon      = $settings->{'saxon'};
+  $stylesheet = $settings->{'stylesheet'};
+  $sloccount  = $settings->{'sloccount'};
+} elsif ( hostname() =~ m/www/ ) {
   $tempdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/temp';
   $destdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/reports';
   $comp       = 'kde-4.x';

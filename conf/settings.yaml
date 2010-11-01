@@ -1,0 +1,16 @@
+tempdir    : /mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/temp
+destdir    : /mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/reports
+comp       : kde-4.x
+module     : 
+trunk      : /mnt/ebn/src
+krazy      : /mnt/ebn/bin/krazy2
+plgpth     : /mnt/ebn/lib/krazy2/krazy-plugins
+xtrpth     : /mnt/ebn/lib/krazy2/krazy-extras
+PSQL       : /usr/bin/psql if ( !$PSQL )
+md5        : /usr/bin/md5sum
+svn        : /usr/bin/svnlook youngest
+repos      : /mnt/ebn/svn/kde
+checks     : 
+saxon      : /usr/bin/saxon8
+stylesheet : /mnt/ebn/share/xsl/krazy-main.xsl
+sloccount  : /usr/bin/sloccount
