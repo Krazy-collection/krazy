@@ -76,22 +76,22 @@ fi
 #create a symlink to the perl modules so we can find them
 V=`perl -e 'printf "%vd", $^V'`
 if ( test -d $TOP/share/perl5/site_perl ) then
-  (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/site_perl/$V/Krazy Krazy)
+  (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
 else
   if ( test -d $TOP/share/perl ) then
-    (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl/$V/Krazy Krazy)
+    (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl/$V/Krazy $TOP/lib/Krazy)
   else
     if ( test -d $TOP/share/perl5/Krazy ) then
-      (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/Krazy Krazy)
+      (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/Krazy $TOP/lib/Krazy)
     else
        if ( test -d $TOP/share/perl5/$V/Krazy ) then
-       (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/$V/Krazy Krazy)
+       (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/$V/Krazy $TOP/lib/Krazy)
       else
         if ( test -d $TOP/lib/perl5/site_perl ) then
-          (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy Krazy)
+          (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
         else
           if ( test -d $TOP/lib64/perl5/site_perl ) then
-            (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib64/perl5/site_perl/$V/Krazy Krazy)
+            (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib64/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
           else
             echo
 	    echo "==================================================================="
