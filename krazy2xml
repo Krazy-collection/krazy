@@ -23,6 +23,7 @@
 # Program options:
 #   --help:            display help message and exit
 #   --version          display version information and exit
+#   --config <file>    settings file in YAML format
 #   --dry-run          don't execute the checks; only show what would be run
 #   --with-sloccount   Run sloccount in each module
 #   --nodb             don't execute any database commands
@@ -47,6 +48,7 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Krazy::Config;
 use Krazy::Utils;
+use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
@@ -71,7 +73,79 @@ my ($saxon);      # fullpath to the saxon program
 my ($stylesheet); # full path to the main stylesheet (krazy-main.xsl)
 my ($sloccount);  # full path to sloccount executable
 
-if ( hostname() =~ m/www/ ) {
+my ($settings);   # fullpath to system settings 
+
+my ($help)       = '';
+my ($version)    = '';
+my ($dryrun)     = '';
+my ($configf)    = '';
+my ($nodb)       = '';
+my ($generation) = '';
+my ($nosaxon)    = '';
+my ($countloc)   = '';
+my ($reptitle)   = '';
+
+exit 1
+  if ( !GetOptions(
+       'help'           => \$help,
+       'version'        => \$version,
+       'dry-run'        => \$dryrun,
+       'config=s'       => \$configf,
+       'nodb'           => \$nodb,
+       'dbgen=i'        => \$generation,
+       'nosaxon'        => \$nosaxon,
+       'with-sloccount' => \$countloc,
+       'component=s'    => \$comp,
+       'module=s'       => \$module,
+       'title=s'        => \$reptitle
+      )
+     );
+
+&Help()    if ($help);
+&Version() if ($version);
+
+# System settings configuration
+if (-e "$configf") {
+  $settings   = LoadFile("$configf");
+
+  $tempdir    = $settings->{'tempdir'};
+  $destdir    = $settings->{'destdir'};
+  $comp       = $settings->{'comp'};
+  $module     = $settings->{'module'};
+  $trunk      = $settings->{'trunk'};
+  $krazy      = $settings->{'krazy'};
+  $plgpth     = $settings->{'plgpth'};
+  $xtrpth     = $settings->{'xtrpth'};
+  $PSQL       = $settings->{'PSQL'};
+  $md5        = $settings->{'md5'};
+  $svn        = $settings->{'svn'};
+  $repos      = $settings->{'repos'};
+  $checks     = $settings->{'checks'};
+  $saxon      = $settings->{'saxon'};
+  $stylesheet = $settings->{'stylesheet'};
+  $sloccount  = $settings->{'sloccount'};
+
+} elsif ( -e "$ENV{'HOME'}/.krazy2xml" ) {
+  $settings   = LoadFile("$ENV{'HOME'}/.krazy2xml");
+
+  $tempdir    = $settings->{'tempdir'};
+  $destdir    = $settings->{'destdir'};
+  $comp       = $settings->{'comp'};
+  $module     = $settings->{'module'};
+  $trunk      = $settings->{'trunk'};
+  $krazy      = $settings->{'krazy'};
+  $plgpth     = $settings->{'plgpth'};
+  $xtrpth     = $settings->{'xtrpth'};
+  $PSQL       = $settings->{'PSQL'};
+  $md5        = $settings->{'md5'};
+  $svn        = $settings->{'svn'};
+  $repos      = $settings->{'repos'};
+  $checks     = $settings->{'checks'};
+  $saxon      = $settings->{'saxon'};
+  $stylesheet = $settings->{'stylesheet'};
+  $sloccount  = $settings->{'sloccount'};
+
+} else {
   $tempdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/temp';
   $destdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/reports';
   $comp       = 'kde-4.x';
@@ -88,73 +162,8 @@ if ( hostname() =~ m/www/ ) {
   $saxon      = '/usr/bin/saxon8';
   $stylesheet = '/mnt/ebn/share/xsl/krazy-main.xsl';
   $sloccount  = '/usr/bin/sloccount';
-} elsif ( hostname() =~/bertjan/ ) {
-  # my system settings for testing
-  # TODO: Make these settings properly configurable with a config file.
-  print "Executing Bertjans setup!\n";
-  $tempdir    = '/home/bertjan-dev/krazy2/work/temp';
-  $destdir    = '/home/bertjan-dev/krazy2/work/reports';
-  $comp       = 'kde-4.4.0';
-  $module     = '';
-  $trunk      = '/home/bertjan-dev/krazy2/work/components';
-  $krazy      = '/home/bertjan-dev/local/bin/krazy2';
-  $plgpth     = '/home/bertjan-dev/local/lib/krazy2/krazy-plugins';
-  $xtrpth     = '/home/bertjan-dev/local/lib/krazy2/krazy-extras';
-  $md5        = '/usr/bin/md5sum';
-  $svn        = '/usr/bin/svn info';
-  $repos      = '/home/bertjan-dev/krazy2/work/components/kde-4.4.0';
-  $checks     = ''; #'--check typedefs'; # Only execute some checks, so we don't have to wait an eternity.
-  $saxon      = '/usr/bin/saxon8';
-  $stylesheet = '/usr/local/Krazy2/share/xsl/krazy-main.xsl';
-  $sloccount  = '/usr/bin/sloccount';
-} else {
-
-  # my system settings for testing
-  $tempdir    = '/home/winterz/local/src/krazy2/temp';
-  $destdir    = '/home/winterz/local/src/krazy2/reports';
-  $comp       = 'kde-4.x';
-  $module     = '';
-  $trunk      = '/data/kde/trunk';
-  $krazy      = '/usr/local/Krazy2/bin/krazy2';
-  $plgpth     = '/usr/local/Krazy2/lib/krazy2/krazy-plugins';
-  $xtrpth     = '/usr/local/Krazy2/lib/krazy2/krazy-extras';
-  $md5        = '/usr/bin/md5sum';
-  $svn        = '/usr/bin/svn info';
-  $repos      = '/data/kde';
-  $checks     = '--check typedefs'; # Only execute some checks, so we don't have to wait an eternity.
-  $saxon      = '/usr/bin/saxon8';
-  $stylesheet = '/usr/local/Krazy2/share/xsl/krazy-main.xsl';
-  $sloccount  = ''; # /usr/bin/sloccount';
 }
-
 #END OF SETTINGS
-
-my ($help)    = '';
-my ($version) = '';
-my ($dryrun)  = '';
-my ($nodb) = '';
-my ($generation) = '';
-my ($nosaxon) = '';
-my ($countloc) = '';
-my ($reptitle) = '';
-
-exit 1
-  if ( !GetOptions(
-       'help'           => \$help,
-       'version'        => \$version,
-       'dry-run'        => \$dryrun,
-       'nodb'           => \$nodb,
-       'dbgen=i'        => \$generation,
-       'nosaxon'        => \$nosaxon,
-       'with-sloccount' => \$countloc,
-       'component=s'    => \$comp,
-       'module=s'       => \$module,
-       'title=s'        => \$reptitle
-      )
-     );
-
-&Help()    if ($help);
-&Version() if ($version);
 
 # Setup for db
 my($hasdb) = !$nodb; # Added for convenience.
@@ -743,12 +752,13 @@ sub Help {
   print "  --help              display help message and exit\n";
   print "  --version           display version information and exit\n";
   print "  --dry-run           don't execute the checks; only show what would be run\n";
+  print "  --config <file>     settings file in YAML format\n";
   print "  --nodb              don't execute any database commands\n";
   print "  --dbgen [id]        use the specified value for the database generationId.\n";
   print "                      Do NOT use this option unless you know what you're doing.\n";
   print "  --nosaxon           don't execute the xslt transformation\n";
   print "  --with-sloccount    Run sloccount in each module\n";
-  print "  --component [comp]  component to process (default=\"$comp\")\n";
+  print "  --component [comp]  component to process (default=\"kde-4.x\")\n";
   print "  --module [mod1<,mod2...>]\n";
   print "                      comma-separated list of modules to process (default=ALL)\n";
   print "  --title [title]     the title to print on the output reports\n";
@@ -791,6 +801,10 @@ Print help message and exit.
 =item B<--version>
 
 Print version information and exit.
+
+=item B<--config> <settings.yaml>
+
+Read system settings from the specified settings.yaml configuration file.
 
 =item B<--dry-run>
 

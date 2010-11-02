@@ -1,0 +1,15 @@
+tempdir    : /home/winterz/local/src/krazy2/temp
+destdir    : /home/winterz/local/src/krazy2/reports
+comp       : kde-4.x
+module     : 
+trunk      : /data/kde/trunk
+krazy      : /usr/local/Krazy2/bin/krazy2
+plgpth     : /usr/local/Krazy2/lib/krazy2/krazy-plugins
+xtrpth     : /usr/local/Krazy2/lib/krazy2/krazy-extras
+md5        : /usr/bin/md5sum
+svn        : /usr/bin/svn info
+repos      : /data/kde
+checks     : --check typedefs 
+saxon      : /usr/bin/saxon8
+stylesheet : /usr/local/Krazy2/share/xsl/krazy-main.xsl
+sloccount  : /usr/bin/sloccount

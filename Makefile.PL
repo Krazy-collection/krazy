@@ -32,7 +32,8 @@ WriteMakefile(
 	      'PREREQ_PM'       => { "HTML::Parser" => 2.20,
 				     "File::Find"   => 1.01,
 				     "Tie::IxHash"  => 1.20,
-				     "XML::LibXML"  => 1.57
+				     "XML::LibXML"  => 1.57,
+				     "YAML"         => 0.70
 				   },
 	      'dist'		=> { COMPRESS => 'gzip',
 				     SUFFIX => '.gz', },

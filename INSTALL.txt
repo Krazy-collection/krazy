@@ -50,6 +50,7 @@ The modules are:
   File::Find
   Tie::IxHash
   XML::LibXML
+  YAML
 
 Otherwise, Krazy should work with all known operating systems where
 Qt4 and perl are available. If this is not true, please let me know.
