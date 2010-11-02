@@ -237,8 +237,9 @@ my (@sanity_paths,@set_paths);
 # Generate an array of paths to search for plugins
 my ($sp);
 for $sp ( split( /:/, $KRAZY_PLUGIN_PATH ) ) {
-  push( @sanity_paths, $sp ) if ( -d $sp );
+  push( @sanity_paths, abs_path $sp ) if ( -d $sp );
 }
+@sanity_paths = deDupe(@sanity_paths);
 if ( $#sanity_paths < 0 ) {
   print "No plugin paths found.\n";
   print "Please check your KRAZY_PLUGIN_PATH environment variable... exiting\n";
@@ -268,8 +269,9 @@ foreach $type ( keys %Checkers ) {
 # Generate an array of paths to search for checker sets
 my ($setp);
 for $setp ( split( /:/, $KRAZY_SET_PATH ) ) {
-  push( @set_paths, $setp ) if ( -d $setp );
+  push( @set_paths, abs_path $setp ) if ( -d $setp );
 }
+@set_paths = deDupe(@set_paths);
 if ( $#set_paths < 0 ) {
   print "No checker set paths found.\n";
   print "Please check your KRAZY_SET_PATH environment variable... exiting\n";
@@ -296,6 +298,29 @@ foreach $set ( keys %Sets ) {
   }
 }
 
+# Generate a hash of arrays containing the extra plugins for each supported type
+my ( $xp, @extra_paths );
+for $xp ( split( /:/, $KRAZY_EXTRA_PATH ) ) {
+  push( @extra_paths, abs_path $xp ) if ( -d $xp );
+}
+@extra_paths = deDupe(@extra_paths);
+foreach $type ( keys %xCheckers ) {
+  splice @tpaths;
+  for $xp (@extra_paths) {
+    if ( -d "$xp/$type" ) {
+      push( @tpaths, "$xp/$type" );
+    }
+  }
+  if ( $#tpaths >= 0 ) {
+    @tmp = ();
+    find( \&buildExtraList, @tpaths );
+
+    sub buildExtraList {
+      -x && !-d && push( @tmp, $File::Find::name );
+    }
+    push @{ $xCheckers{$type} }, @tmp;
+  }
+}
 ###############################################################
 # Invoke the --list options, which all exit after completing. #
 ###############################################################
@@ -449,29 +474,6 @@ if ($checksets) {
       }
     }
     @{ $Checkers{$type} } = @tmp;
-  }
-}
-
-# Generate a hash of arrays containing the extra plugins for each supported type
-my ( $xp, @extra_paths );
-for $xp ( split( /:/, $KRAZY_EXTRA_PATH ) ) {
-  push( @extra_paths, $xp ) if ( -d $xp );
-}
-foreach $type ( keys %xCheckers ) {
-  splice @tpaths;
-  for $xp (@extra_paths) {
-    if ( -d "$xp/$type" ) {
-      push( @tpaths, "$xp/$type" );
-    }
-  }
-  if ( $#tpaths >= 0 ) {
-    @tmp = ();
-    find( \&buildExtraList, @tpaths );
-
-    sub buildExtraList {
-      -x && !-d && push( @tmp, $File::Find::name );
-    }
-    push @{ $xCheckers{$type} }, @tmp;
   }
 }
 
