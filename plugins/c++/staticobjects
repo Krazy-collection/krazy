@@ -124,6 +124,7 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/(const|\s)bool\s+\w+\s*=\s*(true|false)/);
     next if ($line =~ m/(const|\s)($cpod)\s+\w+\[\]\s*=\s*(L)?\"/);
     next if ($line =~ m/(const|\s)($cpod)\s+\w+\[.*\]\s*=\s*(L)?\"/);
+    next if ($line =~ m/(const|\s)($cpod)\s+\w+\[.*\]\s*=\s*\w+/);
 
     next if ($line =~ m/(const|\s)($ipod)\s+\w+\s*=\s*\w+/);
     next if ($line =~ m/(const|\s)($fpod)\s+\w+\s*=\s$floatre/);
@@ -132,6 +133,9 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/(const|\s)($pods)\s+\w+\s*\[.*\]\s*;\s*$/);
 
     next if ($line =~ m/(const|\s)($containers)\s*</);
+
+    # be nicer for non-QObject-derived classes
+    next if ($line =~ m/(const|\s)QBrush\s+\w+\s*=\s*QBrush\s*\(\s*Qt:/);
 
     $cnt++;
     if ($cnt == 1) {
