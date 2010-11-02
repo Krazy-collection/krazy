@@ -758,7 +758,7 @@ sub Help {
   print "                      Do NOT use this option unless you know what you're doing.\n";
   print "  --nosaxon           don't execute the xslt transformation\n";
   print "  --with-sloccount    Run sloccount in each module\n";
-  print "  --component [comp]  component to process (default=\"$comp\")\n";
+  print "  --component [comp]  component to process (default=\"kde-4.x\")\n";
   print "  --module [mod1<,mod2...>]\n";
   print "                      comma-separated list of modules to process (default=ALL)\n";
   print "  --title [title]     the title to print on the output reports\n";
