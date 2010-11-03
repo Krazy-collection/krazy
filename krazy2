@@ -760,45 +760,45 @@ for $ftype (@types) {
      /(All changes made in this file will be lost|All changes made to it will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
              );
 
-      # use the helper program to determine if this file is to be installed
-      $insopt = "";
-      $absf   = abs_path($f);
-      $dirf   = dirname($absf);
-      open( INS, "$insp $dirf |" ) or print STDERR "Cannot run: $insp\n";
-      while (<INS>) {
-        chomp($_);
-        if ( $absf eq $_ ) {
-          $insopt = "--installed";
-          last;
-        }
-      }
-      close(INS);
-
-      # run the checker, concatentating the output
-      if ( !$dryrun ) {
-        $pid = open( SANE, "$p $opts $insopt \'$f\' 2>/dev/null |" )
-          or print STDERR "Cannot run: &basename($p)\n";
-        my($issues) = -1;
-        while (<SANE>) {
+        # use the helper program to determine if this file is to be installed
+        $insopt = "";
+        $absf   = abs_path($f);
+        $dirf   = dirname($absf);
+        open( INS, "$insp $dirf |" ) or print STDERR "Cannot run: $insp\n";
+        while (<INS>) {
           chomp($_);
-          if($_ =~ m/^ISSUES=(\d+)/) {
-            $issues = $1;
+          if ( $absf eq $_ ) {
+            $insopt = "--installed";
             last;
-          } else {
-            $result{$p} .= "\t" . $f . ": " . $_ . "\n"
-              unless ( $_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+ );
           }
         }
-        close(SANE);
-        if ($issues < 0) {
-          #maybe the checker didn't print the ISSUES=N line, so use the old exit status
-          $issues = $? >> 8;
+        close(INS);
+  
+        # run the checker, concatentating the output
+        if ( !$dryrun ) {
+          $pid = open( SANE, "$p $opts $insopt \'$f\' 2>/dev/null |" )
+            or print STDERR "Cannot run: &basename($p)\n";
+          my($issues) = -1;
+          while (<SANE>) {
+            chomp($_);
+            if($_ =~ m/^ISSUES=(\d+)/) {
+              $issues = $1;
+              last;
+            } else {
+              $result{$p} .= "\t" . $f . ": " . $_ . "\n"
+                unless ( $_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+ );
+            }
+          }
+          close(SANE);
+          if ($issues < 0) {
+            #maybe the checker didn't print the ISSUES=N line, so use the old exit status
+            $issues = $? >> 8;
+          }
+          $status{$p} += $issues;
+        } else {
+          print "$p $opts $insopt $f\n";
         }
-        $status{$p} += $issues;
-      } else {
-        print "$p $opts $insopt $f\n";
-      }
-      print STDERR "." unless ( $nf % 10 || $quiet || $export =~ m/text[a-z]+/);
+        print STDERR "." unless ( $nf % 10 || $quiet || $export =~ m/text[a-z]+/);
       } # foreach file to process
       if ( $nf > 0 ) {
         $overall_status += $status{$p} if ( defined( $status{$p} ) );
