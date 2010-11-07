@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "staticobjects";
-my($Version) = "0.1";
+my($Version) = "0.2";
 
 &parseArgs();
 
@@ -80,13 +80,15 @@ while($i <= $#lines) {
 #static char** s_qt_argv;
 
 # we don't know enums so that's a false positive we can't do anything about except to hardcode
-my($enum)="KdeLibraryPathsAdded";
-my($cpod)="unsigned char|char|QChar|wchar_t";
-my($ipod)="int|uint|uint32_t|qint8|quint8|qint16|quint16|qint32|quint32|quint64|qint64|unsigned|unsigned int|unsigned long|GLint|GLuint|ulong|long|pid_t";
+my($enum)="KdeLibraryPathsAdded|Qt::WindowFlags|QStyle::StyleHint|KFileShare::Authorization|KFileShare::ShareMode";
+my($bpod)="bool|Bool";
+my($cpod)="unsigned char|char|QChar|wchar_t|xmlChar|TCHAR";
+my($ipod)="int|uint|uint32_t|qint8|quint8|qint16|quint16|qint32|quint32|quint64|qint64|unsigned|unsigned int|unsigned long|unsigned short|GLint|GLuint|ulong|long|pid_t|WORD|rlim_t";
 my($fpod)="float|double|qreal";
-my($pods)="$cpod" . "|" . "$ipod" . "|" . "$fpod";
+my($pods)="$bpod" . "|" . "$enum" . "|" . "$cpod" . "|" . "$ipod" . "|" . "$fpod";
 my($containers)="QHash|QMap";
 
+my($intre) = "[-+]?[/\*0-9\s]+";  #notice will allow chars for some basic arithmetic
 my($floatre) = "[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?";
 
 # Check Condition
@@ -110,29 +112,49 @@ while ($linecnt < $#lines) {
   $bc -= ($line =~ tr/}//);
 
   if ($bc == 0 && $line =~ m/^\s*static\s/) {
-    next unless (searchBackWithStop("}",$linecnt-1,25,"{"));
     next unless ($line =~ m/;\s*$/);
 
-    next if ($line =~ m/\)\s*;\s*$/ && $line !~ m/=/);  #probable function declaration
+    #skip function declarations
+    next if ($line =~ m/static\sinline/);
+
+    my($pline) = $line;
+    $pline =~ s/".*"/\"\"/g;
+    if ($pline =~ m/(\(.*\))/) {
+      next if ($1 =~ m/\&/ || $1 =~ m/\*/ || $1 =~ m/\s/);
+      next if ($pline =~ m/\(\s*\)/ && $pline !~ m/=/);
+    }
 
     next if ($line =~ m/(const|\s)($pods)\s+\w+\s*;\s*$/);
 
-    next if ($line =~ m/=\s*(0|NULL)\s*;\s*$/);
+    next if ($line =~ m/=\s*(0|0L|NULL)\s*;\s*$/);
 
-    next if ($line =~ m/\s($enum)\s\w+\s*=\s*\w+\s*;/); #enum assignment
+    next if ($line =~ m/\s($enum)\s[:\w]+\s*=/); #enum assignment
 
-    next if ($line =~ m/(const|\s)bool\s+\w+\s*=\s*(true|false)/);
-    next if ($line =~ m/(const|\s)($cpod)\s+\w+\[\]\s*=\s*(L)?\"/);
-    next if ($line =~ m/(const|\s)($cpod)\s+\w+\[.*\]\s*=\s*(L)?\"/);
-    next if ($line =~ m/(const|\s)($cpod)\s+\w+\[.*\]\s*=\s*\w+/);
+    next if ($line =~ m/(const|\s)($bpod)\s+\w+\s*=\s*(true|True|TRUE|false|False|FALSE)/);
 
-    next if ($line =~ m/(const|\s)($ipod)\s+\w+\s*=\s*\w+/);
+    next if ($line =~ m/(const|\s)($cpod)\s+\w+\s*\[\]\s*=\s*(L)?\"/);
+
+    next if ($line =~ m/(const|\s)($cpod)\s+\w+\s*\[.*\]\s*=\s*(L)?\"/);
+
+    next if ($line =~ m/(const|\s)($cpod)\s+\w+\s*\[.*\]\s*=\s*\w+/);
+
+    next if ($line =~ m/(const|\s)($ipod)\s+\w+\s*=\s*$intre/);
+
     next if ($line =~ m/(const|\s)($fpod)\s+\w+\s*=\s$floatre/);
 
     next if ($line =~ m/(const|\s)($pods)\s+\w+\s*\[.*\]\s*=\s*{/);
-    next if ($line =~ m/(const|\s)($pods)\s+\w+\s*\[.*\]\s*;\s*$/);
+
+    next if ($line =~ m/(const|\s)[:\w]+\s+[:\w]+\s*\[.*\]\s*;\s*$/);
+    next if ($line =~ m/(const|\s)[:\w]+\s*\*\s*\w+\s*\[.*\]\s*;\s*$/);
 
     next if ($line =~ m/(const|\s)($containers)\s*</);
+
+    # anything pointers
+    next if ($line =~ m/(const|\s)[:\w]+\s*\*\s*[:\w]+\s*;\s*/);
+    next if ($line =~ m/(const|\s)[:\w]+\s*\*\*\s*[:\w]+\s*;\s*/);
+
+    # structure init
+    next if ($line =~ m/(const|\s).*[Ss]truct.*\s*=\s*{.*}\s*;\s*/);
 
     # be nicer for non-QObject-derived classes
     next if ($line =~ m/(const|\s)QBrush\s+\w+\s*=\s*QBrush\s*\(\s*Qt:/);
