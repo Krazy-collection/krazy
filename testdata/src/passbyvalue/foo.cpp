@@ -1,0 +1,4 @@
+int func( QDateTime dt )
+{
+
+}
