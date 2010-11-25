@@ -1,6 +1,6 @@
 =pod
 
-=head1 krazyrc
+=head1 NAME
 
 .krazy - krazy control directives
 
