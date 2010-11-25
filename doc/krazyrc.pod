@@ -47,7 +47,7 @@ Add the specified list of "extra" plugins to the default set of checkers.
 
 =item TYPES type1[,type2,...]
 
-Check the specifed file type(s) only.
+Check the specified file type(s) only.
 
 =item EXCLUDETYPES type1[,type2,...]
 
