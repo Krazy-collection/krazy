@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.22";
+my($Version) = "1.23";
 
 &parseArgs();
 
@@ -101,16 +101,13 @@ while ($linecnt < $#lines) {
     next if (&isCamelCase($incpath));
     next if ($sep eq "<" && $incpath =~ m/^(c|io)/ && $incpath !~ m/\.h$/);
     next if ($sep eq "<" && $incpath =~ m/^config/ && $incpath =~ m/\.h$/);
-    next if ($sep eq "<" && $incpath =~ m/^ical/);
-    next if ($sep eq "<" && $incpath =~ m/^uuid/);
-    next if ($sep eq "<" && $incpath =~ m/^algorithm/);
-    next if ($sep eq "<" && $incpath =~ m/^calendarsupport/);
-    next if ($sep eq "<" && $incpath =~ m/^messagecomposer/);
-    next if ($sep eq "<" && $incpath =~ m/^messagecore/);
-    next if ($sep eq "<" && $incpath =~ m/^messagelist/);
-    next if ($sep eq "<" && $incpath =~ m/^messageviewer/);
-    next if ($sep eq "<" && $incpath =~ m/^incidenceeditor/);
-    next if ($incpath eq "kdemacros.h");
+    next if ($sep eq "<" && $incpath =~ m+^(k3|q3|ical|uuid|uni|os|ieee|gmp|std|if|sys/|net|netinet/|arpa/)+);
+    next if ($sep eq "<" && $incpath =~ m/^(algorithm|vector|memory|map)/);
+    next if ($sep eq "<" && $incpath =~ m/^(calendarsupport|incidenceeditor)/);
+    next if ($sep eq "<" && $incpath =~ m/^(messagecomposer|messagecore|messagelist|messageviewer)/);
+    next if ($incpath =~ m/version/);
+    next if ($incpath eq "kdemacros.h" || $incpath eq "kvm.h" || $incpath eq "fixx11h.h");
+    next if ($incpath eq "kvm.h");
 
     $cnt++;
     if ($cnt == 1) {
