@@ -679,9 +679,9 @@ sub myMvdir {
 sub execSql {
   if ($PSQL) {
     if ( $PSQL ne "debug" ) {
-      return `echo @_ | $PSQL -t -h services.codeyard.net -U kde kde -A -q`;
+      return `echo @_ | $PSQL -t -h localhost -U kde ebn -A -q`;
     } else {
-      print "echo @_ | PSQL -t -h services.codeyard.net -U kde kde -A -q\n";
+      print "echo @_ | PSQL -t -h localhost -U kde ebn -A -q\n";
     }
   }
 }
