@@ -110,8 +110,8 @@ if (-e "$configf") {
 
   $tempdir    = $settings->{'tempdir'};
   $destdir    = $settings->{'destdir'};
-  $comp       = $settings->{'comp'};
-  $module     = $settings->{'module'};
+  $comp       = $settings->{'comp'} unless ($comp);
+  $module     = $settings->{'module'} unless ($module);
   $trunk      = $settings->{'trunk'};
   $krazy      = $settings->{'krazy'};
   $plgpth     = $settings->{'plgpth'};
@@ -130,8 +130,8 @@ if (-e "$configf") {
 
   $tempdir    = $settings->{'tempdir'};
   $destdir    = $settings->{'destdir'};
-  $comp       = $settings->{'comp'};
-  $module     = $settings->{'module'};
+  $comp       = $settings->{'comp'} unless ($comp);
+  $module     = $settings->{'module'} unless ($module);
   $trunk      = $settings->{'trunk'};
   $krazy      = $settings->{'krazy'};
   $plgpth     = $settings->{'plgpth'};
@@ -148,8 +148,8 @@ if (-e "$configf") {
 } else {
   $tempdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/temp';
   $destdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/reports';
-  $comp       = 'kde-4.x';
-  $module     = '';
+  $comp       = 'kde-4.x' unless ($comp);
+  $module     = '' unless ($module);
   $trunk      = '/mnt/ebn/src';
   $krazy      = '/mnt/ebn/bin/krazy2';
   $plgpth     = '/mnt/ebn/lib/krazy2/krazy-plugins';
