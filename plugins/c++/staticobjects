@@ -88,7 +88,7 @@ my($fpod)="float|double|qreal";
 my($pods)="$bpod" . "|" . "$enum" . "|" . "$cpod" . "|" . "$ipod" . "|" . "$fpod";
 my($containers)="QHash|QMap";
 
-my($intre) = "[-+]?[/\*0-9\s]+";  #notice will allow chars for some basic arithmetic
+#my($intre) = "[-+]?[/\*0-9\s]+";  #notice will allow chars for some basic arithmetic
 my($floatre) = "[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?";
 
 # Check Condition
@@ -138,7 +138,9 @@ while ($linecnt < $#lines) {
 
     next if ($line =~ m/(const|\s)($cpod)\s+\w+\s*\[.*\]\s*=\s*\w+/);
 
-    next if ($line =~ m/(const|\s)($ipod)\s+\w+\s*=\s*$intre/);
+    # Accept "static const int foo = Some::Enum+1", but not "static const int foo = methodCall()".
+    # -> check for '('
+    next if ($line =~ m/(const|\s)($ipod)\s+\w+\s*=\s[^\(]*;/);
 
     next if ($line =~ m/(const|\s)($fpod)\s+\w+\s*=\s$floatre/);
 
