@@ -7,6 +7,8 @@ static int foo(const QString &); //ok func decl
 
 static const int VariableTypeProperty = QTextFormat::UserProperty + 246; //ok
 
+static const char* s_buttonsGroup = QT_TRANSLATE_NOOP("WidgetPlugin","Buttons"); // ok
+
 static const int i = 42;  //ok
 static const int i2 = 42 + 2;  //ok
 static const int ii[3] = {1, 2, 3}; //ok

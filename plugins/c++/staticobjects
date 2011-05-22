@@ -154,6 +154,8 @@ while ($linecnt < $#lines) {
     # anything pointers
     next if ($line =~ m/(const|\s)[:\w]+\s*\*\s*[:\w]+\s*;\s*/);
     next if ($line =~ m/(const|\s)[:\w]+\s*\*\*\s*[:\w]+\s*;\s*/);
+    # assigning QT_TR_NOOP(..) to a char*
+    next if ($line =~ m/(const|\s)[:\w]+\s*\*\s*[:\w]+\s*=\s*.*NOOP.*/);
 
     # structure init
     next if ($line =~ m/(const|\s).*[Ss]truct.*\s*=\s*{.*}\s*;\s*/);
