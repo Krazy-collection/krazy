@@ -28,7 +28,7 @@
     <xsl:variable name="lexerComponent">
       <xsl:choose>
         <xsl:when test="matches($component, '^kde-\d\.x$')">
-          <xsl:value-of select="'KDE'"/>
+          <xsl:value-of select="'kde'"/>
         </xsl:when>
         <xsl:when test="$component eq $module" >
           <!-- Just leave out the component if both component and are the same -->
