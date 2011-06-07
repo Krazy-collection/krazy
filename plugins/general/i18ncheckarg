@@ -1068,10 +1068,12 @@ sub check_in_string {
             my $literall = 0;
             for (@strlist) {
                 ($_, $literall) = unquote_string($_);
-                next if not $literall;
+                last if not $literall;
             }
-            # Skip checks if any of the strings is not a literal.
-            next if not $literall;
+            if (not $literall) {
+                $g_lineno = $end_lineno;
+                next;
+            }
 
             # Total number of checkable messages.
             $g_nmsg++;
