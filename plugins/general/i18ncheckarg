@@ -319,9 +319,18 @@ sub unquote_string {
             }
         }
         else { # outside quotes
+            my $c2 = substr($str, $p, 2);
             if ($c eq '"') { # opening quote
                 $inquot = 1; # inside quotes
                 $p += 1;
+            }
+            elsif ($c2 =~ /\/\//) { # // comment outside of quotes
+                $p = index($str, "\n", $p);
+                $p = $p < 0 ? $len : $p + 1;
+            }
+            elsif ($c2 =~ /\/\*/) { # /**/ comment outside of quotes
+                $p = index($str, "*/", $p);
+                $p = $p < 0 ? $len : $p + 2;
             }
             elsif ($c !~ /\s/) { # non-whitespace outside of quotes
                 # not a literal string
