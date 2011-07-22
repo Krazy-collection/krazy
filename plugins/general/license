@@ -95,11 +95,11 @@ sub checkOneFile($)
   $license =~ s/ $//;
   close(F);
 
+  return (1, $license, "GPL v3+ or v2-only is not compatible with Qt or KDE licensing")
+      if ($license =~ m/\bGPL.*(?:v3\+?|v2\))/);
   return (1, $license, $license) if ($license =~ m/(wrong address)/);
   return (1, $license, $license) if ($license eq "Unknown license");
   return (1, $license, "missing license") if ($license eq "UNKNOWN");
-  return (1, $license, "GPL v3+ or v2-only is not compatible with Qt or KDE licensing")
-      if ($license =~ m/\bGPL.*(?:v3\+?|v2\))/);
 
   if ($LibPath &&
       ($license !~ m/^LGPL/ && $license !~ m/^X11/ && $license !~ m/^BSD/ &&
