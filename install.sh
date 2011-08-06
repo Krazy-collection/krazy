@@ -115,7 +115,7 @@ cd ..
 
 #install binary helper scripts
 if ( test $EBN -eq 0 ) then
-  cd src/desktop-file-utils-0.16 && \
+  cd src/desktop-file-utils-0.18 && \
   ./configure && make && \
   cp -f ./src/desktop-file-validate $TOP/lib/krazy2/krazy-helpers && \
   make distclean

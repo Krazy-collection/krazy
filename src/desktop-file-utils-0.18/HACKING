@@ -1,0 +1,31 @@
+Hacking on desktop-file-utils
+=============================
+
+ + The development occurs in git:
+
+     http://cgit.freedesktop.org/desktop-file-utils/
+
+   For information on how to access freedesktop.org git please read:
+
+     http://www.freedesktop.org/wiki/Infrastructure/git
+
+ + Please send patches as bug reports in freedesktop.org Bugzilla:
+
+     https://bugs.freedesktop.org/ (product desktop-file-utils)
+
+   Your patch should be in unified diff form (the -u option to GNU
+   diff). See also:
+
+     http://live.gnome.org/GnomeLove/SubmittingPatches
+
+ + Please try and send a patch against a recent version of this package.
+   Patches against git master are most preferable.
+
+ + Don't commit any but the most trivial patches without approval.
+
+ + Exceptions to this are:
+
+   - Translators may commit basic i18n related patches to the build
+     setup.
+   - Build sheriff are welcome - in accordance with the relevant build
+     sheriff constraints.

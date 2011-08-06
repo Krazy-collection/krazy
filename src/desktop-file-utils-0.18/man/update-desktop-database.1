@@ -1,0 +1,71 @@
+.\"
+.\" update-desktop-database manual page.
+.\" (C) 2010 Vincent Untz (vuntz@gnome.org)
+.\"
+.TH UPDATE-DESKTOP-DATABASE 1 FREEDESKTOP.ORG
+.SH NAME
+update-desktop-database \- Build cache database of MIME types handled by
+desktop files
+.SH SYNOPSIS
+.B update-desktop-database [\-q|\-\-quiet] [\-v|\-\-verbose] [DIRECTORY...]
+.SH DESCRIPTION
+The \fIupdate-desktop-database\fP program is a tool to build a cache
+database of the MIME types handled by desktop files.
+.PP
+The cache database contains the list of MIME types that can be handled
+by desktop files, as well as, for each MIME type, a list of desktop
+files that can handle this MIME type. This cache database ease the work
+of applications that need to find an application that can open a
+document of a specific MIME type: those applications will not have to
+parse all the desktop files existing on the system, and can instead
+parse this cache database.
+.PP
+If no \fIDIRECTORY\fP is specified as argument, the desktop files that
+will be processed are the ones installed in
+\fB$XDG_DATA_DIRS/applications\fP.
+.PP
+If both the \fI--quiet\fP and \fI--verbose\fP options are used, then
+\fI--verbose\fP will be ignored.
+.SH OPTIONS
+The following options are supported:
+.TP
+.I -q, --quiet
+Do not display any information about processing and updating progress.
+.TP
+.I -v, --verbose
+Display more information about processing and updating progress.
+.SH NOTES
+.PP
+If an invalid MIME type is met, it will be ignored and the creation of
+the cache database will continue.
+.PP
+The format of the cache database is a simple desktop entry format, with
+a \fBMIME Cache\fP group, containing one key per MIME type. The key
+name is the MIME type, and the key value is the list of desktop file
+that can handle this MIME type.
+.PP
+The order of the desktop files found for a MIME type is not significant.
+Therefore, an external mechanism must be used to determine what is the
+preferred desktop file for a MIME type.
+.SH EXAMPLE
+Here is a simple example of a cache database:
+.IP
+ [MIME Cache]
+ application/x-shellscript=gedit.desktop;
+ text/plain=gedit.desktop;gvim.desktop;
+ video/webm=totem.desktop;
+.PP
+This cache database is created with three desktop files, each containing
+a \fBMimeType\fP key:
+.IP
+ \fBgedit.desktop\fP: MimeType=text/plain;application/x-shellscript;
+ \fBgvim.desktop\fP: MimeType=text/plain;
+ \fBtotem.desktop\fP: MimeType=video/webm;
+.SH FILES
+.PP
+.B $XDG_DATA_DIRS/applications/mimeinfo.cache
+.IP
+This file is the cache database created by \fIupdate-desktop-database\fP.
+.SH BUGS
+If you find bugs in the \fIupdate-desktop-database\fP program, please
+report these on https://bugs.freedesktop.org.
