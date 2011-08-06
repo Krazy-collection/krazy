@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2009-2010 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2009-2011 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "crashy";
-my($Version) = "1.6";
+my($Version) = "1.7";
 
 &parseArgs();
 
@@ -97,12 +97,13 @@ while ($linecnt < $#lines) {
     next if ($var =~ m/^return/);
     next if ($var =~ m/^exit/);
     next if ($var =~ m/^app/);
+    next if ($var =~ m/^set/);
     $pat = "\\*\\s*" . $var . "\\s*=\\s*new\\s*\\w+\\(";
     if ($line =~ m/$var\.exec/ || &searchBack($pat,$linecnt,15)) {
       # don't complain if the exec is the last statement in a method
       next if ( $lines[$linecnt] =~ m/^\s{1,2}\}/); #ugly HACK to detect end-of-method
-      $expat1 = "(QSqlQuery|KApplication|.*Job|.*App)\\s&?" . $var;
-      $expat2 = $var . "\\s*=\\s*new\\s(QSqlQuery|KApplication|.*Job|.*App)";
+      $expat1 = "(KService|QSqlQuery|KApplication|.*Job|.*App)\\s&?" . $var;
+      $expat2 = $var . "\\s*=\\s*new\\s(KService|QSqlQuery|KApplication|.*Job|.*App)";
       $expatp = "\\w\+\\s" . $var . "\\s*;";  #parentless, on the stack
       if (!&searchBack($expat1,$linecnt,25) &&
           !&searchBack($expat2,$linecnt,25) &&
