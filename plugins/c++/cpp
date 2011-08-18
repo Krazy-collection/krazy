@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2010 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2011 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -155,21 +155,26 @@ HAVE_GPG_ERR_ALREADY_SIGNED
 HAVE_GPG_ERR_NO_PASSPHRASE
 HAVE_GPGME_ASSUAN_ENGINE
 HAVE_GPGME_CANCEL_ASYNC
+HAVE_GPGME_CONF_ARG_NEW_WITH_CONST_VALUE
 HAVE_GPGME_CTX_GETSET_ENGINE_INFO
 HAVE_GPGME_DATA_SET_FILE_NAME
 HAVE_GPGME_DECRYPT_RESULT_T_FILE_NAME
 HAVE_GPGME_DECRYPT_RESULT_T_RECIPIENTS
 HAVE_GPGME_ENCRYPT_NO_ENCRYPT_TO
 HAVE_GPGME_ENGINE_INFO_T_HOME_DIR
+HAVE_GPGME_EXT_KEYLIST_MODE_EXTERNAL_NONBROKEN
 HAVE_GPGME_G13_VFS
 HAVE_GPGME_GET_FDPTR
+HAVE_GPGME_GPG_ERROR_WRAPPERS
 HAVE_GPGME_INCLUDE_CERTS_DEFAULT
+HAVE_GPGME_IO_READWRITE
 HAVE_GPGME_KEYLIST_MODE_EPHEMERAL
 HAVE_GPGME_KEYLIST_MODE_SIG_NOTATIONS
 HAVE_GPGME_KEY_SIG_NOTATIONS
 HAVE_GPGME_KEY_T_IS_QUALIFIED
 HAVE_GPGME_OP_GETAUDITLOG
 HAVE_GPGME_OP_IMPORT_KEYS
+HAVE_GPGME_OP_PASSWD
 HAVE_GPGME_PROTOCOL_GPGCONF
 HAVE_GPGME_SIGNATURE_T_ALGORITHM_FIELDS
 HAVE_GPGME_SIGNATURE_T_PKA_FIELDS
@@ -177,6 +182,7 @@ HAVE_GPGME_SIG_NOTATION_CLEARADDGET
 HAVE_GPGME_SIG_NOTATION_CRITICAL
 HAVE_GPGME_SIG_NOTATION_FLAGS_T
 HAVE_GPGME_SIG_NOTATION_HUMAN_READABLE
+HAVE_GPGME_SIGNATURE_T_CHAIN_MODEL
 HAVE_GPGME_SUBKEY_T_IS_CARDKEY
 HAVE_GPGME_SUBKEY_T_IS_QUALIFIED
 HAVE_GPGME_VERIFY_RESULT_T_FILE_NAME
@@ -248,6 +254,7 @@ HAVE_POSIX_FALLOCATE
 HAVE_POSIX_FALLOCATE64
 HAVE_POSIX_OPENPT
 HAVE_PPC_ALTIVEC
+HAVE_PRISON
 HAVE_PROC_CWD
 HAVE_PSTAT
 HAVE_PTHREAD_ATTR_GET_NP
@@ -435,7 +442,7 @@ foreach $line (@lines) {
   }
 
   if ($line =~ m/^[[:space:]]*#[[:space:]]*warning/) {
-    if (!&searchBack('\s*#\s*ifdef\s__GNUC__',$linecnt-1,2)) {
+    if (!&searchBack('\s*#\s*ifdef\s__GNUC__',$linecnt-1,3)) {
       $wcnt++;
       if ($wcnt == 1) {
         $wstr = "Guard #warning with '#ifdef __GNUC__' line\#" . $linecnt;
