@@ -453,6 +453,7 @@ sub doItForList {
   my ($checksum);
   my ( $out, @issues, $iss );
   push(@subdirs, @mExSubsList);
+  @subdirs = deDupe(@subdirs);
   if ( $#subdirs >= 0 ) {
     for $s (@subdirs) {
 
