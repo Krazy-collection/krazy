@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the KDE source code for the EnglishBreakfastNetwork (EBN)   #
-# Copyright 2006-2008,2010 by Allen Winter <winter@kde.org>                   #
+# Copyright 2006-2008,2010-2011 by Allen Winter <winter@kde.org>              #
 # Copyright 2009-2010 by Bertjan Broeksema <b.broeksema@kdemail.net>          #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -52,7 +52,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.92';    #split line so MakeMaker can find the version here
+ $VERSION = '2.93';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -63,17 +63,19 @@ my ($trunk);      # fullpath to the top level of the trunk checkout
 my ($krazy);      # fullpath to the krazy program
 my ($plgpth);     # fullpath to the krazy plugins
 my ($xtrpth);     # fullpath to the krazy extras
-my ($PSQL);       # fullpath to the psql program
+my ($PSQL);       # fullpath to the psql program (empty means --nodb)
 my ($md5);        # fullpath to the md5sum checksum program
 my ($svn);        # fullpath to the svnlook program
 my ($repos);      # fullpath to the svn repository (where svnlook looks)
-my ($checks);     # The list of checks to be executed.
+my ($checks);     # The list of checks to be executed. (empty implies ALL checks)
 
 my ($saxon);      # fullpath to the saxon program
 my ($stylesheet); # full path to the main stylesheet (krazy-main.xsl)
 my ($sloccount);  # full path to sloccount executable
+my ($ProjDB);     # full path to kde-checklist-settings.pl program
+my ($ProjDB_opts);# any options to pass to kde-checklist-settings.pl
 
-my ($settings);   # fullpath to system settings 
+my ($settings);   # fullpath to system settings
 
 my ($help)       = '';
 my ($version)    = '';
@@ -124,6 +126,8 @@ if (-e "$configf") {
   $saxon      = $settings->{'saxon'};
   $stylesheet = $settings->{'stylesheet'};
   $sloccount  = $settings->{'sloccount'};
+  $ProjDB     = $settings->{'ProjDB'};
+  $ProjDB_opts= $settings->{'ProjDB_opts'};
 
 } elsif ( -e "$ENV{'HOME'}/.krazy2xml" ) {
   $settings   = LoadFile("$ENV{'HOME'}/.krazy2xml");
@@ -144,6 +148,8 @@ if (-e "$configf") {
   $saxon      = $settings->{'saxon'};
   $stylesheet = $settings->{'stylesheet'};
   $sloccount  = $settings->{'sloccount'};
+  $ProjDB     = $settings->{'ProjDB'};
+  $ProjDB_opts= $settings->{'ProjDB_opts'};
 
 } else {
   $tempdir    = '/mnt/ebn/apache/www.englishbreakfastnetwork.org/krazy/temp';
@@ -162,7 +168,15 @@ if (-e "$configf") {
   $saxon      = '/usr/bin/saxon8';
   $stylesheet = '/mnt/ebn/share/xsl/krazy-main.xsl';
   $sloccount  = '/usr/bin/sloccount';
+  $ProjDB     = '/mnt/ebn/bin/kde-checkout-list.pl';
+  $ProjDB_opts= '';
 }
+
+$module     = "" if(!defined($module));
+$PSQL       = "" if(!defined($PSQL));
+$checks     = "" if(!defined($checks));
+$ProjDB_opts= "" if(!defined($ProjDB_opts));
+
 #END OF SETTINGS
 
 # Setup for db
@@ -189,9 +203,9 @@ if ($hasdb) {
 }
 
 my ($svnRev) = '';
-if ( hostname() =~ m/englishbreakfast/ ) {
+if ( $svn =~ m/svnlook/ ) {
   $svnRev = `$svn $repos`;
-} else { # I don't have a copy of the repository, just a local checkout.
+} else { # else assume we are using svn info to get the Revision
   $svnRev = `$svn $repos | grep Revision | awk '{print \$2}'`;
 }
 chomp($svnRev);
@@ -292,13 +306,16 @@ for $m (@modules) {
   close(COMPINFO);
 
   @subdirs = ();
-  if ( -f "$trunk/$comp/$m/CMakeLists.txt" ) {
-    &subdirsFromCMakeList("$trunk/$comp/$m/CMakeLists.txt");
-  } else {
-    if ( -f "$trunk/$comp/$m/subdirs" ) {
-      &subdirsFromSubdirs("$trunk/$comp/$m/subdirs");
+  &subdirsFromProjectsDB($comp,$m);
+  if ( $#subdirs < 0 ) {
+    if ( -f "$trunk/$comp/$m/CMakeLists.txt" ) {
+      &subdirsFromCMakeList("$trunk/$comp/$m/CMakeLists.txt");
     } else {
-      &subdirsFromAll("$trunk/$comp/$m");
+      if ( -f "$trunk/$comp/$m/subdirs" ) {
+        &subdirsFromSubdirs("$trunk/$comp/$m/subdirs");
+      } else {
+        &subdirsFromAll("$trunk/$comp/$m");
+      }
     }
   }
   &mergeModuleSettings("$trunk/$comp/$m");
@@ -614,6 +631,26 @@ sub subdirsFromAll {
     next if ( $s eq "m4" );
     push( @subdirs, $s );
   }
+}
+
+sub subdirsFromProjectsDB { # relies on kde-checkout-list.pl
+  my($c,$m) = @_;
+  my($s,$u);
+  if($c =~ m/[Kk][Dd][Ee].*/) {
+    $c = "kde";
+  }
+  open(LIST, "$ProjDB $ProjDB_opts --component $c --module $m 2>/dev/null |")
+    or print STDERR "Cannot run: $ProjDB\n";
+  while (<LIST>) {
+    chomp($_);
+    ($s,$u) = split(' ',$_);
+    ($c,$m,$s) = split('/',$s);
+    if (defined($s) && "$s" ne "") {
+      push (@subdirs, $s);
+    }
+  }
+  @subdirs = deDupe(@subdirs);
+  close(LIST);
 }
 
 sub removeChecksFromExcludes() {
