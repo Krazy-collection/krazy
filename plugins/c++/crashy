@@ -93,6 +93,7 @@ while ($linecnt < $#lines) {
     $var =~ s/^.*\s*=\s*//;
     $var =~ s/^\s*//;
     $var =~ s/!//;
+    $var =~ s/^\s*\(\s*//;
 
     next if ($var =~ m/^return/);
     next if ($var =~ m/^exit/);
