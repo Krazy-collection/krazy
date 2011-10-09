@@ -514,7 +514,6 @@ sub osMacros() {
         $l =~ m/__NetBSD__/ ||
         $l =~ m/__OpenBSD__/ ||
         $l =~ m/__DragonFly__/ ||
-        $l =~ m/__GNU__/ ||
         $l =~ m/__osf__/ ||
         $l =~ m/__hpux/ ||
         $l =~ m/__sun/ ||
@@ -527,6 +526,7 @@ sub osMacros() {
 
 sub compilerMacros() {
   my($l,$lp1) = @_;
+  return 0 if ($l =~ m/__GNUC_MINOR__/);
   return 1
       if (
         $l =~ m/__BORLANDC__/ ||
