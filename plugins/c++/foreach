@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "foreach";
-my($Version) = "1.7";
+my($Version) = "1.8";
 
 &parseArgs();
 
@@ -87,17 +87,18 @@ while ($linecnt < $#lines) {
 
   if ($line =~ m/^\s*(foreach|Q_FOREACH)\s*\(/) {
 
-     if ($line =~ m/[\.>]values\(\)\s*\)/ ||
-         $line =~ m/[\.>]keys\(\)\s*\)/) {
-       $vcnt++;
-       if ($vcnt == 1) {
-         $vlstr = "values or keys iteration line\#" . $linecnt;
-       } else {
-         $vlstr = $vlstr . "," . $linecnt;
-       }
-       print "=> $line\n" if (&verboseArg());
-     }
-
+    if ($line =~ m/[\.>]values\(\)\s*\)/ ||
+        $line =~ m/[\.>]keys\(\)\s*\)/) {
+      if ($line !~ m/\(\s*(const\s)?[:\w]+\s*\*\s*[\w]+,/) {
+        $vcnt++;
+        if ($vcnt == 1) {
+          $vlstr = "values or keys iteration line\#" . $linecnt;
+        } else {
+          $vlstr = $vlstr . "," . $linecnt;
+        }
+        print "=> $line\n" if (&verboseArg());
+      }
+    }
     next if ($line =~ m/\(\s*const\s[:\w]+\s*&\s*\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?[:\w]+\s*\*(\s*const\s)?\s*\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?(T|int|uint|uint32_t|qint8|quint8|qint16|quint16|qint32|quint32|quint64|qint64|qlonglong|unsigned|unsigned int|unsigned long|GLint|GLuint|ulong|long|float|double|qreal|unsigned char|char|QChar)\s\w+\s*,/);
