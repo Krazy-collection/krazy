@@ -377,7 +377,11 @@ foreach $line (@lines) {
     print "$linecnt (put '{' on line after 'class')=> $line\n" if (&verboseArg());
   }
 
-  if ($line =~ m/^[[:space:]]if\(/ || $line =~ m/^[[:space:]]*for\(/ || $line =~ m/^[[:space:]]*while\(/ || $line =~ m/^[[:space:]]*foreach\(/) {
+  if ($line =~ m/^[[:space:]]if\(/ ||
+      $line =~ m/^[[:space:]]*for\(/ ||
+      $line =~ m/^[[:space:]]*while\(/ ||
+      $line =~ m/^[[:space:]]*foreach\(/ ||
+      $line =~ m/^[[:space:]]*Q_FOREACH\(/ ) {
     $Issues{'CONDSPACE'}{'count'}++;
     if ($Issues{'CONDSPACE'}{'count'} == 1) {
       $Issues{'CONDSPACE'}{'lines'} = "line\#" . $linecnt;
