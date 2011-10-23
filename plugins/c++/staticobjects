@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "staticobjects";
-my($Version) = "0.22";
+my($Version) = "0.23";
 
 &parseArgs();
 
@@ -166,6 +166,8 @@ while ($linecnt < $#lines) {
     # be nicer for non-QObject-derived classes
     next if ($line =~ m/(const|\s)QBrush\s+\w+\s*=\s*QBrush\s*\(\s*Qt:/);
     next if ($line =~ m/(const|\s)KCatalogLoader\s+\w+/);
+    next if ($line =~ m/(QMutex|QLatin1String)\s[:\w]+\s*\(/);
+    next if ($line =~ m/QTextStream\s(cout|cerr)\s*\((stdout|stderr)/);
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
