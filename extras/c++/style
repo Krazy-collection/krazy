@@ -574,11 +574,19 @@ foreach $line (@lines) {
     }
   }
   if (($indent > 0) && ($indent < $lindent)) {
-    if ($line !~ m/^\s*}/ && $line !~ m/^\s*case/ && !&isClVi($line) && $lline !~ m/{\s*}$/ && !&isOkEnd($lline) && $lline !~ m/break/) { # legit reduce indent conditions
-      if(! ($lline =~ m/{$/ && $lline !~ m/^[[:space:]]if/ && $lline !~ m/^[[:space:]]for/ && $lline !~ m/^[[:space:]]while/ && $lline !~ m/^[[:space:]]if/)) { # last is continue if,while,for
-	$Issues{'BADINDENT'}{'count'}++;
+    if ($line !~ m/^\s*}/ && $line !~ m/^\s*case/ && !&isClVi($line) &&
+        $lline !~ m/{\s*}$/ &&
+        !&isOkEnd($lline) &&
+        $lline !~ m/break/) { # legit reduce indent conditions
+      if(! ($lline =~ m/{$/ &&
+            $lline !~ m/^[[:space:]]if/ &&
+            $lline !~ m/^[[:space:]]for/ &&
+            $lline !~ m/^[[:space:]]Q_FOREACH/ &&
+            $lline !~ m/^[[:space:]]while/ &&
+            $lline !~ m/^[[:space:]]if/)) { # last is continue if,while,for
+        $Issues{'BADINDENT'}{'count'}++;
 	if ($Issues{'BADINDENT'}{'count'} == 1) {
-	  $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
+          $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
 	} else {
 	  $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
 	}
