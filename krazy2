@@ -1255,7 +1255,7 @@ sub printOOPS {
       }
     } elsif ( $export eq "xml" ) {
       # We need to think about this. The output of the checkers should be made
-      # consitent.
+      # consistent.
       my ( $ls1, $ls2, $ls3 ) = ( "", "", "" );
       my ( $file );
       ( $file, $ls1, $ls2, $ls3 ) = split( ":", $o );
@@ -1264,7 +1264,7 @@ sub printOOPS {
       $file =~ s/^\s*(\.\/)?//;
       $ls1 =~ s/^\s*//;
 
-      # Ugly due to inconsitent output of checkers and my total lack of perl and
+      # Ugly due to inconsistent output of checkers and my total lack of perl and
       # re skills.
       my( $lines );
       my( $message );
