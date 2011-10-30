@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.4";
+my($Version) = "1.41";
 
 &parseArgs();
 
@@ -86,6 +86,7 @@ HAVE_ARC4RANDOM
 HAVE_ASSUAN_FD_T
 HAVE_ASSUAN_INQUIRE_EXT
 HAVE_ASSUAN_SOCK_GET_NONCE
+HAVE_ASSUAN2
 HAVE_ATTICA
 HAVE_AUTH_TIMEOK
 HAVE_BACKTRACE
