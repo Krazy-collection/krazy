@@ -1206,6 +1206,7 @@ sub printOOPS {
     if ( $export eq "textlist" ) {
       my ($t) = split( ":", $o );
       $t =~ s+^\s++;
+      $t =~ s+%COLON%+:+g;
       print "$t\n";
     } elsif ( $export eq "textedit" ) {
 
@@ -1218,6 +1219,9 @@ sub printOOPS {
       push( @ls, &arrayLineify($ls1) ) if ( defined($ls1) );
       push( @ls, &arrayLineify($ls2) ) if ( defined($ls2) );
       push( @ls, &arrayLineify($ls3) ) if ( defined($ls3) );
+      if ( $#ls < 0 ) {
+        push( @ls, "0" );
+      }
 
       my ($subissue) = $o;
       $subissue =~ s+^\s*\./$f:\s*++;
@@ -1251,7 +1255,9 @@ sub printOOPS {
           $hint =~ s/^\s*//;
           $hint = " " . $hint;
         }
-        print "$f:$l:$subissue$issue$hint\n";
+        my($message) = "$f:$l:$subissue$issue$hint";
+        $message =~ s+%COLON%+:+g;
+        print "$message\n";
       }
     } elsif ( $export eq "xml" ) {
       # We need to think about this. The output of the checkers should be made
@@ -1304,6 +1310,7 @@ sub printOOPS {
 
       print "        <file name=\"$file\">\n";
       if ($message) {
+        $message =~ s+%COLON%+:+g;
         print "          <message>", encode_entities( $message ), "</message>\n";
       }
       print "          <issues>\n";
@@ -1315,6 +1322,7 @@ sub printOOPS {
       print "          </issues>\n";
       print "        </file>\n";
     } else {
+      $o =~ s+%COLON%+:+g;
       print "$o\n";
     }
   }
