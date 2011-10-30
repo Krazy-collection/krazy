@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2010 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2011 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.11";
+my($Version) = "1.2";
 
 &parseArgs();
 
@@ -96,7 +96,7 @@ while ($linecnt < $#lines) {
   }
 
   # Don't use Qt 4 classes that got deprecated.
-  &doIt($line,"QHttp","KIO::AccessManager",'');
+  &doIt($line,"QHttp","KIO%COLON%%COLON%AccessManager",'');
   &doIt($line,"QWorkspace","QMdiArea",'');
 
   # use KDE classes instead of Qt classes where possible
@@ -116,15 +116,14 @@ while ($linecnt < $#lines) {
   &doIt($line,"QTextBrowser","KTextBrowser",'');
   &doIt($line,"QTextEdit","KTextEdit",'');
   &doIt($line,"QUrl","KUrl",'');
-  &doIt($line,"QNetworkAcessManager","KIO::AccessManager",'');
+  &doIt($line,"QNetworkAcessManager","KIO%COLON%%COLON%AccessManager",'');
 }
 
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
-  $lstr =~ s/,$//;
-  print "$lstr ($cnt)\n" if (!&quietArg());
+  print "$lstr" if (!&quietArg());
   Exit $cnt;
 }
 
@@ -132,7 +131,7 @@ sub doIt() {
   my($line,$qname,$kname,$nregexp) = @_;
   if ($f !~ m/$kname\.c/i && &qClass($line,$qname,$nregexp)) {
     $cnt++;
-    $lstr .= $qname . "[$kname],";
+    $lstr .= "Use $kname instead of $qname line\#" . $linecnt . "\n";
     print "=> $line\n" if (&verboseArg());
   }
 }
@@ -142,7 +141,7 @@ sub qClass() {
 
   if ($filetype eq "c++") {
     if ($l =~ m/new\s+$qname\s*\(/ ||
-	$l =~ m/$qname\::[[:alnum:]]+[[:space:]]*\(/ ||
+	$l =~ m/$qname\::[[:alnum:]]+[[:space:]]*[\w\(\)\;]/ ||
 	$l =~ m/$qname[[:space:]]*\*[[:space:]]*[[:alnum:]]+/ ||
 	$l =~ m/[:,]\s*public\s+$qname/ ||
 	(($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/) && ($l !~ m/==/ && $l !~ m/\!=/))) {
