@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.41";
+my($Version) = "1.50";
 
 &parseArgs();
 
@@ -77,6 +77,9 @@ my($line);
 my($lstr) = "";
 my($hstr) = "";
 my($wstr) = "";
+
+my(@OS) = ();
+my(@COMP) = ();
 
 # a list of all known HAVE_FOO macros found by looking for cmakedefines
 # in all the *.cmake files we could find. most likely incomplete and
@@ -409,17 +412,19 @@ foreach $line (@lines) {
   $line =~ s+//.*++;  #skip C++ comments
 
   if ($line =~ m/^[[:space:]]*#[[:space:]]*if[[:space:]][_[:alnum:]]/ ||
+      $line =~ m/^[[:space:]]*#[[:space:]]*if[[:space:]]\!def/ ||
       $line =~ m/^[[:space:]]*#[[:space:]]*ifdef[[:space:]][_[:alnum:]]/ ||
       $line =~ m/^[[:space:]]*#[[:space:]]*ifndef[[:space:]][_[:alnum:]]/ ||
       $line =~ m/^[[:space:]]*#[[:space:]]*elif[[:space:]][_[:alnum:]]/) {
     next if ($line =~ m/if[[:space:]][01]$/);
     next if ($line =~ m/ifndef[[:space:]].*_H/);
     next if ($line =~ m/DEBUG/ || $line =~ m/VERBOSE/);
-    next if ($line =~ m/QT/);
+#    next if ($line =~ m/QT/);
     next if ($line =~ m/KDE/);
     next if ($line =~ m/EXPORT/);
-    if (&osMacros($line,$lines[$linecnt]) || &compilerMacros($line,$lines[$linecnt])) {
-      my($res) = &haves($line);
+    if (&osMacros($line,$lines[$linecnt]) >= 0 ||
+        &compilerMacros($line,$lines[$linecnt]) >= 0) {
+      my($res) = join(',',@OS,@COMP);
       $cnt++;
       if ($cnt == 1) {
         $lstr = "O/S or Compiler specific macro line\#" . $linecnt . "[$res]";
@@ -499,43 +504,60 @@ sub Explain {
 
 sub osMacros() {
   my($l,$lp1) = @_;
-  return 1
-      if (
-#       allow Q_OS_
-        $l =~ m/USE_SOLARIS/ ||
-        $l =~ m/USE_NETBSD/ ||
-        $l =~ m/USE_FREEBSD/ ||
-        $l =~ m/_WIN32/ ||
-        $l =~ m/_WIN64/ ||
-        $l =~ m/__APPLE__/ ||
-        $l =~ m/__svr4__/ ||
-        $l =~ m/__linux__/ ||
-        $l =~ m/__bsdi__/ ||
-        $l =~ m/__FreeBSD__/ ||
-        $l =~ m/__NetBSD__/ ||
-        $l =~ m/__OpenBSD__/ ||
-        $l =~ m/__DragonFly__/ ||
-        $l =~ m/__osf__/ ||
-        $l =~ m/__hpux/ ||
-        $l =~ m/__sun/ ||
-        $l =~ m/__sgi/ ||
-        $l =~ m/_AIX/ ||
-        $l =~ m/__CYGWIN__/
-      );
-  return 0;
+
+  @OS = ();
+  my(@haves) = split(',',&haves($l));
+  if ($#haves >= 0) {
+    my($have);
+    foreach $have (@haves) {
+      if ($have =~ m/USE_SOLARIS/ ||
+          $have =~ m/USE_NETBSD/ ||
+          $have =~ m/USE_FREEBSD/ ||
+          ($have =~ m/_WIN32/ && $have !~ m/Q_OS_WIN32/) ||
+          ($have =~ m/_WIN64/ && $have !~ m/Q_OS_WIN64/) ||
+          $have =~ m/__APPLE__/ ||
+          $have =~ m/__svr4__/ ||
+          $have =~ m/__linux__/ ||
+          $have =~ m/__bsdi__/ ||
+          $have =~ m/__FreeBSD__/ ||
+          $have =~ m/__NetBSD__/ ||
+          $have =~ m/__OpenBSD__/ ||
+          $have =~ m/__DragonFly__/ ||
+          $have =~ m/__osf__/ ||
+          $have =~ m/__hpux/ ||
+          $have =~ m/__sun/ ||
+          $have =~ m/__sgi/ ||
+          $have =~ m/_AIX/ ||
+          $have =~ m/__CYGWIN__/
+      ) {
+        push(@OS,$have);
+      }
+    }
+  }
+  return $#OS;
 }
 
 sub compilerMacros() {
   my($l,$lp1) = @_;
-  return 0 if ($l =~ m/__GNUC_MINOR__/);
-  return 1
-      if (
-        $l =~ m/__BORLANDC__/ ||
-        $l =~ m/__INTEL_COMPILER/
-      );
-  # allow Q_CC_
-  return 1 if ($l =~ m/__GNUC__/ && $lp1 !~ /warning/);
-  return 0;
+
+  @COMP = ();
+  return -1 if ($l =~ m/__GNUC_MINOR__/);
+
+  my(@haves) = split(',',&haves($l));
+  if ($#haves >= 0) {
+    my($have);
+    foreach $have (@haves) {
+      push(@COMP, $have)
+        if (
+          $have =~ m/__BORLANDC__/ ||
+          $have =~ m/__INTEL_COMPILER/
+        );
+    }
+  }
+  if ($l =~ m/__GNUC__/ && $lp1 !~ /warning/){
+    push(@COMP,"__GNUC__");
+  }
+  return $#COMP;
 }
 
 sub knownHaveMacro() {
