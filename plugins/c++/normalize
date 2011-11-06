@@ -1,0 +1,148 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2011 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for normalized signals and slots signatures.
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "normalize";
+my($Version) = "1.0";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); Exit 0; }
+
+my($f) = $ARGV[0];
+
+# open file and slurp it in (C++ only)
+if (&fileType($f) eq "c++" && ($f !~ m/\.c$/ && $f !~ m/\.h$/ && $f !~ m/\.hxx$/)) {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+my(@data_lines) = <F>;
+close(F);
+
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+
+# Check Condition
+my($linecnt) = 0;
+my($line);
+my($sig_cnt) = 0;
+my($slot_cnt) = 0;
+my($sig_str) = "";
+my($slot_str) = "";
+
+while ($linecnt < $#lines) {
+  $line = $lines[$linecnt++];
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $sig_cnt = $slot_cnt = 0;
+    last;
+  }
+
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  my($pline) = $line;
+  $pline =~ s/const [\w:]+\s*\*//g;
+
+  if ($pline =~ m/SIGNAL\s*\(\s/ ||
+      $pline =~ m/SIGNAL\s*\([\w:]+\s/ ||
+      $pline =~ m/SIGNAL\s*\([\w:]+\(\s/ ||
+      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,]+\s/ ||
+      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&]+\)\s/) {
+    $sig_cnt++;
+    if ($sig_cnt == 1) {
+      $sig_str = "line\#" . $linecnt;
+    } else {
+      $sig_str = $sig_str . "," . $linecnt;
+    }
+    print "=> $linecnt: $line\n" if (&verboseArg());
+  }
+  if ($pline =~ m/SLOT\s*\(\s/ ||
+      $pline =~ m/SLOT\s*\([\w:]+\s/ ||
+      $pline =~ m/SLOT\s*\([\w:]+\(\s/ ||
+      $pline =~ m/SLOT\s*\([\w:]+\([\w:,]+\s/ ||
+      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&]+\)\s/) {
+    $slot_cnt++;
+    if ($slot_cnt == 1) {
+      $slot_str = "line\#" . $linecnt;
+    } else {
+      $slot_str = $slot_str . "," . $linecnt;
+    }
+    print "=> $linecnt: $line\n" if (&verboseArg());
+  }
+}
+
+my($total_count) = $sig_cnt + $slot_cnt;
+if (!$total_count) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+} else {
+  if (!&quietArg()) {
+    print "SIGNALS: $sig_str ($sig_cnt)" if ($sig_cnt);
+    print ", " if ($sig_cnt && $slot_cnt);
+    print "SLOTS: $slot_str ($slot_cnt)" if ($slot_cnt);
+    print "\n";
+  }
+  Exit $total_count;
+}
+
+sub Help {
+  print "Check for normalized SIGNAL and SLOT signatures\n";
+  Exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  Exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Prefer to use normalised signal/slot signatures. That is, remove all dispensable whitespace, const-&, and top-level const. For more info, see <http://marcmutz.wordpress.com/effective-qt/prefer-to-use-normalised-signalslot-signatures>\n";
+  Exit 0 if &explainArg();
+}
