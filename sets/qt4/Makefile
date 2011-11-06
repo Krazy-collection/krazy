@@ -1,6 +1,6 @@
 # krazy qt4 sets Makefile
 #
-# Copyright 2010 by Allen Winter <winter@kde.org>
+# Copyright 2010-2011 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ emptystrcompare \
 endswithnewline \
 explicit \
 foreach \
+normalize \
 nullstrassign \
 nullstrcompare \
 operators \
