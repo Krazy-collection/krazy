@@ -5,7 +5,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2009 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2005-2009,2011 by Allen Winter <winter@kde.org>               #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 # Copyright (C) 2007 by Dirk Mueller <mueller@kde.org>                        #
 #                                                                             #
@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.7";
+my($Version) = "1.71";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -96,7 +96,7 @@ sub checkOneFile($)
   close(F);
 
   return (1, $license, "GPL v3+ or v2-only is not compatible with Qt or KDE licensing")
-      if ($license =~ m/\bGPL.*(?:v3\+?|v2\))/);
+      if ($license =~ m/\bGPL.*(?:v3\+?|v2\))/ && $LibPath);
   return (1, $license, $license) if ($license =~ m/(wrong address)/);
   return (1, $license, $license) if ($license eq "Unknown license");
   return (1, $license, "missing license") if ($license eq "UNKNOWN");
