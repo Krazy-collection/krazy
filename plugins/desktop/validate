@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "validate";
-my($Version) = "1.41";
+my($Version) = "1.42";
 
 &parseArgs();
 
@@ -124,6 +124,7 @@ sub processFile() {
       $line =~ s+^$f:\s*++;
       $line =~ s+^warning:\s*++;
       $line =~ s+^error:\s*++;
+      $line =~ s+\(will be fatal in the future\): ++;
       print "$line\n" if (!&quietArg());
     }
   }
