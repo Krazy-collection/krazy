@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.23";
+my($Version) = "1.24";
 
 &parseArgs();
 
@@ -175,6 +175,8 @@ sub whiteList {
       $l =~ m/QMessageBox::AcceptRole/ ||
       $l =~ m/QMessageBox::RejectRole/ ||
       $l =~ m/QMessageBox::Question/ ||
+      $l =~ m/QTabWidget::North/ ||
+      $l =~ m/QTabWidget::South/ ||
       $l =~ m/[:,]\s*public\s+QDialog/ ||
       $l =~ m/class=\"QDialog\"/ ||
       $l =~ m/KServiceTypeTrader::createInstanceFromQuery<.*>/) {
