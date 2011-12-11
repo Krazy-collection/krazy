@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.50";
+my($Version) = "1.51";
 
 &parseArgs();
 
@@ -253,6 +253,9 @@ HAVE_PAM_GETENVLIST
 HAVE_PCREPOSIX
 HAVE_POLL
 HAVE_POPPLER_0_9
+HAVE_POPPLER_0_11
+HAVE_POPPLER_0_12_1
+HAVE_POPPLER_0_16
 HAVE_POSIX_ACL
 HAVE_POSIX_FALLOCATE
 HAVE_POSIX_FALLOCATE64
