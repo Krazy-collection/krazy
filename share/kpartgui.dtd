@@ -44,8 +44,8 @@
 
 <!-- A tool bar
   - Attributes: name: a unique name for the toolbar, use mainToolBar for the main one
-  -             fullWidth: if true (default), the toolbar extends to the full width of the window
-  -             position: the position of the toolbar in the window
+  -             position: the position of the toolbar in the window (only effective if the user
+                          has never used the application before)
   -             iconText: whether to show icon or text or both
   -             iconSize: the size of the icons (0 for default, or usually 22 or 32)
   -             index: the index in the toolbar dock (see QMainWindow::moveToolBar; starts at 0)
@@ -54,11 +54,12 @@
   -             group: optional group name, for named merging (?)
   -             hidden: if true, the toolbar is initially hidden. There should be a menu entry for showing it.
   -             noEdit: if true, the toolbar won't appear in the toolbar editor
+  -             noMerge: if true, the standard toolbar layout from ui_standards.rc won't be used.
+  -             deleted: if true, the toolbar will not be created, even if ui_standards.rc mentions it
   -->
 <!ELEMENT ToolBar (text?, (Action | Separator | ActionList | Merge | MergeLocal | DefineGroup)*)>
 <!ATTLIST ToolBar
   name CDATA #REQUIRED
-  fullWidth (true|false) "true"
   position (top|bottom|left|right) "top"
   iconText (icononly|textonly|icontextright|icontextbottom) #IMPLIED
   iconSize CDATA #IMPLIED
@@ -69,9 +70,13 @@
   hidden (true|false) "false"
   noEdit (true|false) "false"
   noMerge (0|1) "0"
+  deleted (true|false) "false"
 >
 
-<!-- A Menu such as the "File" or "Edit" menu. Can be used to define popup menus as well. -->
+<!-- A Menu such as the "File" or "Edit" menu. Can be used to define popup menus as well.
+  -             noMerge: if true, the standard menu layout from ui_standards.rc won't be used.
+  -             deleted: if true, the menu will not be created, even if ui_standards.rc mentions it
+-->
 <!ELEMENT Menu (text?, (title | Action | ActionList | Separator | TearOffHandle | Merge | MergeLocal | DefineGroup | Menu )*)>
 <!ATTLIST Menu
   append CDATA #IMPLIED
@@ -79,6 +84,7 @@
   group CDATA #IMPLIED
   icon CDATA #IMPLIED
   noMerge (0|1) "0"
+  deleted (true|false) "false"
 >
 
 <!-- Defines both Standard and app-specific actions. An action can appear in a menu, a toolbar or in a
@@ -90,7 +96,7 @@
      - append: this is used to control the placement of the action during the
                merging with ui_standards.rc. This is mapped to MergeLocal tags there.
                Note that this feature is currently only available for the mainwindow, not for parts/plugins.
-     - text, whatsThis, toolTip, shortText, shortcut, icon: all those are mapped
+     - text, whatsThis, toolTip, iconText, shortcut, icon, priority: all those are mapped
        to KAction properties.
  -->
 <!ELEMENT Action EMPTY>
@@ -103,9 +109,10 @@
   text CDATA #IMPLIED
   whatsThis CDATA #IMPLIED
   toolTip CDATA #IMPLIED
-  shortText CDATA #IMPLIED
+  iconText CDATA #IMPLIED
   shortcut CDATA #IMPLIED
   icon CDATA #IMPLIED
+  priority CDATA #IMPLIED
 >
 
 <!-- Inserts a separator item into a menubar or toolbar -->
