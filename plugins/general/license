@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.71";
+my($Version) = "1.80";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -86,7 +86,7 @@ sub checkOneFile($)
 
   open(F, "<$f") || die "Couldn't open $f";
   my(@c) = <F>;
-  my($htxt) = join '', @c[0.. ($#c > 29 ? 29 : $#c)];
+  my($htxt) = join '', @c[0.. ($#c > 39 ? 39 : $#c)];
   if ($htxt =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $htxt =~ m+//.*[Kk]razy:skip+) {
     return (0, "", "");
