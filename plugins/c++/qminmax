@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2007,2009-2010 by Allen Winter <winter@kde.org>          #
+# Copyright (C) 2006-2007,2009-2011 by Allen Winter <winter@kde.org>          #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qminmax";
-my($Version) = "1.5";
+my($Version) = "1.60";
 
 &parseArgs();
 
@@ -74,12 +74,14 @@ my($min_cnt) = 0;
 my($max_cnt) = 0;
 my($rmin_cnt) = 0;
 my($rmax_cnt) = 0;
+my($rbound_cnt) = 0;
 my($linecnt) = 0;
 my($line);
 my($min_str) = "";
 my($max_str) = "";
 my($rmin_str) = "";
 my($rmax_str) = "";
+my($rbound_str) = "";
 foreach $line (@lines) {
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
@@ -118,7 +120,7 @@ foreach $line (@lines) {
     print "=> $line" if (&verboseArg());
   }
 
-  if ($line =~ m/qMax\s*\(\s*\d+\.\d*\s*,/ || $line =~ m/qMax\s*\(.*,\s*\d+\.\d*\s*\)/) {
+  if ($line =~ m/qMax\s*\(\s*[-]*\d+\.\d*\s*,/ || $line =~ m/qMax\s*\(.*,\s*[-]*\d+\.\d*\s*\)/) {
     $rmax_cnt++;
     if ($rmax_cnt == 1) {
       $rmax_str = "passing non-casted float to qMax line\#" . $linecnt;
@@ -127,7 +129,7 @@ foreach $line (@lines) {
     }
     print "=> $line" if (&verboseArg());
   }
-  if ($line =~ m/qMin\s*\(\s*\d+\.\d*\s*,/ || $line =~ m/qMin\s*\(.*,\s*\d+\.\d*\s*\)/) {
+  if ($line =~ m/qMin\s*\(\s*[-]*\d+\.\d*\s*,/ || $line =~ m/qMin\s*\(.*,\s*[-]*\d+\.\d*\s*\)/) {
     $rmin_cnt++;
     if ($rmin_cnt == 1) {
       $rmin_str = "passing non-casted float to qMin line\#" . $linecnt;
@@ -136,9 +138,19 @@ foreach $line (@lines) {
     }
     print "=> $line" if (&verboseArg());
   }
+  if ($line =~ m/qBound\s*\(\s*[-]*\d+\.\d*\s*,/ ||
+      $line =~ m/qBound\s*\(.*,\s*[-]*\d+\.\d*\s*\)/) {
+    $rbound_cnt++;
+    if ($rbound_cnt == 1) {
+      $rbound_str = "passing non-casted float to qBound line\#" . $linecnt;
+    } else {
+      $rbound_str = $rbound_str . "," . $linecnt;
+    }
+    print "=> $line" if (&verboseArg());
+  }
 }
 
-my($total_count) = $min_cnt + $max_cnt + $rmin_cnt + $rmax_cnt;
+my($total_count) = $min_cnt + $max_cnt + $rmin_cnt + $rmax_cnt + $rbound_cnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -147,6 +159,7 @@ if (!$total_count) {
   print "$max_str ($max_cnt)\n" if (!&quietArg() && $max_cnt);
   print "$rmin_str ($rmin_cnt)\n" if (!&quietArg() && $rmin_cnt);
   print "$rmax_str ($rmax_cnt)\n" if (!&quietArg() && $rmax_cnt);
+  print "$rbound_str ($rbound_cnt)\n" if (!&quietArg() && $rbound_cnt);
   Exit $total_count;
 }
 
