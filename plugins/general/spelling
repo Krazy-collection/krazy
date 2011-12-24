@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2010 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2011 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2003 by Dirk Mueller <mueller@kde.org>                        #
 # Copyright (C) 2004 Richard Evans <rich@ridas.com>                           #
 #                                                                             #
@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.8";
+my($Version) = "1.81";
 
 &parseArgs();
 
@@ -1330,6 +1330,7 @@ opend                  opened
 optimisation           optimization
 optimisations          optimizations
 optimise               optimize
+optimite               optimize
 optionnal              optional
 optionnally            optionally
 orangeish              orangish
