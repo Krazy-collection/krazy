@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qobject";
-my($Version) = "1.2";
+my($Version) = "1.21";
 
 &parseArgs();
 
@@ -89,6 +89,8 @@ while ($linecnt < $#lines) {
 
     if ($line =~ m/[[:space:]]*class[[:space:]]+[[:alnum:]]+[[:space:]]*:[[:space:]]*[[:alnum:]]+[[:space:]]+QObject/) {
         next if ($lastl =~ m/template/ || $lastl =~ m/#define[[:space:]]/);
+        next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
         $classcnt++;
         $classline{$classcnt}= $linecnt;
     } elsif ($line =~ m/Q_OBJECT/) {
