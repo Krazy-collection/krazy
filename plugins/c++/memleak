@@ -1,0 +1,251 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2011 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests KDE source for possible memory leaks
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "memleak";
+my($Version) = "0.01";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); Exit 0; }
+
+my($f) = $ARGV[0];
+
+# open file and slurp it in (C++ only)
+if (&fileType($f) eq "c++") {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+my(@data_lines) = <F>;
+close(F);
+
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+
+# Check Condition
+my($linecnt) = 0;
+my($line);
+my($cnt) = 0;
+my($lstr) = "";
+
+my(%New);
+my(%Del);
+my(%qDel);
+
+while ($linecnt < $#lines) {
+  $line = $lines[$linecnt++];
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $cnt = 0;
+    last;
+  }
+
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  my($var);
+  if ($line =~ m/=\s*new\s/) {
+    $var = $line;
+    $var =~ s/\s*=.*$//;
+    $var =~ s/^.*\*\s*//;
+    $var =~ s/^\s*//;
+    $var =~ s/[\w:<>]+\s//;
+
+    next if ($var =~ m/[sS]elf$/); # skip singletons
+    next if ($line =~ m/new\s[KQ]TemporaryFile/); # since freed on close
+    next if ($line =~ m/new KNotification/); #freed on event close
+    next if ($line =~ m/new\s[KQ]Menu\s*\(\s*[\w:]+\s*\)/); #parented menus are freed
+    next if ($line =~ m/Job[s]*\s*\(/ || $line =~ m/Job[s]*\s*\;/); #KJobs deletelater()
+    next if ($line =~ m/Command\s*\(/ || $line =~ m/Command\s*\;/);
+
+    if (!defined($New{$var})) {
+      $New{$var}{'name'} = $var;
+      $New{$var}{'count'} = 0;
+      $New{$var}{'first'} = $linecnt;
+      $New{$var}{'lines'} = $linecnt;
+    } else {
+      $New{$var}{'count'}++;
+      $New{$var}{'lines'} = $New{$var}{'lines'} . "," . $linecnt;
+    }
+    #print "adding new for [$var]\n";
+  }
+  if ($line =~ m/[\s;]delete\s/ || $line =~ m/[\s;]delete\s*\[\s*\]/) {
+    $var = $line;
+    $var =~ s/^.*delete\s//;
+    $var =~ s/^.*delete\s*\[\s*\]//;
+    $var =~ s/^\s//g;
+    $var =~ s/\s*;\s*$//;
+    if (!defined($Del{$var}{'name'})) {
+      $Del{$var}{'name'} = $var;
+      $Del{$var}{'count'} = 0;
+    }
+    #print "adding delete for [$var]\n";
+    $Del{$var}{'count'}++;
+  }
+  if ($line =~ m/[\s;]qDeleteAll\s*\(\s/) {
+    $var = $line;
+    $var =~ s/^.*qDeleteAll\s*\(\s*//;
+    $var =~ s/\s*\).*$//;
+    if (!defined($qDel{$var}{'name'})) {
+      $Del{$var}{'name'} = $var;
+      $Del{$var}{'count'} = 0;
+    }
+    #print "adding qDelete for [$var]\n";
+    $Del{$var}{'count'}++;
+  }
+}
+
+my($guy,$var,$dvar);
+my($linecnts);
+foreach $guy (keys %New) {
+  if (!defined($Del{$guy}) ||
+      $New{$guy}{'count'} > $Del{$guy}{'count'}) {
+
+    $var = $New{$guy}{'name'};
+    next if (&searchqDelAppend($var));
+    next if (&searchReturnForward($var,$New{$var}{'first'}));
+    next if (&searchBackQObject($New{$var}{'first'}));
+
+    $dvar = "d->" . $var;
+    next if (defined($Del{$dvar}) &&
+             $Del{$dvar}{'count'} >=  $New{$dvar}{'count'});
+
+    $cnt++;
+    $linecnts = $New{$guy}{'lines'};
+    if ($cnt == 1) {
+      $lstr = "line\#" . $linecnts;
+    } else {
+      $lstr = $lstr . "," . $linecnts;
+    }
+    $lstr = $lstr . "[" . $var . "]";
+  }
+}
+
+sub searchqDelAppend {
+  my($var) = @_;
+  my($guy,$ls);
+
+  for $guy (keys %qDel) {
+    my($l) = 0;
+    while ($l < $#lines) {
+      $ls = $lines[$l++];
+      my($m) = $guy . "\\.append\\s*\\(\\s*" . $var;
+      if ($ls =~ m/$m/) {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
+sub searchReturnForward {
+  my($var,$l) = @_;
+
+  my($fl) = 0;
+  my($ls);
+  while ($l < $#lines && $fl < 25) {
+    $ls = $lines[$l++];
+    my($m) = "return.*" . $var;
+    my($p) = "push_back\\s*\\(\\s*" . $var;
+    if ($ls =~ m/$m/ || $ls =~ m/$p/) {
+      return 1;
+    }
+    $fl++;
+  }
+  return 0;
+}
+
+
+sub searchBackQObject {
+  my($l) = @_;
+  my($fl) = 0;
+  while($l >= 0 && $fl < 100) {
+    my($lstr) = $lines[$l--];
+    if ($lstr =~ m/^\w::\w/) {
+      # assume top of method reached first
+      return 0;
+    }
+    if ($lstr =~ m/^[\s;]*setObjectName\s*\(/ ||
+        $lstr =~ m/[\s:]QObject\s*\(/ ||
+        $lstr =~ m/[\s:]QWidget\s*\(/ ||
+        $lstr =~ m/[\s:]QFrame\s*\(/ ||
+        $lstr =~ m/[\s:]KCModule\s*\(/ ||
+        $lstr =~ m/[\s:][KQ]\w+View\s*\(/ ||
+        $lstr =~ m/^[\s;]*setXMLFile\s*\(/ ||
+        $lstr =~ m/\.setupUi\s*\(/) {
+      return 1;
+    }
+    $fl++;
+  }
+  return 0;
+}
+
+
+if (!$cnt) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+} else {
+  print "$lstr ($cnt)\n" if (!&quietArg());
+  Exit $cnt;
+}
+
+sub Help {
+  print "Check for possible memory leaks\n";
+  Exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  Exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Make sure to delete memory you have allocated on the heap to avoid memory leaks.\n";
+  Exit 0 if &explainArg();
+}
