@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "tipsandthis";
-my($Version) = "1.41";
+my($Version) = "1.42";
 
 &parseArgs();
 
@@ -92,6 +92,7 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/=\s*\"QLabel\"/);
     next if ($line =~ m/=\s*\"QFrame\"/);
     next if ($line =~ m/=\s*\"QScrollArea\"/);
+    next if ($line =~ m/=\s*\"QSplitter\"/);
     next if ($line =~ m/=\s*\"QStackedWidget\"/);
     next if ($line =~ m/=\s*\"Line\"/);
     #skip this class if the next line isn't a property
