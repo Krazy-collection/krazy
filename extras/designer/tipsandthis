@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "tipsandthis";
-my($Version) = "1.42";
+my($Version) = "1.43";
 
 &parseArgs();
 
@@ -89,6 +89,7 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/=\s*\"QWidget\"/);
     next if ($line =~ m/=\s*\"QGroupBox\"/);
     next if ($line =~ m/=\s*\"QButtonGroup\"/);
+    next if ($line =~ m/=\s*\"QToolBox\"/);
     next if ($line =~ m/=\s*\"QLabel\"/);
     next if ($line =~ m/=\s*\"QFrame\"/);
     next if ($line =~ m/=\s*\"QScrollArea\"/);
