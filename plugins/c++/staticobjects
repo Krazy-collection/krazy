@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2010-2011 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2010-2012 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "staticobjects";
-my($Version) = "0.23";
+my($Version) = "0.24";
 
 &parseArgs();
 
@@ -113,6 +113,9 @@ while ($linecnt < $#lines) {
 
   if ($bc == 0 && $line =~ m/^\s*static\s/) {
     next unless ($line =~ m/;\s*$/);
+
+    #skip if in a method
+    next if (&searchBack('^\s*[\w:]+\s\w+::\w+\s*\(',$linecnt,200));
 
     #skip function declarations
     next if ($line =~ m/static\sinline/);
@@ -202,21 +205,15 @@ sub Explain {
 }
 
 # search the previous $n lines for a pattern $p
-# but stop if we encounter $s
-sub searchBackWithStop {
-  my($p,$l,$n,$s) = @_;
+sub searchBack {
+  my($p,$l,$n) = @_;
   my($i);
-  $n = $#lines if ($#lines < $n);
+  $n = $l-1 if ($l < $n);
   for($i=1; $i<=$n; $i++) {
-    if ($lines[$l-$i] =~ $s) {
-      # stop searching
-      return 0;
-    }
     if ($lines[$l-$i] =~ $p) {
-      # got a match
       return 1;
     }
   }
-  return 1;
+  return 0;
 }
 
