@@ -40,6 +40,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "<plugin>";
