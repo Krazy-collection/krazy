@@ -1,6 +1,6 @@
 # krazy kde4 sets Makefile
 #
-# Copyright 2010-2011 by Allen Winter <winter@kde.org>
+# Copyright 2010-2012 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -99,6 +99,11 @@ iconnames \
 license \
 spelling \
 
+# links to CMake plugins
+CMAKE_PLUGINS = \
+endswithnewline \
+spelling \
+
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/kde4
 
@@ -142,6 +147,10 @@ install::
 	list="$(QML_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing kde4 set qml plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
+	done
+	list="$(CMAKE_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing kde4 set cmake plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/cmake/$$plugin $(DESTDIR)$(INSTDIR)/cmake-$$plugin; \
 	done
 
 clean:

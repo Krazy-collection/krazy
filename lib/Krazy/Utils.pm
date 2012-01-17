@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2010 by Allen Winter <winter@kde.org>                        #
+# Copyright 2007-2010,2012 by Allen Winter <winter@kde.org>                   #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -29,7 +29,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.14;
+$VERSION = 1.15;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath Exit
@@ -197,6 +197,8 @@ sub fileType {
     return "qml";
   } elsif ( $f =~ m/.qdoc$/ ) {
     return "qdoc";
+  } elsif ( $f =~ m/CMakeLists\.txt$/ || $f =~ m/\.cmake$/ ) {
+    return "cmake";
   }
   return "";
 }
@@ -224,6 +226,8 @@ sub fileTypeDesc {
     return "Qt Declarative UI files";
   } elsif ( $t eq "qdoc" ) {
     return "Qt documentation files";
+  } elsif ( $t eq "cmake" ) {
+    return "CMake files";
   }
   return "";
 }

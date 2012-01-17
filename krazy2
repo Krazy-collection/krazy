@@ -929,6 +929,7 @@ sub Version {
 sub initCheckers {
   %Checkers = (
     'c++'       => [],
+    'cmake'     => [],
     'desktop'   => [],
     'designer'  => [],
     'kconfigxt' => [],
