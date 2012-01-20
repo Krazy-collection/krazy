@@ -1,6 +1,6 @@
 # krazy extras Makefile
 #
-# Copyright 2007-2008 by Allen Winter <winter@kde.org>
+# Copyright 2007-2008,2012 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 # list of all extra subdirs to install
 SUBDIRS = \
 c++ \
+cmake \
 designer \
 desktop \
 general \
