@@ -1,0 +1,193 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2012 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests CMake files for adherence to a coding style
+
+#TODO CHECKS
+#line longer than limit (LINELEN)
+#more than one blank line in a row (BLANKS)
+#trailing whitespace (TRAILWHITE)
+#tabs (TAB)
+#multiple whitespace between args (EXTRASPACE)
+#non-all lower-case cmake commands (NONLOWER)
+#non-empty else, elseif, endif, endforeach, endfunction, endmacro endwhile (NONEMPTYEND)
+#whitespace after opening paren (PARENNOSPACE)
+#whitespace before opening paren (NOCONDSPACE)
+#whitespace before closing paren (NOSPACEPAREN)
+#bad indentation (BADINDENTOFF)
+#bad indentation inside block (BADINDENT)
+#multiple commands on one line (MULTISTATE)
+
+# Supports these environment variables:
+#  KRAZY_STYLE_CMAKESTYLE: a predefined style, currently available styles are "kde"
+#  KRAZY_STYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4
+#  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to 100)
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Env qw (KRAZY_STYLE_CMAKESTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
+use Cwd 'abs_path';
+use Tie::IxHash;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::Utils;
+
+my($Prog) = "style";
+my($Version) = "0.01";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); Exit 0; }
+
+
+# has of all issues we need to keep track of
+tie my(%Issues), "Tie::IxHash";
+
+# Check Condition
+my($f) = $ARGV[0];
+
+if ($f =~ m/CMakeLists\.txt/ || $f =~ m/\.cmake$/) {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+
+$KRAZY_STYLE_LINEMAX = 100 if ( !$KRAZY_STYLE_LINEMAX );
+if ( !$KRAZY_STYLE_CMAKESTYLE ) {
+  $KRAZY_STYLE_CMAKESTYLE = "kde";
+}
+
+if ( !$KRAZY_STYLE_OFFSET ) {
+  $KRAZY_STYLE_OFFSET = 2;
+}
+
+#open file and slurp it in
+open(F, "$f") || die "Couldn't open $f";
+my(@lines) = <F>;
+close(F);
+
+###we will remove the comments as we go
+
+my($cnt) = 0;
+my($linecnt) = 0;
+my($line);
+
+#let's begin
+&initIssues();
+foreach $line (@lines) {
+  chomp($line);
+}
+
+if (!$cnt) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+} else {
+  Exit $cnt;
+}
+
+sub Help {
+  print "Check for adherence to a coding style\n";
+  Exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  Exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Please follow the CMake coding style guidelines. Find the KDE CMake style guidelines at <http://techbase.kde.org/Policies/CMake_Coding_Style>\n";
+  Exit 0 if &explainArg();
+}
+
+sub initIssues() {
+
+  $Issues{'NOSPACEPAREN'}{'issue'} = 'Do not put spaces before a closing paren';
+  $Issues{'NOSPACEPAREN'}{'count'} = 0;
+  $Issues{'NOSPACEPAREN'}{'lines'} = '';
+
+  $Issues{'PARENNOSPACE'}{'issue'} = 'Do not put spaces after an opening paren';
+  $Issues{'PARENNOSPACE'}{'count'} = 0;
+  $Issues{'PARENNOSPACE'}{'lines'} = '';
+
+  $Issues{'NOCONDSPACE'}{'issue'} = 'Do not put spaces before the opening paren';
+  $Issues{'NOCONDSPACE'}{'count'} = 0;
+  $Issues{'NOCONDSPACE'}{'lines'} = '';
+
+  $Issues{'NONLOWER'}{'issue'} = 'Non-lowercase command';
+  $Issues{'NONLOWER'}{'count'} = 0;
+  $Issues{'NONLOWER'}{'lines'} = '';
+
+  $Issues{'NONEMPTYEND'}{'issue'} = 'Non-empty end or else command';
+  $Issues{'NONEMPTYEND'}{'count'} = 0;
+  $Issues{'NONEMPTYEND'}{'lines'} = '';
+
+  $Issues{'MULTISTATE'}{'issue'} = 'Multiple commands on 1 line';
+  $Issues{'MULTISTATE'}{'count'} = 0;
+  $Issues{'MULTISTATE'}{'lines'} = '';
+
+  $Issues{'TAB'}{'issue'} = 'Do not use tabs';
+  $Issues{'TAB'}{'count'} = 0;
+  $Issues{'TAB'}{'lines'} = '';
+
+  $Issues{'LINELEN'}{'issue'} = "Line longer than $KRAZY_STYLE_LINEMAX characters";
+  $Issues{'LINELEN'}{'count'} = 0;
+  $Issues{'LINELEN'}{'lines'} = '';
+
+  $Issues{'BADINDENT'}{'issue'} = "Bad indentation";
+  $Issues{'BADINDENT'}{'count'} = 0;
+  $Issues{'BADINDENT'}{'lines'} = '';
+
+  $Issues{'BADINDENTOFF'}{'issue'} = "Bad ident offset";
+  $Issues{'BADINDENTOFF'}{'count'} = 0;
+  $Issues{'BADINDENTOFF'}{'lines'} = '';
+
+  $Issues{'EXTRASPACE'}{'issue'} = "Extra spaces between command arguments";
+  $Issues{'EXTRASPACE'}{'count'} = 0;
+  $Issues{'EXTRASPACE'}{'lines'} = '';
+
+  $Issues{'TRAILWHITE'}{'issue'} = "Trailing whitespace";
+  $Issues{'TRAILWHITE'}{'count'} = 0;
+  $Issues{'TRAILWHITE'}{'lines'} = '';
+
+  $Issues{'BLANKS'}{'issue'} = "Extra blank lines";
+  $Issues{'BLANKS'}{'count'} = 0;
+  $Issues{'BLANKS'}{'lines'} = '';
+}
