@@ -24,21 +24,6 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 # Tests CMake files for adherence to a coding style
 
-#TODO CHECKS
-#line longer than limit (LINELEN)
-#more than one blank line in a row (BLANKS)
-#trailing whitespace (TRAILWHITE)
-#tabs (TAB)
-#multiple whitespace between args (EXTRASPACE)
-#non-all lower-case cmake commands (NONLOWER)
-#non-empty else, elseif, endif, endforeach, endfunction, endmacro endwhile (NONEMPTYEND)
-#whitespace after opening paren (PARENNOSPACE)
-#whitespace before opening paren (NOCONDSPACE)
-#whitespace before closing paren (NOSPACEPAREN)
-#bad indentation (BADINDENTOFF)
-#bad indentation inside block (BADINDENT)
-#multiple commands on one line (MULTISTATE)
-
 # Supports these environment variables:
 #  KRAZY_STYLE_CMAKESTYLE: a predefined style, currently available styles are "kde"
 #  KRAZY_STYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4
@@ -66,7 +51,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "0.01";
+my($Version) = "1.00";
 
 &parseArgs();
 
@@ -107,14 +92,210 @@ close(F);
 
 my($cnt) = 0;
 my($linecnt) = 0;
-my($line);
+my($line) = '';  #current line (non-processed)
+my($tline) = ''; #current line (non-processed) with starting whitespace removed
+my($lline) = ''; #last line (non-processed)
+my($pline) = ''; #processed current line (i.e. comments and strings have been removed)
+my($tpline) =''; #processed current line with starting whitespace removed
+my($indent) = 0; #indentation level for current line
+my($lindent)= 0; #indentation level for previous line
 
 #let's begin
 &initIssues();
 foreach $line (@lines) {
   chomp($line);
+
+  if ($line =~ m+\#.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+\#.*[Kk]razy:skip+) {
+    print "okay\n" if (!&quietArg());
+    Exit 0;
+  }
+  next if ($line =~ m+\#.*[Kk]razy:exclude=.*$Prog+);
+
+  $linecnt++;
+
+  $tline = $line;
+  $tline =~ s/^\s*//;   #remove starting whitespace
+
+  $pline = $line;
+  $pline =~ s/\#.*$//;  #remove comments
+  $pline =~ s/".*"/""/g;#clean-out strings
+
+  $tpline = $pline;
+  $tpline =~ s/^\s*//;  #remove starting whitespace
+
+  $indent = length($line) - length($tline) if (length($tline) > 0);
+  if ($indent % $KRAZY_STYLE_OFFSET) {
+    $Issues{'BADINDENTOFF'}{'count'}++;
+    if ($Issues{'BADINDENTOFF'}{'count'} == 1) {
+      $Issues{'BADINDENTOFF'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'BADINDENTOFF'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (bad indent offset) => $tline\n" if (&verboseArg());
+  }
+
+  if ($indent != $lindent) {
+    #allow to get bigger by $KRAZY_STYLE_OFFSET if previous line started a block
+    if (&startBlock($lline) || $lline =~ m/\(\s*$/) {
+      if ($lindent != $indent - $KRAZY_STYLE_OFFSET ) {
+	$Issues{'BADINDENT'}{'count'}++;
+	if ($Issues{'BADINDENT'}{'count'} == 1) {
+	  $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
+	} else {
+	  $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
+	}
+	print "$linecnt (bad block starting indent offset) => $tline\n" if (&verboseArg());
+      }
+      goto ncheck;
+    }
+    #allow to get smaller by $KRAZY_STYLE_OFFSET if current line ended a block
+    if (&endBlock($line) || $line =~ m/^\s*\)\s*$/) {
+      if ($lindent != $indent + $KRAZY_STYLE_OFFSET ) {
+	$Issues{'BADINDENT'}{'count'}++;
+	if ($Issues{'BADINDENT'}{'count'} == 1) {
+	  $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
+	} else {
+	  $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
+	}
+	print "$linecnt (bad block closing indent offset) => $tline\n" if (&verboseArg());
+      }
+      goto ncheck;
+    }
+    if ($lline =~ m/\)\s*$/) {
+      $Issues{'BADINDENT'}{'count'}++;
+      if ($Issues{'BADINDENT'}{'count'} == 1) {
+	$Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
+      } else {
+	$Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (bad indentation) => $tline\n" if (&verboseArg());
+      goto ncheck;
+    }
+  }
+
+ ncheck:
+  if (length($line) > $KRAZY_STYLE_LINEMAX) {
+    if ($line !~ m/^\s*(message|macro_log_feature|option)\s*\(/) {
+      $Issues{'LINELEN'}{'count'}++;
+      if ($Issues{'LINELEN'}{'count'} == 1) {
+	$Issues{'LINELEN'}{'lines'} = "line\#" . $linecnt;
+      } else {
+	$Issues{'LINELEN'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (line too long) => $line\n" if (&verboseArg());
+    }
+  }
+
+  if ($line =~ m/^\s*$/ && $lline =~ m/^\s*$/) {
+    $Issues{'BLANKS'}{'count'}++;
+    if ($Issues{'BLANKS'}{'count'} == 1) {
+      $Issues{'BLANKS'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'BLANKS'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (extra blank lines) => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/\s$/) {
+    $Issues{'TRAILWHITE'}{'count'}++;
+    if ($Issues{'TRAILWHITE'}{'count'} == 1) {
+      $Issues{'TRAILWHITE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'TRAILWHITE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (trailing whitespace) => $line\n" if (&verboseArg());
+  }
+
+  if ($tpline =~ m/\s{2,}+/) {
+    $Issues{'EXTRASPACE'}{'count'}++;
+    if ($Issues{'EXTRASPACE'}{'count'} == 1) {
+      $Issues{'EXTRASPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'EXTRASPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (extra whitespace between arguments) => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/\t/) {
+    $Issues{'TAB'}{'count'}++;
+    if ($Issues{'TAB'}{'count'} == 1) {
+      $Issues{'TAB'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'TAB'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (tab encountered) => $line\n" if (&verboseArg());
+  }
+
+  if ($pline =~ m/\(/ && $pline =~ m/\(\s/) {
+    $Issues{'PARENNOSPACE'}{'count'}++;
+    if ($Issues{'PARENNOSPACE'}{'count'} == 1) {
+      $Issues{'PARENNOSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'PARENNOSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (no space after opening paren) => $line\n" if (&verboseArg());
+  }
+
+  if ($pline =~ m/\s\(/) {
+    $Issues{'NOCONDSPACE'}{'count'}++;
+    if ($Issues{'NOCONDSPACE'}{'count'} == 1) {
+      $Issues{'NOCONDSPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'NOCONDSPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (no space between command and opening paren) => $line\n" if (&verboseArg());
+  }
+
+  if ($tpline !~ m/^\)/ && $pline =~ m/\)/ && $pline =~ m/\s\)/) {
+    $Issues{'NOSPACEPAREN'}{'count'}++;
+    if ($Issues{'NOSPACEPAREN'}{'count'} == 1) {
+      $Issues{'NOSPACEPAREN'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'NOSPACEPAREN'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (no space before closing paren) => $line\n" if (&verboseArg());
+  }
+
+  if ($pline =~ m/(else|elseif|endif|endforeach|endfunction|endmacro|endwhile)\s*\([\w\s_]+/i) {
+    $Issues{'NONEMPTYEND'}{'count'}++;
+    if ($Issues{'NONEMPTYEND'}{'count'} == 1) {
+      $Issues{'NONEMPTYEND'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'NONEMPTYEND'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (block closing commands should be empty) => $line\n" if (&verboseArg());
+  }
+
+  if ($pline =~ m/(\w+)\s*\(/) {
+    my $command = $1;
+    my $lcommand = lc($1);
+    if ($command ne $lcommand) {
+      $Issues{'NONLOWER'}{'count'}++;
+      if ($Issues{'NONLOWER'}{'count'} == 1) {
+	$Issues{'NONLOWER'}{'lines'} = "line\#" . $linecnt;
+      } else {
+	$Issues{'NONLOWER'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (commands should be all lower-case $command) => $line\n" if (&verboseArg());
+    }
+  }
+
+  if ($pline =~ m/\(.*\).*\(.*\)/) {
+    $Issues{'MULTISTATE'}{'count'}++;
+    if ($Issues{'MULTISTATE'}{'count'} == 1) {
+      $Issues{'MULTISTATE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'MULTISTATE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (only 1 command permitted per line) => $line\n" if (&verboseArg());
+  }
+
+  $lline = $line;
+  $lindent = $indent;
 }
 
+$cnt = &printResults();
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -137,6 +318,39 @@ sub Explain {
   Exit 0 if &explainArg();
 }
 
+sub startBlock() {
+  my($l)=@_;
+  if ($l =~ m/^\s*(if|foreach|function|macro|while|else|elseif)\s*\(/i) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+sub endBlock() {
+  my($l)=@_;
+  if ($l =~ m/^\s*(endif|endforeach|endfunction|endmacro|endwhile|else|elseif)\s*\(/i) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+sub printResults() {
+  my($guy);
+  my($check_num)=0;
+  my($tot)=0;
+  my($cline,$rline);
+  foreach $guy (keys %Issues) {
+    $cline = "$Issues{$guy}{'issue'}:";
+
+    if ($Issues{$guy}{'count'}) {
+      $tot += $Issues{$guy}{'count'};
+      print "$cline $Issues{$guy}{'lines'}\n";
+    }
+  }
+  return $tot;
+}
+
 sub initIssues() {
 
   $Issues{'NOSPACEPAREN'}{'issue'} = 'Do not put spaces before a closing paren';
@@ -155,7 +369,7 @@ sub initIssues() {
   $Issues{'NONLOWER'}{'count'} = 0;
   $Issues{'NONLOWER'}{'lines'} = '';
 
-  $Issues{'NONEMPTYEND'}{'issue'} = 'Non-empty end or else command';
+  $Issues{'NONEMPTYEND'}{'issue'} = 'Non-empty block closing command';
   $Issues{'NONEMPTYEND'}{'count'} = 0;
   $Issues{'NONEMPTYEND'}{'lines'} = '';
 
