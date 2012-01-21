@@ -51,7 +51,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.00";
+my($Version) = "1.01";
 
 &parseArgs();
 
@@ -151,7 +151,7 @@ foreach $line (@lines) {
     }
     #allow to get smaller by $KRAZY_STYLE_OFFSET if current line ended a block
     if (&endBlock($line) || $line =~ m/^\s*\)\s*$/) {
-      if ($lindent != $indent + $KRAZY_STYLE_OFFSET ) {
+      if ($lindent < $indent + $KRAZY_STYLE_OFFSET ) {
 	$Issues{'BADINDENT'}{'count'}++;
 	if ($Issues{'BADINDENT'}{'count'} == 1) {
 	  $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
@@ -187,7 +187,7 @@ foreach $line (@lines) {
     }
   }
 
-  if ($line =~ m/^\s*$/ && $lline =~ m/^\s*$/) {
+  if ($line =~ m/^\s*$/ && $lline =~ m/^\s*$/ && $linecnt > 1) {
     $Issues{'BLANKS'}{'count'}++;
     if ($Issues{'BLANKS'}{'count'} == 1) {
       $Issues{'BLANKS'}{'lines'} = "line\#" . $linecnt;
