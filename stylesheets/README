@@ -2,7 +2,7 @@ TODO: Make this a usefull document =:).
 
 quickstart: 
 
-# saxon8 -im krazy2ebn ../path/to/xml/output/of/krazy.xml krazy-main.xsl module=output submodule=of
+# saxon8 -im krazy2ebn ../path/to/xml/output/of/krazy.xml krazy-main.xsl module=output submodule=of component=x.y
 
 Other modes can be added by adding lines similar as:
 
@@ -11,3 +11,11 @@ Other modes can be added by adding lines similar as:
   
 to krazy-main.xml. But of course another mode name should be used.
 
+Example with KDE Konsole:
+=========================
+# In this example, saxon8 is called via java; konsole is being tested
+% java -jar ../path/to/your/installed/saxon8.jar -im krazy2ebn ../path/to/krazy.xml krazy-main.xsl module=kde-baseapps submodule=konsole component=4.x
+
+# In this example, saxon9he is called via java; konsole is being tested
+# Note the change in -im format
+% java -jar ../path/to/your/installed/saxon9he.jar -im:krazy2ebn ../path/to/krazy.xml krazy-main.xsl module=kde-baseapps submodule=konsole component=4.x
