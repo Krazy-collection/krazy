@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the KDE source code                                         #
-# Copyright 2006-2010 by Allen Winter <winter@kde.org>                        #
+# Copyright 2006-2010,2012 by Allen Winter <winter@kde.org>                   #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -29,12 +29,13 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.92';    #split line so MakeMaker can find the version here
+ $VERSION = '2.93';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
 my ($list)      = '';
 my ($listtypes) = '';
+my ($listsets)  = '';
 my ($verbose)   = '';
 my ($ignorerc)  = '';
 my ($configf)   = '';
@@ -56,29 +57,30 @@ my ($cms)       = '';
 
 exit 1
   if ( !GetOptions(
-		   'help'           => \$help,
-		   'version'        => \$version,
-		   'list'           => \$list,
-		   'list-types'     => \$listtypes,
-		   'dry-run'        => \$dryrun,
-		   'ignorerc'       => \$ignorerc,
-                   'config=s'       => \$configf,
-		   'verbose'        => \$verbose,
-		   'brief'          => \$brief,
-                   'no-brief'       => \$nobrief,
-		   'quiet'          => \$quiet,
-		   'priority=s'     => \$priority,
-		   'strict=s'       => \$strict,
-		   'check=s'        => \$check,
-                   'check-sets=s'   => \$checksets,
-		   'exclude=s'      => \$exclude,
-		   'extra=s'        => \$extra,
-                   'types=s'        => \$inctypes,
-                   'exclude-types=s'=> \$exctypes,
-		   'export=s'       => \$export,
-		   'title=s'        => \$title,
-		   'cms=s'          => \$cms
-		  )
+       'help'           => \$help,
+       'version'        => \$version,
+       'list'           => \$list,
+       'list-types'     => \$listtypes,
+       'list-sets'      => \$listsets,
+       'dry-run'        => \$dryrun,
+       'ignorerc'       => \$ignorerc,
+       'config=s'       => \$configf,
+       'verbose'        => \$verbose,
+       'brief'          => \$brief,
+       'no-brief'       => \$nobrief,
+       'quiet'          => \$quiet,
+       'priority=s'     => \$priority,
+       'strict=s'       => \$strict,
+       'check=s'        => \$check,
+       'check-sets=s'   => \$checksets,
+       'exclude=s'      => \$exclude,
+       'extra=s'        => \$extra,
+       'types=s'        => \$inctypes,
+       'exclude-types=s'=> \$exctypes,
+       'export=s'       => \$export,
+       'title=s'        => \$title,
+       'cms=s'          => \$cms
+      )
      );
 
 &Help()    if ($help);
@@ -91,6 +93,11 @@ if ($list) {
 
 if ($listtypes) {
   system("krazy2 --list-types");
+  exit 0;
+}
+
+if ($listsets) {
+  system("krazy2 --list-sets");
   exit 0;
 }
 
@@ -148,6 +155,7 @@ sub Help {
   print "  --version    display version information and exit\n";
   print "  --list       list all the checker programs and exit\n";
   print "  --list-types list all the supported file types and exit\n";
+  print "  --list-sets  list all the checker sets and exit\n";
   print "  --priority <low|normal|high|important|all>\n";
   print "               report only issues with the specified priorities:\n";
   print "                 low -> print low priority issues only\n";
@@ -237,6 +245,10 @@ Print a list of all available checker programs and exit.
 =item B<--list-types>
 
 Print a list of the support file types and exit.
+
+=item B<--list-sets>
+
+Print a list of all the checker sets and exit.
 
 =item B<--ignorerc>
 
