@@ -85,6 +85,8 @@ my(@COMP) = ();
 # in all the *.cmake files we could find. most likely incomplete and
 # in need of constant updates.
 my %have_map = map {($_) => 1} qw {
+HAVE_APPINSTALL
+HAVE_AUTOREMOVE
 HAVE_ARC4RANDOM
 HAVE_ASSUAN_FD_T
 HAVE_ASSUAN_INQUIRE_EXT
