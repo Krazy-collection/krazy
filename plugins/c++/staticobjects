@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "staticobjects";
-my($Version) = "0.24";
+my($Version) = "0.30";
 
 &parseArgs();
 
@@ -55,8 +55,8 @@ if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
-# open file and slurp it in (C++ only)
-if (&fileType($f) eq "c++" && ($f !~ m/\.c$/ && $f !~ m/\.h$/ && $f !~ m/\.hxx$/)) {
+# open file and slurp it in (C++ only corresponding to installed headers)
+if (&installedArg() && &fileType($f) eq "c++" && ($f !~ m/\.c$/ && $f !~ m/\.h$/ && $f !~ m/\.hxx$/)) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
