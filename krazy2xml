@@ -52,7 +52,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.94';    #split line so MakeMaker can find the version here
+ $VERSION = '2.95';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -307,15 +307,13 @@ for $m (@modules) {
 
   @subdirs = ();
   &subdirsFromProjectsDB($comp,$m);
-  if ( $#subdirs < 0 ) {
-    if ( -f "$trunk/$comp/$m/CMakeLists.txt" ) {
-      &subdirsFromCMakeList("$trunk/$comp/$m/CMakeLists.txt");
+  if ( -f "$trunk/$comp/$m/CMakeLists.txt" ) {
+    &subdirsFromCMakeList("$trunk/$comp/$m/CMakeLists.txt");
+  } else {
+    if ( -f "$trunk/$comp/$m/subdirs" ) {
+      &subdirsFromSubdirs("$trunk/$comp/$m/subdirs");
     } else {
-      if ( -f "$trunk/$comp/$m/subdirs" ) {
-        &subdirsFromSubdirs("$trunk/$comp/$m/subdirs");
-      } else {
-        &subdirsFromAll("$trunk/$comp/$m");
-      }
+      &subdirsFromAll("$trunk/$comp/$m");
     }
   }
   &mergeModuleSettings("$trunk/$comp/$m");
