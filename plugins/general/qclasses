@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.25";
+my($Version) = "1.26";
 
 &parseArgs();
 
@@ -60,7 +60,7 @@ my($absf) = abs_path($f);
 my($filetype) = fileType($f);
 
 # open file and slurp it in (C++, non-headers only)
-if ($absf !~ m+/kdesupport/+ &&
+if (($absf !~ m+/kdesupport/+ && $absf !~ m+/kdelibs/+) &&
     ($filetype eq "c++" || $filetype eq "designer")) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
