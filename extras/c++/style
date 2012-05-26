@@ -647,7 +647,7 @@ foreach $line (@data_lines) {
     } else {
       $Issues{'TRAILWHITE'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (tailing whitespace) => $line\n" if (&verboseArg());
+    print "$linecnt (trailing whitespace) => $line\n" if (&verboseArg());
   }
 
   if (length($line) > $KRAZY_STYLE_LINEMAX) {
