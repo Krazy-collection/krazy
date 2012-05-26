@@ -101,18 +101,6 @@ if ($listsets) {
   exit 0;
 }
 
-if ($priority && !&validatePriorityType($priority)) {
-  die "Bad priority level \"$priority\" specified... exiting\n";
-}
-
-if ($strict && !&validateStrictType($strict)) {
-  die "Bad strictness level \"$strict\" specified... exiting\n";
-}
-
-if ($export && !&validateExportType($export)) {
-  die "Unsupported export type \"$export\"... exiting\n";
-}
-
 # Options to pass to Krazy
 my ($opts) = "";
 $opts .= "--dry-run "                 if ($dryrun);

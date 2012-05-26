@@ -180,19 +180,26 @@ if ( !$list && !$listtypes && !$listsets && $#ARGV < 0 ) { &Help(); exit 0; }
 &Version() if ($version);
 
 if ($only && $checksets) {
-  die "May not combine the options --check and --check-sets... exiting\n";
+  print "May not combine the options --check and --check-sets... exiting\n";
+  exit(1);
 }
 
 if ($priority && !&validatePriorityType($priority)) {
-  die "Bad priority level \"$priority\" specified... exiting\n";
+  my($lst) = &priorityTypeStr();
+  print "Bad priority level \"$priority\" specified... exiting\nChoices for priority are: $lst\n";
+  exit(1);
 }
 
 if ($strict && !&validateStrictType($strict)) {
-  die "Bad strictness level \"$strict\" specified... exiting\n";
+  my($lst) = &strictTypeStr();
+  print "Bad strictness level \"$strict\" specified... exiting\nChoices for strict are: $lst\n";
+  exit(1);
 }
 
 if ($export && !&validateExportType($export)) {
-  die "Unsupported export type \"$export\"... exiting\n";
+  my($lst) = &exportTypeStr();
+  print "Unsupported export type \"$export\"... exiting\nChoices for export are: $lst\n";
+  exit(1);
 }
 
 my ($KRAZYBINPATH) = dirname( abs_path($0) );

@@ -37,12 +37,36 @@ $VERSION = 1.15;
              addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
+             priorityTypeStr strictTypeStr exportTypeStr outputTypeStr
              validateExportType validatePriorityType validateStrictType validateOutputType);
 @EXPORT_OK = qw();
 
 my(@tmp);
 my($CompRegex) = "trunk/(KDE|extragear|kdereview|kdesupport|koffice)|branches/KDE";
 my($ModRegex) = "(kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|plasma-addons|sdk|toys|utils|webdev|office|security|sysadmin|review|support|koffice))";
+
+my(@Exports) = ( "text",         # text report, issues grouped by file
+                 "textlist",     # plain old text, 1 offending file-per-line
+                 "textedit",     # text formatted for IDEs, 1 issue-per-line
+                 "xml"           # XML formatted
+               );
+
+my(@Priorities) = ( "all",       # low+normal+high
+                    "low",       # low only
+                    "normal",    # normal only
+                    "important", # low+normal
+                    "high"       # high only
+                  );
+
+my(@Stricts) = ( "all",          # super+normal
+                 "super",        # super only
+                 "normal"        # normal only
+               );
+
+my(@Outputs) = ( "normal",       # standard stuff (default)
+                 "brief",        # only checks with issues
+                 "quiet"         # no output, even if verbosity turned-on
+               );
 
 #the path might be regularly used symlinks, so undo that
 sub tweakPath {
@@ -281,16 +305,21 @@ sub parseArgs {
 
   if (!$help && !$version && !$explain) {
     if (!$krazy) {
-      die "Checker not called as part of Krazy... exiting\n";
+      print "Checker not called as part of Krazy... exiting\n";
+      exit(1);
     }
   }
 
   if (!&validatePriorityType($priority)) {
-    die "Bad priority level \"$priority\" specified... exiting\n";
+    my($lst) = &priorityTypeStr();
+    print "Bad priority level \"$priority\" specified... exiting\nChoices for priority are: $lst\n";
+    exit(1);
   }
 
   if (!&validateStrictType($strict)) {
-    die "Bad strictness level \"$strict\" specified... exiting\n";
+    my($lst) = &strictTypeStr();
+    print "Bad strictness level \"$strict\" specified... exiting\nChoices for strict are: $lst\n";
+    exit(1);
   }
 }
 
@@ -303,57 +332,54 @@ sub installedArg { return $installed; }
 sub quietArg { return $quiet; }
 sub verboseArg { return $verbose; }
 
+sub exportTypeStr {
+  return join ', ', @Exports;
+}
+
 sub validateExportType {
   my ($export) = @_;
   if ($export) {
     $export = lc($export);
-    if ( ( $export eq "text" ) ||
-         ( $export eq "textlist" ) ||
-         ( $export eq "textedit" ) ||
-         ( $export eq "xml" ) ) {
-      return 1;
-    }
+    return grep {$_ eq $export} @Exports;
   }
   return 0;
+}
+
+sub priorityTypeStr {
+  return join ', ', @Priorities;
 }
 
 sub validatePriorityType {
   my ($priority) = @_;
   if ($priority) {
     $priority = lc($priority);
-    if ( ( $priority eq "all" ) ||        # low+normal+high
-	 ( $priority eq "low" ) ||        # low only
-	 ( $priority eq "normal" ) ||     # normal only
-	 ( $priority eq "important" ) ||  # low+normal
-	 ( $priority eq "high" ) ) {      # high only
-      return 1;
-    }
+    return grep {$_ eq $priority} @Priorities;
   }
   return 0;
+}
+
+sub strictTypeStr {
+  return join ', ', @Stricts;
 }
 
 sub validateStrictType {
   my ($strict) = @_;
   if ($strict) {
     $strict = lc($strict);
-    if ( ( $strict eq "all" ) ||          # super+normal
-	 ( $strict eq "super" ) ||        # super only
-	 ( $strict eq "normal" ) ) {      # normal only
-      return 1;
-    }
+    return grep {$_ eq $strict} @Stricts;
   }
   return 0;
+}
+
+sub outputTypeStr {
+  return join ', ', @Outputs;
 }
 
 sub validateOutputType { #output type doesn't consider verbosity (except in the 'quiet' case)
   my ($output) = @_;
   if ($output) {
     $output = lc($output);
-    if ( ( $output eq "normal" ) ||       # standard stuff (default)
-	 ( $output eq "brief" ) ||        # only checks with issues
-	 ( $output eq "quiet" ) ) {       # no output, even if verbosity turned-on
-      return 1;
-    }
+    return grep {$_ eq $output} @Outputs;
   }
   return 0;
 }

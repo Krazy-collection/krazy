@@ -329,7 +329,8 @@ sub priority {
   }
   $args=lc($args);
   if ( !&validatePriorityType($args) ) {
-    print "invalid PRIORITY argument \"$args\", line $l, $f\n";
+    my($lst) = &priorityTypeStr();
+    print "invalid PRIORITY argument \"$args\", line $l, $f\nChoices for PRIORITY are: $lst";
     exit 1;
   }
   $rcPriority = $args;
@@ -343,7 +344,8 @@ sub strict {
   }
   $args=lc($args);
   if ( !&validateStrictType($args) ) {
-    print "invalid STRICT argument \"$args\", line $l, $f\n";
+    my($lst) = &strictTypeStr();
+    print "invalid STRICT argument \"$args\", line $l, $f\nChoices for STRICT are: $lst";
     exit 1;
   }
   $rcStrict = $args;
@@ -352,7 +354,8 @@ sub strict {
 sub output {
   my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
-    print "missing OUTPUT argument, line $l, $f\n";
+    my($lst) = &outputTypeStr();
+    print "missing OUTPUT argument, line $l, $f\nChoices for OUTPUT are: $lst";
     exit 1;
   }
   $args=lc($args);
@@ -371,7 +374,8 @@ sub export {
   }
   $args=lc($args);
   if ( !&validateExportType($args) ) {
-    print "invalid EXPORT argument \"$args\", line $l, $f\n";
+    my($lst) = &exportTypeStr();
+    print "invalid EXPORT argument \"$args\", line $l, $f\nChoices for EXPORT are: $lst";
     exit 1;
   }
   $rcExport = $args;
