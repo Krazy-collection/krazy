@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.30";
+my($Version) = "1.31";
 
 &parseArgs();
 
@@ -100,15 +100,21 @@ while ($linecnt < $#lines) {
     next if (&isCamelCase($incpath));
     next if ($sep eq "<" && $incpath =~ m/^(c|io)/ && $incpath !~ m/\.h$/);
     next if ($sep eq "<" && $incpath =~ m/^config/ && $incpath =~ m/\.h$/);
-    next if ($sep eq "<" && $incpath =~ m+^(k3|q3|ical|uuid|uni|os|ieee|gmp|qjson|std|if|sys/|net|netinet/|arpa/)+);
-    next if ($sep eq "<" && $incpath =~ m/^(algorithm|vector|memory|map)/);
+    next if ($sep eq "<" && $incpath =~ m+^(k3|q3|ical|uuid|uni|os|ieee|gmp|graphviz|vtk|qjson|std|if|sys/|net|netinet/|arpa|mach/)+);
+    next if ($sep eq "<" && $incpath =~ m/^(algorithm|limits|map|memory|vector)/);
     next if ($sep eq "<" && $incpath =~ m/^(calendarsupport|calendarviews|incidenceeditor|akonadi_next)/);
     next if ($sep eq "<" && $incpath =~ m/^(messagecomposer|messagecore|messagelist|messageviewer|ontologies)/);
     next if ($incpath =~ m/version/);
     next if ($incpath eq "kdemacros.h" || $incpath eq "fixx11h.h");
-    next if ($incpath eq "qwindowdefs.h");
-    next if ($incpath eq "kvm.h");
-
+    next if ($incpath eq "qglobal.h" || $incpath eq "qwindowdefs.h" || $incpath eq "qmath.h");
+    next if ($incpath eq "kvm.h" ||
+             $incpath eq "dlfcn.h" ||
+             $incpath eq "windows.h" ||
+             $incpath eq "inttypes.h" ||
+             $incpath eq "execinfo.h" ||
+             $incpath eq "cxxabi.h" ||
+             $incpath eq "lmcons.h" ||
+             $incpath eq "io.h");
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
