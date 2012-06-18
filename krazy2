@@ -1657,9 +1657,12 @@ For designer file types ==
 
 =back
 
-=head1 DIRECTIVES
+=head1 IN-CODE DIRECTIVES
 
 The Krazy plugins support the following list of in-code directives:
+
+Note that these directives must be C++ style comments that can be put anywhere
+in the file desired (except embedded within C-style comments).
 
 =over 4
 
@@ -1676,10 +1679,17 @@ The Krazy plugins support the following list of in-code directives:
  the krazy2 tests name1, etc. will not be run on the line where
  this directive is found.
 
+=item //krazy:cond=<name1[,name2,...,nameN]>
+
+ the krazy2 tests name1, etc. will not be run starting on the line
+ where this directive is found. Running of the specified tests will
+ remain interruptted until a line matching
+
+  //krazy:endcond=<name1[,name2,...,nameN]>
+
+  is encountered
+
 =back
-
-Note that these directives must be C++ style comments that can be put anywhere in the file desired (except embedded within C-style comments).
-
 
 =head1 PLUGINS
 
