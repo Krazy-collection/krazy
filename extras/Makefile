@@ -39,13 +39,13 @@ install::
 	fi
 	list="$(SUBDIRS)"; for dir in $$list; do \
 		echo "Installing extras subdir $$dir"; \
-		( cd $$dir && make install ); \
+		( cd $$dir && $(MAKE) install ); \
 	done
 
 clean:
 	list="$(SUBDIRS)"; for dir in $$list; do \
 		echo "Cleaning extras subdir $$dir"; \
-		( cd $$dir && make clean ); \
+		( cd $$dir && $(MAKE) clean ); \
 	done
 
 realclean: clean

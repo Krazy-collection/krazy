@@ -32,13 +32,13 @@ all:
 install::
 	list="$(SUBDIRS)"; for dir in $$list; do \
 		echo "Installing set subdir $$dir"; \
-		( cd $$dir && make install ); \
+		( cd $$dir && $(MAKE) install ); \
 	done
 
 clean:
 	list="$(SUBDIRS)"; for dir in $$list; do \
 		echo "Cleaning set subdir $$dir"; \
-		( cd $$dir && make clean ); \
+		( cd $$dir && $(MAKE) clean ); \
 	done
 
 realclean: clean
