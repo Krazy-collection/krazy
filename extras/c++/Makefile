@@ -24,6 +24,7 @@ kdebug \
 multiclasses \
 null \
 qenums \
+qmacros \
 style \
 tipsandthis \
 
