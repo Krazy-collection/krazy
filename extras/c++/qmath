@@ -1,0 +1,192 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2012 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests source for not using Qt math functions
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Cwd 'abs_path';
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "qmath";
+my($Version) = "0.90";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); Exit 0; }
+
+my($f) = $ARGV[0];
+my($absf) = abs_path($f);
+
+# open file and slurp it in
+if (fileType($f) eq "c++"){
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+my(@data_lines) = <F>;
+close(F);
+
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+# Remove Krazy conditional blocks
+@lines = RemoveCondBlockC( $Prog, @lines );
+
+my($cnt) = 0;
+my($linecnt) = 0;
+my($lstr) = "";
+
+my(%G);
+my($line);
+while ($linecnt < $#lines) {
+  $line = $lines[$linecnt++];
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $cnt = 0;
+    last;
+  }
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $line =~ s+//.*++;  #skip C++ comments
+
+  $cnt += &doIt($line,'abs\s*\(',"abs","qAbs");
+  $cnt += &doIt($line,'round\s*\(',"round","qRound");
+  $cnt += &doIt($line,'bound\s*\(',"bound","qBound");
+
+  $cnt += &doIt($line,'ceil[f]*\s*\(',"ceil","qCeil");
+  $cnt += &doIt($line,'floor[f]*\s*\(',"floor","qFloor");
+  $cnt += &doIt($line,'fabs[f]*\s*\(',"fabs","qFabs");
+
+  $cnt += &doIt($line,'sin[f]*\s*\(',"sin","qSin");
+  $cnt += &doIt($line,'Math::Sin\s*\(',"Math::Sin","qSin");
+
+  $cnt += &doIt($line,'cos[f]*\s*\(',"cos","qCos");
+  $cnt += &doIt($line,'Math::Cos\s*\(',"Math::Cos","qCos");
+
+  $cnt += &doIt($line,'tan[f]*\s*\(',"tan","qTan");
+  $cnt += &doIt($line,'Math::Tan\s*\(',"Math::Tan","qTan");
+
+  $cnt += &doIt($line,'acos[f]*\s*\(',"cos","qAcos");
+  $cnt += &doIt($line,'Math::ACos\s*\(',"Math::ACos","qAcos");
+
+  $cnt += &doIt($line,'asin[f]*\s*\(',"asin","qAsin");
+  $cnt += &doIt($line,'Math::ASin\s*\(',"Math::ASin","qAsin");
+
+  $cnt += &doIt($line,'atan[f]*\s*\(',"atan","qAtan");
+  $cnt += &doIt($line,'Math::ATan\s*\(',"Math::ATan","qAtan");
+
+  $cnt += &doIt($line,'atan2[f]*\s*\(',"atan2","qAtan2");
+
+  $cnt += &doIt($line,'sqrt[f]*\s*\(',"sqrt","qSqrt");
+  $cnt += &doIt($line,'Math::Sqrt\s*\(',"Math::Sqrt","qSqrt");
+
+  $cnt += &doIt($line,'log[f]*\s*\(',"log","qLn");
+
+  $cnt += &doIt($line,'exp[f]*\s*\(',"exp","qExp");
+  $cnt += &doIt($line,'Math::Exp*\s*\(',"Math::Exp","qExp");
+
+  $cnt += &doIt($line,'pow[f]*\s*\(',"pow","qPow");
+  $cnt += &doIt($line,'Math::Pow\s*\(',"Math::Pow","qPow");
+}
+
+if (!$cnt) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+} else {
+  my($g);
+  foreach $g ( keys %G ) {
+    my($tcnt) = $G{$g}{'cnt'};
+    my($tlstr) = '';
+    if ( $tcnt > 0 ) {
+      $tlstr = $G{$g}{'lstr'};
+      $tlstr =~ s/,$//;
+      print "$tlstr [$g] ($tcnt)\n" if (!&quietArg());
+    }
+  }
+  Exit $cnt;
+}
+
+sub doIt() {
+  my($line,$funre,$n,$recommend) = @_;
+  if (!defined($G{$n})){
+    $G{$n}{'cnt'} = 0;
+    $G{$n}{'lstr'} = '';
+    $G{$n}{'recommend'} = $recommend;
+  }
+  if (&func($line,$funre)) {
+    $G{$n}{'cnt'}++;
+    if ($G{$n}{'cnt'} == 1 ) {
+      $G{$n}{'lstr'} = "line\#" . $linecnt;
+    } else {
+      $G{$n}{'lstr'} = $G{$n}{'lstr'} . "," . $linecnt;
+    }
+    print "=> $line\n" if (&verboseArg());
+    return 1;
+  }
+  return 0;
+}
+
+sub func() {
+  my($l,$fun) = @_;
+  my($forfun) = '(return|[\(\),=\^\-\*\+/:\?])\s*' . $fun;
+  my($notfun) = '::' . $fun;
+  if ($l =~ $forfun && $l !~ $notfun) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+sub Help {
+  print "Check for inline Qt math function that should be used\n";
+  Exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  Exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "For Qt based C++ code use inline math functions like qAbs, qSqrt, qSin, qCos, qTan, etc from qmath.h.\n";
+  Exit 0 if &explainArg();
+}
