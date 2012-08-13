@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qmacros";
-my($Version) = "0.90";
+my($Version) = "0.91";
 
 &parseArgs();
 
@@ -88,9 +88,11 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  $cnt += &doIt($line,'foreach\s*\(',"foreach");
-  $cnt += &doIt($line,'assert\s*\(',"assert");
-  $cnt += &doIt($line,'emit\s',"emit");
+  $cnt += &doIt($line,'^\s*foreach\s*\(',"foreach");
+  $cnt += &doIt($line,'[;,]\s*assert\s*\(',"assert");
+  $cnt += &doIt($line,'^\s*assert\s*\(',"assert");
+  $cnt += &doIt($line,'[;,]\s*emit\s',"emit");
+  $cnt += &doIt($line,'^\s*emit\s',"emit");
 }
 
 if (!$cnt) {
