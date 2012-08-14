@@ -51,7 +51,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.22";
+my($Version) = "1.23";
 
 &parseArgs();
 
@@ -577,7 +577,7 @@ foreach $line (@lines) {
 	} else {
 	  $Issues{'BADINDENTOFF'}{'lines'} .= "," . $linecnt;
 	}
-	print "$linecnt (bad indent offset too much) => $tline\n" if (&verboseArg());
+	print "$linecnt (not indented as previous line) => $tline\n" if (&verboseArg());
       }
     }
   }
@@ -598,18 +598,19 @@ foreach $line (@lines) {
 	} else {
 	  $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
 	}
-	print "$linecnt (bad indent) => $tline\n" if (&verboseArg());
+	print "$linecnt (bad indent, undented) => $tline\n" if (&verboseArg());
       }
     }
   }
   if ($indent > $lindent) {
-    if (!&isOkStart($line) && $lline !~ m/{$/ && $lline !~ m/,$/ && $lline !~ m/\($/ && $lline !~ m/:$/ && $lline !~ m/=$/ && $lline !~ m+\\$+ && $line !~ m+\\$+ && $lline !~ m/^\s*return/ && !&endOkCond($lline) && !&isLoop($lline) && !&isOper($lline)) {
+    if (!&isOkStart($line) && $lline !~ m/{$/ && $lline !~ m/,$/ && $lline !~ m/\($/ && $lline !~ m/:$/ && $lline !~ m/=$/ && $lline !~ m+\\$+ && $line !~ m+\\$+ && $lline !~ m/^\s*return/ && $lline !~ m/^\s*Q_PROPERTY/ && !&endOkCond($lline) && !&isLoop($lline) && !&isOper($lline)) {
 	$Issues{'BADINDENT'}{'count'}++;
 	if ($Issues{'BADINDENT'}{'count'} == 1) {
 	  $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
 	} else {
 	  $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
 	}
+	print "$linecnt (bad indent, too much) => $tline\n" if (&verboseArg());
       }
   }
   if ($KRAZY_STYLE_CPPSTYLE eq "pim" &&
@@ -633,6 +634,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
     }
+    print "$linecnt (bad indent for class protection) => $tline\n" if (&verboseArg());
   }
   if (length($line)) {
     if ($lline !~ m/,$/ && $lline !~ m/&&$/ && $lline !~ m/\|\|$/) {

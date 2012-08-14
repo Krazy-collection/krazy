@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "staticobjects";
-my($Version) = "0.30";
+my($Version) = "0.31";
 
 &parseArgs();
 
@@ -143,7 +143,7 @@ while ($linecnt < $#lines) {
 
     # Accept "static const int foo = Some::Enum+1", but not "static const int foo = methodCall()".
     # -> check for '('
-    next if ($line =~ m/(const|\s)($ipod)\s+\w+\s*=\s[^\(]*;/);
+    next if ($line =~ m/(const|\s)($ipod)\s+\w+\s*=\s*[^\(]*;/);
 
     #Accept "static const int foo = qRegisterMetaType<SomeType>()"
     next if ($line =~ m/(const|\s)($ipod)\s+\w+\s*=\s*qRegisterMetaType<[:\w]+>\(\)/);
