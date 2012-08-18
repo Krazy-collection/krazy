@@ -51,7 +51,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.01";
+my($Version) = "1.02";
 
 &parseArgs();
 
@@ -96,7 +96,7 @@ my($line) = '';  #current line (non-processed)
 my($tline) = ''; #current line (non-processed) with starting whitespace removed
 my($lline) = ''; #last line (non-processed)
 my($pline) = ''; #processed current line (i.e. comments and strings have been removed)
-my($tpline) =''; #processed current line with starting whitespace removed
+my($tpline) =''; #processed current line with starting/trailing whitespace removed
 my($indent) = 0; #indentation level for current line
 my($lindent)= 0; #indentation level for previous line
 
@@ -123,6 +123,7 @@ foreach $line (@lines) {
 
   $tpline = $pline;
   $tpline =~ s/^\s*//;  #remove starting whitespace
+  $tpline =~ s/\s*$//;  #remove trailing whitespace
 
   $indent = length($line) - length($tline) if (length($tline) > 0);
   if ($indent % $KRAZY_STYLE_OFFSET) {
@@ -257,7 +258,7 @@ foreach $line (@lines) {
     print "$linecnt (no space before closing paren) => $line\n" if (&verboseArg());
   }
 
-  if ($pline =~ m/(else|elseif|endif|endforeach|endfunction|endmacro|endwhile)\s*\([\w\s_]+/i) {
+  if ($pline =~ m/(else|endif|endforeach|endfunction|endmacro|endwhile)\s*\([\w\s_]+/i) {
     $Issues{'NONEMPTYEND'}{'count'}++;
     if ($Issues{'NONEMPTYEND'}{'count'} == 1) {
       $Issues{'NONEMPTYEND'}{'lines'} = "line\#" . $linecnt;
