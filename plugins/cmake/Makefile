@@ -21,7 +21,9 @@ PLUGINS = \
 
 # links to general purpose plugins
 PLUGINLNS = \
+copyright \
 endswithnewline \
+license \
 spelling \
 
 #default installation location

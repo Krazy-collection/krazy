@@ -5,7 +5,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2009,2011 by Allen Winter <winter@kde.org>               #
+# Copyright (C) 2005-2009,2011-2012 by Allen Winter <winter@kde.org>          #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 # Copyright (C) 2007 by Dirk Mueller <mueller@kde.org>                        #
 #                                                                             #
@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.80";
+my($Version) = "1.85";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -91,7 +91,7 @@ sub checkOneFile($)
       $htxt =~ m+//.*[Kk]razy:skip+) {
     return (0, "", "");
   }
-  my($license) = &checkLicense($htxt);
+  my($license) = &checkLicense($f,$htxt);
   $license =~ s/ $//;
   close(F);
 
@@ -157,9 +157,9 @@ exit 1 if $had_error;
 exit 0;
 
 ### end main
-sub checkLicense($)
+sub checkLicense()
 {
-   my($text) = @_;
+   my($f,$text) = @_;
    $text =~ s/^\#//g;
    $text =~ y/\t\n\r/   /;
    $text =~ y/ A-Za-z.@0-9//cd;
@@ -221,6 +221,10 @@ sub checkLicense($)
 
    # BSD
    $license="BSD $license" if ($text =~ /MERCHANTABILITY( AND|| or) FITNESS FOR A PARTICULAR PURPOSE/i) and ($license !~ /GPL/);
+   if ( $license && !$verbose ) { return "$license"; }
+
+   # BSD (CMake files only)
+   $license="BSD $license" if ($text =~ /use is allowed according to the terms of the BSD license/i) and (&fileType($f) eq "cmake");
    if ( $license && !$verbose ) { return "$license"; }
 
    # MPL

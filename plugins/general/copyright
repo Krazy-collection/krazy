@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2009,2011 by Allen Winter <winter@kde.org>               #
+# Copyright (C) 2005-2009,2011-2012 by Allen Winter <winter@kde.org>          #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -44,7 +44,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "copyright";
-my($Version) = "1.61";
+my($Version) = "1.62";
 
 &parseArgs();
 
@@ -60,6 +60,13 @@ my($lcnt) = 0;
 my($found) = 0;
 my($line);
 my($cnt) = 0;
+
+#max lines to search. filetype dependent
+my($MAXLINES)=30;
+if(&fileType($f) eq "cmake") {
+  $MAXLINES=100;
+}
+
 while ($line = <F>) {
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
@@ -78,14 +85,14 @@ while ($line = <F>) {
     last;
   }
 
-  #Works in the public domain have waived copyright 
+  #Works in the public domain have waived copyright
   if ($line =~ m/ Public Domain/i ||
       $line =~ m/(disclaims|waives) copyright/i ) {
     $found = 1;
     last;
   }
 
-  last if ($lcnt == 30);
+  last if ($lcnt == $MAXLINES);
 
   $lcnt++;
   next if ($line !~ m/copyright/i);
@@ -99,12 +106,14 @@ while ($line = <F>) {
   next if ($line =~ m/ the copyright/i);
   next if ($line =~ m/ copyrights/i);
   next if ($line =~ m/ AUTHORS OR COPYRIGHT/i);
+  next if ($line =~ m/Copyright\.txt/ || $line =~ m/Copyright\.html/i);
   $found++;
 
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
   #Businesses and legal entities are allowed to not have email addresses.
   next if ($line =~ m/Datakonsult/i);
+  next if ($line =~ m/Kitware, inc/i);
   next if ($line =~ m/Apple Computer/i);
   next if ($line =~ m/Apple\s*,?\s*Inc/i);
   next if ($line =~ m/Free Software Foundation/i);

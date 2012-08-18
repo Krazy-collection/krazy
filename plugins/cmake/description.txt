@@ -1,1 +1,1 @@
-Checks for KDE CMake files
+Checks for CMake files
