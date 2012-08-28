@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.85";
+my($Version) = "1.86";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -83,6 +83,14 @@ sub checkOneFile($)
       $absf =~ m+/kde.*libs/.*/(?:tests|examples)/+ ||
       $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+ ||
       $absf =~ m+/kdepimlibs/kioslave/+);
+
+  #CMake files we skip
+  if ($f =~ m/CMakeLists\.txt$/ ||
+      $f =~ m/ConfigureChecks\.cmake$/ ||
+      $f =~ m/config-.*\.h\.cmake$/ ||
+      $f =~ m/config\.h\.cmake$/) {
+    return (0, "", "");
+  }
 
   open(F, "<$f") || die "Couldn't open $f";
   my(@c) = <F>;

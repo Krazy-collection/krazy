@@ -44,7 +44,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "copyright";
-my($Version) = "1.62";
+my($Version) = "1.64";
 
 &parseArgs();
 
@@ -54,6 +54,14 @@ my($Version) = "1.62";
 if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
+if ($f =~ m/CMakeLists\.txt$/ ||
+    $f =~ m/ConfigureChecks\.cmake$/ ||
+    $f =~ m/config-.*\.h\.cmake$/ ||
+    $f =~ m/config\.h\.cmake$/) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+
 open(F, "$f") || die "Couldn't open $f";
 my($tags) = "";
 my($lcnt) = 0;
@@ -63,7 +71,7 @@ my($cnt) = 0;
 
 #max lines to search. filetype dependent
 my($MAXLINES)=30;
-if(&fileType($f) eq "cmake") {
+if (&fileType($f) eq "cmake") {
   $MAXLINES=100;
 }
 
