@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.87";
+my($Version) = "1.88";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -89,6 +89,7 @@ sub checkOneFile($)
       $f =~ m/ConfigureChecks\.cmake$/ ||
       $f =~ m/config-.*\.h\.cmake$/ ||
       $f =~ m/config\.h\.cmake$/ ||
+      $f =~ m/CTest.*\.cmake$/ ||
       $f =~ m/\.kcfg\.cmake$/ ) {
     return (0, "", "");
   }

@@ -44,7 +44,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "copyright";
-my($Version) = "1.65";
+my($Version) = "1.66";
 
 &parseArgs();
 
@@ -58,6 +58,7 @@ if ($f =~ m/CMakeLists\.txt$/ ||
     $f =~ m/ConfigureChecks\.cmake$/ ||
     $f =~ m/config-.*\.h\.cmake$/ ||
     $f =~ m/config\.h\.cmake$/ ||
+    $f =~ m/CTest.*\.cmake$/ ||
     $f =~ m/\.kcfg\.cmake$/ ) {
   print "okay\n" if (!&quietArg());
   Exit 0;
