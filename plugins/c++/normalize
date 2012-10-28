@@ -94,8 +94,8 @@ while ($linecnt <= $#lines) {
   if ($pline =~ m/SIGNAL\s*\(\s/ ||
       $pline =~ m/SIGNAL\s*\([\w:]+\s/ ||
       $pline =~ m/SIGNAL\s*\([\w:]+\(\s/ ||
-      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,]+\s/ ||
-      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&]+\)\s/) {
+      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&]+\s/ ||
+      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&]*\)\s/) {
     $sig_cnt++;
     if ($sig_cnt == 1) {
       $sig_str = "line\#" . $linecnt;
@@ -107,8 +107,8 @@ while ($linecnt <= $#lines) {
   if ($pline =~ m/SLOT\s*\(\s/ ||
       $pline =~ m/SLOT\s*\([\w:]+\s/ ||
       $pline =~ m/SLOT\s*\([\w:]+\(\s/ ||
-      $pline =~ m/SLOT\s*\([\w:]+\([\w:,]+\s/ ||
-      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&]+\)\s/) {
+      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&]+\s/ ||
+      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&]*\)\s/) {
     $slot_cnt++;
     if ($slot_cnt == 1) {
       $slot_str = "line\#" . $linecnt;
