@@ -125,10 +125,8 @@ if (!$total_count) {
   Exit 0;
 } else {
   if (!&quietArg()) {
-    print "SIGNALS: $sig_str ($sig_cnt)" if ($sig_cnt);
-    print ", " if ($sig_cnt && $slot_cnt);
-    print "SLOTS: $slot_str ($slot_cnt)" if ($slot_cnt);
-    print "\n";
+    print "SIGNALS: $sig_str ($sig_cnt)\n" if ($sig_cnt);
+    print "SLOTS: $slot_str ($slot_cnt)\n" if ($slot_cnt);
   }
   Exit $total_count;
 }
