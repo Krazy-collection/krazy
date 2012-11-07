@@ -33,6 +33,74 @@ use Cwd 'abs_path';
 
 my @allfiles;
 
+# Returns the values of the variable.
+# The values are got from the set command of the variable with the given name in
+# the file to parse. Nothing fancy like resolving the variable from parent
+# CMakeLists.txt or recursively expanding other variables referenced in the
+# values is done.
+sub getVariableValues {
+    my $fileToParse = shift;
+    my $variableName = shift;
+    my $inVariableSet;
+    my @values;
+
+    open(FH, "< $fileToParse") or return;
+    foreach(<FH>) {
+        chomp;
+        s/#.*$//;  #remove comments
+
+        # Matches "set(VARIABLE_NAME"
+        # Matches "set(VARIABLE_NAME value1 value2 value3..."
+        # Matches "set(VARIABLE_NAME value1 value2 value3...)"
+        #
+        # The values can be separated one from the other with one or more
+        # spaces.
+        if (m/^\s*set\s*\(\s*$variableName(\s+[^)]+)?(\s*\))?/i) {
+            $inVariableSet = 1;
+            if ($1) {
+                push(@values, split('\s+', $1));
+            }
+            if ($2) {
+                $inVariableSet = 0;
+            }
+        } elsif ($inVariableSet) {
+            # Matches ")"
+            # Matches "value1 value2 value3... )"
+            if (m/^\s*([^)]+)?\)/) {
+                if ($1) {
+                    push(@values, split('\s+', $1));
+                }
+                $inVariableSet = 0;
+            } else {
+                push(@values, split('\s+', $_));
+            }
+        }
+    }
+
+    return @values;
+}
+
+# Process the given fragment of the install command and returns the names of the
+# files.
+# If the fragment contains the name of a variable, the variable is expanded and
+# the names of the files set in the variable are returned.
+sub processFileNamesAndVariables {
+    my $fileToParse = shift;
+    my $fileNamesAndVariables = shift;
+    my @fileNames;
+
+    foreach (split('\s+', $fileNamesAndVariables)) {
+        # Matches "${theNameOfTheVariable}"
+        if (m/^\$\{(.*)\}/i) {
+            push(@fileNames, getVariableValues($fileToParse, $1));
+        } else {
+            push(@fileNames, $_);
+        }
+    }
+
+    return @fileNames;
+}
+
 sub parseFile {
     my $file = shift;
     my $inInstallFiles;
@@ -61,7 +129,7 @@ sub parseFile {
             m/^\s*install\s*\(\s*FILES\s+(.*\s)+(DESTINATION(\s|$))/i) {
             $inInstallFiles = 1;
             if ($1) {
-                push(@files, split('\s+', $1));
+                push(@files, processFileNamesAndVariables($file, $1));
             }
             if ($2) {
                 $inInstallFiles = 0;
@@ -78,11 +146,11 @@ sub parseFile {
             # The matching is not case sensitive.
             if (m/^\s*(.*\s)?DESTINATION(\s|$)/i) {
                 if ($1) {
-                    push(@files, split('\s+', $1));
+                    push(@files, processFileNamesAndVariables($file, $1));
                 }
                 $inInstallFiles = 0;
             } else {
-                push(@files, split('\s+', $_));
+                push(@files, processFileNamesAndVariables($file, $_));
             }
         }
     }
