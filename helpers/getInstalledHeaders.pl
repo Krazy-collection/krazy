@@ -4,6 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Copyright (C) 2007 Jos van den Oever <jos@vandenoever.info>
+# Copyright (C) 2012 Daniel Calviño Sánchez <danxuliu@gmail.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Library General Public
@@ -34,31 +35,52 @@ my @allfiles;
 
 sub parseFile {
     my $file = shift;
-    my $ininstall;
+    my $inInstallFiles;
     my @files;
     open(FH, "< $file") or return;
     foreach(<FH>) {
         chomp;
 	s/#.*$//;  #remove comments
-        if (m/^\s*install\s*\(\s*files(\s+[^)]+)?(\s*\))?/i) {
-            $ininstall = 1;
+        # Matches "install("
+        #
+        # Matches "install(FILES"
+        #
+        # Matches "install(FILES file1 file2 file3..."
+        #
+        # Matches "install(FILES file1 file2 file3... DESTINATION"
+        #
+        # The file names can even be something like "destination.h" or
+        # "foodestination", and can be separated one from the other with one or
+        # more spaces.
+        # After DESTINATION more install arguments can appear, as long as they
+        # are separated from DESTINATION with a space.
+        # The matching is not case sensitive.
+        if (m/^\s*install\s*\(\s*$/i ||
+            m/^\s*install\s*\(\s*FILES\s*$/i ||
+            m/^\s*install\s*\(\s*FILES\s+(((?:(?!\sDESTINATION(\s|$)).)*)+)$/i ||
+            m/^\s*install\s*\(\s*FILES\s+(.*\s)+(DESTINATION(\s|$))/i) {
+            $inInstallFiles = 1;
             if ($1) {
                 push(@files, split('\s+', $1));
             }
             if ($2) {
-                $ininstall = 0;
+                $inInstallFiles = 0;
             }
-        } elsif ($ininstall) {
-            if (m/^\s*(.*\s)destination/i) {
+        } elsif ($inInstallFiles) {
+            # Matches "DESTINATION"
+            # Matches "file1 file2 file3... DESTINATION"
+            #
+            # The file names can even be something like "destination.h" or
+            # "foodestination", and can be separated one from the other with one
+            # or more spaces.
+            # After DESTINATION more install arguments can appear, as long as
+            # they are separated from DESTINATION with a space.
+            # The matching is not case sensitive.
+            if (m/^\s*(.*\s)?DESTINATION(\s|$)/i) {
                 if ($1) {
                     push(@files, split('\s+', $1));
                 }
-                $ininstall = 0;
-            } elsif (m/^\s*([^)]+)?\)/) {
-                if ($1) {
-                    push(@files, split('\s+', $1));
-                }
-                $ininstall = 0;
+                $inInstallFiles = 0;
             } else {
                 push(@files, split('\s+', $_));
             }
