@@ -102,23 +102,23 @@ while ($linecnt < $#lines) {
           $line =~ m/^[[:space:]]*static[[:space:]]const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/) {
         # we found a possible problem method
         $cref = $line;
-        $linecnt++;
 
-        my $publiclinecnt = &searchBack("public:", $linecnt-1, $linecnt-1-$classlinecnt);
-        my $protectedlinecnt = &searchBack("protected:", $linecnt-1, $linecnt-1-$classlinecnt);
-        my $privatelinecnt = &searchBack("private:", $linecnt-1, $linecnt-1-$classlinecnt);
+        my $publiclinecnt = &searchBack("public:", $linecnt, $linecnt-$classlinecnt);
+        my $protectedlinecnt = &searchBack("protected:", $linecnt, $linecnt-$classlinecnt);
+        my $privatelinecnt = &searchBack("private:", $linecnt, $linecnt-$classlinecnt);
 
         #look for such a method (that isn't private)
         if (&ConstRef($cref) &&
             ($publiclinecnt > $privatelinecnt || $protectedlinecnt > $privatelinecnt)) {
+          my $linecntindexedat1 = $linecnt + 1;
           # found one
           $cnt++;
           if ($cnt == 1) {
-            $lstr = "line\#" . $linecnt;
+            $lstr = "line\#" . $linecntindexedat1;
           } else {
-            $lstr = $lstr . "," . $linecnt;
+            $lstr = $lstr . "," . $linecntindexedat1;
           }
-          print "($linecnt) => $line\n" if (&verboseArg());
+          print "($linecntindexedat1) => $line\n" if (&verboseArg());
         }
       }
     }
