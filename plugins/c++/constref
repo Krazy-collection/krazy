@@ -90,6 +90,8 @@ while ($linecnt < $#lines) {
     #found a public, exported class
     $cref = "";
 
+    my $classlinecnt = $linecnt;
+
     while ($linecnt < $#lines) {
       # search for a methods returning const references
       $linecnt++;
@@ -105,7 +107,7 @@ while ($linecnt < $#lines) {
 
         #look for such a method (that isn't private)
         if (&ConstRef($cref) &&
-            !&searchBack("private:", $linecnt-1, 100)) {
+            !&searchBack("private:", $linecnt-1, $linecnt-1-$classlinecnt)) {
           # found one
           $cnt++;
           if ($cnt == 1) {
