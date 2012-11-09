@@ -5,6 +5,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # Copyright (C) 2007-2008 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2012 by Daniel Calviño Sánchez <danxuliu@gmail.com>           #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -167,7 +168,7 @@ sub ConstRef {
 sub searchBack {
   my($p,$l,$n) = @_;
   my($i);
-  $n = $#lines if ($#lines < $n);
+  $n = $l if ($l < $n);
   for($i=1; $i<=$n; $i++) {
     if ($lines[$l-$i] =~ $p) {
       return 1;
