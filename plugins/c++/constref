@@ -105,9 +105,13 @@ while ($linecnt < $#lines) {
         $cref = $line;
         $linecnt++;
 
+        my $publiclinecnt = &searchBack("public:", $linecnt-1, $linecnt-1-$classlinecnt);
+        my $protectedlinecnt = &searchBack("protected:", $linecnt-1, $linecnt-1-$classlinecnt);
+        my $privatelinecnt = &searchBack("private:", $linecnt-1, $linecnt-1-$classlinecnt);
+
         #look for such a method (that isn't private)
         if (&ConstRef($cref) &&
-            !&searchBack("private:", $linecnt-1, $linecnt-1-$classlinecnt)) {
+            ($publiclinecnt > $privatelinecnt || $protectedlinecnt > $privatelinecnt)) {
           # found one
           $cnt++;
           if ($cnt == 1) {
@@ -155,7 +159,7 @@ sub Cname {
 sub endClass {
   my($l,$lc) = @_;
   return 0 if ($l !~ m/^[[:space:]]*}[[:space:]]*;/);
-  return 0 if (&searchBack('enum',$lc,5));
+  return 0 if (&searchBack('enum',$lc,5) != -1);
   return 1;
 }
 
@@ -167,16 +171,18 @@ sub ConstRef {
 }
 
 # search the previous $n lines for a pattern $p
+# return the number of the line where the pattern was found, or -1 if the
+# pattern was not found
 sub searchBack {
   my($p,$l,$n) = @_;
   my($i);
   $n = $l if ($l < $n);
   for($i=1; $i<=$n; $i++) {
     if ($lines[$l-$i] =~ $p) {
-      return 1;
+      return $l-$i;
     }
   }
-  return 0;
+  return -1;
 }
 
 sub Help {
