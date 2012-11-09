@@ -77,7 +77,6 @@ my($cname) = "";
 my($cref) = "";
 my($line);
 while ($linecnt < $#lines) {
-  $linecnt++;
   $line = $lines[$linecnt];
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
@@ -124,6 +123,7 @@ while ($linecnt < $#lines) {
       }
     }
   }
+  $linecnt++;
 }
 
 if (!$cnt) {
