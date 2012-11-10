@@ -86,9 +86,9 @@ while ($linecnt <= $#lines) {
   }
 
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
 
   my($pline) = $line;
+  $pline =~ s+//.*++;  #skip C++ comments
   $pline =~ s/const [\w:]+\s*\*//g;
 
   if ($pline =~ m/SIGNAL\s*\(\s/ ||
