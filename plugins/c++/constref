@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "constref";
-my($Version) = "1.2";
+my($Version) = "1.30";
 
 &parseArgs();
 
