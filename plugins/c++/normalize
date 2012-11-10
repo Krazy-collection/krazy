@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "normalize";
-my($Version) = "1.0";
+my($Version) = "1.10";
 
 &parseArgs();
 
