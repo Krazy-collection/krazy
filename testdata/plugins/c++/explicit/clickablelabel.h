@@ -22,8 +22,8 @@ class ClickableLabel : public QLabel
 Q_OBJECT
 
 public:
-	ClickableLabel( QWidget * parent = 0, Qt::WindowFlags f = 0 );
-	ClickableLabel( const QString & text, QWidget * parent = 0, Qt::WindowFlags f = 0 );
+	ClickableLabel( QWidget * parent = 0, Qt::WindowFlags f = 0 ); //issue
+	ClickableLabel( const QString & text, QWidget * parent = 0, Qt::WindowFlags f = 0 ); //issue
 
 signals:
 	void clicked();
