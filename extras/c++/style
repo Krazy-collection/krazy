@@ -51,7 +51,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.23";
+my($Version) = "1.24";
 
 &parseArgs();
 
@@ -519,7 +519,7 @@ foreach $line (@lines) {
     print "$linecnt (bad brace-brace-semi encountered) => $line\n" if (&verboseArg());
   }
 
-  if ($line =~ m/\s;/ && $line !~ m/for\s*\(\s*;/ && $line !~ m/while\s*\(\s*;/) {
+  if ($pline =~ m/\s;/ && $line !~ m/for\s*\(\s*;/ && $line !~ m/while\s*\(\s*;/) {
     # allow semi on line by itself or consecutive semis inside a for statement
     if ($line !~ m/\s;$/ && $line !~ m/;\s?;.*\)/) {
       $Issues{'SPACESEMI'}{'count'}++;
