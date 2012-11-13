@@ -60,7 +60,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.70";
+my($Version) = "1.80";
 
 &parseArgs();
 
@@ -172,14 +172,6 @@ while ($linecnt < $#lines) {
       $Issues{'ANGLE'}{'count'}++;
       $Issues{'ANGLE'}{'lines'} .= "$linecnt,";
       print "=> $line\n" if (&verboseArg());
-    }
-    # every Qt file it includes must be of the form <QtModule/QFoo>
-    if ($incpath =~ m+^(Q[A-Z]|Qt[A-Z]|Q3|q).*$+ && $incpath !~ m+qtest_kde+) {
-      if ($incpath !~ m+^Qt.*/Q.*$+ && !&qModule($incpath) && !&qNotClasses($incpath)) {
-        $Issues{'QINC'}{'count'}++;
-        $Issues{'QINC'}{'lines'} .= "$linecnt,";
-        print "=> $line\n" if (&verboseArg());
-      }
     }
     if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ ) {
       $Issues{'KINC'}{'count'}++;
@@ -324,7 +316,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Use <..> to include installed headers; <QtModule/QClass> to include Qt headers from installed headers; cpp file should include their own headers first (but below config.h); other rules apply, see <http://techbase.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriatedly encoded macro names.";
+  print "Use <..> to include installed headers; cpp file should include their own headers first (but below config.h); other rules apply, see <http://techbase.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriatedly encoded macro names.";
   Exit 0 if &explainArg();
 }
 
@@ -343,11 +335,6 @@ sub initIssues() {
   $Issues{'ANGLE'}{'explain'} = "Use angle brackets to include installed headers or if the file is an installed header";
   $Issues{'ANGLE'}{'count'} = 0;
   $Issues{'ANGLE'}{'lines'} = '';
-
-  $Issues{'QINC'}{'issue'} = "use QtModule/QClass in angle brackets";
-  $Issues{'QINC'}{'explain'} = "Installed headers must include Qt headers using the form <QtModule/QClass>";
-  $Issues{'QINC'}{'count'} = 0;
-  $Issues{'QINC'}{'lines'} = '';
 
   $Issues{'KINC'}{'issue'} = "use KDE/KClass in angle brackets";
   $Issues{'KINC'}{'explain'} = "Installed headers must include KClass forwarding headers ithe form <KDE/KClass>";
@@ -467,17 +454,6 @@ sub qModule {
     return 1;
   } else {
     return 0
-  }
-}
-
-# determine if $1 is not an exported class and therefore does
-# not have an auto-generated <QtModule/QClass> file.
-sub qNotClasses{
-  my($p) = @_;
-  if($p =~ m+[Qq]plugin+ || $p =~ m+(qgpgme|quota)+) {
-    return 1;
-  } else {
-    return 0;
   }
 }
 
