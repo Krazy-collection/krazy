@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Foo</class>
+ <widget class="QWidget" name="Foo">
+  <action name="stringWithoutComment">
+   <property name="text">
+    <string>String without comment</string> <!-- i18ncheckarg (missing KUIT context marker) -->
+   </property>
+  </action>
+  <action name="stringWithoutRol">
+   <property name="text">
+    <string comment="Free context">String without rol</string> <!-- i18ncheckarg (missing KUIT context marker) -->
+   </property>
+  </action>
+  <action name="stringWithoutRolDoNotExtract">
+   <property name="text">
+    <string comment="KDE::DoNotExtract">String without rol (DoNotExtract)</string> <!-- ok -->
+   </property>
+  </action>
+  <action name="stringWithoutFreeContext">
+   <property name="text">
+    <string comment="@action">String without free context</string> <!-- ok -->
+   </property>
+  </action>
+  <action name="string">
+   <property name="text">
+    <string comment="@action Free context">String</string> <!-- ok -->
+   </property>
+  </action>
+  <action name="stringDoNotExtract">
+   <property name="text">
+    <string comment="@action KDE::DoNotExtract">String (DoNotExtract)</string> <!-- ok -->
+   </property>
+  </action>
+  <action name="ambiguousStringWithoutComment">
+   <property name="text">
+    <string>Name</string> <!-- i18ncheckarg (missing KUIT context marker, ambiguous message) -->
+   </property>
+  </action>
+  <action name="ambiguousStringWithoutRol">
+   <property name="text">
+    <string comment="Free context">Name</string> <!-- i18ncheckarg (missing KUIT context marker) -->
+   </property>
+  </action>
+  <action name="ambiguousStringWithoutRolDoNotExtract">
+   <property name="text">
+    <string comment="KDE::DoNotExtract">Name</string> <!-- ok -->
+   </property>
+  </action>
+  <action name="ambiguousStringWithoutFreeContext">
+   <property name="text">
+    <string comment="@action">Name</string> <!-- i18ncheckarg (ambiguous message) -->
+   </property>
+  </action>
+  <action name="ambiguousString">
+   <property name="text">
+    <string comment="@action Free context">Name</string> <!-- ok -->
+   </property>
+  </action>
+  <action name="ambiguousStringDoNotExtract">
+   <property name="text">
+    <string comment="@action KDE::DoNotExtract">Name</string> <!-- ok -->
+   </property>
+  </action>
+ </widget>
+</ui>
+ 
