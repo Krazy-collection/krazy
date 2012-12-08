@@ -1279,8 +1279,6 @@ sub check_in_string_xml_r {
 
     # This match is like that in trunk/KDE/kdesdk/scripts/extractrc.
     if ($tag =~ /^([tT][eE][xX][tT]|title|string|whatsthis|tooltip|label|text)$/i) {
-        # Total number of checkable messages.
-        $g_nmsg++;
 
         # Check if the message has context.
         my $ctxt;
@@ -1292,6 +1290,16 @@ sub check_in_string_xml_r {
                 }
             }
         }
+
+        # Skip message if explicitly excluded.
+        # KDE::DoNotExtract is a special context in XML files
+        # which tells extractrc not to extract the string.
+        if ($ctxt and $ctxt =~ /KDE::DoNotExtract/) {
+            return;
+        }
+
+        # Total number of checkable messages.
+        $g_nmsg++;
 
         # The message itself.
         my $msg = $node->toString();
