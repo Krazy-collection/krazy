@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.93";
+my($Version) = "1.94";
 
 &parseArgs();
 
@@ -196,6 +196,7 @@ while ($linecnt <= $#lines) {
               if ($line !~ m/Private[[:alpha:]]*[[:space:]]*\*[[:space:]]*const/ &&
                   $line !~ m/Priv[[:alpha:]]*[[:space:]]*\*[[:space:]]*const/ &&
                   $line !~ m/\(\)/ &&        #d_func() stuff
+                  $line !~ m/,\s*$/ &&          #ends with comma (like in enums)
                   !$krazyexclude &&          #allow non-const dpointer
 		  !$stuff{$CNAME}{'excluded'} #exclude class from all checks
 		 ) {
