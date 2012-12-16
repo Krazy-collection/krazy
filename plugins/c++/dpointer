@@ -5,6 +5,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # Copyright (C) 2007-2012 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2012 by Daniel Calviño Sánchez <danxuliu@gmail.com>           #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -46,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.92";
+my($Version) = "1.93";
 
 &parseArgs();
 
@@ -90,7 +91,7 @@ my($mlstr) = "";
 my($line) = "";
 
 my($lastl)=""; #last line
-while ($linecnt < $#lines) {
+while ($linecnt <= $#lines) {
   $lastl = $line;
   $line = $lines[$linecnt++];
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
@@ -115,7 +116,7 @@ while ($linecnt < $#lines) {
     $stuff{$CNAME}{'excluded'} = 1 if($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
     print " Searching for private: section\n" if ($debug);
-    while ($linecnt < $#lines && $#classes >= 0) {
+    while ($linecnt <= $#lines && $#classes >= 0) {
       $lastl = $line;
       $line = $lines[$linecnt++];
       $line =~ s+//.*++; #strip trailing C++ comment
@@ -130,7 +131,7 @@ while ($linecnt < $#lines) {
       if ($CNAME ne "" && defined($stuff{$CNAME}{'section'}) && $stuff{$CNAME}{'section'} eq "private" && defined($stuff{$CNAME}{'exported'}) && $stuff{$CNAME}{'exported'} == 1) {
         # we are in the private declarations
 	print "  Searching for dpointer\n" if ($debug);
-        while ($linecnt < $#lines) {
+        while ($linecnt <= $#lines) {
           $lastl = $line;
           $line = $lines[$linecnt++];
           my $krazyexclude = 0;
@@ -138,6 +139,27 @@ while ($linecnt < $#lines) {
             $krazyexclude = 1;
           }
 	  $line =~ s+//.*++; #strip trailing C++ comment
+
+          #Ignore inlined methods (including template methods)
+          if ($line =~ m/[[:alnum:]]+[[:space:]]*\(/ &&
+              $line !~ m/\)[[:space:]]*(const)?[[:space:]]*;/) { #Maybe inlined method start (it could also be a method declaration with arguments in several lines)
+            my $bracketCount = 0;
+            $bracketCount++ if ($line =~ m/{/);
+
+            while ($linecnt <= $#lines) {
+              $line = $lines[$linecnt++];
+
+              last if ($bracketCount == 0 && $line =~ m/\)[[:space:]]*(const)?[[:space:]]*;/); #It was a method declaration
+
+              $bracketCount++ if ($line =~ m/{/);
+              $bracketCount-- if ($line =~ m/}/);
+              last if ($line =~ m/}/ && $bracketCount == 0);
+            }
+
+            $lastl = $line;
+            $line = $lines[$linecnt++];
+          }
+
 	  &Section($line);
           if (&endClass($line,$linecnt)) { last; }
           next if ($line =~ m/[[:space:]]*private[[:space:]]*:/);
