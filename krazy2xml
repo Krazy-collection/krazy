@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the KDE source code for the EnglishBreakfastNetwork (EBN)   #
-# Copyright 2006-2008,2010-2012 by Allen Winter <winter@kde.org>              #
+# Copyright 2006-2008,2010-2013 by Allen Winter <winter@kde.org>              #
 # Copyright 2009-2010 by Bertjan Broeksema <b.broeksema@kdemail.net>          #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -52,7 +52,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.95';    #split line so MakeMaker can find the version here
+ $VERSION = '2.96';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -770,7 +770,10 @@ sub createIgnorePage {
   print F "</div>\n";
   print F "</div>\n";
   print F "<div id=\"footer\">\n";
-  print F "<p>Site content Copyright 2005-2010 by Adriaan de Groot,<br/>\n";
+  my ($currentyear) = (localtime)[5] + 1900;
+  print F "<p>Site content Copyright 2005-";
+  print F $currentyear;
+  print F " by Adriaan de Groot and Allen Winter,<br/>\n";
   print F "except images as indicated.</p>\n";
   print F "</div>\n";
   print F "</body>\n";

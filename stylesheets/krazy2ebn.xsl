@@ -196,7 +196,7 @@
           </div>
         </div>
         <div id="footer">
-          <p>Site content Copyright 2005-2008 by Adriaan de Groot,<br/>
+          <p>Site content Copyright 2005-2013 by Adriaan de Groot,<br/>
           except images as indicated.</p>
         </div>
       </body>
