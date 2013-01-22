@@ -311,14 +311,7 @@ sub skips {
     print "missing SKIP arguments, line $l, $f\n";
     exit 1;
   }
-  $args =~ s+\\\|+|+g;
-  if ( !$rcSkipRegex ) {
-    $rcSkipRegex = $args;
-  } else {
-    if ($args) {
-      $rcSkipRegex .= "|" . $args;
-    }
-  }
+  $rcSkipRegex = &addRegEx($rcSkipRegex,$args);
 }
 
 sub priority {
