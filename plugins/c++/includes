@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2009,2012 by Allen Winter <winter@kde.org>               #
+# Copyright (C) 2006-2009,2012-2013 by Allen Winter <winter@kde.org>          #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -60,7 +60,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.80";
+my($Version) = "1.81";
 
 &parseArgs();
 
@@ -174,9 +174,11 @@ while ($linecnt < $#lines) {
       print "=> $line\n" if (&verboseArg());
     }
     if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ ) {
-      $Issues{'KINC'}{'count'}++;
-      $Issues{'KINC'}{'lines'} .= "$linecnt,";
-      print "=> $line\n" if (&verboseArg());
+      if ($incpath !~ m+\.h$+ ) {
+        $Issues{'KINC'}{'count'}++;
+        $Issues{'KINC'}{'lines'} .= "$linecnt,";
+        print "=> $line\n" if (&verboseArg());
+      }
     }
     # do not include config.h or config-foo.h in an installed header
     if (&configH($incpath)) {
@@ -419,8 +421,9 @@ sub incPath {
 
 sub incAnglePath {
   my($in) = @_;
+  $in =~ s+>.*$++;
   $in =~ s+^\s*#\s*include[[:space:]]++;
-  $in =~ s+<++; $in =~ s+>++;
+  $in =~ s+<++;
   return $in;
 }
 
