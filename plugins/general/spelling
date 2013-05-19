@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.83";
+my($Version) = "1.84";
 
 &parseArgs();
 
@@ -153,6 +153,19 @@ sub check_file
       }
       info "$filename ($linecnt): $word => $correction\n";
     }
+
+    #special case: "the the"
+    if ($original =~ m/the\s+the\s+/i ||
+        $original =~ m/the\s+the\s*[,:;.]+/i) {
+      $cnt++;
+      if ($cnt == 1) {
+        $lstr = "line\#" . $linecnt . "[the the]";
+      } else {
+        $lstr = $lstr . "," . $linecnt . "[the the]";
+      }
+      info "$filename ($linecnt): the the => the\n";
+    }
+
   }
 
   if (!$cnt) {
