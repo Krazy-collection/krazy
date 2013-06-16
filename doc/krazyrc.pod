@@ -56,7 +56,7 @@ Do NOT check the specified file type(s).
 =item SKIP regexp
 
 Do not process any file that maches the specified perl regular expression.
-See the perlreftut(1) man page for a description of how to write
+See the perlreref(1) man page for a description of how to write
 a perl regular expression.
  
 =item PRIORITY priority
