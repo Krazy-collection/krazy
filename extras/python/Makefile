@@ -18,6 +18,7 @@
 
 # list of all extras to install
 EXTRAS = \
+style \
 
 # links to general purpose extras
 EXTRALNS = \
