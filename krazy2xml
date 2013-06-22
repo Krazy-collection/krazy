@@ -52,7 +52,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.96';    #split line so MakeMaker can find the version here
+ $VERSION = '2.97';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -541,7 +541,7 @@ sub doIt {
   }
 
   my ($command) =
- "cd $in; find . -name '*.tcc' -o -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh -o -name '*.rc' -o -name tips -o -name '*.qml' -o -name '*.qdoc' -o -name CMakeLists.txt -o -name '*.cmake' -type f | grep -v '$skip' | xargs $krazy $checks --ignorerc $priority $strict --export=xml --explain --title \"$title\" -cms $cms --rev $rev $exclude $extra > $out/result.xml";
+ "cd $in; find . -name '*.tcc' -o -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.c' -o -name '*.h' -o -name '*.hxx' -o -name '*.ui' -o -name '*.desktop' -o -name '*.kcfg' -o -name Messages.sh -o -name '*.rc' -o -name tips -o -name '*.qml' -o -name '*.qdoc' -o -name CMakeLists.txt -o -name '*.cmake' -o -name '*.py' -type f | grep -v '$skip' | xargs $krazy $checks --ignorerc $priority $strict --export=xml --explain --title \"$title\" -cms $cms --rev $rev $exclude $extra > $out/result.xml";
   if ($dryrun) {
     $command = "echo " . "\'" . $command . "\'";
   }
@@ -924,7 +924,7 @@ will exit with status=0.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2010 by Allen Winter <winter@kde.org>
+Copyright (c) 2005-2013 by Allen Winter <winter@kde.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

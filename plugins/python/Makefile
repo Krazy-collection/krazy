@@ -1,6 +1,6 @@
-# krazy FOSS sets Makefile
+# krazy plugins/python Makefile
 #
-# Copyright 2010, 2013 by Allen Winter <winter@kde.org>
+# Copyright 2013 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,23 +16,18 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# links to c++ plugins
-CPP_PLUGINS = \
-copyright \
-license \
+# list of all plugins to install
+PLUGINS = \
 
-# links to QML plugins
-QML_PLUGINS = \
+# links to general purpose plugins
+PLUGINLNS = \
 copyright \
+endswithnewline \
 license \
-
-# links to Python plugins
-PYTHON_PLUGINS = \
-copyright \
-license \
+spelling \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/foss
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/python
 
 all:
 
@@ -43,19 +38,13 @@ install::
 
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
-	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set c++ plugin link $$plugin"; \
-		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
+	list="$(PLUGINS)"; for plugin in $$list; do \
+		echo "Installing plugin $$plugin"; \
+		cp -f $$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
 	done
-
-	list="$(QML_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set qml plugin link $$plugin"; \
-		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
-	done
-
-	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set python plugin link $$plugin"; \
-		ln -sf ../../krazy-plugins/python/$$plugin $(DESTDIR)$(INSTDIR)/python-$$plugin; \
+	list="$(PLUGINLNS)"; for plugin in $$list; do \
+		echo "Installing plugin link $$plugin"; \
+		ln -sf ../general/$$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
 	done
 
 clean:

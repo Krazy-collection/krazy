@@ -1,6 +1,6 @@
 # krazy plugins Makefile
 #
-# Copyright 2007-2008,2010,2012 by Allen Winter <winter@kde.org>
+# Copyright 2007-2008,2010,2012-2013 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@ messages \
 kpartgui \
 tips \
 qml \
-qdoc
+qdoc \
+python
 
 #default installation location
 PREFIX=/usr/local
