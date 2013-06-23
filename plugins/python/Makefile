@@ -18,6 +18,7 @@
 
 # list of all plugins to install
 PLUGINS = \
+qtemits \
 
 # links to general purpose plugins
 PLUGINLNS = \
