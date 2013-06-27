@@ -22,7 +22,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                                                                             #
 ###############################################################################
 
-# Tests Python (PyQt) code for emitting scalar values as 2-tuples to Qt SIGNALs.
+# Tests Python (PyQt) code for emitting a tuple to Qt SIGNALs.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -67,28 +67,40 @@ close(F);
 
 # Check Condition
 my($cnt) = 0;
+my($wcnt) = 0;
 my($linecnt) = 0;
+my($saveline);
 my($line);
+my($pline);
 my($lstr) = "";
+my($wlstr) = "";
 
 while ($linecnt <= $#lines) {
+  $saveline = $linecnt;
   $line = $lines[$linecnt++];
+  $pline = $line;
+  $pline =~ s/#.*$//;
 
   if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+#.*[Kk]razy:skip+) {
-    $cnt = 0;
+    $cnt = 0; $wcnt = 0;
     last;
   }
 
   next if ($line =~ m+#.*[Kk]razy:exclude=.*$Prog+);
 
-  if ($line =~ m/\.emit\s*\(\s*.*SIGNAL\s*\(/) {
+  if ($pline =~ m/\.emit\s*\(\s*.*SIGNAL\s*\(/) {
     # if line is continued, look skip ahead 1 line
-    if ($line !~ m/\)\s*$/ ) {
+    if ($pline !~ m/\)\s*$/ ) {
       $line  = $lines[$linecnt++];
+      $pline = $line;
+      $pline =~ s/#.*$//;
     }
     # search for empty last value of n-tuple
-    if ($line =~ m/,\s*\)\s*\)\s*$/) {
+    if ($pline =~ m/,\s*\)\s*\)\s*$/ ||
+        $pline =~ m/,\s*\([_,.()\w\s]*\s*\)\s*$/ ||
+        $pline =~ m/^\s*\([_,.()\w\s]*\s*\)\s*$/ ||
+        $pline =~ m/tuple\s*\(/) {
       $cnt++;
       if ($cnt == 1) {
 	$lstr = "line\#" . $linecnt;
@@ -96,18 +108,31 @@ while ($linecnt <= $#lines) {
 	$lstr = $lstr . "," . $linecnt;
       }
       print "=> $line\n" if (&verboseArg());
+      next;
     }
   }
 
-  if ($line =~ m/\.emit\s*\(\s*$/) {
+  $linecnt = $saveline;
+  $line = $lines[$linecnt++];
+  $pline = $line;
+  $pline =~ s/#.*$//;
+
+  if ($pline =~ m/\.emit\s*\(\s*$/) {
     $line  = $lines[$linecnt++];
-    if ($line =~ m/.*SIGNAL\s*\(/) {
+    $pline = $line;
+    $pline =~ s/#.*$//;
+    if ($pline =~ m/.*SIGNAL\s*\(/) {
       # if line is continued, look skip ahead 1 line
-      if ($line !~ m/\)\s*$/ ) {
+      if ($pline !~ m/\)\s*$/ ) {
 	$line  = $lines[$linecnt++];
+        $pline = $line;
+        $pline =~ s/#.*$//;
       }
       # search for empty last value of n-tuple
-      if ($line =~ m/,\s*\)\s*\)\s*$/) {
+      if ($pline =~ m/,\s*\)\s*\)\s*$/ ||
+          $pline =~ m/,\s*\([_,.()\w\s]*\s*\)\s*$/ ||
+          $pline =~ m/^\s*\([_,.()\w\s]*\s*\)\s*$/ ||
+          $pline =~ m/tuple\s*\(/) {
 	$cnt++;
 	if ($cnt == 1) {
 	  $lstr = "line\#" . $linecnt;
@@ -115,18 +140,44 @@ while ($linecnt <= $#lines) {
 	  $lstr = $lstr . "," . $linecnt;
 	}
 	print "=> $line\n" if (&verboseArg());
+        next;
       }
+    }
+  }
+
+  $linecnt = $saveline;
+  $line = $lines[$linecnt++];
+  $pline = $line;
+  $pline =~ s/#.*$//;
+
+  if ($pline =~ m/.*SIGNAL\s*\(/) {
+    # if line is continued, look skip ahead 1 line
+    if ($pline !~ m/\)\s*$/ && $pline !~ m/\)\s*,\s*$/) {
+      $line  = $lines[$linecnt++];
+      $pline = $line;
+      $pline =~ s/#.*$//;
+    }
+    if ($pline =~ m/[\(,]+\s*QWidget\s*[\),]+/) {
+      $wcnt++;
+      if ($wcnt == 1) {
+        $wlstr = "line\#" . $linecnt;
+      } else {
+        $wlstr = $wlstr . "," . $linecnt;
+      }
+      print "=> SIGNAL(method(QWidget)) $line\n" if (&verboseArg());
     }
   }
 }
 close(F);
 
-if (!$cnt) {
+my($total_count) = $cnt + $wcnt;
+if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
-  print "$lstr ($cnt)\n" if (!&quietArg());
-  Exit $cnt;
+  print "$lstr ($cnt)\n" if (!&quietArg() && $cnt);
+  print "$wlstr ($wcnt)\n" if (!&quietArg() && $wcnt);
+  Exit $total_count;
 }
 
 sub Help {
@@ -140,6 +191,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Older versions of PyQt required all the values emitted to a Qt SIGNAL to be an n-tuple.  New PyQt (starting with PyQt4) require that 1-tuple values be emitted as scalars.\n";
+  print "Older versions of PyQt required all the values emitted to a Qt SIGNAL to be an n-tuple.  New PyQt (starting with PyQt4) require that tuples be emitted as a list of scalars.\n";
   Exit 0 if &explainArg();
 }
