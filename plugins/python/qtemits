@@ -68,12 +68,14 @@ close(F);
 # Check Condition
 my($cnt) = 0;
 my($wcnt) = 0;
+my($ncnt) = 0;
 my($linecnt) = 0;
 my($saveline);
 my($line);
 my($pline);
 my($lstr) = "";
 my($wlstr) = "";
+my($nlstr) = "";
 
 while ($linecnt <= $#lines) {
   $saveline = $linecnt;
@@ -83,7 +85,7 @@ while ($linecnt <= $#lines) {
 
   if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+#.*[Kk]razy:skip+) {
-    $cnt = 0; $wcnt = 0;
+    $cnt = 0; $wcnt = 0; $ncnt = 0;
     last;
   }
 
@@ -91,7 +93,7 @@ while ($linecnt <= $#lines) {
 
   if ($pline =~ m/\.emit\s*\(\s*.*SIGNAL\s*\(/) {
     # if line is continued, look skip ahead 1 line
-    if ($pline !~ m/\)\s*$/ ) {
+    if ($pline !~ m/\)\s*$/) {
       $line  = $lines[$linecnt++];
       $pline = $line;
       $pline =~ s/#.*$//;
@@ -107,8 +109,8 @@ while ($linecnt <= $#lines) {
       } else {
 	$lstr = $lstr . "," . $linecnt;
       }
-      print "=> $line\n" if (&verboseArg());
-      next;
+      print "=> emit n-tuple $line\n" if (&verboseArg());
+      goto nextCheck;
     }
   }
 
@@ -123,7 +125,7 @@ while ($linecnt <= $#lines) {
     $pline =~ s/#.*$//;
     if ($pline =~ m/.*SIGNAL\s*\(/) {
       # if line is continued, look skip ahead 1 line
-      if ($pline !~ m/\)\s*$/ ) {
+      if ($pline !~ m/\)\s*$/) {
 	$line  = $lines[$linecnt++];
         $pline = $line;
         $pline =~ s/#.*$//;
@@ -139,12 +141,13 @@ while ($linecnt <= $#lines) {
 	} else {
 	  $lstr = $lstr . "," . $linecnt;
 	}
-	print "=> $line\n" if (&verboseArg());
-        next;
+	print "=> emit n-tuple $line\n" if (&verboseArg());
       }
     }
   }
 
+ nextCheck:
+  # Check for QWidget argument in SIGNAL signature
   $linecnt = $saveline;
   $line = $lines[$linecnt++];
   $pline = $line;
@@ -160,23 +163,87 @@ while ($linecnt <= $#lines) {
     if ($pline =~ m/[\(,]+\s*QWidget\s*[\),]+/) {
       $wcnt++;
       if ($wcnt == 1) {
-        $wlstr = "line\#" . $linecnt;
+        $wlstr = "SIGNAL method(QWidget) line\#" . $linecnt;
       } else {
         $wlstr = $wlstr . "," . $linecnt;
       }
       print "=> SIGNAL(method(QWidget)) $line\n" if (&verboseArg());
     }
   }
+
+  # Check that the number of args in the SIGNAL signature matches
+  # the number of args emitted.
+  $linecnt = $saveline;
+  $line = $lines[$linecnt++];
+  $pline = $line;
+  $pline =~ s/#.*$//;
+
+  my($foo,$bar);
+  my($sargs, $eargs);
+  if ($pline =~ m/\.emit\s*\(/) {
+    if ($pline !~ m/QtCore\.SIGNAL\s*\(/) {
+      # skip ahead 1 line
+      $line  = $lines[$linecnt++];
+      $pline = $line;
+      $pline =~ s/#.*$//;
+    }
+    $sargs = 0;
+    if ($pline =~ m/"/) {
+      ($foo,$bar) = split('"',$pline);
+    } elsif ( $pline =~ m/\'/) {
+      ($foo,$bar) = split('\'',$pline);
+    }
+    if ($bar !~ m/\(\s*\)/) {
+      if ($bar =~ m/,/) {
+        $sargs = scalar(split(',',$bar));
+      } else {
+        $sargs = 1;
+      }
+    }
+    # if line is continued, look skip ahead 1 line
+    if ($pline !~ m/\)\s*$/) {
+      $line  = $lines[$linecnt++];
+      $pline = $line;
+      $pline =~ s/#.*$//;
+    }
+    $foo = $pline;
+    $foo =~ s/^.*SIGNAL\s*\(.*\)\s*"\s*\)\s*,//;
+    $foo =~ s/^.*SIGNAL\s*\(.*\)\s*\'\s*\)\s*,//;
+    $foo =~ s/^.*\)\s*"\s*\)\s*,//;
+    $foo =~ s/^.*\)\s*\'\s*\)\s*,//;
+    $eargs = 0;
+    if ($foo !~ m/^\s*\)/ &&
+      $foo !~ m/\(\s*\)\s*"\)\s*\)/ &&
+      $foo !~ m/\(\s*\)\s*\'\)\s*\)/) {
+      if ($foo =~ m/,/) {
+        $eargs = scalar(split(',',$foo));
+      } else {
+        if ($foo !~ m/None/) {
+          $eargs = 1;
+        }
+      }
+    }
+    if ($sargs != $eargs) {
+      $ncnt++;
+      if ($ncnt == 1) {
+        $nlstr = "SIGNAL number args mismatch line\#" . $linecnt;
+      } else {
+        $nlstr = $nlstr . "," . $linecnt;
+      }
+      print "=> SIGNAL number of args ($sargs) mismatch with number emitted ($eargs) $line\n" if (&verboseArg());
+    }
+  }
 }
 close(F);
 
-my($total_count) = $cnt + $wcnt;
+my($total_count) = $cnt + $wcnt + $ncnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
   print "$lstr ($cnt)\n" if (!&quietArg() && $cnt);
   print "$wlstr ($wcnt)\n" if (!&quietArg() && $wcnt);
+  print "$nlstr ($ncnt)\n" if (!&quietArg() && $ncnt);
   Exit $total_count;
 }
 
