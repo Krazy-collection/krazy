@@ -187,6 +187,16 @@ while ($linecnt <= $#lines) {
       $pline = $line;
       $pline =~ s/#.*$//;
     }
+    if ($pline !~ m/QtCore\.SIGNAL\s*\(/) {
+      #an emit without a SIGNAL
+      next;
+    }
+    if ($pline !~ m/"/ && $pline !~ m/\'/) {
+      # skip ahead 1 line
+      $line  = $lines[$linecnt++];
+      $pline = $line;
+      $pline =~ s/#.*$//;
+    }
     $sargs = 0;
     if ($pline =~ m/"/) {
       ($foo,$bar) = split('"',$pline);
@@ -218,9 +228,9 @@ while ($linecnt <= $#lines) {
       if ($foo =~ m/,/) {
         $eargs = scalar(split(',',$foo));
       } else {
-        if ($foo !~ m/None/) {
+#        if ($foo !~ m/None/) {
           $eargs = 1;
-        }
+#        }
       }
     }
     if ($sargs != $eargs) {
