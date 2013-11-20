@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE xsl:stylesheet [<!ENTITY nbsp "&#160;">]>
 <xsl:stylesheet version="2.0"
-  xmlns:ebn="http://www.englishbreakfastnetwork.org/krazy"
+  xmlns:ebn="http://ebn.kde.org/krazy"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns="http://www.w3.org/1999/xhtml">
@@ -168,7 +168,7 @@
       <head>
         <title>krazy2 Analysis</title>
         <link rel="stylesheet" type="text/css" title="Normal" 
-          href="http://www.englishbreakfastnetwork.org/style.css" />
+          href="http://ebn.kde.org/style.css" />
       </head>
       <body>
         <div id="title">
