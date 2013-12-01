@@ -127,7 +127,7 @@ Overrides the KRAZY_STYLE_OFFSET environment variable, see krazy2(1).
 =item STYLE_LINEMAX length
 
 Tell the "style" checker to check for lines longer than this number of characters.
-The default is 100 characters.
+The default is unlimited line length.
 
 Overrides the KRAZY_STYLE_LINEMAX environment variable, see krazy2(1).
 

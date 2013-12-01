@@ -27,7 +27,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Supports these environment variables:
 #  KRAZY_STYLE_PYTHONSTYLE: a predefined style, currently available styles are "kde" (currently ignored)
 #  KRAZY_STYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4 (currently ignored)
-#  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to 100)
+#  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to unlimited)
 
 # Does Not Check:
 # * proper indentation, since Python requires that anyway
@@ -78,7 +78,7 @@ if ($f =~ m/\.py$/) {
   Exit 0;
 }
 
-$KRAZY_STYLE_LINEMAX = 100 if ( !$KRAZY_STYLE_LINEMAX );
+$KRAZY_STYLE_LINEMAX = 0 if ( !$KRAZY_STYLE_LINEMAX );
 if ( !$KRAZY_STYLE_PYTHONSTYLE ) {
   $KRAZY_STYLE_PYTHONSTYLE = "kde";
 }
@@ -138,7 +138,7 @@ foreach $line (@lines) {
     }
   }
 
-  if (length($line) > $KRAZY_STYLE_LINEMAX) {
+  if (($KRAZY_STYLE_LINEMAX > 0) && (length($line) > $KRAZY_STYLE_LINEMAX)) {
     $Issues{'LINELEN'}{'count'}++;
     if ($Issues{'LINELEN'}{'count'} == 1) {
       $Issues{'LINELEN'}{'lines'} = "line\#" . $linecnt;

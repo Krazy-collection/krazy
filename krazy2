@@ -1797,7 +1797,7 @@ indentation level, usually a small integer like 2 or 4. This value overrides
 the offset provided as part of the C++-style (see B<KRAZY_STYLE_CPPSTYLE>).
 
 B<KRAZY_STYLE_LINEMAX> - tells the "style" checker to check for lines longer
-than this number of characters.  The default is 100 characters.
+than this number of characters.  The default is unlimited length.
 
 =head1 EXIT STATUS
 

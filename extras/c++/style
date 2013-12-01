@@ -27,7 +27,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Supports these environment variables:
 #  KRAZY_STYLE_CPPSTYLE: a predefined style, currently available styles are "kde" and "pim"
 #  KRAZY_STYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4
-#  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to 100)
+#  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to unlimited)
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -75,7 +75,7 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/ ||
   Exit 0;
 }
 
-$KRAZY_STYLE_LINEMAX = 100 if ( !$KRAZY_STYLE_LINEMAX );
+$KRAZY_STYLE_LINEMAX = 0 if ( !$KRAZY_STYLE_LINEMAX );
 if ( !$KRAZY_STYLE_CPPSTYLE ) {
   if ( abs_path($f) =~ m/kdepim/ ) {
     $KRAZY_STYLE_CPPSTYLE = "pim";
@@ -675,7 +675,7 @@ foreach $line (@data_lines) {
     print "$linecnt (trailing whitespace) => $line\n" if (&verboseArg());
   }
 
-  if (length($line) > $KRAZY_STYLE_LINEMAX) {
+  if (($KRAZY_STYLE_LINEMAX > 0) && (length($line) > $KRAZY_STYLE_LINEMAX)) {
     $Issues{'LINELEN'}{'count'}++;
     if ($Issues{'LINELEN'}{'count'} == 1) {
       $Issues{'LINELEN'}{'lines'} = "line\#" . $linecnt;
