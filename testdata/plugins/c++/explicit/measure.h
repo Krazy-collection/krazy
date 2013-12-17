@@ -5,7 +5,7 @@ public:
                           int mode = 1,
                           int orientation = 2 );
 
-    Measure( qreal value, int mode = 1, int orientation = 2 ); // issue
+    Measure( qreal value, int mode = 1, int orientation = 2 ); //issue
 };
 
 class GlobalMeasureScaling
