@@ -48,10 +48,11 @@ use Cwd 'abs_path';
 use Tie::IxHash;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.30";
+my($Version) = "1.40";
 
 &parseArgs();
 
@@ -111,6 +112,8 @@ foreach my $comment ( @comments ) {
 
 #put it back into an array so we can iterate over it
 my(@lines) = split(/\n/, $data);
+# Remove Krazy conditional blocks
+@lines = RemoveCondBlockC( $Prog, @lines );
 
 my($cnt) = 0;
 my($linecnt) = 0;
