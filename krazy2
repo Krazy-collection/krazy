@@ -115,7 +115,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.94';    #split line so MakeMaker can find the version here
+ $VERSION = '2.95';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -974,6 +974,7 @@ sub initSets {
   %Sets = (
     'c++' => [],
     'qt4' => [],
+    'qt5' => [],
     'kde4' => [],
     'foss' => [],
   );

@@ -1,6 +1,6 @@
 # krazy sets Makefile
 #
-# Copyright 2010 by Allen Winter <winter@kde.org>
+# Copyright 2010, 2013 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 SUBDIRS = \
 c++ \
 qt4 \
+qt5 \
 kde4 \
 foss \
 
