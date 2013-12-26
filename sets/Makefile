@@ -22,6 +22,7 @@ c++ \
 qt4 \
 qt5 \
 kde4 \
+kde5 \
 foss \
 
 #default installation location
