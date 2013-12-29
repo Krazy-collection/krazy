@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2011 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2013 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.51";
+my($Version) = "1.52";
 
 &parseArgs();
 
@@ -110,6 +110,7 @@ HAVE_DPMSCAPABLE_PROTO
 HAVE_DPMSINFO_PROTO
 HAVE_DRAND48
 HAVE_EIGEN
+HAVE_EIGEN3
 HAVE_EXIV2
 HAVE_FACILE
 HAVE_FADVISE
@@ -192,6 +193,8 @@ HAVE_GPGME_SIGNATURE_T_CHAIN_MODEL
 HAVE_GPGME_SUBKEY_T_IS_CARDKEY
 HAVE_GPGME_SUBKEY_T_IS_QUALIFIED
 HAVE_GPGME_VERIFY_RESULT_T_FILE_NAME
+HAVE_GPHOTO2
+HAVE_GPHOTO25
 HAVE_GRANTPT
 HAVE_IF_NAMETOINDEX
 HAVE_INET_ATON
@@ -200,6 +203,7 @@ HAVE_INET_PTON
 HAVE_INITGROUPS
 HAVE_INITGROUPS_PROTO
 HAVE_INOTIFY
+HAVE_INTERNALMYSQL
 HAVE_KDCRAW
 HAVE_KIDLETIME
 HAVE_KLEOPATRACLIENT_LIBRARY
@@ -211,6 +215,7 @@ HAVE_LDAP_EXTENDED_OPERATION_S_PROTOTYPE
 HAVE_LDAP_INITIALIZE
 HAVE_LDAP_START_TLS_S
 HAVE_LDAP_UNBIND_EXT
+HAVE_LENSFUN
 HAVE_LIBACL
 HAVE_LIBARCHIVE_XZ_SUPPORT
 HAVE_LIBARCHIVE_LZMA_SUPPORT
@@ -229,6 +234,7 @@ HAVE_LOGIN
 HAVE_LOGIN_GETCLASS
 HAVE_LOGINX
 HAVE_LONG_LONG
+HAVE_LIBLQR_1
 HAVE_LSEEK64
 HAVE_MADVISE
 HAVE_MARBLE
@@ -395,6 +401,7 @@ HAVE_XINE
 HAVE_WEBKITKDE
 HAVE_KONQUEROR
 HAVE_SQLITE
+HAVE_SQLITE2
 HAVE_KWORKSPACE
 HAVE_SNPRINTF
 HAVE_STRCASECMP
