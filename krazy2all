@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the KDE source code                                         #
-# Copyright 2006-2010,2012 by Allen Winter <winter@kde.org>                   #
+# Copyright 2006-2010,2012-2014 by Allen Winter <winter@kde.org>              #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -29,13 +29,14 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.93';    #split line so MakeMaker can find the version here
+ $VERSION = '2.94';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
 my ($list)      = '';
 my ($listtypes) = '';
 my ($listsets)  = '';
+my ($listset)   = '';
 my ($verbose)   = '';
 my ($ignorerc)  = '';
 my ($configf)   = '';
@@ -62,6 +63,7 @@ exit 1
        'list'           => \$list,
        'list-types'     => \$listtypes,
        'list-sets'      => \$listsets,
+       'list-set=s'     => \$listset,
        'dry-run'        => \$dryrun,
        'ignorerc'       => \$ignorerc,
        'config=s'       => \$configf,
@@ -98,6 +100,11 @@ if ($listtypes) {
 
 if ($listsets) {
   system("krazy2 --list-sets");
+  exit 0;
+}
+
+if ($listset) {
+  system("krazy2 --list-set=$listset");
   exit 0;
 }
 
@@ -141,9 +148,11 @@ sub Help {
   print "Usage: $Prog [OPTION]\n";
   print "  --help       display help message and exit\n";
   print "  --version    display version information and exit\n";
-  print "  --list       list all the checker programs and exit\n";
-  print "  --list-types list all the supported file types and exit\n";
-  print "  --list-sets  list all the checker sets and exit\n";
+  print "  --list       print a list of all the checker programs\n";
+  print "  --list-types print a list of all the supported file types\n";
+  print "  --list-sets  print a list of all the checker sets\n";
+  print "  --list-set <set>\n";
+  print "               print the list of available checkers for the specified set\n";
   print "  --priority <low|normal|high|important|all>\n";
   print "               report only issues with the specified priorities:\n";
   print "                 low -> print low priority issues only\n";
@@ -238,20 +247,9 @@ Print a list of the support file types and exit.
 
 Print a list of all the checker sets and exit.
 
-=item B<--ignorerc>
+=item B<--list-set> <set>
 
-Ignore .krazy files.
-
-=item B<--config> <krazyrc>
-
-Read settings from the specified krazyrc configuration file only.
-All other configuration files will be ignored, including those
-found in the user's home directory or in the current working directory.
-
-=item B<--dry-run>
-
-With this option the checker programs aren't run; instead, the command line
-for each check that would be run is printed.
+Print the list of available checkers for the specified set and exit.
 
 =item B<--priority> <low|normal|high|important|all>
 
@@ -274,6 +272,28 @@ Support strictness levels are:
      normal -> print non-super strict issues only
      super -> print super strict issues only
      all -> print all issues (default)
+
+=item B<--explain>
+
+For each checker program, if any issues are found, print an explanation
+of the problem along with solving instructions.  May be used in conjunction
+with the B<--list> option to provide a more detailed description of the
+checker programs.
+
+=item B<--ignorerc>
+
+Ignore .krazy files.
+
+=item B<--config> <krazyrc>
+
+Read settings from the specified krazyrc configuration file only.
+All other configuration files will be ignored, including those
+found in the user's home directory or in the current working directory.
+
+=item B<--dry-run>
+
+With this option the checker programs aren't run; instead, the command line
+for each check that would be run is printed.
 
 =item B<--check> <prog[,prog1,prog2,...,progN]>
 
