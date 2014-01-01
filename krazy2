@@ -458,6 +458,8 @@ $brief = 0 if ( $nobrief );
 
 # Generate a list of all the checker programs in the specified sets.
 my($prog,@set_progs);
+my($qtsets) = '';
+my($kdesets) = '';
 if ($checksets) {
   foreach $set ( split( ",", $checksets ) ) {
     if (!validateCheckSet($set)) {
@@ -465,11 +467,28 @@ if ($checksets) {
       print "Run $Prog --list-sets to see the list of available check sets.\n";
       exit 1;
     }
+    if ($set =~ m/^qt/i) {
+      if ($qtsets) {
+        print "Specifying multiple Qt version checksets is not allowed ($set and $qtsets).\n";
+        exit 1;
+      } else {
+        $qtsets = $set;
+      }
+    }
+    if ($set =~ m/^kde/i) {
+      if ($kdesets) {
+        print "Specifying multiple KDE version checksets is not allowed ($set and $kdesets).\n";
+        exit 1;
+      } else {
+        $kdesets = $set
+      }
+    }
     foreach $prog ( @{ $Sets{lc($set)} } ) {
       push( @set_progs, &basename($prog));
     }
   }
   @set_progs = deDupe(@set_progs);
+
 }
 
 # Now subtract away the checkers that aren't found in the check sets.
