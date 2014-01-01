@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2010,2012-2013 by Allen Winter <winter@kde.org>              #
+# Copyright 2007-2010,2012-2014 by Allen Winter <winter@kde.org>              #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -29,7 +29,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.16;
+$VERSION = 1.17;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath Exit
@@ -38,7 +38,8 @@ $VERSION = 1.16;
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
              priorityTypeStr strictTypeStr exportTypeStr outputTypeStr
-             validateExportType validatePriorityType validateStrictType validateOutputType);
+             validateExportType validatePriorityType validateStrictType
+             validateOutputType validateCheckSet);
 @EXPORT_OK = qw();
 
 my(@tmp);
@@ -67,6 +68,14 @@ my(@Outputs) = ( "normal",       # standard stuff (default)
                  "brief",        # only checks with issues
                  "quiet"         # no output, even if verbosity turned-on
                );
+
+my(@Sets) = ( "c++",             # Pure C++ source
+              "qt4",             # Qt4 source (C++, QML, Qt Designer, Qt Doc)
+              "qt5",             # Qt5 source (C++, QML, Qt Designer, Qt Doc)
+              "kde4",            # KDE4 source (C++, Qt4, FDO desktop files, etc.)
+              "kde5",            # KDE5 source (C++, Qt5, FDO desktop files, etc.)
+              "foss"             # Free and open source software (FOSS)
+            );
 
 #the path might be regularly used symlinks, so undo that
 sub tweakPath {
@@ -384,6 +393,15 @@ sub validateOutputType { #output type doesn't consider verbosity (except in the 
   if ($output) {
     $output = lc($output);
     return grep {$_ eq $output} @Outputs;
+  }
+  return 0;
+}
+
+sub validateCheckSet {
+  my ($set) = @_;
+  if ($set) {
+    $set = lc($set);
+    return grep {$_ eq $set} @Sets;
   }
   return 0;
 }
