@@ -1,0 +1,295 @@
+============
+Version 0.22
+============
+
+ desktop-file-validate
+  - add DBusActivatable key to allowed keys (Matthias Clasen)
+  - warn about OnlyShowIn in Action groups (Matthias Clasen)
+  - allow validating multiple desktop files (Matthias Clasen)
+  - improve help output (Matthias Clasen)
+  - update man page (Matthias Clasen)
+
+ update-desktop-database
+  - list only once a desktop file per mime type (Vincent)
+
+ misc
+  - honor NOCONFIGURE=1 (Colin Walters)
+
+============
+Version 0.21
+============
+
+ desktop-file-validate
+  - update to current version of menu specification (Vincent):
+    - only print hint if no main category is present, not an error
+    - make Science a main category
+    - add new registered categories: Adult, Feed, Humanities, Maps,
+      Shooter, Spirituality, XFCE
+    - update related categories
+    - add TDE to list of registered OnlyShowIn
+  - accept and validate GNOME3/GSettings for AutostartCondition (Vincent)
+  - output hint if more than one main category is present (Vincent)
+  - output hint about suggested related categories (Vincent)
+
+ misc
+  - do not require glib >= 2.28 for build (Vincent)
+
+============
+Version 0.20
+============
+
+ desktop-file-install
+  - fix list of locale strings without trailing slash (Matthias Clasen)
+
+ desktop-file-validate
+  - add MATE and Razor to list of registered environments (Vincent)
+  - validate Desktop Actions (Giovanni Campagna, Vincent)
+
+============
+Version 0.19
+============
+
+ desktop-file-install
+   - respect order of edit options (Vincent)
+   - add --add-not-show-in/--remove-not-show-in options (Vincent)
+   - add options to set Name, GenericName, Comment, Icon keys (Vincent)
+   - add --set-key/--set-value options to set an arbitrary key (Vincent)
+   - remove localized keys when setting/removing a key (Vincent)
+   - copy translations when copying a key (Vincent)
+   - create a desktop-file-edit symlink to desktop-file-install to simply edit
+     .desktop files (without having to pass --dir) (Vincent)
+   - look at RPM_BUILD_ROOT to know where to install desktop files
+   - minor UI improvements (Vincent)
+
+ desktop-file-validate
+   - add Unity to list of registered environments (Vincent)
+   - deal with various zz-application/zz-winassoc-XXX mime types (Vincent)
+   - mark all zz-application/* MIME types as aliases (Vincent)
+   - add support for updated Keywords key (Vincent)
+
+ update-desktop-database
+   - deal with various zz-application/zz-winassoc-XXX mime types (Vincent)
+   - mark all zz-application/* MIME types as aliases (Vincent)
+   - ignore desktop files with Hidden=true (Vincent)
+
+ misc
+   - modernize build system a bit (Vincent)
+   - update man pages (Vincent)
+
+============
+Version 0.18
+============
+
+ desktop-file-validate
+   - accept x-scheme-handler/* mime types (Vincent)
+
+ update-desktop-database
+   - sort mime types alphabetically in generated cache (Vincent)
+   - accept x-scheme-handler/* mime types (Vincent)
+
+ misc
+   - improve build system (Vincent)
+   - minor documentation fixes (Vincent)
+
+============
+Version 0.17
+============
+
+ desktop-file-validate
+   - accept chemical/* mime types as valid types (Vincent)
+   - make icon names with an extension for Icon key a non-fatal error (Vincent)
+
+ update-desktop-database
+   - accept chemical/* mime types as valid types (Vincent)
+   - ignore --verbose if --quiet is also passed (Vincent)
+   - make sure to always output lists in the keyfile we generate (Vincent)
+
+ misc
+   - improve build system (Vincent)
+   - update documentation (Vincent)
+   - add man pages (Vincent)
+
+============
+Version 0.16
+============
+
+ desktop-file-install
+   - do not unlink the destination file if it's the same as the source file in
+     desktop-file-install (Vincent)
+
+ desktop-file-validate
+   - check that a main category is included in the Categories (Vincent)
+   - check that categories required by another one are present (Vincent)
+   - do not always show warnings about KDE specific uses (Vincent)
+   - check that the Comment does not look like the Name and the GenericName
+     (Vincent)
+   - display error about multiple keys with the same name earlier (Vincent)
+   - improve MIME type check to make sure that the MIME types are valid
+     (Vincent)
+   - add LXDE in the list of registered OnlyShowIn values (Vincent)
+   - add "warning" to error strings to make them easily greppable (Vincent)
+   - handle AutostartCondition key, as proposed for the autostart specification
+     and used in GNOME (Vincent)
+   - accept empty Categories key as valid (Vincent)
+   - make new errors non-fatal to give some time to maintainers to fix their
+     .desktop file after a release of desktop-file-utils (Vincent)
+   - plug leak (Vincent)
+   - code cleanups (Vincent)
+
+ update-desktop-database
+   - improve MIME type check to make sure that the MIME types are valid
+     (Vincent)
+   - improve error messages (Erik Hovland, Vincent)
+   - fix format string vulnerability warning (Vincent)
+
+ misc
+   - use AM_SILENT_RULES (Vincent)
+   - improve build system (Vincent)
+
+============
+Version 0.15
+============
+
+  o make the extension check for Icon key a warning instead of an error for now
+    (Ray Strode)
+  o Fix a crash in update-desktop-database when there's no group (Vincent)
+  o Fix a crash in the validator happening for very small lines (Vincent)
+
+============
+Version 0.14
+============
+
+  o update of the Emacs editing mode for .desktop files (Ville Skyttä)
+  o make desktop-file-install print an error when trying to install a
+    non-existing desktop file, or a desktop file that can't be read (Vincent)
+  o make the validator check the content of the Icon key (Vincent)
+  o make the validator accept X-Foo as a valid environment (this was added to
+    the spec) (Stanislav Brabec, Vincent)
+  o really handle the -m command line argument for desktop-file-install
+    (Matthias Clasen)
+  o make desktop-file-install accept as one valid argument multiple
+    categories/only-show-in/mime-types values. Now --add-category="GNOME;GTK"
+    works as expected. (Vincent)
+  o make desktop-file-install validate the created desktop file before removing
+    the original file, and unlink it if it's not valid (Vincent)
+  o code cleanups for desktop-file-install (Vincent)
+
+============
+Version 0.13
+============
+
+  o rewrite validator, and update it for desktop entry specification 1.0.
+    The validator should be stricter and report more useful messages.
+    (Vincent)
+  o add --warn-kde and --no-warn-deprecated command line options to
+    desktop-file-validate (Vincent)
+  o port desktop-file-install to GKeyFile (Vincent)
+  o don't require --vendor for desktop-file-install (Vincent)
+  o some general module cleanup (Vincent)
+
+============
+Version 0.12
+============
+
+  o improves category validation code to not catch false positives (Vincent Fretin, Ville Skyttä, Ray Strode, Vincent Untz) 
+  o make category validation code non-fatal (Ray)
+  o fix mem leaks and double frees (Pascal Terjan)
+
+============
+Version 0.11
+============
+
+  o Validate desktop file categories (Emmet Hikory, Vincent Untz)
+  o Use GKeyFile instead of the old egg code in update-desktop-database (Vincent)
+  o Use GOption instead of popt (Vincent)
+  o Fix grammar problem in one of the strings (Moritz Barsnick)
+  o NULL terminate search patch in update-desktop-database (Mike Hearn)
+  o Fix language to encoding mapping to match spec (Ville Skyttä) 
+
+============
+Version 0.10
+============
+
+  o Remove all menus code (Mark McLoughlin)
+  o Don't try and add key/value pairs to comments (Miloslav Trmac)
+
+===========
+Version 0.9
+===========
+
+  o Many update-desktop-database improvements (Ray Strode, Dan Williams)
+  o Fix desktop-file-install --remove-only-show-in (Ray Strode)
+
+===========
+Version 0.8
+===========
+
+ o Fix various leaks (Kjartan Maraas)
+ o Update with latest libegg code (Ray Strode)
+
+ o Menu method work (Mark McLoughlin, Dan Williams)
+     + Reload the menu when .desktop/.directory files change
+     + Respect NoDisplay in .desktop/.directory files
+     + Remove empty submenus
+     + Report the last modification time of the tree
+     + Support setting the OnlyShowIn name
+     + Add a reasonable default set of schemes
+
+===========
+Version 0.7
+===========
+
+ o Add update-desktop-database (Ray Strode)
+ o Emacs editing mode for .desktop files (Ville Skyttä)
+ o Update to latest spec, improve error messages (Ville Skyttä)
+ o Warning fixes (Mark McLoughlin)
+ o distcheck fixes (Jonathan Blandford)
+
+===========
+Version 0.6
+===========
+
+ o Bring up to date with version 0.8 of the menu spec
+ o Don't crash when a .desktop file is a symlink to a non-existant file
+
+===========
+Version 0.5
+===========
+
+ o Don't segfault with .desktop files which have a leading comment
+
+===========
+Version 0.4
+===========
+
+ o Add support for "Desktop Action" sections
+
+===========
+Version 0.3
+===========
+
+ o Create target dir of desktop-file-install if nonexistent;
+ o improve some error messages
+ o fix OnlyShowIn? handling
+ o add --print-available option to dump desktop files being considered by desktop-menu-tool
+ o rename obsolete [KDE Desktop Entry] section if found
+ o fix a crash
+ o verify proper spelling of KDE and GNOME in OnlyShowIn?
+ o add a --remove-key option; check that string lists end in a semicolon
+ o add --copy-name-to-generic-name and vice versa
+ o fix bug in --delete-original that made it not work
+
+===========
+Version 0.2
+===========
+
+ o Adds desktop-menu-tool to parse vfolder menus and generate a symlink tree or just print them out.
+
+===========
+Version 0.1
+===========
+
+ o Initial release. Contains desktop-file-validate and desktop-file-install.
+
+
+		

@@ -1,0 +1,44 @@
+.\"
+.\" desktop-file-validate manual page.
+.\" (C) 2010 Vincent Untz (vuntz@gnome.org)
+.\"
+.TH DESKTOP-FILE-VALIDATE 1 FREEDESKTOP.ORG
+.SH NAME
+desktop-file-validate \- Validate desktop entry files
+.SH SYNOPSIS
+.B desktop-file-validate [\-\-no-hints] [\-\-no-warn-deprecated] [\-\-warn-kde] FILE...
+.SH DESCRIPTION
+The \fIdesktop-file-validate\fP program is a tool to validate desktop
+entry files according to the Desktop Entry specification 1.1.
+.PP
+The specification describes a file format to provide information such as
+name, icon and description for an application. Such a file can then be
+used as an application launcher and to display the application in the
+applications menu.
+.PP
+For information about the Desktop Entry specification, see
+\fIhttp://freedesktop.org/wiki/Specifications/desktop-entry-spec\fP.
+.PP
+The desktop entry files are commonly called \fBdesktop files\fP.
+.SH OPTIONS
+The following options are supported:
+.TP
+.I --no-hints
+Do not output hints about things that might be improved in the desktop file.
+.TP
+.I --no-warn-deprecated
+Do not warn about usage of deprecated items that were defined in
+previous versions of the specification.
+.TP
+.I --warn-kde
+Warn about usage of KDE extensions to the specification. This includes
+the use of the \fBKDE Desktop Entry\fP group, of the \fBServiceTypes\fP,
+\fBDocPath\fP, \fBKeywords\fP, \fBInitialPreference\fP, \fBDev\fP,
+\fBFSType\fP, \fBMountPoint\fP, \fBReadOnly\fP, \fBUnmountIcon\fP keys,
+or of the \fBService\fP, \fBServiceType\fP and \fBFSDevice\fP types.
+.SH BUGS
+If you find bugs in the \fIdesktop-file-validate\fP program, please
+report these on https://bugs.freedesktop.org.
+.SH SEE ALSO
+.BR desktop-file-edit(1)
+.BR desktop-file-install(1)
