@@ -51,7 +51,8 @@ if ( test ! -d "$TOP" ) then
 fi
 
 #install user-interface scripts
-perl Makefile.PL PREFIX=$TOP
+#perl Makefile.PL PREFIX=$TOP
+perl Makefile.PL INSTALLSITESCRIPT=$TOP/bin PREFIX=$TOP
 stat=$?
 if ( test $stat -ne 0 ) then
   exit $stat
@@ -86,10 +87,15 @@ else
       (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/Krazy $TOP/lib/Krazy)
     else
        if ( test -d $TOP/share/perl5/$V/Krazy ) then
-       (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/$V/Krazy $TOP/lib/Krazy)
+         (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/$V/Krazy $TOP/lib/Krazy)
       else
         if ( test -d $TOP/lib/perl5/site_perl ) then
-          (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
+          if ( test "`uname -s`" = "Darwin" )
+          then
+            (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/Krazy $TOP/lib/Krazy)
+          else
+            (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
+          fi
         else
           if ( test -d $TOP/lib64/perl5/site_perl ) then
             (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib64/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
