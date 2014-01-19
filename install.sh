@@ -100,12 +100,16 @@ else
           if ( test -d $TOP/lib64/perl5/site_perl ) then
             (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib64/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
           else
-            echo
-	    echo "==================================================================="
-	    echo "Unknown perl installation issue encountered. Aborting installation."
-	    echo "Please contact winter@kde.org about this."
-	    echo "==================================================================="
-	    exit 1
+            if ( test -d $TOP/lib64/perl5/$V ) then
+              (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib64/perl5/$V/Krazy $TOP/lib/Krazy)
+            else
+              echo
+	      echo "==================================================================="
+	      echo "Unknown perl installation issue encountered. Aborting installation."
+	      echo "Please contact winter@kde.org about this."
+	      echo "==================================================================="
+	      exit 1
+            fi
           fi
         fi
       fi
