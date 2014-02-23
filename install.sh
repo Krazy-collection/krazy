@@ -52,7 +52,7 @@ fi
 
 #install user-interface scripts
 #perl Makefile.PL PREFIX=$TOP
-perl Makefile.PL INSTALLSITESCRIPT=$TOP/bin PREFIX=$TOP
+perl Makefile.PL INSTALLSITESCRIPT=$TOP/bin INSTALLSITEBIN=$TOP/bin INSTALLSITELIB=$TOP/lib PREFIX=$TOP
 stat=$?
 if ( test $stat -ne 0 ) then
   exit $stat
@@ -60,6 +60,14 @@ fi
 make && \
 make install && \
 make realclean
+
+if ( test ! -d "$TOP/lib" ) then
+  echo "==================================================================="
+  echo "Unknown perl installation issue encountered. Aborting installation."
+  echo "Please contact winter@kde.org about this."
+  echo "==================================================================="
+  exit 1
+fi
 
 #following is needed on ArchLinux
 if ( test -d $TOP/bin/perlbin/site ) then
@@ -72,49 +80,6 @@ if ( test -d $TOP/local/bin ) then
   mkdir -p $TOP/bin
   (cd $TOP/local/bin; mv * ../../bin)
   rm -rf $TOP/local/bin
-fi
-
-#create a symlink to the perl modules so we can find them
-V=`perl -e 'printf "%vd", $^V'`
-mkdir -p $TOP/lib
-if ( test -d $TOP/share/perl5/site_perl ) then
-  (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
-else
-  if ( test -d $TOP/share/perl ) then
-    (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl/$V/Krazy $TOP/lib/Krazy)
-  else
-    if ( test -d $TOP/share/perl5/Krazy ) then
-      (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/Krazy $TOP/lib/Krazy)
-    else
-       if ( test -d $TOP/share/perl5/$V/Krazy ) then
-         (cd $TOP/lib; rm -f Krazy; ln -s $TOP/share/perl5/$V/Krazy $TOP/lib/Krazy)
-      else
-        if ( test -d $TOP/lib/perl5/site_perl ) then
-          if ( test "`uname -s`" = "Darwin" )
-          then
-            (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/Krazy $TOP/lib/Krazy)
-          else
-            (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
-          fi
-        else
-          if ( test -d $TOP/lib64/perl5/site_perl ) then
-            (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib64/perl5/site_perl/$V/Krazy $TOP/lib/Krazy)
-          else
-            if ( test -d $TOP/lib64/perl5/$V ) then
-              (cd $TOP/lib; rm -f Krazy; ln -s $TOP/lib64/perl5/$V/Krazy $TOP/lib/Krazy)
-            else
-              echo
-	      echo "==================================================================="
-	      echo "Unknown perl installation issue encountered. Aborting installation."
-	      echo "Please contact winter@kde.org about this."
-	      echo "==================================================================="
-	      exit 1
-            fi
-          fi
-        fi
-      fi
-    fi
-  fi
 fi
 
 #install helper scripts
