@@ -93,7 +93,7 @@ if ( test $EBN -eq 0 ) then
   cd src/desktop-file-utils-0.22 && \
   ./configure && make && \
   cp -f ./src/desktop-file-validate $TOP/lib/krazy2/krazy-helpers && \
-  make distclean
+  make distclean; rm -f config.log
   cd ../..
 else
   if ( test ! -x /usr/bin/desktop-file-validate ) then
