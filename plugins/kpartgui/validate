@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "validate";
-my($Version) = "1.21";
+my($Version) = "1.20";
 
 &parseArgs();
 
@@ -110,10 +110,6 @@ sub processFile() {
     if ($result && $line) {
       next if ($line =~ m/global declaration available for the validation root/);
       next if ($line =~ m/1: parser error : Start tag expected, '\<' not found/); #probably not a kpartgui file
-
-      #ignore possible problems caused by bugs in kxmlgui.xsd
-      next if ($line =~ m/element\sState:.*ActionProperties/);
-
       $cnt++;
       $line =~ s+^$f:\s*++;
       $line =~ s+^warning:\s*++;
