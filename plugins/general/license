@@ -5,7 +5,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2009,2011-2012 by Allen Winter <winter@kde.org>          #
+# Copyright (C) 2005-2009,2011-2014 by Allen Winter <winter@kde.org>          #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 # Copyright (C) 2007 by Dirk Mueller <mueller@kde.org>                        #
 #                                                                             #
@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.88";
+my($Version) = "1.89";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -233,8 +233,8 @@ sub checkLicense()
    $license="BSD $license" if ($text =~ /MERCHANTABILITY( AND|| or) FITNESS FOR A PARTICULAR PURPOSE/i) and ($license !~ /GPL/);
    if ( $license && !$verbose ) { return "$license"; }
 
-   # BSD (CMake files only)
-   $license="BSD $license" if ($text =~ /use is allowed according to the terms of the BSD license/i) and (&fileType($f) eq "cmake");
+   # BSD (CMake,Python files only)
+   $license="BSD $license" if ($text =~ /use is allowed according to the terms of the BSD license/i) and (&fileType($f) eq "cmake" || &fileType($f) eq "python");
    if ( $license && !$verbose ) { return "$license"; }
 
    # MPL
