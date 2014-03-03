@@ -90,7 +90,7 @@ while ($linecnt < $#lines) {
 
     if ($line =~ m/[[:space:]]*class[[:space:]]+[[:alnum:]]+[[:space:]]*:[[:space:]]*[[:alnum:]]+[[:space:]]+QObject/) {
         next if ($lastl =~ m/template/ || $lastl =~ m/#define[[:space:]]/ || $lastl =~ m/#if/);
-        next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+        next if ($line =~ m/QObjectPrivate/ || $line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
         $classcnt++;
         $classline{$classcnt}= $linecnt;
