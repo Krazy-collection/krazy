@@ -29,10 +29,11 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.17;
+$VERSION = 1.18;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(topComponent topModule topProject tweakPath Exit
+@EXPORT = qw(topComponent topModule topProject tweakPath
+             userMessage userError Exit
              fileType fileTypeDesc findFiles asOf deDupe addRegEx
              addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
              parseArgs helpArg versionArg priorityArg strictArg
@@ -140,6 +141,22 @@ sub Exit {
     print "ISSUES=$issues\n";
   }
   exit $issues;
+}
+
+# Print a user message, if not quiet
+sub userMessage {
+  my($message,$quiet)=@_;
+  if ($message && !$quiet) {
+    print STDERR $message;
+    print STDERR "\n";
+  }
+}
+
+# Print a user error message and exit
+sub userError {
+  my($message)=@_;
+  &userMessage($message);
+  exit 1;
 }
 
 # remove duplicate entries from a list
