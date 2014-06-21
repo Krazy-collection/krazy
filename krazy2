@@ -184,26 +184,22 @@ if ( !$list && !$listtypes && !$listset && !$listsets && $#ARGV < 0 ) { &Help();
 &Version() if ($version);
 
 if ($only && $checksets) {
-  print "May not combine the options --check and --check-sets... exiting\n";
-  exit(1);
+  &userError("May not combine the options --check and --check-sets... exiting");
 }
 
 if ($priority && !&validatePriorityType($priority)) {
   my($lst) = &priorityTypeStr();
-  print "Bad priority level \"$priority\" specified... exiting\nChoices for priority are: $lst\n";
-  exit(1);
+  &userError("Bad priority level \"$priority\" specified... exiting\nChoices for priority are: $lst");
 }
 
 if ($strict && !&validateStrictType($strict)) {
   my($lst) = &strictTypeStr();
-  print "Bad strictness level \"$strict\" specified... exiting\nChoices for strict are: $lst\n";
-  exit(1);
+  &userError("Bad strictness level \"$strict\" specified... exiting\nChoices for strict are: $lst");
 }
 
 if ($export && !&validateExportType($export)) {
   my($lst) = &exportTypeStr();
-  print "Unsupported export type \"$export\"... exiting\nChoices for export are: $lst\n";
-  exit(1);
+  &userError("Unsupported export type \"$export\"... exiting\nChoices for export are: $lst");
 }
 
 my ($KRAZYBINPATH) = dirname( abs_path($0) );
@@ -252,9 +248,7 @@ for $sp ( split( /:/, $KRAZY_PLUGIN_PATH ) ) {
 }
 @sanity_paths = deDupe(@sanity_paths);
 if ( $#sanity_paths < 0 ) {
-  print "No plugin paths found.\n";
-  print "Please check your KRAZY_PLUGIN_PATH environment variable... exiting\n";
-  exit 1;
+  &userError("No plugin paths found.\nPlease check your KRAZY_PLUGIN_PATH environment variable... exiting");
 }
 
 # Generate a hash of arrays containing the plugin names for each supported type
@@ -284,9 +278,7 @@ for $setp ( split( /:/, $KRAZY_SET_PATH ) ) {
 }
 @set_paths = deDupe(@set_paths);
 if ( $#set_paths < 0 ) {
-  print "No checker set paths found.\n";
-  print "Please check your KRAZY_SET_PATH environment variable... exiting\n";
-  exit 1;
+  &userError("No checker set paths found.\nPlease check your KRAZY_SET_PATH environment variable... exiting");
 }
 
 # Generate a hash of arrays for the checker sets
@@ -371,8 +363,7 @@ if ( !$ignorerc ) {
     $configf = glob($configf);
     # read directives from the specified config file
     if (! -f $configf) {
-      print "Specified config file \"$configf\" does not exist or is not readable.\n";
-      exit 1;
+      &userError("Specified config file \"$configf\" does not exist or is not readable.");
     } else {
       %ds = &ParseKrazyRC($configf);
     }
@@ -463,22 +454,18 @@ my($kdesets) = '';
 if ($checksets) {
   foreach $set ( split( ",", $checksets ) ) {
     if (!validateCheckSet($set)) {
-      print "No such check set \"$set\".\n";
-      print "Run $Prog --list-sets to see the list of available check sets.\n";
-      exit 1;
+      &userError("No such check set \"$set\".\nRun $Prog --list-sets to see the list of available check sets.");
     }
     if ($set =~ m/^qt/i) {
       if ($qtsets) {
-        print "Specifying multiple Qt version checksets is not allowed ($set and $qtsets).\n";
-        exit 1;
+        &userError("Specifying multiple Qt version checksets is not allowed ($set and $qtsets).");
       } else {
         $qtsets = $set;
       }
     }
     if ($set =~ m/^kde/i) {
       if ($kdesets) {
-        print "Specifying multiple KDE version checksets is not allowed ($set and $kdesets).\n";
-        exit 1;
+        &userError("Specifying multiple KDE version checksets is not allowed ($set and $kdesets).");
       } else {
         $kdesets = $set
       }
@@ -530,9 +517,7 @@ if ($extra) {
       }
     }
     if ( !$found ) {
-      print "Extra checker \"$x\" not found.\n";
-      print "Run $Prog --list to see the list of available checker programs.\n";
-      exit 1;
+      &userError("Extra checker \"$x\" not found.\nRun $Prog --list to see the list of available checker programs.");
     }
   }
 }
@@ -544,9 +529,7 @@ if ($inctypes) {
   my ($t, $o);
   for $t (@only_types) {
     if (!defined($Checkers{$t})) {
-      print "The file type \"$t\" is not supported.\n";
-      print "Run $Prog --list-types to see the list of supported file types.\n";
-      exit 1;
+      &userError("The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types.");
     }
   }
   foreach $type ( keys %Checkers ) {
@@ -571,9 +554,7 @@ if ($exctypes) {
   my ($t, $o);
   for $t (@exclude_types) {
     if (!defined($Checkers{$t})) {
-      print "The file type \"$t\" is not supported.\n";
-      print "Run $Prog --list-types to see the list of supported file types.\n";
-      exit 1;
+      &userError("The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types.");
     }
   }
   foreach $type ( keys %Checkers ) {
@@ -622,14 +603,13 @@ if ($only) {
       }
     }
     if ( !$found ) {
+      my($emess);
       if ( !$checksets) {
-        print "No such checker \"$o\".\n";
-        print "Run $Prog --list to see the list of available checker programs.\n";
+        $emess = "No such checker \"$o\".\nRun $Prog --list to see the list of available checker programs.";
       } else {
-        print "No such checker \"$o\" in the check-sets \"$checksets\".\n";
-        print "Run $Prog --list-sets to see the list of available check sets and programs.\n";
+        $emess = "No such checker \"$o\" in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check sets and programs.";
       }
-      exit 1;
+      &userError($emess);
     }
   }
 } else {
@@ -659,14 +639,13 @@ if ($exclude) {
       }
     }
     if ( !$found ) {
+      my($emess);
       if ( !$checksets) {
-        print "No such checker \"$e\" to exclude.\n";
-        print "Run $Prog --list to see the list of available checker programs.\n";
+        $emess = "No such checker \"$e\" to exclude.\nRun $Prog --list to see the list of available checker programs.";
       } else {
-        print "No such checker \"$e\" to exclude in the check-sets \"$checksets\".\n";
-        print "Run $Prog --list-sets to see the list of available check sets and programs.\n";
+        $emess = "No such checker \"$e\" to exclude in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check sets and programs.";
       }
-      exit 1;
+      &userError($emess);
     }
   }
 }
@@ -691,8 +670,7 @@ foreach $type ( keys %Checkers ) {
 }
 
 if ( $nprogs == 0 ) {
-  print "No checker programs to run... exiting\n";
-  exit 1;
+  &userError("No checker programs to run... exiting");
 }
 
 #####################################################################
