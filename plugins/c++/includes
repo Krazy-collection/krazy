@@ -60,7 +60,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.82";
+my($Version) = "1.90";
 
 &parseArgs();
 
@@ -440,20 +440,53 @@ sub qPath {
 }
 
 # determine if $1 is a QtModule
+# Note: we allow QtTest
 sub qModule {
   my($p) = @_;
-  if($p eq "QtCore" ||
+  if($p eq "QtBluetooth" ||
+     $p eq "QtCLucene" ||
+     $p eq "QtConcurrent" ||
+     $p eq "QtCore" ||
+     $p eq "QtDBus" ||
+     $p eq "QtDeclarative" ||
+     $p eq "QtDesigner" ||
+     $p eq "QtDesignerComponents" ||
      $p eq "QtGui" ||
+     $p eq "QtHelp" ||
+     $p eq "QtMultimedia" ||
+     $p eq "QtMultimediaQuick_p" ||
+     $p eq "QtMultimediaWidgets" ||
      $p eq "QtNetwork" ||
+     $p eq "QtNfc" ||
      $p eq "QtOpenGL" ||
+     $p eq "QtOpenGLExtensions" ||
+     $p eq "QtPlatformSupport" ||
+     $p eq "QtPositioning" ||
+     $p eq "QtPrintSupport" ||
+     $p eq "QtQml" ||
+     $p eq "QtQuick" ||
+     $p eq "QtQuickParticles" ||
+     $p eq "QtQuickTest" ||
+     $p eq "QtQuickWidgets" ||
+     $p eq "QtScript" ||
+     $p eq "QtScriptTools" ||
+     $p eq "QtSensors" ||
+     $p eq "QtSerialPort" ||
      $p eq "QtSql" ||
      $p eq "QtSvg" ||
+     $p eq "QtUiTools" ||
+     $p eq "QtWebKit" ||
+     $p eq "QtWebKitWidgets" ||
+     $p eq "QtWebSockets" ||
+     $p eq "QtWidgets" ||
+     $p eq "QtX11Extras" ||
      $p eq "QtXml" ||
-     $p eq "QtDesigner" ||
+     $p eq "QtXmlPatterns" ||
+     #Qt4 starts here
      $p eq "QtUiTools" ||
      $p eq "QtAssistant" ||
-     $p eq "Qt3Support" ||
-     $p eq "QtTest") {
+     $p eq "Qt3Support"
+    ) {
     return 1;
   } else {
     return 0
