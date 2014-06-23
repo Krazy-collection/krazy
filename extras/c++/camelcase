@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.40";
+my($Version) = "1.41";
 
 &parseArgs();
 
@@ -107,7 +107,7 @@ while ($linecnt < $#lines) {
     next if ($sep eq "<" && $incpath =~ m+^private/q.*_p.h$+);
     next if ($incpath =~ m/version/);
     next if ($incpath eq "kdemacros.h" || $incpath eq "fixx11h.h");
-    next if ($incpath eq "qglobal.h" || $incpath eq "qwindowdefs.h" || $incpath eq "qmath.h");
+    next if ($incpath eq "qglobal.h" || $incpath eq "qwindowdefs.h" || $incpath eq "qmath.h" || $incpath eq "qqmldebug.h");
     next if ($incpath eq "kvm.h" ||
              $incpath eq "pwd.h" ||
              $incpath eq "dlfcn.h" ||
