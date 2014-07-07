@@ -16,43 +16,65 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+SET=qt5
+
 # links to c++ plugins
 CPP_PLUGINS = \
 constref \
 cpp \
 doublequote_chars \
+dpointer \
 emptystrcompare \
 endswithnewline \
 explicit \
 foreach \
 includes \
+inline \
 normalize \
 nullstrassign \
 nullstrcompare \
 operators \
 postfixop \
 qobject \
+sigsandslots \
 spelling \
 staticobjects \
+strings \
 typedefs \
-
-# links to qml plugins
-QML_PLUGINS = \
-endswithnewline \
-spelling \
 
 # links to designer plugins
 UI_PLUGINS = \
 endswithnewline \
 spelling \
 
+# links to desktop plugins
+DESKTOP_PLUGINS = \
+endswithnewline \
+spelling \
+validate \
+
 # links to qdoc plugins
 QDOC_PLUGINS = \
 endswithnewline \
 spelling \
 
+# links to QML plugins
+QML_PLUGINS = \
+endswithnewline \
+spelling \
+
+# links to Python plugins
+PYTHON_PLUGINS = \
+endswithnewline \
+spelling \
+
+# links to CMake plugins
+CMAKE_PLUGINS = \
+endswithnewline \
+spelling \
+
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/qt5
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}
 
 all:
 
@@ -64,20 +86,32 @@ install::
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
 	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing qt5 set c++ plugin link $$plugin"; \
+		echo "Installing ${SET} set c++ plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
 	done
-	list="$(QML_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing qt5 set qml plugin link $$plugin"; \
-		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
-	done
 	list="$(UI_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing qt5 set designer plugin link $$plugin"; \
+		echo "Installing ${SET} set designer plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/designer/$$plugin $(DESTDIR)$(INSTDIR)/designer-$$plugin; \
 	done
+	list="$(DESKTOP_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing ${SET} set desktop plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/desktop/$$plugin $(DESTDIR)$(INSTDIR)/desktop-$$plugin; \
+	done
 	list="$(QDOC_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing qt5 set qdoc plugin link $$plugin"; \
+		echo "Installing ${SET} set qdoc plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/qdoc/$$plugin $(DESTDIR)$(INSTDIR)/qdoc-$$plugin; \
+	done
+	list="$(QML_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing ${SET} set qml plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
+	done
+	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing ${SET} set python plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/python/$$plugin $(DESTDIR)$(INSTDIR)/python-$$plugin; \
+	done
+	list="$(CMAKE_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing ${SET} set cmake plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/cmake/$$plugin $(DESTDIR)$(INSTDIR)/cmake-$$plugin; \
 	done
 
 clean:

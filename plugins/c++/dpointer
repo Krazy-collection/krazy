@@ -23,7 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                                                                             #
 ###############################################################################
 
-# Tests KDE source for classes that contain private members in a public class.
+# Tests C++ source for classes that contain private members in a public class.
 # For installed headers only; else exit "okay"
 
 # Program options:
@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.95";
+my($Version) = "1.96";
 
 &parseArgs();
 

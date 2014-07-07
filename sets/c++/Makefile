@@ -1,6 +1,6 @@
 # krazy c++ sets Makefile
 #
-# Copyright 2010 by Allen Winter <winter@kde.org>
+# Copyright 2010,2014 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,16 +16,20 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+SET=c++
+
 # links to c++ plugins
 CPP_PLUGINS = \
 constref \
+dpointer \
 explicit \
+inline \
 operators \
 postfixop \
 staticobjects \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/c++
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}
 
 all:
 
@@ -37,7 +41,7 @@ install::
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
 	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing c++ set c++ plugin link $$plugin"; \
+		echo "Installing ${SET} set c++ plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
 	done
 
