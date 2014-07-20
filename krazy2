@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 ###############################################################################
-# Sanity checks for your KDE source code                                      #
+# Sanity checks for your source code                                          #
 # Copyright 2005-2014 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -384,7 +384,7 @@ if ( !$ignorerc ) {
       $rcfile = $projpath . "/.krazy";
     } else {
       if (!&topModule($CWD)) {
-        #not in a KDE project dir, so use the one in cwd
+        #not in a project dir, so use the one in cwd
         $rcfile = $CWD . "/.krazy";
       }
     }
@@ -880,7 +880,7 @@ exit $overall_status;
 # Help function: print help message and exit.
 sub Help {
   &Version();
-  print "A KDE source code sanitizer.\n\n";
+  print "A source code sanitizer.\n\n";
   print "Usage: $Prog [OPTION] [FILES]\n\n";
   print "When FILE is - read a list of files (1 file per line) from standard input.\n\n";
   print "  --help       display help message and exit\n";
@@ -1043,7 +1043,7 @@ sub List {
     &printXmlHeader();
     print "  <file-types>\n";
   } else {
-    print "Available KDE source code sanitizer checks:\n";
+    print "Available source code sanitizer checks:\n";
   }
 
   foreach $type ( keys %Checkers ) {
@@ -1432,7 +1432,7 @@ __END__
 
 =head1 NAME
 
-krazy2 - Sanity checks KDE source code.
+krazy2 - Sanity checks source code.
 
 =head1 SYNOPSIS
 
@@ -1440,7 +1440,7 @@ krazy2 [OPTIONS] [FILES]
 
 =head1 DESCRIPTION
 
-krazy2 scans KDE source code looking for issues that should be fixed
+krazy2 scans source code looking for issues that should be fixed
 for reasons of policy, good coding practice, optimization, or any other
 good reason.  In typical use, krazy2 simply counts up the issues
 and provides the line numbers where those issues occurred in each
@@ -1613,7 +1613,7 @@ Print the offending content for each file processed
 
  % krazy2 --list
 
- Available KDE source code sanitizer checks:
+ Available source code sanitizer checks:
  For c++ file types ==
     captruefalse: Check for FALSE macro
           captrue: Check for TRUE macro
