@@ -1,6 +1,6 @@
 The Krazy README
 ================
-Krazy scans KDE source code looking for issues that should be fixed
+Krazy scans source code looking for issues that should be fixed
 for reasons of policy, good coding practice, optimization, or any other
 good reason.  In typical use, Krazy simply counts up the issues
 and provides the line numbers where those issues occurred in each
