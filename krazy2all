@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 ###############################################################################
-# Runs krazy over the KDE source code                                         #
+# Runs krazy over the source code                                             #
 # Copyright 2006-2010,2012-2014 by Allen Winter <winter@kde.org>              #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -22,14 +22,14 @@
 
 use strict;
 use Getopt::Long;
-use Cwd;
+use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.94';    #split line so MakeMaker can find the version here
+ $VERSION = '2.95';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -55,6 +55,8 @@ my ($exctypes)  = '';
 my ($export)    = '';
 my ($title)     = '';
 my ($cms)       = '';
+my ($topdir)    = '';
+my ($outdir)    = '';
 
 exit 1
   if ( !GetOptions(
@@ -81,7 +83,9 @@ exit 1
        'exclude-types=s'=> \$exctypes,
        'export=s'       => \$export,
        'title=s'        => \$title,
-       'cms=s'          => \$cms
+       'cms=s'          => \$cms,
+       'topdir=s'       => \$topdir,
+       'outdir=s'       => \$outdir
       )
      );
 
@@ -128,12 +132,32 @@ $opts .= "--title=\"$title\" "        if ($title);
 $opts .= "--cms=$cms "                if ($cms);
 $opts .= "--priority=$priority "      if ($priority);
 $opts .= "--strict=$strict "          if ($strict);
-$opts .= "--explain"                  if ($export ne "textlist" && $export ne "textedit");
+$opts .= "--explain "                 if ($export ne "textlist" && $export ne "textedit");
 
-my($files) = &findFiles();
-my($cwd) = getcwd;
-$cwd =~ s:\+:\\\+:g;  #escape '+'
-$files =~ s+^$cwd+\.+gm;
+my($cwd) = abs_path();
+my($top) = $cwd;
+if ($topdir) {
+  $top = glob($topdir); # expand ~
+  $top = abs_path($top);
+}
+if (!defined($top) || ! -e $top) {
+  &userError("The specified topdir directory \"$topdir\" does not exist.");
+}
+if (! -r $top) {
+  &userError("You do not have read access to topdir \"$top\".");
+}
+$top =~ s:\+:\\\+:g;  #escape '+'
+my($files) = &findFiles($top);
+if ($top eq $cwd) {
+  $files =~ s+^$top+\.+gm;
+} else {
+  if (! $configf) {
+    my($projConfig) = $top . "/.krazy";
+    if (-e $projConfig) {
+      $opts .= "--config=$projConfig ";
+    }
+  }
+}
 $files =~ s+\\n+\'\\n\'+g;
 open(P, "| krazy2 $opts -");
 print P "$files\n";
@@ -187,6 +211,9 @@ sub Help {
   print "                 xml -> XML formatted\n";
   print "  --title:     give the output a project title\n";
   print "  --cms        component/module/subdir triple for XML\n";
+  print "  --topdir <dir>\n";
+  print "               find files to process recursively in the specified dir\n";
+  print "               rather than the current working directory.\n";
   print "  --ignorerc:  ignore .krazy files\n";
   print "  --config <krazyrc>\n";
   print "               read settings from the specified config file\n";
@@ -211,7 +238,7 @@ __END__
 
 =head1 NAME
 
-krazy2all - Sanity checks KDE source code.
+krazy2all - Sanity checks source code.
 
 =head1 SYNOPSIS
 
@@ -344,6 +371,13 @@ Give the output report a project title.
 An acronym for "component/module/subdir".  Used to write the breadcrumbs line
 in the XML output.  Must be a slash-delimited triple containing the component,
 module, and subdir which is being scanned.
+
+=item B<--topdir> <dir>
+
+Find files to process recursively in the specified dir rather than the
+current working directory.  The krazyrc configuration file is also
+searched for in this location, unless explicitly set otherwise
+using the B<--config> or B<--ignorerc> options.
 
 =item B<--brief>
 
