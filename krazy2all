@@ -21,6 +21,7 @@
 ###############################################################################
 
 use strict;
+use File::Basename;
 use Getopt::Long;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
@@ -56,7 +57,7 @@ my ($export)    = '';
 my ($title)     = '';
 my ($cms)       = '';
 my ($topdir)    = '';
-my ($outdir)    = '';
+my ($outfile)   = '';
 
 exit 1
   if ( !GetOptions(
@@ -85,7 +86,7 @@ exit 1
        'title=s'        => \$title,
        'cms=s'          => \$cms,
        'topdir=s'       => \$topdir,
-       'outdir=s'       => \$outdir
+       'outfile=s'      => \$outfile
       )
      );
 
@@ -135,6 +136,8 @@ $opts .= "--strict=$strict "          if ($strict);
 $opts .= "--explain "                 if ($export ne "textlist" && $export ne "textedit");
 
 my($cwd) = abs_path();
+
+# Set the top-level directory for finding files to process
 my($top) = $cwd;
 if ($topdir) {
   $top = glob($topdir); # expand ~
@@ -147,10 +150,9 @@ if (! -r $top) {
   &userError("You do not have read access to topdir \"$top\".");
 }
 $top =~ s:\+:\\\+:g;  #escape '+'
-my($files) = &findFiles($top);
-if ($top eq $cwd) {
-  $files =~ s+^$top+\.+gm;
-} else {
+
+# Set the default config file name, which might be found under the topdir
+if ($top ne $cwd) {
   if (! $configf) {
     my($projConfig) = $top . "/.krazy";
     if (-e $projConfig) {
@@ -158,8 +160,33 @@ if ($top eq $cwd) {
     }
   }
 }
+
+# Set the output file, stdout by default
+my($outf) = '';
+if ($outfile) {
+  $outfile = glob($outfile); # expand ~
+  $outf = abs_path($outfile);
+  if (!defined($outf)) {
+    $outf = $outfile;
+  }
+}
+if ($outf && ! -w dirname($outf)) {
+  &userError("You do not have access to write output file \"$outfile\".");
+}
+
+# Find the files to process
+my($files) = &findFiles($top);
+if ($top eq $cwd) {
+  $files =~ s+^$top+\.+gm;
+}
 $files =~ s+\\n+\'\\n\'+g;
-open(P, "| krazy2 $opts -");
+
+# Pipe the file list to krazy2 for the actual processing work
+if ($outf) {
+  open(P, "| krazy2 $opts - > $outf");
+} else {
+  open(P, "| krazy2 $opts -");
+}
 print P "$files\n";
 close(P);
 
@@ -213,6 +240,8 @@ sub Help {
   print "  --cms        component/module/subdir triple for XML\n";
   print "  --topdir <dir>\n";
   print "               find files to process recursively in the specified dir\n";
+  print "  --outfile <file>\n";
+  print "               write the output to the specified file instead of standard output\n";
   print "               rather than the current working directory.\n";
   print "  --ignorerc:  ignore .krazy files\n";
   print "  --config <krazyrc>\n";
@@ -378,6 +407,10 @@ Find files to process recursively in the specified dir rather than the
 current working directory.  The krazyrc configuration file is also
 searched for in this location, unless explicitly set otherwise
 using the B<--config> or B<--ignorerc> options.
+
+=item B<--outfile> <file>
+
+Write the output to the file specified instead of standard output.
 
 =item B<--brief>
 
