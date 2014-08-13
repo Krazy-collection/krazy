@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.85";
+my($Version) = "1.86";
 
 &parseArgs();
 
@@ -1108,6 +1108,7 @@ initilizes             initializes
 innacurate             inaccurate
 innacurately           inaccurately
 insde                  inside
+instanciate            instantiate
 inteface               interface
 intefaces              interfaces
 interactivelly         interactively
