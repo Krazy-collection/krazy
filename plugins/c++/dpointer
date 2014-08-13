@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2013 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2014 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2012 by Daniel Calviño Sánchez <danxuliu@gmail.com>           #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.96";
+my($Version) = "1.97";
 
 &parseArgs();
 
@@ -175,7 +175,7 @@ while ($linecnt <= $#lines) {
           last if ($line =~ m/[[:space:]]*k_dcop_signals[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*Q_SIGNALS[[:space:]]*:/);
 	  $stuff{$CNAME}{'declarePrivate'}++ if(isDeclarePrivate($line));
-          if (&Priv($line,$linecnt)) {
+          if (&Priv($line,$linecnt) && !$krazyexclude) {
             # found a private member
 	    print "   ($linecnt) found private member ($line)\n" if ($debug);
             $stuff{$CNAME}{'privMembers'}++;
