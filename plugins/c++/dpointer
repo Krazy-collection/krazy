@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.97";
+my($Version) = "1.98";
 
 &parseArgs();
 
@@ -360,7 +360,7 @@ sub Priv {
   return 0 unless(length($l));
 
   #we found a dpointer
-  if ($l =~ m/Priv/ || $l =~ m/Private/) {
+  if ($l =~ m/Priv/ || $l =~ m/Private/ || $l =~ m/Data/) {
     $stuff{$CNAME}{'dpointer'} = 1;
     return 0;
   }
