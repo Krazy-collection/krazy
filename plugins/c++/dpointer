@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.98";
+my($Version) = "1.99";
 
 &parseArgs();
 
@@ -106,7 +106,7 @@ while ($linecnt <= $#lines) {
 
     $stuff{$CNAME}{'dpointer'} = 0;
     $stuff{$CNAME}{'excluded'} = 0;       #is this class krazy excluded?
-    $stuff{$CNAME}{'section'} = "private";#default visibility in classes
+    $stuff{$CNAME}{'section'} = "public"; #default visibility in classes
     $stuff{$CNAME}{'privMembers'} = 0;    #count private members
     $stuff{$CNAME}{'privLinesList'} = ""; #list of lines with private members
     $stuff{$CNAME}{'pureVirt'} = 0;       #count pure virtuals
@@ -322,7 +322,7 @@ sub chkDptr {
 	$stuff{$c}{'declarePrivate'} == 0) {
       $mcnt++;
       if ($mcnt == 1) {
-	$mlstr = "missing dpointer in classes: " . $CNAME;
+	$mlstr = "missing dpointer in classes " . $CNAME;
       } else {
 	$mlstr = $mlstr . "," . $CNAME;
       }
