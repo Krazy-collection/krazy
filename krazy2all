@@ -30,7 +30,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.96';    #split line so MakeMaker can find the version here
+ $VERSION = '2.97';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -90,7 +90,8 @@ exit 1
       )
      );
 
-&Help()    if ($help);
+&Help(0)   if ($#ARGV >= 0); # no positional args allowed
+&Help(0)   if ($help);
 &Version() if ($version);
 
 if ($list) {
@@ -198,6 +199,7 @@ if (($? >> 8) == 1) {
 
 # Help function: print help message and exit.
 sub Help {
+  my ($keepgoing) = @_;
   &Version();
   print "Run krazy2 on all the source in the current working directory\n\n";
   print "Usage: $Prog [OPTION]\n";
@@ -256,7 +258,7 @@ sub Help {
   print "  --quiet      suppress all output messages\n";
   print "  --verbose    print the offending content for each file processed\n";
   print "\n";
-  exit 0 if $help;
+  exit 0 if !$keepgoing;
 }
 
 # Version function: print the version number and exit.
