@@ -29,7 +29,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.18;
+$VERSION = 1.19;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -290,6 +290,7 @@ sub fileTypeDesc {
 # the files are newline-separated.
 sub findFiles {
   my (@dirs) = @_;
+  $dirs[0] =~ s:\\\+:+:g;  #unescape '+'
   push(@dirs, getcwd) if ($#dirs<0);
 
   @tmp = ();
