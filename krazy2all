@@ -246,9 +246,9 @@ sub Help {
   print "  --cms        component/module/subdir triple for XML\n";
   print "  --topdir <dir>\n";
   print "               find files to process recursively in the specified dir\n";
+  print "               rather than the current working directory.\n";
   print "  --outfile <file>\n";
   print "               write the output to the specified file instead of standard output\n";
-  print "               rather than the current working directory.\n";
   print "  --ignorerc:  ignore .krazy files\n";
   print "  --config <krazyrc>\n";
   print "               read settings from the specified config file\n";
