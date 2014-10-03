@@ -111,7 +111,7 @@ main( int argc, char **argv )
 
     int guiltyLine = 0, lineNumber = 0;
     int j;
-    int par = 0, graph = 0, retry = 0;
+    int par = 0, graph = 0;
     char block = 0, comment = 0, macro = 0;
     bool structure = false;
 
@@ -249,7 +249,6 @@ main( int argc, char **argv )
                             {
                                 functions << Function( guiltyLine, guiltyText.trimmed(), stripped.simplified() );
                                 stripped.clear();
-                                retry = 0;
                                 block = 3;
                             }
                             if(text[j]=='{' && structure == true)
@@ -258,7 +257,6 @@ main( int argc, char **argv )
                             }
                             if(text[j]=='(' && structure == true)
                             {
-                                retry = 1;
                                 block = 0;
                                 j = 0;
                                 //qDebug(13000)<<"Restart from the beginning of line...";
@@ -328,7 +326,6 @@ main( int argc, char **argv )
         {
             QStringList parameter = iit->simplified().split(QRegExp("\\s"));
 
-            bool isConst = false;
             bool isPointer = false;
             bool isReference = false;
             bool isAssign = false;
@@ -338,18 +335,10 @@ main( int argc, char **argv )
 
             for( QStringList::iterator ait = parameter.begin(); ait != parameter.end(); ++ait )
             {
-                if( *ait == "const" )
-                    isConst = true;
-                else if ( *ait == "const&" )
-                {
-                    isConst = true;
+                if ( *ait == "const&" )
                     isReference = true;
-                }
                 else if ( *ait == "const*" )
-                {
-                    isConst = true;
                     isPointer = true;
-                }
                 else if( *ait == "&" )
                     isReference = true;
                 else if( *ait == "*" )
