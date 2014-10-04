@@ -39,7 +39,6 @@ main( int argc, char **argv )
 
     bool verbose = false;
     bool quiet = false;
-    bool installed = false;
 
     QString fileName;
 
@@ -57,8 +56,6 @@ main( int argc, char **argv )
             printf( "Check for inappropriate pass-by-value function args\n" );
             return 0;
         }
-        else if( !strcmp( *argv, "--installed" ))
-            installed = true;
         else if( !strcmp( *argv, "--explain" )) {
             printf( "Passing large objects by value is wasteful and slow. Use references-to-const instead. For example: 'func( QDateTime dt )' is better written as 'func( const QDateTime &dt )'\n" );
             return 0;
