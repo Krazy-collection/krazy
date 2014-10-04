@@ -1,3 +1,3 @@
 TEMPLATE      = subdirs
 CONFIG       += ordered
-SUBDIRS       = passbyvalue
+SUBDIRS       = passbyvalue qmlsyntax
