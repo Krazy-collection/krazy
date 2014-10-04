@@ -34,6 +34,7 @@ normalize \
 nullstrassign \
 nullstrcompare \
 operators \
+passbyvalue \
 postfixop \
 qobject \
 sigsandslots \

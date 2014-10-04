@@ -35,6 +35,7 @@ normalize \
 nullstrassign \
 nullstrcompare \
 operators \
+passbyvalue \
 postfixop \
 qminmax \
 qobject \
