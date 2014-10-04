@@ -2,12 +2,19 @@
 
 # install krazy
 
+#Exit if any undefined variable is used.
+set -u
+#Exit this script if it any subprocess exits non-zero.
+set -e
+#If any process in a pipeline fails, the return value is a failure.
+set -o pipefail
+
 #bootstrap by checking that the MakeMaker module is installed
 module="ExtUtils::MakeMaker"
 perl -M$module -e 1 2> /dev/null
 status=$?
 if ( test $status -ne 0 ) then
-  echo "Cannot locate the $module perl module"
+  echo "Cannot locate the $module Perl module"
   echo "Please install this module... exiting"
   exit 1
 fi
@@ -36,13 +43,34 @@ if test "$TOP" = "--help"; then
   exit 1
 fi
 
-if ( test `$QMAKE -query QT_VERSION | egrep -c '^4'` -eq 0 ) then
-  echo "The qmake found in your \$PATH is not the Qt4 version."
+qmakever=`$QMAKE -query QT_VERSION`
+if ( test `echo $qmakever | grep -ic unknown` -eq 0 )
+then
+  qmake_majver=`echo $qmakever | cut -d. -f1`
+  qmake_minver=`echo $qmakever | cut -d. -f2`
+else
+  qmake_majver=3
+  qmake_minver=0
+fi
+if ( test $qmake_majver -lt 4) then
+  echo "The qmake found in your \$PATH is too old (must be Qt4 or higher)."
   echo "You can solve this by:"
-  echo "- prepending your Qt4 bin directory to your \$PATH"
-  echo "- setting \$QMAKE to the name of the Qt4 version of qmake"
+  echo "- prepending a modern Qt bin directory to your \$PATH"
+  echo "- setting \$QMAKE to the name of a modern Qt version of qmake"
   echo "Exiting..."
   exit 1
+fi
+
+if ( test $qmake_majver -lt 5 -o $qmake_majver -eq 5 -a $qmake_minver -lt 3 )
+then
+  echo "WARNING: You are using Qt version less than 5.3.0."
+  echo "WARNING: You need at least Qt version 5.3.0 to build the qmlsyntax checker."
+  echo
+  echo "You can solve this by:"
+  echo "- prepending your Qt5.3 bin directory to your \$PATH"
+  echo "- setting \$QMAKE to the name of the Qt5.3 version of qmake"
+  echo
+  echo "Continuing with the installation..."
 fi
 
 if ( test ! -d "$TOP" ) then
@@ -63,7 +91,7 @@ make realclean
 
 if ( test ! -d "$TOP/lib" ) then
   echo "==================================================================="
-  echo "Unknown perl installation issue encountered. Aborting installation."
+  echo "Unknown Perl installation issue encountered. Aborting installation."
   echo "Please contact winter@kde.org about this."
   echo "==================================================================="
   exit 1

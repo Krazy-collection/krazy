@@ -42,7 +42,7 @@ and try to figure it out yourself. :)
 
 Requirements
 =============
-As of this writing there are several perl modules required that may
+As of this writing there are several Perl modules required that may
 not normally ship with a typical O/S distribution. These modules are
 checked for when the top-level Makefile.PL is processed.
 The modules are:
@@ -52,9 +52,11 @@ The modules are:
   XML::LibXML
   YAML
 
-Otherwise, Krazy should work with all known operating systems where
-Qt4 and perl are available. If this is not true, please let me know.
+Otherwise, Krazy should work with all known UNIXish operating systems where
+Perl and Qt4 (or higher) are available.
 
+At least 1 checker is written in C++ and requires Qt5.3, so we strongly
+recommend building with Qt5.3 or higher.
 
 Contact
 =======
