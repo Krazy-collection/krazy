@@ -97,6 +97,7 @@ copyright \
 endswithnewline \
 iconnames \
 license \
+qmlsyntax \
 spelling \
 
 # links to Python plugins

@@ -64,6 +64,7 @@ spelling \
 # links to QML plugins
 QML_PLUGINS = \
 endswithnewline \
+qmlsyntax \
 spelling \
 
 # links to Python plugins
