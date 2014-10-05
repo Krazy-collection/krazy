@@ -2,8 +2,6 @@
 
 # install krazy
 
-#Exit if any undefined variable is used.
-set -u
 #Exit this script if it any subprocess exits non-zero.
 set -e
 #If any process in a pipeline fails, the return value is a failure.
