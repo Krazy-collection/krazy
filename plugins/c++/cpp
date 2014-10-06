@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.54";
+my($Version) = "1.55";
 
 &parseArgs();
 
@@ -283,6 +283,7 @@ HAVE_PUTENV
 HAVE_PW_ENCRYPT
 HAVE_QCA2
 HAVE_QFILESYSTEMWATCHER
+HAVE_QSAVEFILE
 HAVE_QT_DESIGNER
 HAVE_QT_PRINTSUPPORT
 HAVE_QT_SVG
