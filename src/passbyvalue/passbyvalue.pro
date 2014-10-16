@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 
+TARGET = passbyvalue
 DEPENDPATH += .
 INCLUDEPATH += .
 QT -= gui
