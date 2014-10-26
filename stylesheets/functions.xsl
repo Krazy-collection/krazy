@@ -6,6 +6,14 @@
   <xsl:import href="globalvars.xsl" />
 
   <!--
+    - Returns the repository rev for the project.
+    -
+    -->
+  <xsl:function name="ebn:repoRev" as="xsd:string">
+    <xsl:value-of select="$global.doc/tool-result/global/repo-rev/@value" />
+  </xsl:function>
+
+  <!--
     - Returns the checkSets for this run.
     -
     -->

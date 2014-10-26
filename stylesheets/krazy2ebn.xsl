@@ -156,7 +156,11 @@
   </xsl:template>
   
   <xsl:template match="global" mode="krazy2ebn" >
-    <h1>krazy2 Analysis</h1>
+    <h1>Krazy2 Analysis of
+    <xsl:value-of select="$module" />
+    <xsl:value-of select="$submodule" />
+    (Revision = <xsl:value-of select="ebn:repoRev()" />)
+    </h1>
     <p>Checksets = <xsl:value-of select="ebn:checkSets()" /><br />
     Checkers Run = <xsl:value-of select="ebn:checkerCount('all')" /><br />
     Files Processed = <xsl:value-of select="ebn:processedFilesCount()" /><br />
@@ -197,7 +201,7 @@
           </div>
         </div>
         <div id="footer">
-          <p>Site content Copyright 2005-2013 by Adriaan de Groot,<br/>
+          <p>Site content Copyright 2005-2014 by Allen Winter and Adriaan de Groot,<br/>
           except images as indicated.</p>
         </div>
       </body>
