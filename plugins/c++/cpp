@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.55";
+my($Version) = "1.56";
 
 &parseArgs();
 
@@ -371,6 +371,7 @@ HAVE_VSNPRINTF
 HAVE_VSYSLOG
 HAVE_WEBKITKDE
 HAVE_WEBVIEW
+HAVE_X11
 HAVE_X86_MMX
 HAVE_X86_SSE
 HAVE_X86_SSE2
