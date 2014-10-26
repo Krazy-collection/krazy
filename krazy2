@@ -1153,14 +1153,14 @@ sub printHeader {
 
     print "  <global>\n";
     print "    <date value=\"", asOf(), "\" />\n";
-    print "    <check-sets value=\"$csets\" />\n";
+    print "    <check-sets value=\"$checksets\" />\n";
     print "    <processed-files value=\"$num_files\" />\n";
     print "    <svn-rev value=\"$rev\" />\n" if ($rev);
     print "  </global>\n";
     print "  <file-types>\n";
   } elsif ($export eq "text") {
     print "\n$title\n" if ($title);
-    print "\nCheck Sets = $csets\n";
+    print "\nCheck Sets = $checksets\n";
     print "Checkers Run = $num_checks\n";
     print "Files Processed = $num_files\n";
     if ($num_issues) {
