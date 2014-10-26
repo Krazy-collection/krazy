@@ -117,7 +117,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.97';    #split line so MakeMaker can find the version here
+ $VERSION = '2.98';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -134,7 +134,7 @@ my ($dryrun)    = '';
 my ($ignorerc)  = '';
 my ($configf)   = '';
 my ($only)      = '';
-my ($checksets) = '';
+my ($checksets) = 'kde4';
 my ($exclude)   = '';
 my ($inctypes)  = '';
 my ($exctypes)  = '';
@@ -1153,13 +1153,15 @@ sub printHeader {
 
     print "  <global>\n";
     print "    <date value=\"", asOf(), "\" />\n";
+    print "    <check-sets value=\"$csets\" />\n";
     print "    <processed-files value=\"$num_files\" />\n";
     print "    <svn-rev value=\"$rev\" />\n" if ($rev);
     print "  </global>\n";
     print "  <file-types>\n";
   } elsif ($export eq "text") {
     print "\n$title\n" if ($title);
-    print "\nCheckers Run = $num_checks\n";
+    print "\nCheck Sets = $csets\n";
+    print "Checkers Run = $num_checks\n";
     print "Files Processed = $num_files\n";
     if ($num_issues) {
       print "Total Issues = $num_issues";

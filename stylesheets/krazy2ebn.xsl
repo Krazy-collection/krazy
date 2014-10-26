@@ -157,7 +157,8 @@
   
   <xsl:template match="global" mode="krazy2ebn" >
     <h1>krazy2 Analysis</h1>
-    <p>Checkers Run = <xsl:value-of select="ebn:checkerCount('all')" /><br />
+    <p>Checksets = <xsl:value-of select="ebn:checkSets()" /><br />
+    Checkers Run = <xsl:value-of select="ebn:checkerCount('all')" /><br />
     Files Processed = <xsl:value-of select="ebn:processedFilesCount()" /><br />
     Total Issues = <xsl:value-of select="ebn:issueCount('all','all')" /> 
     ...as of <xsl:value-of select="ebn:dateOfRun()" /></p>

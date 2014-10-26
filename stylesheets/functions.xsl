@@ -6,6 +6,14 @@
   <xsl:import href="globalvars.xsl" />
 
   <!--
+    - Returns the checkSets for this run.
+    -
+    -->
+  <xsl:function name="ebn:checkSets" as="xsd:string">
+    <xsl:value-of select="$global.doc/tool-result/global/check-sets/@value" />
+  </xsl:function>
+
+  <!--
     - Returns the number of checkers run for given fileType.
     -
     - @p fileType The fileType for which to count the number of checkers run.
