@@ -1145,8 +1145,8 @@ sub printXmlHeader {
 
 # printHeader function: print the header string, according to export type.
 sub printHeader {
-  my ( $num_issues, $num_checks, $num_files ) = @_;
-  my ( $component, $module, $subdir ) = split( "/", $cms );
+  my ($num_issues, $num_checks, $num_files) = @_;
+  my ($component, $module, $subdir) = split("/", $cms);
 
   if ($export =~ "xml") {
     &printXmlHeader();
@@ -1155,7 +1155,11 @@ sub printHeader {
     print "    <date value=\"", asOf(), "\" />\n";
     print "    <check-sets value=\"$checksets\" />\n";
     print "    <processed-files value=\"$num_files\" />\n";
-    print "    <svn-rev value=\"$rev\" />\n" if ($rev);
+    if ($rev) {
+      print "    <repo-rev value=\"$rev\" />\n";
+    } else {
+      print "    <repo-rev value=\"unknown\" />\n";
+    }
     print "  </global>\n";
     print "  <file-types>\n";
   } elsif ($export eq "text") {
@@ -1171,12 +1175,7 @@ sub printHeader {
     print " ...as of ";
     print asOf();
     if ( $rev ) {
-      if ( length( do { no warnings "numeric"; $rev & "" } ) ) {
-        #numeric, so almost certainly SVN revision
-        print " (SVN revision $rev)";
-      } else {
-        print " (Git commit $rev)";
-      }
+      print " (repo revision $rev)";
     }
     print "\n\n";
   }

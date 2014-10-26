@@ -157,8 +157,7 @@
   
   <xsl:template match="global" mode="krazy2ebn" >
     <h1>Krazy2 Analysis of
-    <xsl:value-of select="$module" />
-    <xsl:value-of select="$submodule" />
+    <xsl:value-of select="$module" />/<xsl:value-of select="$submodule" />
     (Revision = <xsl:value-of select="ebn:repoRev()" />)
     </h1>
     <p>Checksets = <xsl:value-of select="ebn:checkSets()" /><br />
