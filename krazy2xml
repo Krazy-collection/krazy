@@ -52,7 +52,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.98';    #split line so MakeMaker can find the version here
+ $VERSION = '2.981';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -494,12 +494,12 @@ sub doIt {
     $cms,    # component/module/subdir
   ) = @_;
 
-  my ($t);
+  my ($component, $module, $subdir) = split("/", $cms);
 
   #subtract checkList from excludeList
   &removeChecksFromExcludes();
 
-  $t = &arrayToCSL(@sExcludeList);
+  my ($t) = &arrayToCSL(@sExcludeList);
   my ($exclude) = "";
   $exclude = "--exclude=$t" if ($t);
 
@@ -537,8 +537,17 @@ sub doIt {
   $rev = "--rev=$gitrev" if ($gitrev);
 
   my($checkset) = "kde4";
-  if ($comp eq "frameworks") {
+  if ($component eq "frameworks") {
     $checkset = "kde5";
+  }
+  #TODO: figure this out automatically by grepping the top-level CMakeLists.txt
+  if ($component eq "kde-4.x") {#ie. the development component
+    if ($module eq "applications" && $subdir eq "konsole") {
+      $checkset = "kde5";
+    }
+    if ($module =~ m/^kdepim/) {
+      $checkset = "kde5";
+    }
   }
 
   my ($command) =
@@ -558,7 +567,6 @@ sub doIt {
   # NOTE: This is imo a temporary solution. As soon as we store the results in
   #       the database in a fine grained enough manner, we can change te ebn site
   #       to be a php only site and not a mixture of php and krazy generated pages.
-  my ( $component, $module, $subdir ) = split( "/", $cms );
   if (!$nosaxon) {
     $command = "$saxon -im krazy2ebn $out/result.xml $stylesheet component=$component module=$module submodule=$subdir > $out/index.html";
 
