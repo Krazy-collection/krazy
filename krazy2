@@ -119,6 +119,8 @@ my ($Prog) = 'krazy2';
 my
  $VERSION = '2.98';    #split line so MakeMaker can find the version here
 
+my ($DEFAULT_CHECKSETS) = "kde4";
+
 my ($help)      = '';
 my ($version)   = '';
 my ($explain)   = '';
@@ -134,7 +136,7 @@ my ($dryrun)    = '';
 my ($ignorerc)  = '';
 my ($configf)   = '';
 my ($only)      = '';
-my ($checksets) = 'kde4';
+my ($checksets) = '';
 my ($exclude)   = '';
 my ($inctypes)  = '';
 my ($exctypes)  = '';
@@ -1148,12 +1150,15 @@ sub printHeader {
   my ($num_issues, $num_checks, $num_files) = @_;
   my ($component, $module, $subdir) = split("/", $cms);
 
+  my($cs) = $checksets;
+  $cs = $DEFAULT_CHECKSETS if (! $cs);
+
   if ($export =~ "xml") {
     &printXmlHeader();
 
     print "  <global>\n";
     print "    <date value=\"", asOf(), "\" />\n";
-    print "    <check-sets value=\"$checksets\" />\n";
+    print "    <check-sets value=\"$cs\" />\n";
     print "    <processed-files value=\"$num_files\" />\n";
     if ($rev) {
       print "    <repo-rev value=\"$rev\" />\n";
@@ -1164,7 +1169,7 @@ sub printHeader {
     print "  <file-types>\n";
   } elsif ($export eq "text") {
     print "\n$title\n" if ($title);
-    print "\nCheck Sets = $checksets\n";
+    print "\nCheck Sets = $cs\n";
     print "Checkers Run = $num_checks\n";
     print "Files Processed = $num_files\n";
     if ($num_issues) {
