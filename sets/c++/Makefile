@@ -21,6 +21,7 @@ SET=c++
 # links to c++ plugins
 CPP_PLUGINS = \
 constref \
+cpp \
 dpointer \
 explicit \
 inline \
