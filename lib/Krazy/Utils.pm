@@ -38,9 +38,11 @@ $VERSION = 1.19;
              addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
-             priorityTypeStr strictTypeStr exportTypeStr outputTypeStr
+             priorityTypeStr strictTypeStr exportTypeStr
+             outputTypeStr checksetTypeStr
              validateExportType validatePriorityType validateStrictType
-             validateOutputType validateCheckSet);
+             validateOutputType validateCheckSet
+             usingCheckSet usingQtCheckSet usingKDECheckSet);
 @EXPORT_OK = qw();
 
 my(@tmp);
@@ -70,7 +72,7 @@ my(@Outputs) = ( "normal",       # standard stuff (default)
                  "quiet"         # no output, even if verbosity turned-on
                );
 
-my(@Sets) = ( "c++",             # Pure C++ source
+my(@Sets) = ( "c++",             # Pure C/C++ source
               "qt4",             # Qt4 source (C++, QML, Qt Designer, Qt Doc)
               "qt5",             # Qt5 source (C++, QML, Qt Designer, Qt Doc)
               "kde4",            # KDE4 source (C++, Qt4, FDO desktop files, etc.)
@@ -321,6 +323,7 @@ my($help) = '';
 my($version) = '';
 my($priority) = 'all';
 my($strict) = 'all';
+my($checksets) = '';
 my($explain) = '';
 my($installed) = '';
 my($quiet) = '';
@@ -331,6 +334,7 @@ sub parseArgs {
   exit 1
   if (!GetOptions('krazy' => \$krazy, 'help' => \$help, 'version' => \$version,
 		  'priority=s' => \$priority, 'strict=s' => \$strict,
+                  'check-sets=s' => \$checksets,
 		  'explain' => \$explain, 'installed' => \$installed,
 		  'verbose' => \$verbose, 'quiet' => \$quiet));
 
@@ -351,6 +355,15 @@ sub parseArgs {
     my($lst) = &strictTypeStr();
     print "Bad strictness level \"$strict\" specified... exiting\nChoices for strict are: $lst\n";
     exit(1);
+  }
+
+  my($set);
+  foreach $set ( split( ",", $checksets ) ) {
+    my($lst) = &checksetTypeStr();
+    if (!validateCheckSet($set)) {
+      print "Bad checkset \"$set\" specified... exiting\nChoices for checksets are: $lst\n";
+      exit(1);
+    }
   }
 }
 
@@ -415,11 +428,47 @@ sub validateOutputType { #output type doesn't consider verbosity (except in the 
   return 0;
 }
 
+sub checksetTypeStr {
+  return join ', ', @Sets;
+}
+
 sub validateCheckSet {
   my ($set) = @_;
   if ($set) {
     $set = lc($set);
     return grep {$_ eq $set} @Sets;
+  }
+  return 0;
+}
+
+sub usingCheckSet {
+  my($s,$set);
+  foreach $s (@_) {
+    foreach $set ( split( ",", $checksets ) ) {
+      if ($s eq $set) {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
+sub usingQtCheckSet {
+  my($set);
+  foreach $set ( split( ",", $checksets ) ) {
+    if ($set =~ m/^qt/i) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+sub usingKDECheckSet {
+  my($set);
+  foreach $set ( split( ",", $checksets ) ) {
+    if ($set =~ m/^kde/i) {
+      return 1;
+    }
   }
   return 0;
 }
