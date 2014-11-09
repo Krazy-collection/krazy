@@ -583,7 +583,8 @@ sub compilerMacros() {
         if (
           $have =~ m/__BORLANDC__/ ||
           $have =~ m/__INTEL_COMPILER/ ||
-          $have =~ m/_MSC_VER/
+          $have =~ m/_MSC_VER/ ||
+          $have =~ m/__MINGW32__/
         );
     }
   }
