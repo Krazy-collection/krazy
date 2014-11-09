@@ -1,1 +1,1 @@
-Pure C++ source
+Pure C/C++ source
