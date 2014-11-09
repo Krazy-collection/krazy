@@ -117,7 +117,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.98';    #split line so MakeMaker can find the version here
+ $VERSION = '2.985';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -686,6 +686,8 @@ $priority = "all" if ( !$priority );
 $opts .= "--priority $priority " if ($priority);
 $strict = "all" if ( !$strict );
 $opts .= "--strict $strict " if ($strict);
+$opts .= "--check-sets $checksets " if ($checksets);
+$opts .= "--check-sets $DEFAULT_CHECKSETS " if (! $checksets);
 $opts .= "--quiet " if ($quiet);
 $opts .= "--verbose " if ($verbose);
 
@@ -1093,7 +1095,7 @@ sub ListSets {
   &printXmlHeader() if ( $export =~ "xml" );
 
   print "List of available checker sets:\n";
- 
+
   foreach $set ( keys %Sets ) {
     my($desc) = &textDescription(dirname(${ $Sets{$set} }[0]));
     print "  $set: $desc\n";
