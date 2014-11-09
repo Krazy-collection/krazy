@@ -447,6 +447,7 @@ foreach $line (@lines) {
       $line =~ m/^[[:space:]]*#[[:space:]]*elif[[:space:]][_[:alnum:]]/) {
     next if ($line =~ m/if[[:space:]][01]$/);
     next if ($line =~ m/ifndef[[:space:]].*_H/);
+    next if ($line =~ m/ifndef[[:space:]].*_h/);
     next if ($line =~ m/DEBUG/ || $line =~ m/VERBOSE/);
 #    next if ($line =~ m/QT/);
     next if ($line =~ m/KDE/);
@@ -556,9 +557,8 @@ sub osMacros() {
           $have =~ m/__DragonFly__/ ||
           $have =~ m/__osf__/ ||
           $have =~ m/__hpux/ ||
-          $have =~ m/__sun/ ||
           $have =~ m/sun/ ||
-          $have =~ m/__sgi/ ||
+          $have =~ m/sgi/ ||
           $have =~ m/_AIX/ ||
           $have =~ m/__CYGWIN__/
       ) {
@@ -623,6 +623,19 @@ sub haves() {
     $guy =~ s/\).*//;
     $res .= $guy . ",";
   }
+  #special cases without underscores
+  foreach $guy (@a) {
+    $guy =~ s/.*defined\(//;
+    $guy =~ s/.*\(//;
+    $guy =~ s/\).*//;
+    if ($guy eq "WIN32" ||
+        $guy eq "WIN64" ||
+        $guy eq "sun" ||
+        $guy eq "sgi"
+       ) {
+      $res .= $guy . ",";
+    }
+  }
   $res =~ s/,$//;
   return $res;
 }
@@ -634,7 +647,7 @@ sub havesArray() {
   my(@res)=();
   foreach $guy (@a) {
     next unless ($guy =~ m/^HAVE_/);
-    next if ($guy =~ m/_H$/);
+    next if ($guy =~ m/_H$/i);
     $guy =~ s/.*defined\(//;
     $guy =~ s/.*def\s*//;
     $guy =~ s/.*\(//;
