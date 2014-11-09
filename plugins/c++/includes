@@ -60,7 +60,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.90";
+my($Version) = "1.91";
 
 &parseArgs();
 
@@ -71,12 +71,6 @@ if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 my($absf) = basename(abs_path($f));
-
-# skip C source files
-if ($f =~ m/\.c$/) {
-  print "okay\n" if (!&quietArg());
-  Exit 0;
-}
 
 #open file and slurp it in
 open(F, "$f") || die "Couldn't open $f";
