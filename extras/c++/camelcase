@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.43";
+my($Version) = "1.44";
 
 &parseArgs();
 
@@ -113,10 +113,12 @@ while ($linecnt < $#lines) {
              $incpath eq "dlfcn.h" ||
              $incpath eq "windows.h" ||
              $incpath eq "inttypes.h" ||
+             $incpath eq "elf.h" ||
              $incpath eq "execinfo.h" ||
              $incpath eq "cxxabi.h" ||
              $incpath eq "lmcons.h" ||
              $incpath eq "io.h");
+    next if ($incpath =~ m+mach-o/.*.h$+); #Mac specific
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
