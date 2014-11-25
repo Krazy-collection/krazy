@@ -60,7 +60,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.91";
+my($Version) = "1.92";
 
 &parseArgs();
 
@@ -79,6 +79,8 @@ close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+# Remove Krazy conditional blocks
+@lines = RemoveCondBlockC( $Prog, @lines );
 
 my($linecnt) = 0;
 my($line);
