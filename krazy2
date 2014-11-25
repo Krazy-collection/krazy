@@ -1731,9 +1731,9 @@ in the file desired (except embedded within C-style comments).
  where this directive is found. Running of the specified tests will
  remain interruptted until a line matching
 
-  //krazy:endcond=<name1[,name2,...,nameN]>
+=back
 
-  is encountered
+//krazy:endcond=<name1[,name2,...,nameN]> is encountered
 
 =back
 
