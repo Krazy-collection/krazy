@@ -24,6 +24,7 @@ constref \
 cpp \
 dpointer \
 explicit \
+includes \
 inline \
 operators \
 postfixop \
