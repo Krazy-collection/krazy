@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.57";
+my($Version) = "1.58";
 
 &parseArgs();
 
@@ -211,6 +211,7 @@ HAVE_INTERNALMYSQL
 HAVE_INTPTR_T
 HAVE_ISWSPACE
 HAVE_KDCRAW
+HAVE_KDCHART
 HAVE_KIDLETIME
 HAVE_KLEOPATRACLIENT_LIBRARY
 HAVE_LASTLOGX
