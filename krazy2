@@ -117,7 +117,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.985';    #split line so MakeMaker can find the version here
+ $VERSION = '2.986';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -862,7 +862,10 @@ if ( !$quiet ) {
       if (defined($status{$p}) && $status{$p} > 0 && length($result{$p}) > 0) {
         printOOPS( $result{$p}, $cline );
         if ($explain) {
-          my ($use) = `$p --explain 2>/dev/null`;
+          my($eopts) = "--explain ";
+          $eopts .= "--check-sets $checksets " if ($checksets);
+          $eopts .= "--check-sets $DEFAULT_CHECKSETS " if (! $checksets);
+          my ($use) = `$p $eopts 2>/dev/null`;
           chomp($use);
           $use = "(no explanation available)" if ( length($use) < 4 );
           &printExplain( $use );
