@@ -1,0 +1,138 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2014 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests C/C++ source for various forms of crud:
+#   RCS lines
+#   SCCS lines
+#   Emacs mode lines
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --check-sets:    list of checksets
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "crud";
+my($Version) = "0.01";
+
+my($MAX) = 50; #some crud we look for only at the top of the file
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); Exit 0; }
+
+my($f) = $ARGV[0];
+
+if (&fileType($f) eq "c++") {
+  open(F, "$f") || die "Couldn't open $f";
+} else {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+
+#open file and slurp it in
+open(F, "$f") || die "Couldn't open $f";
+my(@data_lines) = <F>;
+close(F);
+
+# Remove Krazy conditional blocks
+my(@lines);
+@lines = RemoveCondBlockC( $Prog, @data_lines );
+
+my($cnt) = 0;
+my($linecnt) = 0;
+my($lstr) = "";
+
+my($line);
+foreach $line (@lines) {
+  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+      $line =~ m+//.*[Kk]razy:skip+) {
+    $cnt = 0;
+    last;
+  }
+  $linecnt++;
+  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+
+  #For the types of curd we currently check, only consider the first MAX lines
+  last if ($linecnt == $MAX);
+
+  if (#RCS
+      ($line =~ m/\$(Author|Date|Header|Id|Locker|Log|RCSfile|Revision|Source|State).*\$/) ||
+      ($line =~ m/\srcsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*rcsid\s*=/) ||
+      #SCCS
+      ($line =~ m/\ssccsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*sccsid\s*=/) ||
+      #Emacs
+      ($linecnt==1 && $line =~ m/-\*-\s[Mm]ode:\s/)
+     ) {
+    $cnt++;
+    if ($cnt == 1) {
+      $lstr = "line\#" . $linecnt;
+    } else {
+      $lstr = $lstr . "," . $linecnt;
+    }
+    print "=> $line" if (&verboseArg());
+  }
+}
+close(F);
+
+# Handle Check Results
+if (!$cnt) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+} else {
+  print "$lstr ($cnt)\n" if (!&quietArg());
+  Exit $cnt;
+}
+
+sub Help {
+  print "Check for crud in C/C++ files\n";
+  Exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  Exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Remove unneeded crud in source files, like obsolete RCS and SCCS lines.\n";
+  Exit 0 if &explainArg();
+}
