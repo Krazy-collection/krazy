@@ -22,13 +22,14 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                                                                             #
 ###############################################################################
 
-# Tests KDE source for <condition>
+# Tests <filetype> source for <condition>
 
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
 #   --priority:      report issues of the specified priority only
 #   --strict:        report issues with the specified strictness level only
+#   --check-sets:    list of checksets
 #   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
@@ -74,6 +75,7 @@ if ($#ARGV != 0){ &Help(); Exit 0; }
 #}
 #close(F);
 
+# Handle Check Results
 #if (!$cnt) {
 #  print "okay\n" if (!&quietArg());
 #  Exit 0;
