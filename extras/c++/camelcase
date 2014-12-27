@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.44";
+my($Version) = "1.45";
 
 &parseArgs();
 
@@ -151,7 +151,7 @@ sub incPath {
 sub incAnglePath {
   my($in) = @_;
   $in =~ s+^\s*#\s*include[[:space:]]++;
-  $in =~ s+<++; $in =~ s+>++;
+  $in =~ s+<++; $in =~ s+>\s*++;
   return $in;
 }
 
