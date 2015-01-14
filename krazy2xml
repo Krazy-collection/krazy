@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the KDE source code for the EnglishBreakfastNetwork (EBN)   #
-# Copyright 2006-2008,2010-2014 by Allen Winter <winter@kde.org>              #
+# Copyright 2006-2008,2010-2015 by Allen Winter <winter@kde.org>              #
 # Copyright 2009-2010 by Bertjan Broeksema <b.broeksema@kdemail.net>          #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -52,7 +52,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.981';    #split line so MakeMaker can find the version here
+ $VERSION = '2.982';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -546,6 +546,9 @@ sub doIt {
       $checkset = "kde5";
     }
     if ($module =~ m/^kdepim/) {
+      $checkset = "kde5";
+    }
+    if ($module =~ m/^workspace/) {
       $checkset = "kde5";
     }
   }
