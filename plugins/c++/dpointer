@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2014 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2015 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2012 by Daniel Calviño Sánchez <danxuliu@gmail.com>           #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.99";
+my($Version) = "1.991";
 
 &parseArgs();
 
@@ -190,6 +190,7 @@ while ($linecnt <= $#lines) {
             if (($line =~ m/Private/ && $line !~ m/\(.*Private.*\)/ ||
                  $line =~ m/Priv/    && $line !~ m/\(.*Priv.*\)/) &&
                 $line !~ m/class/ && $line !~ m/struct/ &&
+                $line !~ m/std::unique_ptr/ &&
                 $line !~ m/boost::shared_ptr/ &&
                 $line !~ m/boost::scoped_ptr/ &&
                 $line !~ m/QScopedPointer/ &&
