@@ -34,7 +34,7 @@ $VERSION = 1.19;
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
              userMessage userError Exit
-             fileType fileTypeDesc findFiles asOf deDupe addRegEx
+             fileType fileTypeDesc fileTypeIs findFiles asOf deDupe addRegEx
              addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
@@ -286,6 +286,48 @@ sub fileTypeDesc {
     return "Python program files";
   }
   return "";
+}
+
+#is the file of the type that is specified?
+sub fileTypeIs {
+  my ($f,$t) = @_;
+
+  #special case C vs. C++
+  if ($t eq "c++") {
+    return 1 if ($f =~ m/\.(?:cpp|cc|cxx|C|tcc|hxx|hpp|H\+\+)$/);
+    if ($f =~ m/\.h$/) {
+      my($tf) = $f;
+      $tf =~ s/\.h$/\.cpp/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.cpp$/\.cc/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.cc$/\.cxx/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.cxx$/\.C/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.C$/\.tcc/;
+      return 1 if (-e $tf);
+    }
+  }
+
+  return 1 if ($t eq "c") && (($f =~ m/\.c$/ || $f =~ m/\.h$/));
+
+  #easy checks for the rest of them
+  return 1 if (($t eq "desktop") && ($f =~ m/\.desktop$/));
+  return 1 if (($t eq "designer") && ($f =~ m/\.ui$/));
+  return 1 if (($t eq "kconfigxt") && ($f =~ m/\.kcfg$/));
+  return 1 if (($t eq "po") && ($f =~ m/\.po$/));
+  return 1 if (($t eq "messages") && ($f =~ m/Messages\.sh$/));
+  return 1 if (($t eq "kpartgui") && ($f =~ m/\.rc$/));
+  return 1 if (($t eq "tips") && ($f =~ m/tips$/));
+  return 1 if (($t eq "qml") && ($f =~ m/\.qml$/));
+  return 1 if (($t eq "qdoc") && ($f =~ m/\.qdoc$/));
+  return 1 if (($t eq "cmake") &&
+               ($f =~ m/CMakeLists\.txt$/ || $f =~ m/\.cmake$/));
+  return 1 if (($t eq "python") && ($f =~ m/\.py$/));
+
+  &userMessage("BAD FILETYPE PASSED TO fileTypeIs()") if (&fileType($f) eq "");
+  return 0;
 }
 
 # return a string containing all the supported files found in specified dirs
