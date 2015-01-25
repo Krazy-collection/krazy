@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2008-2009 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2008-2009,2015 by Allen Winter <winter@kde.org>               #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -22,13 +22,14 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                                                                             #
 ###############################################################################
 
-# Tests KDE source for system calls
+# Tests Qt/KDE source for system calls
 
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
 #   --priority:      report issues of the specified priority only
 #   --strict:        report issues with the specified strictness level only
+#   --check-sets:    list of checksets
 #   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
@@ -45,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "syscalls";
-my($Version) = "1.3";
+my($Version) = "1.4";
 
 &parseArgs();
 
@@ -85,27 +86,122 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  &doIt($line,"mkdir","KDE_mkdir");
-  &doIt($line,"rename","KDE_rename");
-  &doIt($line,"stat","KDE_stat");
-  &doIt($line,"lstat","KDE_lstat");
-  &doIt($line,"open","KDE_open");
-  &doIt($line,"fopen","KDE_fopen");
-  &doIt($line,"freopen","KDE_freopen");
-  &doIt($line,"fdopen","KDE_fdopen");
-  &doIt($line,"fstat","KDE_fstat");
-  &doIt($line,"lseek","KDE_lseek");
-  &doIt($line,"fseek","KDE_fseek");
-  &doIt($line,"ftell","KDE_ftell");
-  &doIt($line,"fgetpos","KDE_fgetpos");
-  &doIt($line,"fsetpos","KDE_fsetpos");
-  &doIt($line,"readdir","KDE_readdir");
-  &doIt($line,"sendfile","KDE_sendfile");
-  &doIt($line,"signal","KDE_signal");
-  &doIt($line,"getenv","qgetenv");
+  if (!&usingCheckSet("kde4")) {
+    if (&usingQtCheckSet() || &usingKDECheckSet()) {
+      &doIt($line,"chdir","QT_CHDIR");
+      &doIt($line,"mkdir","QT_MKDIR");
+      &doIt($line,"rmdir","QT_RMDIR");
+      &doIt($line,"rename","QFile::rename");
+      &doIt($line,"stat","QT_STAT");
+      &doIt($line,"stat64","QT_STAT");
+      &doIt($line,"lstat","QT_LSTAT");
+      &doIt($line,"lstat64","QT_LSTAT");
+      &doIt($line,"fstat","QT_FSTAT");
+      &doIt($line,"fstat64","QT_FSTAT");
+      &doIt($line,"open","QT_OPEN");
+      &doIt($line,"open64","QT_OPEN");
+      &doIt($line,"lseek","QT_LSEEK");
+      &doIt($line,"lseek64","QT_LSEEK");
+      &doIt($line,"fseek","QT_FSEEK");
+      &doIt($line,"fseek64","QT_FSEEK");
+      &doIt($line,"ftell","QT_FTELL");
+      &doIt($line,"ftell64","QT_FTELL");
+      &doIt($line,"fgetpos","QT_FGETPOS");
+      &doIt($line,"fgetpos64","QT_FGETPOS");
+      &doIt($line,"fsetpos","QT_FSETPOS");
+      &doIt($line,"fsetpos64","QT_FSETPOS");
+      &doIt($line,"readdir","QT_READDIR");
+      &doIt($line,"readdir64","QT_READDIR");
+      #&doIt($line,"sendfile","??");
+      #&doIt($line,"sendfile64","??");
+      &doIt($line,"truncate","QT_TRUNCATE");
+      &doIt($line,"truncate64","QT_TRUNCATE");
+      &doIt($line,"ftruncate","QT_FTRUNCATE");
+      &doIt($line,"truncate64","QT_FTRUNCATE");
 
-  &doIt2($line,'struct\s*stat[\s\*]',"struct stat","KDE_struct_stat");
-  &doIt2($line,'struct\s*dirent[\s\*]',"struct dirent","KDE_struct_dirent");
+      &doIt($line,"fopen","QT_FOPEN");
+      &doIt($line,"fopen64","QT_FOPEN");
+      #&doIt($line,"freopen","??");
+      #&doIt($line,"freopen64","??");
+      #&doIt($line,"fdopen","??");
+      &doIt($line,"access","QT_ACCESS");
+      &doIt($line,"getcwd","QT_GETCWD");
+
+      &doIt($line,"getenv","qgetenv");
+      &doIt($line,"putenv","qputenv");
+      &doIt($line,"::setenv","qputenv");
+
+      &doIt2($line,'struct\s*stat[\s\*]',"struct stat","QT_STATBUF");
+      &doIt2($line,'struct\s*stat64[\s\*]',"struct stat64","QT_STATBUF");
+      &doIt2($line,'struct\s*dirent[\s\*]',"struct dirent","QT_DIRENT");
+      &doIt2($line,'struct\s*dirent64[\s\*]',"struct dirent64","QT_DIRENT");
+
+      if (&usingKDECheckSet()) {
+        &doIt($line,"KDE_mkdir","QT_MKDIR");
+        &doIt($line,"KDE_rename","QFile::rename");
+        &doIt($line,"KDE_stat","QT_STAT");
+        &doIt($line,"KDE_lstat","QT_LSTAT");
+        &doIt($line,"KDE_fstat","QT_FSTAT");
+        &doIt($line,"KDE_open","QT_OPEN");
+        &doIt($line,"KDE_lseek","QT_LSEEK");
+        &doIt($line,"KDE_fseek","QT_FSEEK");
+        &doIt($line,"KDE_ftell","QT_FTELL");
+        &doIt($line,"KDE_fgetpos","QT_FGETPOS");
+        &doIt($line,"KDE_fsetpos","QT_FSETPOS");
+        &doIt($line,"KDE_readdir","QT_READDIR");
+        #&doIt($line,"KDE_sendfile","??");
+
+        &doIt($line,"KDE_fopen","QT_FOPEN");
+        #&doIt($line,"KDE_freopen","??");
+        #&doIt($line,"KDE_fdopen","??");
+        &doIt($line,"KDE_signal","::signal");
+
+        &doIt($line,"KDE_struct_stat","QT_STATBUF");
+        &doIt($line,"KDE_struct_dirent","QT_DIRENT");
+      }
+    }
+  } elsif (&usingCheckSet("kde4")) {
+    &doIt($line,"mkdir","KDE_mkdir");
+    &doIt($line,"rename","KDE_rename");
+    &doIt($line,"stat","KDE_stat");
+    &doIt($line,"stat64","KDE_stat");
+    &doIt($line,"lstat","KDE_lstat");
+    &doIt($line,"lstat64","KDE_lstat");
+    &doIt($line,"fstat","KDE_fstat");
+    &doIt($line,"fstat64","KDE_fstat");
+    &doIt($line,"open","KDE_open");
+    &doIt($line,"open64","KDE_open");
+    &doIt($line,"lseek","KDE_lseek");
+    &doIt($line,"lseek64","KDE_lseek");
+    &doIt($line,"fseek","KDE_fseek");
+    &doIt($line,"fseek64","KDE_fseek");
+    &doIt($line,"ftell","KDE_ftell");
+    &doIt($line,"ftell64","KDE_ftell");
+    &doIt($line,"fgetpos","KDE_fgetpos");
+    &doIt($line,"fgetpos64","KDE_fgetpos");
+    &doIt($line,"fsetpos","KDE_fsetpos");
+    &doIt($line,"fsetpos64","KDE_fsetpos");
+    &doIt($line,"readdir","KDE_readdir");
+    &doIt($line,"readdir64","KDE_readdir");
+    &doIt($line,"sendfile","KDE_sendfile");
+    &doIt($line,"sendfile64","KDE_sendfile");
+
+    &doIt($line,"fopen","KDE_fopen");
+    &doIt($line,"fopen64","KDE_fopen");
+    &doIt($line,"freopen","KDE_freopen");
+    &doIt($line,"freopen64","KDE_freopen");
+    &doIt($line,"fdopen","KDE_fdopen");
+
+    &doIt($line,"getenv","qgetenv");
+    &doIt($line,"putenv","qputenv");
+    &doIt($line,"setenv","qputenv");
+    &doIt($line,"unsetenv","qunsetenv");
+
+    &doIt2($line,'struct\s*stat[\s\*]',"struct stat","KDE_struct_stat");
+    &doIt2($line,'struct\s*stat64[\s\*]',"struct stat64","KDE_struct_stat");
+    &doIt2($line,'struct\s*dirent[\s\*]',"struct dirent","KDE_struct_dirent");
+    &doIt2($line,'struct\s*dirent64[\s\*]',"struct dirent64","KDE_struct_dirent");
+  }
 }
 
 if (!$cnt) {
@@ -183,6 +279,13 @@ sub Version {
 }
 
 sub Explain {
-  print "Some system calls are not portable, please use the suggested portable wrapper instead. See kde_file.h\n";
+  print "Some system calls are not portable, please use the suggested portable wrapper instead. ";
+  if (!&usingCheckSet("kde4")) {
+    if (&usingQtCheckSet() || &usingKDECheckSet()) {
+      print "See qplatformdefs.h\n";
+    }
+  } elsif (&usingCheckSet("kde4")) {
+    print "See kde_file.h\n";
+  }
   Exit 0 if &explainArg();
 }
