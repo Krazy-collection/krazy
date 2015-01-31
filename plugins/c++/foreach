@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2008-2011 Allen Winter <winter@kde.org>                       #
+# Copyright (C) 2008-2011,2015 Allen Winter <winter@kde.org>                  #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -22,7 +22,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                                                                             #
 ###############################################################################
 
-# Tests KDE source for foreach loop problems.
+# Tests Qt/KDE source for foreach loop problems.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "foreach";
-my($Version) = "1.81";
+my($Version) = "1.85";
 
 &parseArgs();
 
@@ -75,6 +75,7 @@ my($lstr) = "";
 my($vlstr) = "";
 
 my($line);
+my($var,$pat1,$pat2);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
@@ -86,23 +87,31 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;  #skip C++ comments
 
   if ($line =~ m/^\s*(foreach|Q_FOREACH)\s*\(/) {
-
-    if ($line =~ m/[\.>]values\(\)\s*\)/ ||
-        $line =~ m/[\.>]keys\(\)\s*\)/) {
-      if ($line !~ m/\(\s*(const\s)?[:\w]+\s*\*\s*[\w]+,/) {
-        $vcnt++;
-        if ($vcnt == 1) {
-          $vlstr = "values or keys iteration line\#" . $linecnt;
-        } else {
-          $vlstr = $vlstr . "," . $linecnt;
+    $var = $line;
+    $var =~ s/^.*,//;
+    $var =~ s/\).*$//;
+    $var =~ s/\(.*$//;
+    $var =~ s/\..*$//;
+    $pat1 = "(Hash|Map|Set).*$var\\s*=";
+    $pat2 = "(Hash|Map|Set).*$var\\s*;";
+    if(&searchBack($pat1,$linecnt,25) || &searchBack($pat2,$linecnt,25)) {
+      if ($line =~ m/[\.>]values\(\)\s*\)/ ||
+          $line =~ m/[\.>]keys\(\)\s*\)/) {
+        if ($line !~ m/\(\s*(const\s)?[:\w]+\s*\*\s*[\w]+,/) {
+          $vcnt++;
+          if ($vcnt == 1) {
+            $vlstr = "values or keys iteration line\#" . $linecnt;
+          } else {
+            $vlstr = $vlstr . "," . $linecnt;
+          }
+          print "=> $line\n" if (&verboseArg());
         }
-        print "=> $line\n" if (&verboseArg());
       }
     }
     next if ($line =~ m/\(\s*const\s[:\w]+\s*&\s*\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?[:\w]+\s*\*(\s*const\s)?\s*\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?(T|int|uint|uint32_t|qint8|quint8|qint16|quint16|qint32|quint32|quint64|qint64|qlonglong|unsigned|unsigned int|unsigned long|GLint|GLuint|ulong|long|float|double|qreal|unsigned char|char|QChar)\s\w+\s*,/);
-    next if ($line =~ m/\(\s*(const\s)?(QList|QLinkedList|QPointer|QSharedPointer|QSharedDataPointer|KSharedPtr|QVector|QMap|QSet|shared_ptr|ptr)\s*<[\s\w\*:]+>\s*[&\*]?\s*[:\w]+\s*,/);
+    next if ($line =~ m/\(\s*(const\s)?(QList|QLinkedList|QPointer|QSharedPointer|QSharedDataPointer|KSharedPtr|QVector|QMap|QSet|QQueue|shared_ptr|ptr)\s*<[\s\w\*:]+>\s*[&\*]?\s*[:\w]+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?[:\w]+(Ptr|Instance|Info|Information|Error|Type|Id)\s\w+\s*,/ &&
              $line !~ m/\(\s*(QSqlError)\s\w+\s*,/);
     next if ($line =~ m/\(\s*(::)?(Types)::\w+\s\w+\s*,/);
@@ -110,6 +119,7 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/\(\s*[:\w]+::(List|const_reference|value_type)\s\w+\s*,/);
     # known enums. not much else to do except hard-code them as we find 'em.
     next if ($line =~ m/\(\s*(ElectricBorder|Direction)\s\w+\s*,/);
+    next if ($line =~ m/\(\s*Kwave::(FileProperty|Stripe|playback_method_t)\s\w+\s*,/);
 
     # see if the iterator variable is declared a pointer a couple lines above
     if ($line =~ m/(foreach|Q_FOREACH)\s*\(\s*(\w+)\s*,/) {
@@ -165,6 +175,6 @@ sub Version {
 }
 
 sub Explain {
-  print "When not using POD types (int, double, pointer, ...) you should use const & for your foreach variables. There are two reasons for this: 1) Prevents you from the mistake of writing foreach loops that modify the list, that is \'foreach(Foo f, list) f.a = f.b = f.c = 0;\' compiles but does not modify the contents of list 2) Saves a copy constructor call for each of the list elements\nDo not call values in Hashes/Maps/Sets inside foreach loops.\nRead <http://tsdgeos.blogspot.com/2009/04/how-to-make-foreach-loops-that-dont.html> for more information about iterating over QHash values and keys.";
+  print "When not using POD types (int, double, pointer, ...) you should use const & for your foreach variables. There are two reasons for this: 1) Prevents you from the mistake of writing foreach loops that modify the list, that is \'foreach(Foo f, list) f.a = f.b = f.c = 0;\' compiles but does not modify the contents of list 2) Saves a copy constructor call for each of the list elements. Do not call values in Hashes/Maps/Sets inside foreach loops. Read <http://tsdgeos.blogspot.com/2009/04/how-to-make-foreach-loops-that-dont.html> for more information about iterating over QHash values and keys.";
   Exit 0 if &explainArg();
 }
