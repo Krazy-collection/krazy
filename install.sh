@@ -4,8 +4,6 @@
 
 #Exit this script if it any subprocess exits non-zero.
 set -e
-#If any process in a pipeline fails, the return value is a failure.
-set -o pipefail
 
 #bootstrap by checking that the MakeMaker module is installed
 module="ExtUtils::MakeMaker"
