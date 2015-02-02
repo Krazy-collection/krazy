@@ -118,7 +118,7 @@ if ( test $EBN -eq 0 ) then
   touch configure.ac aclocal.m4 configure Makefile.am Makefile.in && \
   sh configure && make && \
   cp -f ./src/desktop-file-validate $TOP/lib/krazy2/krazy-helpers && \
-  make distclean; rm -f config.log
+  make distclean; rm -rf autom4te.cache
   cd ../..
 else
   if ( test ! -x /usr/bin/desktop-file-validate ) then
