@@ -143,7 +143,7 @@ cd ..
 cd src && \
 $QMAKE && \
 make && \
-make install INSTALL_ROOT=$TOP && \
+make install INSTALL_ROOT=$TOP
 make distclean
 cd ..
 
