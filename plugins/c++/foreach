@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "foreach";
-my($Version) = "1.85";
+my($Version) = "1.86";
 
 &parseArgs();
 
@@ -94,10 +94,12 @@ while ($linecnt < $#lines) {
     $var =~ s/\..*$//;
     $pat1 = "(Hash|Map|Set).*$var\\s*=";
     $pat2 = "(Hash|Map|Set).*$var\\s*;";
-    if(&searchBack($pat1,$linecnt,25) || &searchBack($pat2,$linecnt,25)) {
+    if($var =~ m/.*(Hash|Map|Set)/ || m/(Hash|Map|Set).*/ ||
+       &searchBack($pat1,$linecnt,25) || &searchBack($pat2,$linecnt,25)) {
       if ($line =~ m/[\.>]values\(\)\s*\)/ ||
           $line =~ m/[\.>]keys\(\)\s*\)/) {
-        if ($line !~ m/\(\s*(const\s)?[:\w]+\s*\*\s*[\w]+,/) {
+        if ($line !~ m/\(\s*(const\s)?[:\w]+\s*\*\s*[\w]+,/ &&
+            $line !~ m/const\s*QKeySequence/) {
           $vcnt++;
           if ($vcnt == 1) {
             $vlstr = "values or keys iteration line\#" . $linecnt;
