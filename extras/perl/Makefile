@@ -22,6 +22,7 @@ EXTRAS =
 # links to general purpose extras
 EXTRALNS = \
 contractions \
+crud \
 
 #default installation location
 PREFIX=/usr/local

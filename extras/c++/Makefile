@@ -1,6 +1,6 @@
 # krazy extras/c++ Makefile
 #
-# Copyright 2007-2009,2012,2014 by Allen Winter <winter@kde.org>
+# Copyright 2007-2009,2012,2014-2015 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 # list of all extras to install
 EXTRAS = \
 camelcase \
-crud \
 defines \
 kdebug \
 multiclasses \
@@ -33,6 +32,7 @@ tipsandthis \
 # links to general purpose extras
 EXTRALNS = \
 contractions \
+crud \
 
 #default installation location
 PREFIX=/usr/local
