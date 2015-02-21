@@ -329,7 +329,7 @@ sub fileTypeIs {
   return 1 if (($t eq "cmake") &&
                ($f =~ m/CMakeLists\.txt$/ || $f =~ m/\.cmake$/));
   return 1 if (($t eq "perl") &&
-               ($f =~ m/\.py$/ || $f =~ m/\.PL$/));
+               ($f =~ m/\.pl$/ || $f =~ m/\.PL$/));
   return 1 if (($t eq "python") && ($f =~ m/\.py$/));
 
   &userMessage("BAD FILETYPE PASSED TO fileTypeIs()") if (&fileType($f) eq "");
