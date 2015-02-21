@@ -25,7 +25,8 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Tests source for various forms of crud:
 #   RCS lines
 #   SCCS lines
-#   Emacs mode lines
+#   Emacs mode lines (on the first line only)
+#   Vi mode lines (within the first few lines only)
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -91,7 +92,7 @@ foreach $line (@lines) {
   $linecnt++;
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
-  #For the types of curd we currently check, only consider the first MAX lines
+  #For the types of crud we currently check, only consider the first MAX lines
   last if ($linecnt == $MAX);
 
   if (#RCS
@@ -100,7 +101,9 @@ foreach $line (@lines) {
       #SCCS
       ($line =~ m/\ssccsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*sccsid\s*=/) ||
       #Emacs
-      ($linecnt==1 && $line =~ m/-\*-\s[Mm]ode:\s/)
+      ($linecnt==1 && $line =~ m/-\*-\s[Mm]ode:\s/) ||
+      #Vi
+      ($linecnt<5 && $line =~ m/vi\s*:\s*set.*:/)
      ) {
     $cnt++;
     if ($cnt == 1) {
