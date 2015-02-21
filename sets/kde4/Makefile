@@ -1,6 +1,6 @@
 # krazy kde4 sets Makefile
 #
-# Copyright 2010-2013 by Allen Winter <winter@kde.org>
+# Copyright 2010-2013,2015 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -100,11 +100,19 @@ license \
 qmlsyntax \
 spelling \
 
+# links to Perl plugins
+PERL_PLUGINS = \
+copyright \
+endswithnewline \
+license \
+spelling \
+
 # links to Python plugins
 PYTHON_PLUGINS = \
 copyright \
 endswithnewline \
 license \
+qtemits \
 spelling \
 
 # links to CMake plugins
@@ -155,6 +163,10 @@ install::
 	list="$(QML_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing kde4 set qml plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
+	done
+	list="$(PERL_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing kde4 set perl plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/perl/$$plugin $(DESTDIR)$(INSTDIR)/per-$$plugin; \
 	done
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing kde4 set python plugin link $$plugin"; \

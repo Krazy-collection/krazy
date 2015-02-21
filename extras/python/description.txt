@@ -1,1 +1,1 @@
-Extra checks for C/C++ source code
+Extra checks for Python code

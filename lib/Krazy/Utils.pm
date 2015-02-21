@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2010,2012-2014 by Allen Winter <winter@kde.org>              #
+# Copyright 2007-2010,2012-2015 by Allen Winter <winter@kde.org>              #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -29,7 +29,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.19;
+$VERSION = 1.20;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -251,6 +251,8 @@ sub fileType {
     return "qdoc";
   } elsif ( $f =~ m/CMakeLists\.txt$/ || $f =~ m/\.cmake$/ ) {
     return "cmake";
+  } elsif ( $f =~ m/\.pl$/ || $f =~ m/\.PL\$/ ) {
+    return "perl";
   } elsif ( $f =~ m/\.py$/ ) {
     return "python";
   }
@@ -282,6 +284,8 @@ sub fileTypeDesc {
     return "Qt documentation files";
   } elsif ( $t eq "cmake" ) {
     return "CMake files";
+  } elsif ( $t eq "perl" ) {
+    return "Perl program files";
   } elsif ( $t eq "python" ) {
     return "Python program files";
   }
@@ -324,6 +328,8 @@ sub fileTypeIs {
   return 1 if (($t eq "qdoc") && ($f =~ m/\.qdoc$/));
   return 1 if (($t eq "cmake") &&
                ($f =~ m/CMakeLists\.txt$/ || $f =~ m/\.cmake$/));
+  return 1 if (($t eq "perl") &&
+               ($f =~ m/\.py$/ || $f =~ m/\.PL$/));
   return 1 if (($t eq "python") && ($f =~ m/\.py$/));
 
   &userMessage("BAD FILETYPE PASSED TO fileTypeIs()") if (&fileType($f) eq "");

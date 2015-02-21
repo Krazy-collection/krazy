@@ -1,6 +1,6 @@
 # krazy FOSS sets Makefile
 #
-# Copyright 2010, 2013 by Allen Winter <winter@kde.org>
+# Copyright 2010,2013,2015 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,11 @@ license \
 
 # links to QML plugins
 QML_PLUGINS = \
+copyright \
+license \
+
+# links to Perl plugins
+PERL_PLUGINS = \
 copyright \
 license \
 
@@ -51,6 +56,11 @@ install::
 	list="$(QML_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing foss set qml plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
+	done
+
+	list="$(PERL_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing foss set perl plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/perl/$$plugin $(DESTDIR)$(INSTDIR)/perl-$$plugin; \
 	done
 
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \

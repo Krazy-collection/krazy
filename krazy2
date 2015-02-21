@@ -117,7 +117,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.987';    #split line so MakeMaker can find the version here
+ $VERSION = '2.990';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -963,6 +963,7 @@ sub initCheckers {
     'tips'      => [],
     'qml'       => [],
     'qdoc'      => [],
+    'perl'      => [],
     'python'    => [],
   );
   my ($type);

@@ -66,9 +66,15 @@ endswithnewline \
 qmlsyntax \
 spelling \
 
+# links to Perl plugins
+PERL_PLUGINS = \
+endswithnewline \
+spelling \
+
 # links to Python plugins
 PYTHON_PLUGINS = \
 endswithnewline \
+qtemits \
 spelling \
 
 # links to CMake plugins
@@ -107,6 +113,10 @@ install::
 	list="$(QML_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing ${SET} set qml plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
+	done
+	list="$(PERL_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing ${SET} set perl plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/perl/$$plugin $(DESTDIR)$(INSTDIR)/perl-$$plugin; \
 	done
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing ${SET} set python plugin link $$plugin"; \
