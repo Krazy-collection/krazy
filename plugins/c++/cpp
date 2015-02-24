@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.60";
+my($Version) = "1.61";
 
 &parseArgs();
 
@@ -291,6 +291,7 @@ HAVE_POSIX_FALLOCATE64
 HAVE_POSIX_OPENPT
 HAVE_POSIX_TIMERS
 HAVE_PPC_ALTIVEC
+HAVE_PRINTER
 HAVE_PRISON
 HAVE_PRIVATE_QT_HEADERS
 HAVE_PROC_CWD
