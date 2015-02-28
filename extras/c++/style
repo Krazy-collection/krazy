@@ -52,7 +52,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.40";
+my($Version) = "1.41";
 
 &parseArgs();
 
@@ -68,8 +68,7 @@ tie my(%Issues), "Tie::IxHash";
 # Check Condition
 my($f) = $ARGV[0];
 
-if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/ ||
-    $f =~ m/\.h$/ || $f =~ m/\.hxx$/ ) {
+if (&fileType($f) eq "c++") {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
@@ -121,7 +120,8 @@ my($line);
 my($tline);
 my($pline);
 my($lstr) = "";
-my($lline) = "";
+my($lline) = "";  #one non-empty line back
+my($llline) = ""; #two non-empty lines back
 my($indent,$lindent) = (0,0);
 &initIssues();
 foreach $line (@lines) {
@@ -271,6 +271,16 @@ foreach $line (@lines) {
     }
   }
 
+  if ($line =~ m/case {2,}/) {
+    $Issues{'CASESPACE'}{'count'}++;
+    if ($Issues{'CASESPACE'}{'count'} == 1) {
+      $Issues{'CASESPACE'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'CASESPACE'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (multiple spaces after 'case') => $line\n" if (&verboseArg());
+  }
+
   if ($pline =~ m/\(/ && $line =~ m/[[:space:]]if[[:space:]]*\(/ && $line !~ m/\{$/ && $line !~ m/\(\s*$/ && $line !~ m/,\s*$/ && $line !~ m/\.\s*$/ && !&endOkCond($line)) {
     if (!&searchForward('\)\s*{\s*$',$linecnt,2)) {
       $Issues{'IFBRACE'}{'count'}++;
@@ -327,13 +337,17 @@ foreach $line (@lines) {
   }
 
   if ($line =~ m/^[[:space:]]*enum[[:space:]]/ && $line !~ m/\{$/) {
-    $Issues{'ENUMBRACE'}{'count'}++;
-    if ($Issues{'ENUMBRACE'}{'count'} == 1) {
-      $Issues{'ENUMBRACE'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'ENUMBRACE'}{'lines'} .= "," . $linecnt;
+    if ($f !~ m/\.c$/) { # skip C enums
+      if ($f =~ m/\.h$/ && $line != m/;/) { # attempt to skip C enums in headers
+        $Issues{'ENUMBRACE'}{'count'}++;
+        if ($Issues{'ENUMBRACE'}{'count'} == 1) {
+          $Issues{'ENUMBRACE'}{'lines'} = "line\#" . $linecnt;
+        } else {
+          $Issues{'ENUMBRACE'}{'lines'} .= "," . $linecnt;
+        }
+        print "$linecnt (missing enum '{')=> $line\n" if (&verboseArg());
+      }
     }
-    print "$linecnt (missing enum '{')=> $line\n" if (&verboseArg());
   }
 
   if ($KRAZY_STYLE_CPPSTYLE eq "pim" &&
@@ -568,6 +582,88 @@ foreach $line (@lines) {
     print "$linecnt (tab encountered) => $line\n" if (&verboseArg());
   }
 
+  if ($line =~ m/^\s*\w+\s*$/ && $lline !~ m/,$/ && $line != m/^\s*Q_OBJECT/) {
+    $Issues{'BAREWORD'}{'count'}++;
+    if ($Issues{'BAREWORD'}{'count'} == 1) {
+      $Issues{'BAREWORD'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'BAREWORD'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (bareword encountered) => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/^\s*\w+\s[\*]+\s*$/) {
+    $Issues{'BAREWORD'}{'count'}++;
+    if ($Issues{'BAREWORD'}{'count'} == 1) {
+      $Issues{'BAREWORD'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'BAREWORD'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (bareword encountered) => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/^\s*const\s\w+\s[\*]+\s*$/) {
+    $Issues{'CONSTWORD'}{'count'}++;
+    if ($Issues{'CONSTWORD'}{'count'} == 1) {
+      $Issues{'CONSTWORD'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'CONSTWORD'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (const bareword encountered) => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/^\s*static\s\w+\s*$/) {
+    $Issues{'STATWORD'}{'count'}++;
+    if ($Issues{'STATWORD'}{'count'} == 1) {
+      $Issues{'STATWORD'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'STATWORD'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (static bareword encountered) => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/^\s*static\sstruct\s\w+\s*$/) {
+    $Issues{'STATWORD'}{'count'}++;
+    if ($Issues{'STATWORD'}{'count'} == 1) {
+      $Issues{'STATWORD'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'STATWORD'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (static bareword encountered) => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/^\s*static\s\w+\s[\*]+\s*$/) {
+    $Issues{'STATWORD'}{'count'}++;
+    if ($Issues{'STATWORD'}{'count'} == 1) {
+      $Issues{'STATWORD'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'STATWORD'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (static bareword encountered) => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/^\s*static\sstruct\s\w+\s[\*]+\s*$/) {
+    $Issues{'STATWORD'}{'count'}++;
+    if ($Issues{'STATWORD'}{'count'} == 1) {
+      $Issues{'STATWORD'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'STATWORD'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (static bareword encountered) => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/^}\s*$/ && @lines[$linecnt] !~ m/^\s*$/) {
+    if ( @lines[$linecnt] !~ m/^\s*#include/) {
+      $Issues{'ENDBRACENEWLINE'}{'count'}++;
+      if ($Issues{'ENDBRACENEWLINE'}{'count'} == 1) {
+        $Issues{'ENDBRACENEWLINE'}{'lines'} = "line\#" . $linecnt;
+      } else {
+        $Issues{'ENDBRACENEWLINE'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (should be a blank line after a closing unit brace) => $line\n" if (&verboseArg());
+    }
+  }
+
   # do this test last please
   $line =~ s/\s+$//;
   $tline = $line;
@@ -663,6 +759,7 @@ foreach $line (@lines) {
 
 $linecnt=0;
 $lline = '';
+$llline = '';
 foreach $line (@data_lines) {
   $linecnt++;
   chomp($line);
@@ -698,6 +795,27 @@ foreach $line (@data_lines) {
      print "$linecnt (extra blank lines) => $tline\n" if (&verboseArg());
    }
 
+  if ($line =~ m/^\s*$/ && $lline =~ m/^\s*{\s*$/ && $llline !~ m/^\s*namespace\s/) {
+     $Issues{'BLANKS'}{'count'}++;
+     if ($Issues{'BLANKS'}{'count'} == 1) {
+       $Issues{'BLANKS'}{'lines'} = "line\#" . $linecnt;
+     } else {
+       $Issues{'BLANKS'}{'lines'} .= "," . $linecnt;
+     }
+     print "$linecnt (extra blank lines) => $tline\n" if (&verboseArg());
+   }
+
+  if ($line =~ m/^\s*}\s*$/ && $lline =~ m/^\s*$/) {
+     $Issues{'BLANKS'}{'count'}++;
+     if ($Issues{'BLANKS'}{'count'} == 1) {
+       $Issues{'BLANKS'}{'lines'} = "line\#" . $linecnt;
+     } else {
+       $Issues{'BLANKS'}{'lines'} .= "," . $linecnt;
+     }
+     print "$linecnt (extra blank lines) => $tline\n" if (&verboseArg());
+   }
+
+  $llline = $lline;
   $lline = $line;
 }
 
@@ -857,6 +975,26 @@ sub initIssues() {
   $Issues{'BADINDENTOFF'}{'issue'} = "Bad ident offset";
   $Issues{'BADINDENTOFF'}{'count'} = 0;
   $Issues{'BADINDENTOFF'}{'lines'} = '';
+
+  $Issues{'BAREWORD'}{'issue'} = "Bareword";
+  $Issues{'BAREWORD'}{'count'} = 0;
+  $Issues{'BAREWORD'}{'lines'} = '';
+
+  $Issues{'STATWORD'}{'issue'} = "Static type no variable";
+  $Issues{'STATWORD'}{'count'} = 0;
+  $Issues{'STATWORD'}{'lines'} = '';
+
+  $Issues{'CONSTWORD'}{'issue'} = "Const type no variable";
+  $Issues{'CONSTWORD'}{'count'} = 0;
+  $Issues{'CONSTWORD'}{'lines'} = '';
+
+  $Issues{'CASESPACE'}{'issue'} = 'Bad spacing after case';
+  $Issues{'CASESPACE'}{'count'} = 0;
+  $Issues{'CASESPACE'}{'lines'} = '';
+
+  $Issues{'ENDBRACENEWLINE'}{'issue'} = 'Missing newline after closing brace';
+  $Issues{'ENDBRACENEWLINE'}{'count'} = 0;
+  $Issues{'ENDBRACENEWLINE'}{'lines'} = '';
 
   $Issues{'TRAILWHITE'}{'issue'} = "Trailing whitespace";
   $Issues{'TRAILWHITE'}{'count'} = 0;
