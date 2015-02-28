@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.52";
+my($Version) = "1.53";
 
 &parseArgs();
 
@@ -103,7 +103,7 @@ while ($linecnt < $#lines) {
     next if ($sep eq "<" && $incpath =~ m/^(c|io)/ && $incpath !~ m/\.h$/);
     next if ($sep eq "<" && $incpath =~ m/^config/ && $incpath =~ m/\.h$/);
     next if ($sep eq "<" && $incpath =~ m+^(k3|q3|ical|uuid|uni|os|ieee|gmp|graphviz|vtk|qjson|std|if|sys/|net|netinet/|arpa|mach/|tr1/)+);
-    next if ($sep eq "<" && $incpath =~ m/^(algorithm|functional|iterator|limits|map|memory|set|vector|string|exception|deque)/);
+    next if ($sep eq "<" && $incpath =~ m/^(algorithm|functional|iterator|limits|map|memory|set|vector|string|exception|deque)|queue|numeric/);
     next if ($sep eq "<" && $incpath =~ m/^(calendarsupport|calendarviews|incidenceeditor|akonadi_next)/);
     next if ($sep eq "<" && $incpath =~ m/^(messagecomposer|messagecore|messagelist|messageviewer|ontologies)/);
     next if ($sep eq "<" && $incpath =~ m+^private/q.*_p.h$+);
@@ -119,7 +119,9 @@ while ($linecnt < $#lines) {
              $incpath eq "pwd.h" ||
              $incpath eq "dlfcn.h" ||
              $incpath eq "windows.h" ||
+             $incpath eq "wincrypt.h" ||
              $incpath eq "inttypes.h" ||
+             $incpath eq "getopt.h" ||
              $incpath eq "elf.h" ||
              $incpath eq "execinfo.h" ||
              $incpath eq "cxxabi.h" ||
