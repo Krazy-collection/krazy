@@ -104,6 +104,7 @@ sub ParseKrazyRC {
     next if ( !$line );
 
     ( $directive, $arg ) = split( " ", $line );
+    my $saveDirective = $directive;
     $directive = uc($directive);
     if ( $directive eq "EXTRA" ) {
       &extras($arg, $linecnt, $rcfile);
@@ -138,7 +139,7 @@ sub ParseKrazyRC {
               $directive eq "STYLE_LINEMAX") {
       &styleSettings( $directive, $arg, $linecnt, $rcfile );
     } else {
-      print "Invalid directive $directive, line $linecnt, $rcfile\n";
+      print "$rcfile: Invalid directive \"$saveDirective\" (line $linecnt)\n";
       close(F);
       exit 1;
     }
