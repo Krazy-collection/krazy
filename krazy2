@@ -1711,35 +1711,35 @@ For designer file types ==
 
 The Krazy plugins support the following list of in-code directives:
 
-Note that these directives must be C++ style comments that can be put anywhere
-in the file desired (except embedded within C-style comments).
-
 =over 4
 
-=item //krazy:skip
+=item krazy:skip
 
- no krazy2 tests will run on this file.
+ Exempt an entire file from all checks.
+ No Krazy tests will run on the file.
 
-=item //krazy:excludeall=<name1[,name2,...,nameN]>
+=item krazy:excludeall=<name1[,name2,...,nameN]>
 
- the krazy2 tests name1, etc will not be run on this file.
+ Exempt the entire file from specific checks.
+ The Krazy tests name1, etc will not be run on this file.
 
-=item //krazy:exclude=<name1[,name2,...,nameN]>
+=item krazy:exclude=<name1[,name2,...,nameN]>
 
- the krazy2 tests name1, etc. will not be run on the line where
+ Exclude individual lines from specific checks.
+ The Krazy tests name1, etc. will not be run on the line where
  this directive is found.
 
-=item //krazy:cond=<name1[,name2,...,nameN]>
+=item krazy:cond=<name1[,name2,...,nameN]>
 
- the krazy2 tests name1, etc. will not be run starting on the line
+ The Krazy tests name1, etc. will not be run starting on the line
  where this directive is found. Running of the specified tests will
  remain interruptted until a line matching
+ krazy:endcond=<name1[,name2,...,nameN]> is encountered
 
 =back
 
-//krazy:endcond=<name1[,name2,...,nameN]> is encountered
-
-=back
+For C/C++ code, note that these directives must be C++ style comments.
+For other coding languages, normal commenting styles apply.
 
 =head1 PLUGINS
 
@@ -1860,7 +1860,7 @@ If krazy2 was envoked with the B<--help>, B<--version>, B<--list>,
 B<--list-types>, B<--list-sets> or B<--list-set> options it will
 exit with status=0.
 
-=head1 COPYRIGHT
+=head1 LICENSE
 
 Copyright (c) 2005-2015 by Allen Winter <winter@kde.org>
 
