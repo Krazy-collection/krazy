@@ -49,7 +49,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "crud";
-my($Version) = "0.10";
+my($Version) = "0.11";
 
 my($MAX) = 50; #some crud we look for only at the top of the file
 
@@ -96,7 +96,7 @@ foreach $line (@lines) {
   last if ($linecnt == $MAX);
 
   if (#RCS
-      ($line =~ m/\$(Author|Date|Header|Id|Locker|Log|RCSfile|Revision|Source|State).*\$/) ||
+      ($line =~ m/\$(Author|Date|Header|Id|Locker|Log|Name|RCSfile|Revision|Source|State).*\$/) ||
       ($line =~ m/\srcsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*rcsid\s*=/) ||
       #SCCS
       ($line =~ m/\ssccsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*sccsid\s*=/) ||
