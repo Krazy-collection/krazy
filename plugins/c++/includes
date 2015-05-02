@@ -60,7 +60,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.92";
+my($Version) = "1.95";
 
 &parseArgs();
 
@@ -148,7 +148,7 @@ while ($linecnt < $#lines) {
     $qincpath = &qPath($incpath);
     if(!defined($Incs{$qincpath})) {
       if(!&configH($qincpath)){
-	$Incs{$qincpath}{'nth'} = $nth++;       #cardinality, first instance
+        $Incs{$qincpath}{'nth'} = $nth++;       #cardinality, first instance
       }
       $Incs{$qincpath}{'sep'} = $sep;         #separator used, first instance
     }
@@ -232,11 +232,12 @@ foreach $inc (keys %Incs) {
 }
 
 # check for include positions within a .cpp file
-my($foo,$foop);
-if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
+my($foo,$foop,$fooi);
+if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/ || $f =~ m/\.c/) {
   $foo = basename(abs_path($f));
-  $foo=~ s/\.cpp$//; $foo =~ s/\.cxx$//; $foo =~ s/\.cc$//;
+  $foo=~ s/\.cpp$//; $foo =~ s/\.cxx$//; $foo =~ s/\.cc$//; $foo =~ s/\.c$//;
   $foop = $foo . "_p.h";
+  $fooi = $foo . "impl.h";
   $foo  = $foo . ".h";
   if (defined($Incs{$foo})) {
     if ($Incs{$foo}{'nth'} != 1) {
@@ -250,6 +251,12 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
         $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
         print "=> $lines[$Incs{$foop}{'lines'}-1]n" if (&verboseArg());
       }
+    } elsif (defined($Incs{$fooi})) {
+      if ($Incs{$fooi}{'nth'} != 2) {
+        $Issues{'PRIV2'}{'count'}++;
+        $Issues{'PRIV2'}{'lines'} .= "$Incs{$fooi}{'lines'};";
+        print "=> $lines[$Incs{$fooi}{'lines'}-1]n" if (&verboseArg());
+      }
     }
   } elsif (defined($Incs{$foop})) {
     if ($Incs{$foop}{'nth'} != 1) {
@@ -257,10 +264,17 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
       $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
       print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
     }
+  } elsif (defined($Incs{$fooi})) {
+    if ($Incs{$fooi}{'nth'} != 1) {
+      $Issues{'PRIV1'}{'count'}++;
+      $Issues{'PRIV1'}{'lines'} .= "$Incs{$fooi}{'lines'};";
+      print "=> $lines[$Incs{$fooi}{'lines'}-1]\n" if (&verboseArg());
+    }
   }
 
   $foo = basename(dirname(abs_path($f))) . "/" . $foo;
   $foop = basename(dirname(abs_path($f))) . "/" . $foop;
+  $fooi = basename(dirname(abs_path($f))) . "/" . $fooi;
   if (defined($Incs{$foo})) {
     if ($Incs{$foo}{'nth'} != 1) {
       $Issues{'OWN1'}{'count'}++;
@@ -273,12 +287,24 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
         $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
         print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
       }
+    } elsif (defined($Incs{$fooi})) {
+      if ($Incs{$fooi}{'nth'} != 2) {
+        $Issues{'PRIV2'}{'count'}++;
+        $Issues{'PRIV2'}{'lines'} .= "$Incs{$fooi}{'lines'};";
+        print "=> $lines[$Incs{$fooi}{'lines'}-1]\n" if (&verboseArg());
+      }
     }
   } elsif (defined($Incs{$foop})) {
     if ($Incs{$foop}{'nth'} != 1) {
       $Issues{'PRIV1'}{'count'}++;
       $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
       print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
+    }
+  } elsif (defined($Incs{$fooi})) {
+    if ($Incs{$fooi}{'nth'} != 1) {
+      $Issues{'PRIV1'}{'count'}++;
+      $Issues{'PRIV1'}{'lines'} .= "$Incs{$fooi}{'lines'};";
+      print "=> $lines[$Incs{$fooi}{'lines'}-1]\n" if (&verboseArg());
     }
   }
 }
@@ -364,13 +390,13 @@ sub initIssues() {
   $Issues{'OWN1'}{'count'} = 0;
   $Issues{'OWN1'}{'lines'} = '';
 
-  $Issues{'PRIV2'}{'issue'} = "include own _p header second";
-  $Issues{'PRIV2'}{'explain'} = "foo.cpp should include its own header foo.h first, followed by its private header foo_p.h second";
+  $Issues{'PRIV2'}{'issue'} = "include own _p or impl header second";
+  $Issues{'PRIV2'}{'explain'} = "foo.cpp should include its own header foo.h first, followed by its private header foo_p.h or fooimpl.h second";
   $Issues{'PRIV2'}{'count'} = 0;
   $Issues{'PRIV2'}{'lines'} = '';
 
-  $Issues{'PRIV1'}{'issue'} = "include own _p header first";
-  $Issues{'PRIV1'}{'explain'} = "foo.cpp should include its own private header foo_p.h first if there is no foo.h header";
+  $Issues{'PRIV1'}{'issue'} = "include own _p or impl header first";
+  $Issues{'PRIV1'}{'explain'} = "foo.cpp should include its own private header foo_p.h or fooimplh first if there is no foo.h header";
   $Issues{'PRIV1'}{'count'} = 0;
   $Issues{'PRIV1'}{'lines'} = '';
 
