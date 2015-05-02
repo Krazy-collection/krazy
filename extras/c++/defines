@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2008,2011 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2008,2011,2015 by Allen Winter <winter@kde.org>               #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -22,7 +22,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #                                                                             #
 ###############################################################################
 
-# Tests KDE source for incorrect use of cpp defines
+# Tests C/C++ source for unrecommended use of define statements.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "defines";
-my($Version) = "1.10";
+my($Version) = "1.20";
 
 &parseArgs();
 
@@ -56,7 +56,7 @@ if ($#ARGV != 0){ &Help(); Exit 0; }
 my($f) = $ARGV[0];
 
 #open file and slurp it in
-if ($f =~ m/\.(?:cpp|cc|cxx|C|tcc)$/) {
+if (&fileType($f) eq "c++") {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
@@ -90,15 +90,15 @@ foreach $line (@lines) {
     ($key,$val) = split(' ',$pline);
     if (defined($key) && defined($val) && $val =~ m/^[[:digit:]]/) {
       next if ($key =~ m/HAVE_/ || $key =~ m/YY_/ || $key =~ m/GNU_/ ||
-	       $key =~ m/DEBUG/ || $key =~ m/DBG/);
+               $key =~ m/DEBUG/ || $key =~ m/DBG/);
       next if ($key =~ m/\(.*\)/); # skip macros
       next if ($val =~ m/^0[xX]/); # skip hex
       next if ($val =~ m/^[0-9]$/); # skip single digit ints
       $cnt++;
       if ($cnt == 1) {
-	$lstr = "line\#" . $linecnt;
+        $lstr = "line\#" . $linecnt;
       } else {
-	$lstr = $lstr . "," . $linecnt;
+        $lstr = $lstr . "," . $linecnt;
       }
       print "=> $line\n" if (&verboseArg());
     }

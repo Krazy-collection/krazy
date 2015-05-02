@@ -57,7 +57,7 @@ if ($#ARGV != 0){ &Help(); Exit 0; }
 my($f) = $ARGV[0];
 
 # open file and slurp it in (C++ only)
-if (fileTypeIs($f, "c++")) {
+if (&fileTypeIs($f, "c++")) {
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
@@ -110,11 +110,11 @@ while ($linecnt < $#lines) {
     next if ($incpath =~ m/version/);
     next if ($incpath eq "kdemacros.h" || $incpath eq "fixx11h.h");
     next if ($incpath eq "qglobal.h" ||
-	     $incpath eq "qwindowdefs.h" ||
-	     $incpath eq "qmath.h" ||
-	     $incpath eq "qopengl.h" ||
-	     $incpath eq "qqmldebug.h" ||
-	     $incpath eq "qcompilerdetection.h");
+             $incpath eq "qwindowdefs.h" ||
+             $incpath eq "qmath.h" ||
+             $incpath eq "qopengl.h" ||
+             $incpath eq "qqmldebug.h" ||
+             $incpath eq "qcompilerdetection.h");
     next if ($incpath eq "kvm.h" ||
              $incpath eq "pwd.h" ||
              $incpath eq "dlfcn.h" ||
