@@ -44,7 +44,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "copyright";
-my($Version) = "1.68";
+my($Version) = "1.69";
 
 &parseArgs();
 
@@ -133,6 +133,7 @@ while ($line = <F>) {
   next if ($line =~ m/Open Group/i);
   next if ($line =~ m/Netscape/i);
   next if ($line =~ m/Nokia/i);
+  next if ($line =~ m/Novell, Inc/i);
   next if ($line =~ m/Tridia Corporation/i);
   next if ($line =~ m/AT\&T Laboratories/i);
   next if ($line =~ m/X Consortium/i);
