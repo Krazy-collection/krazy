@@ -52,7 +52,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.50";
+my($Version) = "1.51";
 
 &parseArgs();
 
@@ -619,13 +619,15 @@ foreach $line (@lines) {
   }
 
   if ($line =~ m/^\s*\w+\s*$/ && $lline !~ m/,$/ && $line !~ m/^\s*Q_OBJECT\s*$/ && $line !~ m/^\s*else\s*$/) {
-    $Issues{'BAREWORD'}{'count'}++;
-    if ($Issues{'BAREWORD'}{'count'} == 1) {
-      $Issues{'BAREWORD'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'BAREWORD'}{'lines'} .= "," . $linecnt;
+    if (!($line =~ m/^\s*(union|struct|class|namespace)\s*$/ && $lines[$linecnt] =~ m/^\s*{\s*$/)) {
+      $Issues{'BAREWORD'}{'count'}++;
+      if ($Issues{'BAREWORD'}{'count'} == 1) {
+        $Issues{'BAREWORD'}{'lines'} = "line\#" . $linecnt;
+      } else {
+        $Issues{'BAREWORD'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (bareword encountered) => $line\n" if (&verboseArg());
     }
-    print "$linecnt (bareword encountered) => $line\n" if (&verboseArg());
   }
 
   if ($line =~ m/^\s*\w+\s[\*]+\s*$/) {
