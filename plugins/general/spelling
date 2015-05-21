@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.87";
+my($Version) = "1.88";
 
 &parseArgs();
 
@@ -125,15 +125,15 @@ sub check_file
             );
 
     next if (fileType($filename) eq "desktop" &&
-	     ($original =~ m+^Comment\[.*\]+ ||
-	      $original =~ m+^Keywords\[.*\]+ ||
-	      $original =~ m+^X-KDE-Keywords\[.*\]+ ||
-	      $original =~ m+^Name\[.*\]+ ||
-	      $original =~ m+^Description\[.*\]+ ||
-	      $original =~ m+^GenericName\[.*\]+));
+             ($original =~ m+^Comment\[.*\]+ ||
+              $original =~ m+^Keywords\[.*\]+ ||
+              $original =~ m+^X-KDE-Keywords\[.*\]+ ||
+              $original =~ m+^Name\[.*\]+ ||
+              $original =~ m+^Description\[.*\]+ ||
+              $original =~ m+^GenericName\[.*\]+));
 
     next if (fileType($filename) eq "c++" &&
-	     ($original =~ m/^\s*#\s*include/));;
+             ($original =~ m/^\s*#\s*include/));;
 
     next if ($original =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
@@ -610,6 +610,7 @@ controll               control
 controlls              controls
 conver                 convert
 convers                converts
+convienience           convenience
 convient               convenient
 conviently             conveniently
 convinience            convenience
@@ -1018,6 +1019,7 @@ heigths                heights
 hiddden                hidden
 hierachical            hierarchical
 hierachically          hierarchically
+higer                  higher
 highlighlight          highlight
 highlighlighted        highlighted
 highligting            highlighting
@@ -1056,6 +1058,7 @@ implimentions          implementations
 implmentation          implementation
 implmentations         implementations
 inactiv                inactive
+incement               increment
 incldue                include
 incldued               included
 incldues               includes
@@ -1616,6 +1619,7 @@ rewritebles            rewritables
 richt                  right
 rigths                 rights
 rigt                   right
+routiens               routines
 saftey                 safety
 satified               satisfied
 savely                 safely
