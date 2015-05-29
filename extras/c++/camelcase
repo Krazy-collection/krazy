@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.53";
+my($Version) = "1.54";
 
 &parseArgs();
 
@@ -121,6 +121,7 @@ while ($linecnt < $#lines) {
              $incpath eq "windows.h" ||
              $incpath eq "wincrypt.h" ||
              $incpath eq "inttypes.h" ||
+             $incpath eq "jni.h" ||
              $incpath eq "getopt.h" ||
              $incpath eq "elf.h" ||
              $incpath eq "execinfo.h" ||
