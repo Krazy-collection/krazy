@@ -132,6 +132,7 @@ while ($line = <F>) {
   next if ($line =~ m/SUSE Linux/i);
   next if ($line =~ m/Open Group/i);
   next if ($line =~ m/Netscape/i);
+  next if ($line =~ m/NLNet Labs/i);
   next if ($line =~ m/Nokia/i);
   next if ($line =~ m/Novell, Inc/i);
   next if ($line =~ m/Tridia Corporation/i);
