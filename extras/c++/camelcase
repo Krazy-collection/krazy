@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.54";
+my($Version) = "1.55";
 
 &parseArgs();
 
@@ -97,7 +97,7 @@ while ($linecnt < $#lines) {
       $incpath = &incAnglePath($line);
     }
     next if ($sep eq "\"");
-    next if ($incpath =~ m:^(lib|kd)\w+/:);
+#    next if ($incpath =~ m:^(lib|kd)\w+/:);
     next if ($incpath =~ m:^(phonon|boost|grantlee|kolab|qgpgme|gpgme\+\+)/:);
     next if (&isCamelCase($incpath));
     next if ($sep eq "<" && $incpath =~ m/^(c|io)/ && $incpath !~ m/\.h$/);
@@ -112,6 +112,7 @@ while ($linecnt < $#lines) {
     next if ($incpath eq "qglobal.h" ||
              $incpath eq "qwindowdefs.h" ||
              $incpath eq "qmath.h" ||
+             $incpath eq "qendian.h" ||
              $incpath eq "qopengl.h" ||
              $incpath eq "qqmldebug.h" ||
              $incpath eq "qcompilerdetection.h");
