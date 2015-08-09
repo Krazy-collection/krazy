@@ -545,6 +545,9 @@ sub doIt {
     if ($module eq "applications" && $subdir eq "konsole") {
       $checkset = "kde5";
     }
+    if ($module eq "kdeedu" && $subdir eq "kanagram") {
+      $checkset = "kde5";
+    }
     if ($module =~ m/^kdepim/) {
       $checkset = "kde5";
     }
@@ -566,7 +569,7 @@ sub doIt {
     return;
   }
 
-  # Translate the xml report to ebn website 
+  # Translate the xml report to ebn website
   # NOTE: This is imo a temporary solution. As soon as we store the results in
   #       the database in a fine grained enough manner, we can change te ebn site
   #       to be a php only site and not a mixture of php and krazy generated pages.
