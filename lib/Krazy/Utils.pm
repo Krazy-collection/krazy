@@ -25,11 +25,13 @@ use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 use Cwd;
 use Cwd 'abs_path';
 use POSIX qw (setlocale strftime LC_TIME);
+use File::Basename;
+use File::Glob ':bsd_glob';
 use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.20;
+$VERSION = 1.25;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -42,7 +44,10 @@ $VERSION = 1.20;
              outputTypeStr checksetTypeStr
              validateExportType validatePriorityType validateStrictType
              validateOutputType validateCheckSet
-             usingCheckSet usingQtCheckSet usingKDECheckSet);
+             usingCheckSet usingQtCheckSet usingKDECheckSet
+             linesSearchInFile linesCaseSearchInFile
+             allLinesSearchInFile allLinesCaseSearchInFile
+             guessCheckSet);
 @EXPORT_OK = qw();
 
 my(@tmp);
@@ -381,10 +386,10 @@ sub parseArgs {
 
   exit 1
   if (!GetOptions('krazy' => \$krazy, 'help' => \$help, 'version' => \$version,
-		  'priority=s' => \$priority, 'strict=s' => \$strict,
+                  'priority=s' => \$priority, 'strict=s' => \$strict,
                   'check-sets=s' => \$checksets,
-		  'explain' => \$explain, 'installed' => \$installed,
-		  'verbose' => \$verbose, 'quiet' => \$quiet));
+                  'explain' => \$explain, 'installed' => \$installed,
+                  'verbose' => \$verbose, 'quiet' => \$quiet));
 
   if (!$help && !$version && !$explain) {
     if (!$krazy) {
@@ -519,6 +524,195 @@ sub usingKDECheckSet {
     }
   }
   return 0;
+}
+
+#search for any one of the strings in specified file. case matters.
+#returns:
+# the line number (>0) of the first match
+# 0 if there is no match
+# -1 if the file cannot be opened for reading
+sub linesSearchInFile {
+  my($f, @lines) = @_;
+
+  my($cnt) = -1;
+  if (!open(F, "$f")) {
+    &userMessage("Unable to open file \"" . $f . "\"");
+    return $cnt;
+  }
+  $cnt++;
+  while (<F>) {
+    $cnt++;
+    chomp($_);
+    my($l);
+    for $l (@lines) {
+      if ($_ =~ m/$l/) {
+        close(F);
+        return $cnt;
+      }
+    }
+  }
+  close(F);
+  return 0;
+}
+
+#search for any one of the strings in specified file. case is ignored.
+#returns:
+# the line number (>0) of the first match
+# 0 if there is no match
+# -1 if the file cannot be opened for reading
+sub linesCaseSearchInFile {
+  my($f, @lines) = @_;
+
+  my($cnt) = -1;
+  if (!open(F, "$f")) {
+    &userMessage("Unable to open file \"" . $f . "\"");
+    return $cnt;
+  }
+  $cnt++;
+  while (<F>) {
+    $cnt++;
+    chomp($_);
+    my($l);
+    for $l (@lines) {
+      if ($_ =~ m/$l/i) {
+        close(F);
+        return $cnt;
+      }
+    }
+  }
+  close(F);
+  return 0;
+}
+
+#search for all the strings in specifie file. case matters.
+#returns:
+# 1 if all the strings are found in the file
+# 0 if at least 1 string is not found in the file
+# -1 if the file cannot be opened for reading
+sub allLinesSearchInFile {
+  my($f, @lines) = @_;
+
+  if (!open(F, "$f")) {
+    &userMessage("Unable to open file \"" . $f . "\"");
+    return -1;
+  }
+  while (<F>) {
+    chomp($_);
+    my($l);
+    my($offset) = -1;
+    for $l (@lines) {
+      $offset++;
+      if ($_ =~ m/$l/) {
+        splice(@lines, $offset, 1);
+      }
+    }
+    if ($#lines < 0) {
+      last;
+    }
+  }
+  close(F);
+  if($#lines == -1) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+#search for all the strings in specifie file. case is ignored.
+#returns:
+# 1 if all the strings are found in the file
+# 0 if at least 1 string is not found in the file
+# -1 if the file cannot be opened for reading
+sub allLinesCaseSearchInFile {
+  my($f, @lines) = @_;
+
+  if (!open(F, "$f")) {
+    &userMessage("Unable to open file \"" . $f . "\"");
+    return -1;
+  }
+  while (<F>) {
+    chomp($_);
+    my($l);
+    my($offset) = -1;
+    for $l (@lines) {
+      $offset++;
+      if ($_ =~ m/$l/i) {
+        splice(@lines, $offset, 1);
+      }
+    }
+    if ($#lines < 0) {
+      last;
+    }
+  }
+  close(F);
+  if($#lines == -1) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+#make a best guess at the checkset to use for the specified project
+sub guessCheckSet {
+  my($in) = @_;    # dir to process
+
+  #default checkset
+  my($checkset) = '';
+
+  my($project) = &basename($in);
+
+  my($cmakepath) = $in . "/CMakeLists.txt";
+  my($qmakepath) = $in . "/" . $project . ".pro";
+  my($autopath) = $in . "/autogen.py";
+  my(@fosspaths) = ($in . "/COPYING",
+                    $in . "/License.txt",
+                    $in . "/LICENSE.GPL.txt",
+                    $in . "/LICENSE");
+
+  #CMake buildsystems
+  if (-e $cmakepath) {
+    if (&allLinesCaseSearchInFile($cmakepath,
+                                  ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KF5")) > 0) {
+      $checkset = "kde5";
+    } elsif (&allLinesCaseSearchInFile($cmakepath,
+                                       ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KDE4")) > 0) {
+      $checkset = "kde4";
+    } elsif (&allLinesCaseSearchInFile($cmakepath,
+                                       ("find_package\\s*\\(\\s*Qt5")) > 0) {
+      $checkset = "qt5";
+    } elsif (&allLinesCaseSearchInFile($cmakepath,
+                                       ("find_package\\s*\\(\\s*Qt4")) > 0) {
+      $checkset = "qt4";
+    } elsif (&allLinesCaseSearchInFile($cmakepath,
+                                       ("project\\s*\\(.*CXX")) > 0) {
+      $checkset = "c++";
+    }
+  } elsif (-e $qmakepath) {
+    $checkset = "qt5";
+  } elsif (bsd_glob($in . "/*.pro")) {
+    $checkset = "qt5";
+  } elsif (-e $autopath) {
+    $checkset = "qt5";
+  }
+
+  my($p);
+  my($fcheckset) = '';
+  for $p (@fosspaths) {
+    if (-e $p) {
+      if (&allLinesCaseSearchInFile($p,
+                                    ("GNU GENERAL PUBLIC LICENSE")) > 0) {
+        $fcheckset = "foss";
+        last;
+      }
+    }
+  }
+
+  if ($checkset ne "") {
+    $checkset = join(',', $checkset, $fcheckset) if ($fcheckset ne "");
+  } elsif ($fcheckset ne "") {
+    $checkset = $fcheckset;
+  }
+  return $checkset;
 }
 
 1;

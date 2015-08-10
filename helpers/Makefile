@@ -18,7 +18,8 @@
 
 # list of all helpers to install
 HELPERS = \
-getInstalledHeaders.pl
+getInstalledHeaders.pl \
+krazyprojecttype.pl \
 
 #default installation location
 PREFIX=/usr/local
@@ -39,4 +40,3 @@ clean:
 	@echo "Nothing to clean"
 
 realclean: clean
-
