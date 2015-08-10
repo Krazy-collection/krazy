@@ -665,6 +665,7 @@ sub guessCheckSet {
   my($qmakepath) = $in . "/" . $project . ".pro";
   my($autopath) = $in . "/autogen.py";
   my(@fosspaths) = ($in . "/COPYING",
+                    $in . "/COPYING.LIB",
                     $in . "/License.txt",
                     $in . "/LICENSE.GPL.txt",
                     $in . "/LICENSE");
