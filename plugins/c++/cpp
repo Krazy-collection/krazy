@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.62";
+my($Version) = "1.63";
 
 &parseArgs();
 
@@ -558,6 +558,11 @@ sub Explain {
   Exit 0 if &explainArg();
 }
 
+#Date:   Tue May 26 12:06:53 2009 +0000
+#Author: winterz <winterz@283d02a7-25f6-0310-bc7c-ecb5cbfe19da>
+#no longer check for Q_OS_* or Q_CC_* because they are almost always correct
+#and having krazy exclude directives all over the place is ugly.
+
 sub osMacros() {
   my($l,$lp1) = @_;
 
@@ -571,6 +576,7 @@ sub osMacros() {
           $have =~ m/USE_FREEBSD/ ||
           ($have =~ m/WIN32/ && $have !~ m/Q_OS_WIN32/) ||
           ($have =~ m/WIN64/ && $have !~ m/Q_OS_WIN64/) ||
+          $have =~ m/Q_OS_WINDOWS/ || #common mistake, should be Q_OS_WIN (requested by Sergio, 9/2/15)
           $have =~ m/__APPLE__/ ||
           $have =~ m/__svr4__/ ||
           $have =~ m/__SVR4/ ||
