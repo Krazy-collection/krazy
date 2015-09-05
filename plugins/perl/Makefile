@@ -24,6 +24,7 @@ PLUGINS = \
 PLUGINLNS = \
 copyright \
 endswithnewline \
+filenames \
 license \
 spelling \
 

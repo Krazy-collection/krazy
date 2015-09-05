@@ -1,6 +1,6 @@
 # krazy plugins/desktop Makefile
 #
-# Copyright 2007-2008 by Allen Winter <winter@kde.org>
+# Copyright 2007-2008,2015 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ PLUGINS = validate \
 PLUGINLNS = \
 iconnames \
 endswithnewline \
+filenames \
 spelling \
 
 #default installation location

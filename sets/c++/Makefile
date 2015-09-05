@@ -23,11 +23,14 @@ CPP_PLUGINS = \
 constref \
 cpp \
 dpointer \
+endswithnewline \
 explicit \
+filenames \
 includes \
 inline \
 operators \
 postfixop \
+spelling \
 staticobjects \
 
 #default installation location

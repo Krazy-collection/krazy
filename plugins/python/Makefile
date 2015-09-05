@@ -1,6 +1,6 @@
 # krazy plugins/python Makefile
 #
-# Copyright 2013 by Allen Winter <winter@kde.org>
+# Copyright 2013,2015 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ qtemits \
 PLUGINLNS = \
 copyright \
 endswithnewline \
+filenames \
 license \
 spelling \
 

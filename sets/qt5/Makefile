@@ -27,6 +27,7 @@ dpointer \
 emptystrcompare \
 endswithnewline \
 explicit \
+filenames \
 foreach \
 includes \
 inline \

@@ -1,6 +1,6 @@
 # krazy plugins/kconfigxt Makefile
 #
-# Copyright 2007 by Allen Winter <winter@kde.org>
+# Copyright 2007,2015 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ validate \
 # links to general purpose plugins
 PLUGINLNS = \
 endswithnewline \
+filenames \
 i18ncheckarg \
 spelling
 

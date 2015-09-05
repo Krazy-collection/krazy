@@ -28,6 +28,7 @@ dpointer \
 emptystrcompare \
 endswithnewline \
 explicit \
+filenames \
 foreach \
 i18ncheckarg \
 includes \
