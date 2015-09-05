@@ -1,0 +1,151 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2015 Allen Winter <winter@kde.org>                            #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests for bad filenames (eg, Windows doesn't allow certain filenames)
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --check-sets:    list of checksets
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use File::Basename;
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "filenames";
+my($Version) = "0.1";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); Exit 0; }
+
+my($cnt) = 0;
+#These are reserved filenames under Windows and should not be used:
+#  com[1-9], lpt[1-9], con, nul, and prn
+my($f) = $ARGV[0];
+my($b) = &basename($f);
+if (
+    $b =~ m/^com[[:digit:]]{1}\./i || $b =~ m/^com[[:digit:]]{1}$/i ||
+    $b =~ m/^lpt[[:digit:]]{1}\./i || $b =~ m/^lpt[[:digit:]]{1}$/i ||
+    $b =~ m/^aux\./i || $b =~ m/^aux$/i ||
+    $b =~ m/^nul\./i || $b =~ m/^nul$/i ||
+    $b =~ m/^con\./i || $b =~ m/^con$/i ||
+    $b =~ m/^prn\./i || $b =~ m/^prn$/i
+   ) {
+
+  print "=> $b is a reserved Windows filename\n" if (&verboseArg());
+  print "Windows reserved name\n" if (!&quietArg());
+  Exit 1;
+}
+
+#Check for control chars in filenames
+if ($b =~ m/[\000-\037]\]/) {
+  print "=> $b contains an control character\n" if (&verboseArg());
+  print "contains control character\n" if (!&quietArg());
+  Exit 1;
+}
+
+#Check for illegal chars in filenames
+if ($b =~ m+(\/)+ || #Windows with NTFS
+    $b =~ m+(\?)+ || #Windows with NTFS
+    $b =~ m+(\<)+ || #Windows with NTFS
+    $b =~ m+(\>)+ || #Windows with NTFS
+    $b =~ m+(\\)+ || #Windows with NTFS
+    $b =~ m+(\:)+ || #Windows with NTFS, OSX
+    $b =~ m+(\*)+ || #Windows with NTFS
+    $b =~ m+(\|)+ || #Windows with NTFS
+    $b =~ m+(\^)+    #Windows with FAT
+  ) {
+  print "=> $b contains an illegal character ($1) on some operating systems\n" if (&verboseArg());
+  print "illegal character [$1]\n" if (!&quietArg());
+  Exit 1;
+}
+
+#On Windows you can't have a file with length longer than 255 (FAT) or 256 (NTFS)
+#well, you can if you use the Unicode API, but we need to cover all bases here.
+#OSX also limits filenames to 255 chars in length
+if (length($b) > 255) {
+  print "=> $b longer than 255 chars\n" if (&verboseArg());
+  print "filename is too long\n" if (!&quietArg());
+  Exit 1;
+}
+
+#On Mac, you don't want to start filenames with a '.'
+if ($b =~ m/^\./) {
+  print "=> $b starts with a dot\n" if (&verboseArg());
+  print "filename starts with a dot\n" if (!&quietArg());
+  Exit 1;
+}
+
+#On Unix, the '-' is used a lot with command line switches, so avoid it
+if ($b =~ m/^-/) {
+  print "=> $b starts with a dash\n" if (&verboseArg());
+  print "filename starts with a dash\n" if (!&quietArg());
+  Exit 1;
+}
+
+#On Windows, don't end the name with a '.' or space
+if ($b =~ m/\.$/) {
+  print "=> $b ends with a dot\n" if (&verboseArg());
+  print "filename ends with a dot\n" if (!&quietArg());
+  Exit 1;
+}
+if ($b =~ m/\s+$/) {
+  print "=> $b ends with whitespace\n" if (&verboseArg());
+  print "filename ends with whitespace\n" if (!&quietArg());
+  Exit 1;
+}
+
+print "okay\n" if (!&quietArg());
+Exit 0;
+
+sub Help {
+  print "Check for problems with filenames\n";
+  Exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  Exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Operating systems reserve filenames or prohibit characters that can be used in filenames, or the filename length.  To help with portability, this checker warns about any such know limitation.  See <http://stackoverflow.com/questions/122400/what-are-reserved-filenames-for-various-platforms>\n";
+  Exit 0 if &explainArg();
+}
