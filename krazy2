@@ -117,7 +117,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.990';    #split line so MakeMaker can find the version here
+ $VERSION = '2.991';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -784,6 +784,7 @@ for $ftype (@types) {
         $absfh  =~ s/\.cxx$/\.hxx/;
         $absfh  =~ s/\.C$/\.H/;
         $dirf   = dirname($absf);
+        $dirf   =~ s/ /\\ /g;
         open( INS, "$insp $dirf |" ) or print STDERR "Cannot run: $insp\n";
         while (<INS>) {
           chomp($_);
