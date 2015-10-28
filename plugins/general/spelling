@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.89";
+my($Version) = "1.90";
 
 &parseArgs();
 
@@ -843,6 +843,7 @@ emited                 emitted
 emticon                emoticon
 emtiness               emptiness
 emty                   empty
+emultate               emulate
 encyption              encryption
 enhandcement           enhancement
 enhandcements          enhancements
