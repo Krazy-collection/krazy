@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.90";
+my($Version) = "1.901";
 
 &parseArgs();
 
@@ -669,8 +669,8 @@ deamons                daemons
 debuging               debugging
 declar                 declare
 declars                declares
-declaration            delaraction
-declarations           delaractions
+delaraction            declaration
+delaractions           declarations
 decriptor              descriptor
 decriptors             descriptors
 defaul                 default
