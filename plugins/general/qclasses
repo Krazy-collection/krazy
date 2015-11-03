@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.27";
+my($Version) = "1.28";
 
 &parseArgs();
 
@@ -88,7 +88,7 @@ while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
   if ($filetype eq "c++") {
     if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-	$line =~ m+//.*[Kk]razy:skip+) {
+        $line =~ m+//.*[Kk]razy:skip+) {
       $cnt = 0;
       last;
     }
@@ -112,6 +112,7 @@ while ($linecnt < $#lines) {
     &doIt($line,"QTabWidget","KTabWidget",'');
     &doIt($line,"QTextBrowser","KTextBrowser",'');
     &doIt($line,"QUrl","KUrl",'');
+    &doIt($line,"QLineEdit","KLineEdit",'');
   }
 
   # These Qt4/5 classes should be avoided in KDE4 and KDE5
@@ -124,7 +125,6 @@ while ($linecnt < $#lines) {
     &doIt($line,"QComboBox","KComboBox",'');
   }
   &doIt($line,"QMessageBox","KMessageBox",'');
-  &doIt($line,"QLineEdit","KLineEdit",'');
   &doIt($line,"QTextEdit","KTextEdit",'');
 }
 
@@ -150,10 +150,10 @@ sub qClass() {
 
   if ($filetype eq "c++") {
     if ($l =~ m/new\s+$qname\s*\(/ ||
-	$l =~ m/[\s=,]+$qname\::[[:alnum:]]+[[:space:]]*[\w\(\)\;]/ ||
-	$l =~ m/$qname[[:space:]]*\*[[:space:]]*[[:alnum:]]+/ ||
-	$l =~ m/[:,]\s*public\s+$qname/ ||
-	(($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/) && ($l !~ m/==/ && $l !~ m/\!=/))) {
+        $l =~ m/[\s=,]+$qname\::[[:alnum:]]+[[:space:]]*[\w\(\)\;]/ ||
+        $l =~ m/$qname[[:space:]]*\*[[:space:]]*[[:alnum:]]+/ ||
+        $l =~ m/[:,]\s*public\s+$qname/ ||
+        (($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/) && ($l !~ m/==/ && $l !~ m/\!=/))) {
       return 0 if ($nregexp ne "" && $l =~ m/$nregexp/);
       return 0 if ($l =~ m/(foreach|Q_FOREACH)\s*\(\s*$qname/);
       return 1 if (!&whiteList($l));
