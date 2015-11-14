@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.25;
+$VERSION = 1.26;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -46,7 +46,7 @@ $VERSION = 1.25;
              validateOutputType validateCheckSet
              usingCheckSet usingQtCheckSet usingKDECheckSet
              linesSearchInFile linesCaseSearchInFile
-             allLinesSearchInFile allLinesCaseSearchInFile
+             allLinesCaseSearchInFile
              guessCheckSet);
 @EXPORT_OK = qw();
 
@@ -555,7 +555,8 @@ sub linesSearchInFile {
   return 0;
 }
 
-#search for any one of the strings in specified file. case is ignored.
+#search for any one of the strings in specified CMakeLists.txt file.
+# case is ignored. lines with leading whitespace are merged onto previous line
 #returns:
 # the line number (>0) of the first match
 # 0 if there is no match
@@ -584,40 +585,6 @@ sub linesCaseSearchInFile {
   return 0;
 }
 
-#search for all the strings in specifie file. case matters.
-#returns:
-# 1 if all the strings are found in the file
-# 0 if at least 1 string is not found in the file
-# -1 if the file cannot be opened for reading
-sub allLinesSearchInFile {
-  my($f, @lines) = @_;
-
-  if (!open(F, "$f")) {
-    &userMessage("Unable to open file \"" . $f . "\"");
-    return -1;
-  }
-  while (<F>) {
-    chomp($_);
-    my($l);
-    my($offset) = -1;
-    for $l (@lines) {
-      $offset++;
-      if ($_ =~ m/$l/) {
-        splice(@lines, $offset, 1);
-      }
-    }
-    if ($#lines < 0) {
-      last;
-    }
-  }
-  close(F);
-  if($#lines == -1) {
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
 #search for all the strings in specifie file. case is ignored.
 #returns:
 # 1 if all the strings are found in the file
@@ -630,13 +597,27 @@ sub allLinesCaseSearchInFile {
     &userMessage("Unable to open file \"" . $f . "\"");
     return -1;
   }
-  while (<F>) {
-    chomp($_);
+
+  my($outLines);
+  while (my $line = <F>) {
+    chomp($line);
+
+    # squeeze the spaces from start of line
+    if (!($line =~ s/^\s+/ /)) {
+      # add newline (not for first line)
+      $outLines = $outLines . "\n" if $. != 1;
+    }
+    $outLines = $outLines . $line;
+  }
+  close(F);
+
+  for my $sqLine (split('\n', $outLines)) {
+    chomp($sqLine);
     my($l);
     my($offset) = -1;
     for $l (@lines) {
       $offset++;
-      if ($_ =~ m/$l/i) {
+      if ($sqLine =~ m/$l/i) {
         splice(@lines, $offset, 1);
       }
     }
@@ -644,7 +625,7 @@ sub allLinesCaseSearchInFile {
       last;
     }
   }
-  close(F);
+
   if($#lines == -1) {
     return 1;
   } else {
