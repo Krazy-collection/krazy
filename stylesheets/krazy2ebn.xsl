@@ -5,19 +5,19 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns="http://www.w3.org/1999/xhtml">
-  
+
   <xsl:import href="functions.xsl" />
   <xsl:import href="globalvars.xsl" />
-  
+
   <xsl:param name="component" as="xsd:string"/>
   <xsl:param name="module" as="xsd:string"/>
   <xsl:param name="submodule" as="xsd:string" />
 
   <xsl:output doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"
               doctype-system="DTD/xhtml1-transitional.dtd"
-              encoding="UTF-8" 
+              encoding="UTF-8"
               indent="yes"
-              method="xhtml" 
+              method="xhtml"
               omit-xml-declaration="yes"
               version="1.0" />
 
@@ -65,6 +65,9 @@
         <xsl:when test="$lexerComponent eq ''" >
           <xsl:value-of select="$module" />
         </xsl:when>
+        <xsl:when test="matches($module, 'frameworks5')">
+          <xsl:value-of select="$lexerComponent" />
+        </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="concat($lexerComponent, '/', $lexerModule)" />
         </xsl:otherwise>
@@ -76,18 +79,18 @@
         <xsl:value-of select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file)" />
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of 
+        <xsl:value-of
           select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file, '#', $line)" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
-  
+
   <xsl:template name="file">
     <xsl:variable name="lxrlink" select="ebn:createLexerLink(@name, -1)" />
     <xsl:variable name="filename" select="@name" />
     <xsl:variable name="count" select="count(issues/line)" />
-    
-    <li><a href="{$lxrlink}"><xsl:value-of select="@name"/></a>: 
+
+    <li><a href="{$lxrlink}"><xsl:value-of select="@name"/></a>:
       <xsl:choose>
         <xsl:when test="issues/line[1] eq '-1'">
           <xsl:value-of select="message" />
@@ -104,11 +107,11 @@
       </xsl:choose>
     </li>
   </xsl:template>
-  
+
   <xsl:template name="check">
     <xsl:param name="fileType" as="xsd:string" />
     <xsl:variable name="issueCount" as="xsd:integer" select="ebn:issueCount($fileType, @desc)" />
-    
+
     <li>
       <span class="toolmsg">
         <xsl:choose>
@@ -134,7 +137,7 @@
       </xsl:if>
     </li>
   </xsl:template>
-  
+
   <xsl:template name="file-type" >
     <xsl:variable name="fileType" select="@value" />
     <li>
@@ -148,13 +151,13 @@
       </ol>
     </li>
   </xsl:template>
-  
+
   <xsl:template match="file-types" mode="krazy2ebn" >
     <xsl:for-each select="file-type">
       <xsl:call-template name="file-type"/>
     </xsl:for-each>
   </xsl:template>
-  
+
   <xsl:template match="global" mode="krazy2ebn" >
     <h1>Krazy2 Analysis of
     <xsl:value-of select="$module" />/<xsl:value-of select="$submodule" />
@@ -163,15 +166,15 @@
     <p>Checksets = <xsl:value-of select="ebn:checkSets()" /><br />
     Checkers Run = <xsl:value-of select="ebn:checkerCount('all')" /><br />
     Files Processed = <xsl:value-of select="ebn:processedFilesCount()" /><br />
-    Total Issues = <xsl:value-of select="ebn:issueCount('all','all')" /> 
+    Total Issues = <xsl:value-of select="ebn:issueCount('all','all')" />
     ...as of <xsl:value-of select="ebn:dateOfRun()" /></p>
   </xsl:template>
-  
+
   <xsl:template match="/tool-result" mode="krazy2ebn">
     <html xml:lang="en" lang="en">
       <head>
         <title>krazy2 Analysis</title>
-        <link rel="stylesheet" type="text/css" title="Normal" 
+        <link rel="stylesheet" type="text/css" title="Normal"
           href="http://ebn.kde.org/style.css" />
       </head>
       <body>
@@ -206,7 +209,7 @@
       </body>
      </html>
   </xsl:template>
-  
+
 </xsl:stylesheet>
 
 <!-- kate:space-indent on; -->
