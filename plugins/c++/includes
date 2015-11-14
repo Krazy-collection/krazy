@@ -42,6 +42,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #   --version:       print one-line version information and exit
 #   --priority:      report issues of the specified priority only
 #   --strict:        report issues with the specified strictness level only
+#   --check-sets:    list of checksets
 #   --explain:       print an explanation with solving instructions
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
@@ -60,7 +61,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.95";
+my($Version) = "1.96";
 
 &parseArgs();
 
@@ -229,6 +230,15 @@ foreach $inc (keys %Incs) {
     $Issues{'DONT'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
     print "=> $line\n" if (&verboseArg());
   }
+
+  #after KDE4 it was decided to discourage <QtModule/QtClass> in all files
+  if (&usingKDECheckSet() && !&usingCheckSet("kde4")) {
+    if ($inc =~ m:^Qt[a-zA-Z0-9]+/:) {
+      $Issues{'QINC'}{'count'}++;
+      $Issues{'QINC'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
+      print "=> $line\n" if (&verboseArg());
+    }
+  }
 }
 
 # check for include positions within a .cpp file
@@ -364,6 +374,11 @@ sub initIssues() {
   $Issues{'KINC'}{'explain'} = "Installed headers must include KClass forwarding headers ithe form <KDE/KClass>";
   $Issues{'KINC'}{'count'} = 0;
   $Issues{'KINC'}{'lines'} = '';
+
+  $Issues{'QINC'}{'issue'} = "do not include QtModule/QtClass";
+  $Issues{'QINC'}{'explain'} = "Use include <QtClass> instead of <QtModule/QtClass>";
+  $Issues{'QINC'}{'count'} = 0;
+  $Issues{'QINC'}{'lines'} = '';
 
   $Issues{'QMOD'}{'issue'} = "do not include QtModules";
   $Issues{'QMOD'}{'explain'} = "Do not include QtModules";
