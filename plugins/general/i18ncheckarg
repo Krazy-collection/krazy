@@ -28,6 +28,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
+#   --check-sets:    list of checksets
 #   --explain:       print an explanation with solving instructions, then exit
 #   --installed      file is to be installed
 #   --quiet:         suppress all output messages
@@ -61,11 +62,12 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "i18ncheckarg";
-my($Version) = "1.1";
+my($Version) = "1.2";
 
 my($krazy) = ''; #swallowed
 my($help) = '';
 my($version) = '';
+my($checksets) = '';
 my($explain) = '';
 my($installed) = '';
 my($quiet) = '';
@@ -80,10 +82,11 @@ my($strict) = 'all';
 
 exit 1
 if (!GetOptions('krazy' => \$krazy, 'help' => \$help, 'version' => \$version,
+                'priority=s' => \$priority, 'strict=s' => \$strict,
+                'check-sets=s' => \$checksets,
                 'explain' => \$explain, 'installed' => \$installed,
                 'verbose' => \$verbose, 'quiet' => \$quiet,
-                'allsources' => \$allsources, 'ctxmark' => \$ctxmark,
-                'priority=s' => \$priority, 'strict=s' => \$strict));
+                'allsources' => \$allsources, 'ctxmark' => \$ctxmark));
 
 &Help() if $help;
 &Version() if $version;
@@ -102,7 +105,7 @@ my $kuit_th = 0.25;
 
 # Problems containing this string will not be reported if KUIT threshold
 # is not reached.
-my $OTH = "~OTH~"; 
+my $OTH = "~OTH~";
 
 # Some global state variables:
 # those with g_ are global per file, reset on each new file;
