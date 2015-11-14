@@ -325,8 +325,9 @@ if ($hasdb) {
 sub gitRev {
   my($rev)="";
   my ($dir) = @_;
-  if (-e $dir && -e "$dir/.git") {
-    $rev=`cd $dir; git rev-parse --short HEAD`;
+  if (chdir($dir)) {
+    $rev=`git rev-parse --short HEAD 2>/dev/null`;
+    $rev = "" if ($? != 0);
   }
   chomp($rev);
   return $rev;
