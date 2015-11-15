@@ -28,7 +28,7 @@ Remove the specified plugins from the default set of checkers.
 =item CHECK plugin1[,plugin2,...]
 
 Run only the specified list of plugins from the default set of checkers.
-You may not combine this with the CHECKSET directive nor with the B<--check-sets> 
+You may not combine this with the CHECKSET directive nor with the B<--check-sets>
 command line option.
 
 I<Note>: the CHECK directive takes precedence over the EXCLUDE directive;
@@ -38,7 +38,7 @@ they are also specified in an EXCLUDE directive.
 =item CHECKSETS set1[,set2,...]
 
 Run the checker programs belonging to the specified set(s) only.
-You may not combine this with the CHECK directive nor with the B<--check> 
+You may not combine this with the CHECK directive nor with the B<--check>
 command line option.
 
 =item EXTRA plugin1[,plugin2,...]
@@ -58,7 +58,7 @@ Do NOT check the specified file type(s).
 Do not process any file that maches the specified perl regular expression.
 See the perlreref(1) man page for a description of how to write
 a perl regular expression.
- 
+
 =item PRIORITY priority
 
 Set the priority value. Must be one of "low", "normal", "high", "important", "all".
@@ -162,7 +162,7 @@ the top level of a KDE component.
 
 =head1 COPYRIGHT
 
-Copyright 2005-2010 by Allen Winter <winter@kde.org>
+Copyright 2005-2015 by Allen Winter <winter@kde.org>
 
 =head1 SEE ALSO
 
@@ -173,4 +173,3 @@ krazy2(1), krazy2all(1), krazy2xml(1), perlreftut(1)
 Allen Winter, <winter@kde.org>
 
 =cut
-
