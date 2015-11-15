@@ -52,7 +52,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.991';    #split line so MakeMaker can find the version here
+ $VERSION = '2.992';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -515,9 +515,6 @@ sub doIt {
     print "    Processing $cms\n";
   }
 
-  #Git commit
-  my ($rev) = "";
-
   my ($priority) = "";
   $priority = "--priority=$sPriority" if ($sPriority);
 
@@ -533,9 +530,10 @@ sub doIt {
 
   if ( not -d "$in" ) {
     print "Skipping non-existing dir: $in\n";
-    return $rev;
+    return "";
   }
 
+  my ($rev) = "";
   my ($gitrev) = &gitRev($in);
   $rev = "--rev=$gitrev" if ($gitrev);
 
@@ -553,7 +551,7 @@ sub doIt {
 
   # Probably no files to process resulting in an empty (0 byte) result.xml file.
   if (!$dryrun and -z "$out/result.xml") {
-    return $rev;
+    return $gitRev;
   }
 
   # Translate the xml report to ebn website
@@ -582,7 +580,7 @@ sub doIt {
   #$command = "rm $out/result.xml";
   #system($command);
 
-  return $rev;
+  return $gitRev;
 }
 
 sub subdirsFromCMakeList {
