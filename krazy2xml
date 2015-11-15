@@ -551,7 +551,7 @@ sub doIt {
 
   # Probably no files to process resulting in an empty (0 byte) result.xml file.
   if (!$dryrun and -z "$out/result.xml") {
-    return $gitRev;
+    return "";
   }
 
   # Translate the xml report to ebn website
@@ -580,7 +580,7 @@ sub doIt {
   #$command = "rm $out/result.xml";
   #system($command);
 
-  return $gitRev;
+  return $gitrev;
 }
 
 sub subdirsFromCMakeList {
