@@ -79,8 +79,9 @@
         <xsl:value-of select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file)" />
       </xsl:when>
       <xsl:otherwise>
+        <xsl:variable name="fline" select="ebn:formatLineNumber($line)" />
         <xsl:value-of
-          select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file, '#', $line)" />
+          select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file, '#', $fline)" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
