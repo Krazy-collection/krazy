@@ -453,6 +453,7 @@ sub doItForList {
       &myMkdir("$out");
       $checksum = 0;
       $iss      = 0;
+
       if ( &inIgnoreSubs($s) ) {
         print "    Ignoring $comp/$module/$s\n";
         &createIgnorePage( "$out", "$comp/$module/$s" ) if (!$nosaxon);
@@ -467,15 +468,11 @@ sub doItForList {
           system("$command");
 
         }
-        &doIt("$trunk/$comp/$module/$s", "$out", "$comp/$module/$s");
+        $checksum = &doIt("$trunk/$comp/$module/$s", "$out", "$comp/$module/$s");
         if ( -f "$out/index.html" && `grep "Total Issues" $out/index.html` ) {
           (@issues) =
             split( " ", `grep "Total Issues" $out/index.html | head -1` );
           $iss = $issues[3];
-
-          #compute checksum (grep out the date, which changes every run)
-          ($checksum) =
-            split( " ", `grep -v "\.\.\.as of" $out/index.html | $md5` );
         }
       }
       if ($hasdb) {
@@ -488,6 +485,9 @@ sub doItForList {
   }
 }
 
+#do a Krazy run for a specified project.
+# return the project git commit number,
+# if the returned value is empty then either $in isn't a git repo or it doesn't exist.
 sub doIt {
   my (
     $in,     # dir to process
@@ -515,6 +515,9 @@ sub doIt {
     print "    Processing $cms\n";
   }
 
+  #Git commit
+  my ($rev) = "";
+
   my ($priority) = "";
   $priority = "--priority=$sPriority" if ($sPriority);
 
@@ -530,10 +533,9 @@ sub doIt {
 
   if ( not -d "$in" ) {
     print "Skipping non-existing dir: $in\n";
-    return;
+    return $rev;
   }
 
-  my ($rev) = "";
   my ($gitrev) = &gitRev($in);
   $rev = "--rev=$gitrev" if ($gitrev);
 
@@ -551,7 +553,7 @@ sub doIt {
 
   # Probably no files to process resulting in an empty (0 byte) result.xml file.
   if (!$dryrun and -z "$out/result.xml") {
-    return;
+    return $rev;
   }
 
   # Translate the xml report to ebn website
@@ -579,6 +581,8 @@ sub doIt {
   # We're finished, remove the xml file.
   #$command = "rm $out/result.xml";
   #system($command);
+
+  return $rev;
 }
 
 sub subdirsFromCMakeList {
