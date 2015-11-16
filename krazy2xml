@@ -333,6 +333,18 @@ sub gitRev {
   return $rev;
 }
 
+#get the gitRev for the project in the db
+sub gitRevFromDB {
+  my ($cms) = @_;
+  my ($component, $module, $subdir) = split("/", $cms);
+  my ($generation) = &execSql("\"SELECT generation FROM results_krazy WHERE module='$module' AND application='$subdir' order by generation desc limit 1;\"");
+  my($gitRev) = "";
+  if (defined($generation) && $generation) {
+    $gitRev = &execSql("\"SELECT checksum FROM results_krazy WHERE module='$module' AND application='$subdir' AND generation=$generation;\"");
+  }
+  return $gitRev;
+}
+
 #override global settings from component-level directives
 sub mergeComponentSettings {
   my ($rc) = @_;
@@ -536,6 +548,8 @@ sub doIt {
   my ($rev) = "";
   my ($gitrev) = &gitRev($in);
   $rev = "--rev=$gitrev" if ($gitrev);
+
+  my ($checksum) = &gitRevFromDB($cms);
 
   my ($checksets) = "";
   my ($guesssets) = &guessCheckSet($in);
