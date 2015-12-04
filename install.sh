@@ -5,6 +5,9 @@
 #Exit this script if it any subprocess exits non-zero.
 set -e
 
+#save current working dir
+savedir=`pwd`
+
 #bootstrap by checking that the MakeMaker module is installed
 module="ExtUtils::MakeMaker"
 perl -M$module -e 1 2> /dev/null
@@ -209,3 +212,8 @@ if ( test $EBN -eq 1 ) then
   chgrp kde $TOP/lib/krazy2/krazy-sets/*/*
   chmod ug+w $TOP/lib/krazy2/krazy-sets/*/*
 fi
+
+#final cleaning
+cd $savedir
+make -s clean
+rm -f Makefile.old
