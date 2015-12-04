@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.65";
+my($Version) = "1.66";
 
 &parseArgs();
 
@@ -120,6 +120,7 @@ HAVE_DPMSINFO_PROTO
 HAVE_DRAND48
 HAVE_EIGEN
 HAVE_EIGEN3
+HAVE_ELF
 HAVE_ETCPASSWD
 HAVE_EXIV2
 HAVE_FACILE
