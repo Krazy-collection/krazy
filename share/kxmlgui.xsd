@@ -75,7 +75,7 @@
         <xsd:complexType>
             <xsd:attribute name="lineSeparator" default="true" type="xsd:boolean"/>
             <xsd:attribute name="weakSeparator" default="true" type="xsd:boolean"/>
-            <xsd:attribute name="append" default="true" type="identifier"/>
+            <xsd:attribute name="append" type="identifier"/>
             <xsd:attribute name="group" type="identifier"/>
         </xsd:complexType>
     </xsd:element>
@@ -126,7 +126,10 @@
 
                 </xsd:documentation>
             </xsd:annotation>
-            <xsd:extension base="xsd:string"/>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="translationDomain" type="identifier" use="optional" />
+                <xsd:attribute name="context" type="xsd:string" use="optional" />
+            </xsd:extension>
         </xsd:simpleContent>
 
 
@@ -441,6 +444,7 @@
             <xsd:attribute name="name" type="identifier"/>
             <xsd:attribute name="version" type="xsd:positiveInteger" />
             <xsd:attribute name="library" type="identifier" use="optional" />
+            <xsd:attribute name="translationDomain" type="identifier" use="optional" />
         </xsd:complexType>
     </xsd:element>
 </xsd:schema>
