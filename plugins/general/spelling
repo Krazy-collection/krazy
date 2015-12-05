@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.901";
+my($Version) = "1.902";
 
 &parseArgs();
 
@@ -595,6 +595,7 @@ continouos             continuous
 
 continous              continuous
 continous              continuous
+continueing            continuing
 contiribute            contribute
 contiributed           contributed
 contiributes           contributes
