@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "foreach";
-my($Version) = "1.86";
+my($Version) = "1.90";
 
 &parseArgs();
 
@@ -119,6 +119,8 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/\(\s*(::)?(Types)::\w+\s\w+\s*,/);
     next if ($line =~ m/\(\s*(const\s)?typename\sT/);
     next if ($line =~ m/\(\s*[:\w]+::(List|const_reference|value_type)\s\w+\s*,/);
+    #special case 'auto' types
+    next if ($line =~ m/\(\s*(const\s)?auto\s/);
     # known enums. not much else to do except hard-code them as we find 'em.
     next if ($line =~ m/\(\s*(ElectricBorder|Direction)\s\w+\s*,/);
     next if ($line =~ m/\(\s*Kwave::(FileProperty|Stripe|playback_method_t)\s\w+\s*,/);
