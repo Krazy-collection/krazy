@@ -215,5 +215,8 @@ fi
 
 #final cleaning
 cd $savedir
-make -s clean
-rm -f Makefile.old
+if ( test -f Makefile )
+then
+  make -s clean
+  rm -f Makefile.old
+fi
