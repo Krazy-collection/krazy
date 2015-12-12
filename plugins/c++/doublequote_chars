@@ -74,7 +74,6 @@ my($cnt) = 0;
 my($scnt) = 0; #QString::startsWith(), QString::endsWith() issues
 my($rcnt) = 0; #QString::replace() issues
 my($xcnt) = 0; #QString::remove() issues
-my($tcnt) = 0; #QString::section() issues
 my($spcnt) = 0; #QString::split() issues
 my($linecnt) = 0;
 my($line);
@@ -82,12 +81,11 @@ my($lstr) = "";
 my($slstr) = "";
 my($rlstr) = "";
 my($xlstr) = "";
-my($tlstr) = "";
 my($splstr) = "";
 foreach $line (@lines) {
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
-    $cnt = $scnt = $rcnt = $xcnt = $tcnt = $spcnt = 0;
+    $cnt = $scnt = $rcnt = $xcnt = $spcnt = 0;
     last;
   }
 
@@ -181,9 +179,9 @@ foreach $line (@lines) {
     if ($pline !~ m/:replace/) {
       $rcnt++;
       if ($rcnt == 1) {
-	$rlstr = "replace issues line\#" . $linecnt;
+        $rlstr = "replace issues line\#" . $linecnt;
       } else {
-	$rlstr = $rlstr . "," . $linecnt;
+        $rlstr = $rlstr . "," . $linecnt;
       }
       print "=> $line\n" if (&verboseArg());
       next;
@@ -199,27 +197,9 @@ foreach $line (@lines) {
     if ($pline !~ m/:remove/) {
       $xcnt++;
       if ($xcnt == 1) {
-	$xlstr = "remove issues line\#" . $linecnt;
+        $xlstr = "remove issues line\#" . $linecnt;
       } else {
-	$xlstr = $xlstr . "," . $linecnt;
-      }
-      print "=> $line\n" if (&verboseArg());
-      next;
-    }
-  }
-
-  #QString::section() checks
-  if ($pline =~ m/section\s*\(\s*\"[[:print:]]\"/ ||
-      $pline =~ m/section\s*\(\s*\"\\n\"/ ||
-      $pline =~ m/section\s*\(\s*\"\\t\"/ ||
-      $pline =~ m/section\s*\(\s*\"\\r\"/ ||
-      $pline =~ m/section\s*\(\s*\"\\\"\"/) {
-    if ($pline !~ m/:section/) {
-      $tcnt++;
-      if ($tcnt == 1) {
-	$tlstr = "section issues line\#" . $linecnt;
-      } else {
-	$tlstr = $tlstr . "," . $linecnt;
+        $xlstr = $xlstr . "," . $linecnt;
       }
       print "=> $line\n" if (&verboseArg());
       next;
@@ -235,9 +215,9 @@ foreach $line (@lines) {
     if ($pline !~ m/:split/) {
       $spcnt++;
       if ($spcnt == 1) {
-	$splstr = "split issues line\#" . $linecnt;
+        $splstr = "split issues line\#" . $linecnt;
       } else {
-	$splstr = $splstr . "," . $linecnt;
+        $splstr = $splstr . "," . $linecnt;
       }
       print "=> $line\n" if (&verboseArg());
       next;
@@ -245,7 +225,7 @@ foreach $line (@lines) {
   }
 }
 
-my($total_count) = $cnt + $scnt + $rcnt + $xcnt + $tcnt + $spcnt;
+my($total_count) = $cnt + $scnt + $rcnt + $xcnt + $spcnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -255,7 +235,6 @@ if (!$total_count) {
     print "$slstr ($scnt)\n" if ($scnt);
     print "$rlstr ($rcnt)\n" if ($rcnt);
     print "$xlstr ($xcnt)\n" if ($xcnt);
-    print "$tlstr ($tcnt)\n" if ($tcnt);
     print "$splstr ($spcnt)\n" if ($spcnt);
   }
   Exit $total_count;
@@ -272,6 +251,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Adding single characters to a QString is faster if the characters are QChars and not QStrings.  For example: QString path = oldpath + \"/\" + base is better written as QString path = oldpath + \'/\' + base. Same holds for arguments to QString::startsWith(), QString::endsWith(), QString::remove(), QString::section(), and QString::split(). Use QString::remove() instead of QString::replace(foo,\"\")\n";
+  print "Adding single characters to a QString is faster if the characters are QChars and not QStrings.  For example: QString path = oldpath + \"/\" + base is better written as QString path = oldpath + \'/\' + base. Same holds for arguments to QString::startsWith(), QString::endsWith(), QString::remove(), QString::split(). Use QString::remove() instead of QString::replace(foo,\"\")\n";
   Exit 0 if &explainArg();
 }
