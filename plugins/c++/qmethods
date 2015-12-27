@@ -44,7 +44,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qmethods";
-my($Version) = "1.71";
+my($Version) = "1.72";
 
 &parseArgs();
 
@@ -87,7 +87,7 @@ while ($linecnt < $#lines) {
   &doIt($line,'QWidget::showMaximized','showMaximized\s*\(\s*\)','');
   &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)','');
   &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)','');
-  &doIt1($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','[Ss]tatusBar|KGamePopupItem::|game|Kwave::');
+  &doIt1($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','[Ss]tatus_[Bb]ar|[Ss]tatusBar|KGamePopupItem::|game|Kwave::');
   &doIt($line,'QImage::depth','depth\s*\(\s*\)/','[Pp]ix|desktop|screen|pd-');
 #  &doIt2($line,'QTimer::singleShot(0,...)','singleShot\s*\(\s*0\s*,','');
 # when we have a real parser, check for the following as well:
@@ -125,9 +125,9 @@ sub doIt1() {
     if ($lines[$linecnt] !~ m/$nregexp/) {
       $cnt++;
       if ($cnt == 1) {
-	$lstr = "line\#" . $linecnt;
+        $lstr = "line\#" . $linecnt;
       } else {
-	$lstr = $lstr . "," . $linecnt;
+        $lstr = $lstr . "," . $linecnt;
       }
       $lstr .= " $qname";
       print "=> $line\n" if (&verboseArg());
