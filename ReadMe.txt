@@ -36,6 +36,6 @@ has an OSS-approved license!
 
 License
 -------
-Copyright (C) 2005-2015 by Allen Winter <winter@kde.org>
+Copyright (C) 2005-2016 by Allen Winter <winter@kde.org>
 
 See the included License.txt file.
