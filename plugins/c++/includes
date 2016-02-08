@@ -61,7 +61,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.97";
+my($Version) = "1.98";
 
 &parseArgs();
 
@@ -123,6 +123,7 @@ while ($linecnt < $#lines) {
     $sguard = $pguard;
     $pguard =~ s/_[Hh]_*$//;
     $pguard =~ s/_//g;
+    $pguard =~ s/%include.*//;
     my($tguard) = $absf;
     $tguard =~ s/\.h.*$//;
     $tguard =~ s/\.hxx.*$//;
