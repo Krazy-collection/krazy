@@ -35,7 +35,7 @@
           <xsl:value-of select="''" />
         </xsl:when>
         <xsl:when test="matches($component, 'bundled-apps')">
-          <xsl:value-of select="''"/>
+          <xsl:value-of select="'calligra'"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$component" />
