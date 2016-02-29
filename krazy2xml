@@ -44,7 +44,6 @@ use File::Copy;
 use File::Find;
 use File::Path;
 use POSIX qw (strftime);
-use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Krazy::Config;
@@ -53,7 +52,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.995';    #split line so MakeMaker can find the version here
+ $VERSION = '2.996';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -558,13 +557,10 @@ sub doIt {
 
   my ($command) = "$krazy $checks $checksets --ignorerc $priority $strict --export=xml --explain --title \"$title\" --cms $cms $rev $exclude $extra";
 
-  my($cwd) = abs_path();
-
   # Find the files to process
+  chdir($in) || die "Error: Cannot change dir to $in";
   my($files) = &findFiles($in);
-  if ($in eq $cwd) {
-    $files =~ s+^$in+\.+gm;
-  }
+  $files =~ s+^$in+\.+gm;
   $files =~ s+\\n+\'\\n\'+g;
 
   if ($dryrun) {
