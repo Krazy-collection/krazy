@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.62";
+my($Version) = "1.63";
 
 &parseArgs();
 
@@ -108,6 +108,7 @@ while ($linecnt < $#lines) {
     next if ($sep eq "<" && $incpath =~ m/^(calendarsupport|calendarviews|incidenceeditor|akonadi_next)/);
     next if ($sep eq "<" && $incpath =~ m/^(messagecomposer|messagecore|messagelist|messageviewer|ontologies)/);
     next if ($sep eq "<" && $incpath =~ m+^private/q.*_p.h$+);
+    next if ($sep eq "<" && $incpath =~ m+keychain/keychain.h$+);
     next if ($incpath =~ m/version/);
     next if ($incpath eq "kdemacros.h" || $incpath eq "fixx11h.h");
     next if ($incpath eq "qglobal.h" ||
@@ -130,7 +131,6 @@ while ($linecnt < $#lines) {
              $incpath eq "elf.h" ||
              $incpath eq "execinfo.h" ||
              $incpath eq "cxxabi.h" ||
-             $incpath eq "lmcons.h" ||
              $incpath eq "io.h");
     next if ($incpath =~ m+mach-o/.*.h$+); #Mac specific
     $cnt++;
