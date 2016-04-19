@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2009 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2009,2016 by Allen Winter <winter@kde.org>               #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "captruefalse";
-my($Version) = "1.5";
+my($Version) = "1.6";
 
 &parseArgs();
 
@@ -67,6 +67,8 @@ close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+# Remove Krazy conditional blocks
+@lines = RemoveCondBlockC( $Prog, @lines );
 
 my($true_cnt) = 0;
 my($false_cnt) = 0;
@@ -140,4 +142,3 @@ sub Explain {
   print "The TRUE and FALSE macros are obsolete and should be replaced with true and false (all lower case) respectively.\n";
   Exit 0 if &explainArg();
 }
-
