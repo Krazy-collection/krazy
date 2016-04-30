@@ -25,7 +25,6 @@
 #   --version          display version information and exit
 #   --config <file>    settings file in YAML format
 #   --dry-run          don't execute the checks; only show what would be run
-#   --with-sloccount   Run sloccount in each module
 #   --nodb             don't execute any database commands
 #   --nosaxon          don't execute the xslt transformations.
 #   --dbgen [id]       use the specified 'id' for the database generationId.
@@ -52,7 +51,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.996';    #split line so MakeMaker can find the version here
+ $VERSION = '2.997';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -69,7 +68,6 @@ my ($checks);     # The list of checks to be executed. (empty implies ALL checks
 
 my ($saxon);      # fullpath to the saxon program
 my ($stylesheet); # full path to the main stylesheet (krazy-main.xsl)
-my ($sloccount);  # full path to sloccount executable
 my ($ProjDB);     # full path to kde-checklist-settings.pl program
 my ($ProjDB_opts);# any options to pass to kde-checklist-settings.pl
 
@@ -82,7 +80,6 @@ my ($configf)    = '';
 my ($nodb)       = '';
 my ($generation) = '';
 my ($nosaxon)    = '';
-my ($countloc)   = '';
 my ($reptitle)   = '';
 
 exit 1
@@ -94,7 +91,6 @@ exit 1
        'nodb'           => \$nodb,
        'dbgen=i'        => \$generation,
        'nosaxon'        => \$nosaxon,
-       'with-sloccount' => \$countloc,
        'component=s'    => \$comp,
        'module=s'       => \$module,
        'title=s'        => \$reptitle
@@ -121,7 +117,6 @@ if (-e "$configf") {
   $checks     = $settings->{'checks'};
   $saxon      = $settings->{'saxon'};
   $stylesheet = $settings->{'stylesheet'};
-  $sloccount  = $settings->{'sloccount'};
   $ProjDB     = $settings->{'ProjDB'};
   $ProjDB_opts= $settings->{'ProjDB_opts'};
 
@@ -141,7 +136,6 @@ if (-e "$configf") {
   $checks     = $settings->{'checks'};
   $saxon      = $settings->{'saxon'};
   $stylesheet = $settings->{'stylesheet'};
-  $sloccount  = $settings->{'sloccount'};
   $ProjDB     = $settings->{'ProjDB'};
   $ProjDB_opts= $settings->{'ProjDB_opts'};
 
@@ -159,7 +153,6 @@ if (-e "$configf") {
   $checks     = ''; # execute all checks.
   $saxon      = '/usr/bin/saxon8';
   $stylesheet = '/mnt/ebn/share/xsl/krazy-main.xsl';
-  $sloccount  = '/usr/bin/sloccount';
   $ProjDB     = '/mnt/ebn/bin/kde-checkout-list.pl';
   $ProjDB_opts= '';
 }
@@ -471,15 +464,6 @@ sub doItForList {
         &createIgnorePage( "$out", "$comp/$module/$s" ) if (!$nosaxon);
       } else {
         &mergeSubdirSettings( "$trunk/$comp/$module/$s" );
-        if ($countloc) {
-          my $command = "$sloccount $trunk/$comp/$module > $tempdir/$comp/$module/sloccount.output";
-          if ($dryrun) {
-            $command = "echo " . "\'" . $command . "\'";
-          }
-
-          system("$command");
-
-        }
         $checksum = &doIt("$trunk/$comp/$module/$s", "$out", "$comp/$module/$s");
         if ( -f "$out/index.html" && `grep "Total Issues" $out/index.html` ) {
           (@issues) =
@@ -587,7 +571,11 @@ sub doIt {
   #       the database in a fine grained enough manner, we can change te ebn site
   #       to be a php only site and not a mixture of php and krazy generated pages.
   if (!$nosaxon) {
-    $command = "$saxon -im krazy2ebn $out/result.xml $stylesheet component=$component module=$module submodule=$subdir > $out/index.html";
+    if ($saxon =~ m/saxon8/) { #support ancient saxon version
+      $command = "$saxon -im krazy2ebn $out/result.xml $stylesheet component=$component module=$module submodule=$subdir > $out/index.html";
+    } else {
+      $command = "$saxon -im:krazy2ebn -s:$out/result.xml -xsl:$stylesheet component=$component module=$module submodule=$subdir > $out/index.html";
+    }
 
     if ($dryrun) {
       $command = "echo " . "\'" . $command . "\'";
@@ -826,7 +814,6 @@ sub Help {
   print "  --dbgen [id]        use the specified value for the database generationId.\n";
   print "                      Do NOT use this option unless you know what you're doing.\n";
   print "  --nosaxon           don't execute the xslt transformation\n";
-  print "  --with-sloccount    Run sloccount in each module\n";
   print "  --component [comp]  component to process (default=\"kde-4.x\")\n";
   print "  --module [mod1<,mod2...>]\n";
   print "                      comma-separated list of modules to process (default=ALL)\n";
