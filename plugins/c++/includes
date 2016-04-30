@@ -352,7 +352,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Use <..> to include installed headers; cpp file should include their own headers first (but below config.h); other rules apply, see <http://techbase.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriatedly encoded macro names.";
+  print "Use <..> to include installed headers; cpp file should include their own headers first (but below config.h); other rules apply, see <http://community.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriatedly encoded macro names.";
   Exit 0 if &explainArg();
 }
 

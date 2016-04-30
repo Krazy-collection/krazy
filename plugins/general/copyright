@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2009,2011-2015 by Allen Winter <winter@kde.org>          #
+# Copyright (C) 2005-2009,2011-2016 by Allen Winter <winter@kde.org>          #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -44,7 +44,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "copyright";
-my($Version) = "1.69";
+my($Version) = "1.70";
 
 &parseArgs();
 
@@ -208,6 +208,6 @@ sub Version {
 }
 
 sub Explain {
-  print "All source files must contain a copyright header which identifies the copyright holder(s) together with a e-mail address that can be used to reach the copyright holder.  One copyright holder per line, with real email addresses please. For details regarding KDE's licensing policy please visit <http://techbase.kde.org/Policies/Licensing_Policy>.  A typical copyright looks like: \"Copyright 2002,2005-2006 Joe Hacker <joe.hacker\@kde.org>\"\n";
+  print "All source files must contain a copyright header which identifies the copyright holder(s) together with a e-mail address that can be used to reach the copyright holder.  One copyright holder per line, with real email addresses please. For details regarding KDE's licensing policy please visit <http://community.kde.org/Policies/Licensing_Policy>.  A typical copyright looks like: \"Copyright 2002,2005-2006 Joe Hacker <joe.hacker\@kde.org>\"\n";
   Exit 0 if &explainArg();
 }

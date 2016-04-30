@@ -5,7 +5,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2009,2011-2014 by Allen Winter <winter@kde.org>          #
+# Copyright (C) 2005-2009,2011-2016 by Allen Winter <winter@kde.org>          #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 # Copyright (C) 2007 by Dirk Mueller <mueller@kde.org>                        #
 #                                                                             #
@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.90";
+my($Version) = "1.91";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -276,6 +276,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed.  For details regarding KDE's licensing policy please visit <http://techbase.kde.org/Policies/Licensing_Policy>.\n";
+  print "Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed.  For details regarding KDE's licensing policy please visit <http://community.kde.org/Policies/Licensing_Policy>.\n";
   exit 0 if &explainArg();
 }

@@ -25,9 +25,9 @@ See krazy2(1) and krazyrc(3)
 
 Resources
 ---------
-Krazy is hosted by GitHub at https://github.com/Krazy-collection/krazy,
-there you will find a wiki https://github.com/Krazy-collection/krazy/wiki
-and an issue tracker https://github.com/Krazy-collection/krazy/issues.
+Krazy is hosted by GitHub at http://github.com/Krazy-collection/krazy,
+there you will find a wiki http://github.com/Krazy-collection/krazy/wiki
+and an issue tracker http://github.com/Krazy-collection/krazy/issues.
 
 Visit the Krazy home page at http://krazy-collection.github.io/krazy
 

@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2015 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2016 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -56,7 +56,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.51";
+my($Version) = "1.52";
 
 &parseArgs();
 
@@ -883,7 +883,12 @@ sub Version {
 }
 
 sub Explain {
-  print "Please follow the coding style guidelines at <http://pim.kde.org/development/coding-korganizer.php>\n";
+  print "Please follow the coding style guidelines at ";
+  if ($KRAZY_STYLE_CPPSTYLE eq "pim" ) {
+    print "<http://community.kde.org/Policies/Kdepim_Coding_Style>\n";
+  } else {
+    print "<http://community.kde.org/Policies/Kdelibs_Coding_Style>\n";
+  }
   Exit 0 if &explainArg();
 }
 

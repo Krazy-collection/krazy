@@ -117,7 +117,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.991';    #split line so MakeMaker can find the version here
+ $VERSION = '2.992';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -869,7 +869,7 @@ if ( !$quiet ) {
           my ($use) = `$p $eopts 2>/dev/null`;
           chomp($use);
           $use = "(no explanation available)" if ( length($use) < 4 );
-          &printExplain( $use );
+          &printExplain( $use, 0, 0 );
         }
       }
       print "\n" if ($cline ne "" && $export ne "textlist" && $export ne "textedit");
@@ -1029,14 +1029,18 @@ sub printList {
         print "/>\n";
       }
     } else {
-      printf( "%18.18s: %s\n", &basename($prog), $use );
+      if (!$explain) {
+        printf( "%18.18s: %s\n", &basename($prog), $use );
+      } else {
+        printf( "%s: %s\n", &basename($prog), $use );
+      }
     }
 
     if ($explain) {
       $use = `$prog --explain 2>/dev/null`;
       chomp( $use );
       $use = "(no explanation available)" if ( length($use) < 4 );
-      printExplain( $use, $isextra );
+      printExplain( $use, $isextra, 1 );
     }
 
    print "  " if ( $isextra && $export eq "xml");
@@ -1390,7 +1394,10 @@ sub printOOPS {
 
 # printExplain function: print the explanation lines, according to export type.
 sub printExplain {
-  my ( $explanation, $isextra ) = @_;
+  my ( $explanation, #the explanation string
+       $isextra,     #if this is an explanation for an "extra" checker
+       $islisting    #if this is an explanation printed as part of the list function
+     ) = @_;
 
   if ( $export eq "xml" ) {
     $explanation =~ s/^\s*//;
@@ -1401,6 +1408,7 @@ sub printExplain {
   } else {
     # text export
     print wrap( "        ", "        ", $explanation ) . "\n";
+    print "\n" if ($islisting);
   }
 }
 
@@ -1836,9 +1844,9 @@ C++-style must be one of the following:
 
 =over 2
 
-"kde" (default), see http://techbase.kde.org/Policies/Kdelibs_Coding_Style
+"kde" (default), see http://community.kde.org/Policies/Kdelibs_Coding_Style
 
-"pim" kdepim style, see http://pim.kde.org/development/coding-korganizer.php
+"pim" kdepim style, see http://community.kde.org/Policies/Kdepim_Coding_Style
 
 =back
 

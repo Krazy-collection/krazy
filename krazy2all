@@ -30,7 +30,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.98';    #split line so MakeMaker can find the version here
+ $VERSION = '2.992';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
@@ -334,13 +334,6 @@ Support strictness levels are:
      normal -> print non-super strict issues only
      super -> print super strict issues only
      all -> print all issues (default)
-
-=item B<--explain>
-
-For each checker program, if any issues are found, print an explanation
-of the problem along with solving instructions.  May be used in conjunction
-with the B<--list> option to provide a more detailed description of the
-checker programs.
 
 =item B<--ignorerc>
 

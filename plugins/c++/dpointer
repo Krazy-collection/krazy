@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2015 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2016 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2012 by Daniel Calviño Sánchez <danxuliu@gmail.com>           #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.991";
+my($Version) = "1.992";
 
 &parseArgs();
 
@@ -130,7 +130,7 @@ while ($linecnt <= $#lines) {
 
       if ($CNAME ne "" && defined($stuff{$CNAME}{'section'}) && $stuff{$CNAME}{'section'} eq "private" && defined($stuff{$CNAME}{'exported'}) && $stuff{$CNAME}{'exported'} == 1) {
         # we are in the private declarations
-	print "  Searching for dpointer\n" if ($debug);
+        print "  Searching for dpointer\n" if ($debug);
         while ($linecnt <= $#lines) {
           $lastl = $line;
           $line = $lines[$linecnt++];
@@ -138,7 +138,7 @@ while ($linecnt <= $#lines) {
           if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+) {
             $krazyexclude = 1;
           }
-	  $line =~ s+//.*++; #strip trailing C++ comment
+          $line =~ s+//.*++; #strip trailing C++ comment
 
           #Ignore inlined methods (including template methods)
           if ($line =~ m/[[:alnum:]]+[[:space:]]*\(/ &&
@@ -160,7 +160,7 @@ while ($linecnt <= $#lines) {
             $line = $lines[$linecnt++];
           }
 
-	  &Section($line);
+          &Section($line);
           if (&endClass($line,$linecnt)) { last; }
           next if ($line =~ m/[[:space:]]*private[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*private[[:space:]]*Q_SLOTS[[:space:]]*:/);
@@ -174,10 +174,10 @@ while ($linecnt <= $#lines) {
           last if ($line =~ m/[[:space:]]*signals[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*k_dcop_signals[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*Q_SIGNALS[[:space:]]*:/);
-	  $stuff{$CNAME}{'declarePrivate'}++ if(isDeclarePrivate($line));
+          $stuff{$CNAME}{'declarePrivate'}++ if(isDeclarePrivate($line));
           if (&Priv($line,$linecnt) && !$krazyexclude) {
             # found a private member
-	    print "   ($linecnt) found private member ($line)\n" if ($debug);
+            print "   ($linecnt) found private member ($line)\n" if ($debug);
             $stuff{$CNAME}{'privMembers'}++;
             if ($stuff{$CNAME}{'privMembers'} == 1) {
               $stuff{$CNAME}{'privLinesList'} = $linecnt;
@@ -200,8 +200,8 @@ while ($linecnt <= $#lines) {
                   $line !~ m/\(\)/ &&        #d_func() stuff
                   $line !~ m/,\s*$/ &&          #ends with comma (like in enums)
                   !$krazyexclude &&          #allow non-const dpointer
-		  !$stuff{$CNAME}{'excluded'} #exclude class from all checks
-		 ) {
+                  !$stuff{$CNAME}{'excluded'} #exclude class from all checks
+                 ) {
                 $ccnt++;
                 if ($ccnt == 1) {
                   $clstr = "non-const dpointer line\#" . $linecnt;
@@ -210,9 +210,9 @@ while ($linecnt <= $#lines) {
                 }
                 print "=> $line\n" if (&verboseArg());
               } else {
-		print "found a dpointer on line $linecnt\n" if ($debug);
-		$stuff{$CNAME}{'dpointer'} = 1;
-	      }
+                print "found a dpointer on line $linecnt\n" if ($debug);
+                $stuff{$CNAME}{'dpointer'} = 1;
+              }
             }
           }
         } # loop over lines in private section searching for dpointer
@@ -270,8 +270,8 @@ sub Cname {
         $stuff{$cname}{'exported'} = 0;
       }
       if ($#classes < 0 || $cname ne $classes[$#classes]) {
-	push(@classes,$cname);
-	print "push $cname, $#classes in stack\n" if ($debug);
+        push(@classes,$cname);
+        print "push $cname, $#classes in stack\n" if ($debug);
       }
     }
   }
@@ -288,12 +288,12 @@ sub endClass {
   #       but be wary of things like enum { foo, bar, foobar };
   #       (and nested structs?)
   return 0 if (&searchBackWithStop('^[[:space:]]*struct[[:space:]]',$lc-1,75,
-		  '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'));
+                  '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'));
   # enums don't have semicolons in them;
   # unless, of course, someone puts one at
   # the end of a doxygen line (why would they?)
   return 0 if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]',$lc-1,75,
-		  ';[[:space:]]*$|^[[:space:]]*private:'));
+                  ';[[:space:]]*$|^[[:space:]]*private:'));
 
   #at end of class
   my($cclass) = $classes[$#classes];
@@ -319,13 +319,13 @@ sub chkDptr {
     # abstract base classes do not require a d-pointer
     # fyi: abstract base classes have at least 1 pure virtual, non-dtor func
     if (!(&searchBack("Q_DECLARE_INTERFACE.*$c",$#lines-1,10) ||
-	  $stuff{$c}{'pureVirt'} >= 1 || $stuff{$c}{'qInterfaces'} > 0) &&
-	$stuff{$c}{'declarePrivate'} == 0) {
+          $stuff{$c}{'pureVirt'} >= 1 || $stuff{$c}{'qInterfaces'} > 0) &&
+        $stuff{$c}{'declarePrivate'} == 0) {
       $mcnt++;
       if ($mcnt == 1) {
-	$mlstr = "missing dpointer in classes " . $CNAME;
+        $mlstr = "missing dpointer in classes " . $CNAME;
       } else {
-	$mlstr = $mlstr . "," . $CNAME;
+        $mlstr = $mlstr . "," . $CNAME;
       }
       print "=> $l\n" if (&verboseArg());
     }
@@ -335,7 +335,7 @@ sub chkDptr {
 sub chkPrivMembers {
   my($c) = @_;
 
-  if ($c ne "" && !$stuff{$c}{'excluded'} && 
+  if ($c ne "" && !$stuff{$c}{'excluded'} &&
       defined($stuff{$c}{'qInterfaces'}) && $stuff{$c}{'qInterfaces'} == 0) {
     if ($cnt == 0) {
       $lstr = "private members line\#" . $stuff{$c}{'privLinesList'};
@@ -472,6 +472,6 @@ sub Version {
 }
 
 sub Explain {
-  print "In order to more easily maintain binary compatibility, a public class in an installed header should not contain private members -- use d-pointers instead. Application headers should not mix d-pointers and private members. Also ensure  that the d-pointer is \'const\' to avoid modifying it by mistake. Please follow the guidelines in the d-pointers section of <http://techbase.kde.org/Policies/Library_Code_Policy#D-Pointers>.\n";
+  print "In order to more easily maintain binary compatibility, a public class in an installed header should not contain private members -- use d-pointers instead. Application headers should not mix d-pointers and private members. Also ensure  that the d-pointer is \'const\' to avoid modifying it by mistake. Please follow the guidelines in the d-pointers section of <http://community.kde.org/Policies/Library_Code_Policy#D-Pointers>.\n";
   Exit 0 if &explainArg();
 }

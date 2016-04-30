@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2008 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2008,2016 by Allen Winter <winter@kde.org>               #
 # Copyright (C) 2012 by Daniel Calviño Sánchez <danxuliu@gmail.com>           #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "constref";
-my($Version) = "1.30";
+my($Version) = "1.31";
 
 &parseArgs();
 
@@ -196,6 +196,6 @@ sub Version {
 }
 
 sub Explain {
-  print "For binary compatibility reasons avoid const references for return types. For example, \"const QList<int> &someProperty() const\" should be rewritten to return a value instead, eg \"QList<int> someProperty() const\". See <http://techbase.kde.org/Policies/Library_Code_Policy#Const_References> for more details.\n";
+  print "For binary compatibility reasons avoid const references for return types. For example, \"const QList<int> &someProperty() const\" should be rewritten to return a value instead, eg \"QList<int> someProperty() const\". See <http://community.kde.org/Policies/Library_Code_Policy#Const_References> for more details.\n";
   Exit 0 if &explainArg();
 }

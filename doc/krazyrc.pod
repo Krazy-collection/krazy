@@ -55,7 +55,7 @@ Do NOT check the specified file type(s).
 
 =item SKIP regexp
 
-Do not process any file that maches the specified perl regular expression.
+Do not process any file that matches the specified perl regular expression.
 See the perlreref(1) man page for a description of how to write
 a perl regular expression.
 
@@ -105,9 +105,9 @@ C++-style must be one of the following:
 
 =over 2
 
-"kde" (default), see http://techbase.kde.org/Policies/Kdelibs_Coding_Style
+"kde" (default), see http://community.kde.org/Policies/Kdelibs_Coding_Style
 
-"pim" kdepim style, see http://pim.kde.org/development/coding-korganizer.php
+"pim" kdepim style, see http://community.kde.org/Policies/Kdepim_Coding_Style
 
 =back
 
