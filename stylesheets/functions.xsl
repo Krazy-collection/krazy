@@ -87,7 +87,15 @@
     -->
   <xsl:function name="ebn:formatLineNumber" as="xsd:string">
     <xsl:param name="line" as="xsd:integer" />
-    <xsl:value-of select="format-number($line, '0000')"/>
+    <xsl:param name="maxlines" as="xsd:integer" />
+    <xsl:choose>
+      <xsl:when test="$maxlines > 9999">
+        <xsl:value-of select="format-number($line, '00000')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="format-number($line, '0000')"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:function>
 
   <!--

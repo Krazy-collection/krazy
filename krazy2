@@ -117,7 +117,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.992';    #split line so MakeMaker can find the version here
+ $VERSION = '2.993';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -1255,6 +1255,15 @@ sub printFType {
   }
 }
 
+sub fileLength {
+  my ( $pth ) = @_;
+  my ( $flines ) = 0;
+  open( F, "<$pth" ) || die "Couldn't open $pth";
+  $flines++ while (<F>);
+  close F;
+  return $flines;
+}
+
 # printOOPS function: print the OOPS lines, according to export type.
 sub printOOPS {
   my ( $component, $module, $subdir ) = split( "/", $cms );
@@ -1372,7 +1381,8 @@ sub printOOPS {
           $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
       }
 
-      print "        <file name=\"$file\">\n";
+      my($filelen) = &fileLength($file);
+      print "        <file name=\"$file\" lines=\"$filelen\">\n";
       if ($message) {
         $message =~ s+%COLON%+:+g;
         print "          <message>", encode_entities( $message ), "</message>\n";

@@ -7,7 +7,6 @@
   xmlns="http://www.w3.org/1999/xhtml">
 
   <xsl:import href="functions.xsl" />
-  <xsl:import href="globalvars.xsl" />
 
   <xsl:param name="component" as="xsd:string"/>
   <xsl:param name="module" as="xsd:string"/>
@@ -24,6 +23,7 @@
   <xsl:function name="ebn:createLexerLink" as="xsd:string">
     <xsl:param name="file" as="xsd:string"/>
     <xsl:param name="line" as="xsd:integer" />
+    <xsl:param name="maxlines" as="xsd:integer" />
 
     <xsl:variable name="lexerComponent">
       <xsl:choose>
@@ -79,7 +79,7 @@
         <xsl:value-of select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file)" />
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="fline" select="ebn:formatLineNumber($line)" />
+        <xsl:variable name="fline" select="ebn:formatLineNumber($line, $maxlines)" />
         <xsl:value-of
           select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file, '#', $fline)" />
       </xsl:otherwise>
@@ -87,8 +87,9 @@
   </xsl:function>
 
   <xsl:template name="file">
-    <xsl:variable name="lxrlink" select="ebn:createLexerLink(@name, -1)" />
+    <xsl:variable name="lxrlink" select="ebn:createLexerLink(@name, @lines, -1)" />
     <xsl:variable name="filename" select="@name" />
+    <xsl:variable name="maxlines" select="@lines" />
     <xsl:variable name="count" select="count(issues/line)" />
 
     <li><a href="{$lxrlink}"><xsl:value-of select="@name"/></a>:
@@ -99,7 +100,7 @@
         <xsl:otherwise>
           <xsl:value-of select="message" /> line#
           <xsl:for-each select="issues/line">
-            <xsl:variable name="lxrlinelink" select="ebn:createLexerLink($filename, .)" />
+            <xsl:variable name="lxrlinelink" select="ebn:createLexerLink($filename, $maxlines, .)" />
             <a href="{$lxrlinelink}"><xsl:value-of select="."/></a>
             <xsl:if test="@issue ne ''" >[<xsl:value-of select="@issue" />]</xsl:if>
             <xsl:if test="position() ne $count">,</xsl:if></xsl:for-each>
