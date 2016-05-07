@@ -222,6 +222,7 @@ my ($sSkipRegex) = "";
 my ($sPriority) = "";
 my ($sStrict) = "";
 my (@sCheckList);
+my (@sCheckSets);
 my (@sExcludeList);
 my (@sExtraList);
 
@@ -441,6 +442,10 @@ sub mergeSubdirSettings {
   @sCheckList = @mCheckList;
   push( @sCheckList, split( ",", $d{'CHECK'} ) ) if ( $d{'CHECK'} );
   @sCheckList = deDupe(@sCheckList);
+
+  #compute the checksets on a project-basis only
+  push( @sCheckSets, split( ",", $d{'CHECKSETS'} ) ) if ( $d{'CHECKSETS'} );
+  @sCheckSets = deDupe(@sCheckSets);
 }
 
 sub doItForList {
@@ -535,10 +540,14 @@ sub doIt {
 
   my ($checksum) = &gitRevFromDB($cms);
 
-  my ($checksets) = "";
-  my ($guesssets) = &guessCheckSet($in);
-  $checksets = "--check-sets=$guesssets" if ($guesssets);
-
+  my ($checksets) =  '';
+  my ($rcsets) = join ', ', @sCheckSets;
+  if ($rcsets) {
+    $checksets = "--check-sets=$rcsets";
+  } else {
+    my ($guesssets) = &guessCheckSet($in);
+    $checksets = "--check-sets=$guesssets" if ($guesssets);
+  }
   my ($command) = "$krazy $checks $checksets --ignorerc $priority $strict --export=xml --explain --title \"$title\" --cms $cms $rev $exclude $extra";
 
   # Find the files to process
