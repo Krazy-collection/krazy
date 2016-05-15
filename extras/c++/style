@@ -25,7 +25,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Tests KDE source for adherence to a coding style
 
 # Supports these environment variables:
-#  KRAZY_STYLE_CPPSTYLE: a predefined style, currently available styles are "kde" and "pim"
+#  KRAZY_STYLE_CPPSTYLE: a predefined style, currently available styles are "qt", "kde" and "pim"
 #  KRAZY_STYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4
 #  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to unlimited)
 
@@ -56,7 +56,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.52";
+my($Version) = "1.53";
 
 &parseArgs();
 
@@ -84,7 +84,8 @@ if ( !$KRAZY_STYLE_CPPSTYLE ) {
   $KRAZY_STYLE_CPPSTYLE = "kde";
 }
 if ( $KRAZY_STYLE_CPPSTYLE ne "pim" &&
-     $KRAZY_STYLE_CPPSTYLE ne "kde" ) {
+     $KRAZY_STYLE_CPPSTYLE ne "kde" &&
+     $KRAZY_STYLE_CPPSTYLE ne "qt" ) {
   $KRAZY_STYLE_CPPSTYLE = "kde";
 }
 if ( !$KRAZY_STYLE_OFFSET ) {
@@ -121,8 +122,10 @@ my(@lines) = split(/\n/, $data);
 my($cnt) = 0;
 my($linecnt) = 0;
 my($line);
-my($tline);
-my($pline);
+my($tline) = "";
+my($rawlline) = "";
+my($rawline) = "";
+my($pline) = "";
 my($lstr) = "";
 my($lline) = "";  #one non-empty line back
 my($llline) = ""; #two non-empty lines back
@@ -131,12 +134,20 @@ my($indent,$lindent) = (0,0);
 foreach $line (@lines) {
   chomp($line);
 
+  $rawlline = $rawline;
+  $rawline = $line;
+
   if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
       $line =~ m+//.*[Kk]razy:skip+) {
     print "okay\n" if (!&quietArg());
     Exit 0;
   }
-  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+) {
+    $llline = $lline;
+    $lline = $line;
+    $linecnt++;
+    next;
+  }
 
   $line =~ s/^\ //;   #the comment stripper leaves a leading space
   $linecnt++;
@@ -229,6 +240,28 @@ foreach $line (@lines) {
       $Issues{'NOSPACEPAREN'}{'lines'} .= "," . $linecnt;
     }
     print "$linecnt (no space before '\)') => $line\n" if (&verboseArg());
+  }
+
+  if ($pline =~ m/\(/ && $pline =~ m/\w+\s\(/) {
+    if ($pline !~ m/if\s\(/ &&
+        $pline !~ m/for\s\(/ &&
+        $pline !~ m/foreach\s\(/i &&
+        $pline !~ m/while\s\(/ &&
+        $pline !~ m/switch\s\(/ &&
+        $pline !~ m/short\s\(/ &&
+        $pline !~ m/void\s\(/ &&
+        $pline !~ m/catch\s\(/ &&
+        $pline !~ m/return\s\(/ &&
+        $line !~ m/\)\s*\(/
+      ) {
+      $Issues{'SPACEOPAREN'}{'count'}++;
+      if ($Issues{'SPACEOPAREN'}{'count'} == 1) {
+        $Issues{'SPACEOPAREN'}{'lines'} = "line\#" . $linecnt;
+      } else {
+        $Issues{'SPACEOPAREN'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (no space after '\(') => $line\n" if (&verboseArg());
+    }
   }
 
   if ($line =~ m/\)const/ || $line =~ m/\) {2,}const/) {
@@ -550,16 +583,18 @@ foreach $line (@lines) {
   }
 
   if ($line =~ m/};/ && $line =~ m/[[:space:]]{/ && $line !~ m/=\s*{/ && $line !~ m/{[[:space:]]*};/) {
-    $Issues{'BRACESEMI'}{'count'}++;
-    if ($Issues{'BRACESEMI'}{'count'} == 1) {
-      $Issues{'BRACESEMI'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'BRACESEMI'}{'lines'} .= "," . $linecnt;
+    if ($lline !~ m/^\s*static\s/) {
+      $Issues{'BRACESEMI'}{'count'}++;
+      if ($Issues{'BRACESEMI'}{'count'} == 1) {
+        $Issues{'BRACESEMI'}{'lines'} = "line\#" . $linecnt;
+      } else {
+        $Issues{'BRACESEMI'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (bad brace-semi encountered) => $line\n" if (&verboseArg());
     }
-    print "$linecnt (bad brace-semi encountered) => $line\n" if (&verboseArg());
   }
 
-  if ($pline =~ m/return[[:space:]]*\(.*\)$/ && $line !~ m/\?/ && $line !~ m/\($/ && $line !~ m/&\)/ && $line !~ m/\(\s*\);$/ && $line !~ m/\(\s*\(/) {
+  if ($pline =~ m/[[:space:]]return[[:space:]]*\(.*\)$/ && $line !~ m/\?/ && $line !~ m/\($/ && $line !~ m/&\)/ && $line !~ m/\(\s*\);$/ && $line !~ m/\(\s*\(/) {
     $Issues{'RETURNPAREN'}{'count'}++;
     if ($Issues{'RETURNPAREN'}{'count'} == 1) {
       $Issues{'RETURNPAREN'}{'lines'} = "line\#" . $linecnt;
@@ -622,7 +657,7 @@ foreach $line (@lines) {
     print "$linecnt (tab encountered) => $line\n" if (&verboseArg());
   }
 
-  if ($line =~ m/^\s*\w+\s*$/ && $lline !~ m/,$/ && $line !~ m/^\s*Q_OBJECT\s*$/ && $line !~ m/^\s*else\s*$/) {
+  if ($line =~ m/^\s*\w+\s*$/ && $lline !~ m/,$/ && $line !~ m/^\s*Q_OBJECT\s*$/ && $line !~ m/^\s*else\s*$/ && $line != m/^\s*return\s*$/) {
     if (!($line =~ m/^\s*(union|struct|class|namespace)\s*$/ && $lines[$linecnt] =~ m/^\s*{\s*$/)) {
       $Issues{'BAREWORD'}{'count'}++;
       if ($Issues{'BAREWORD'}{'count'} == 1) {
@@ -760,7 +795,21 @@ foreach $line (@lines) {
     }
   }
   if ($indent > $lindent) {
-    if (!&isOkStart($line) && $lline !~ m/{$/ && $lline !~ m/,$/ && $lline !~ m/\($/ && $lline !~ m/:$/ && $lline !~ m/=$/ && $lline !~ m+\\$+ && $line !~ m+\\$+ && $lline !~ m/^\s*return/ && $lline !~ m/^\s*Q_PROPERTY/ && !&endOkCond($lline) && !&isLoop($lline) && !&isOper($lline) && !&isOneLineBody($linecnt)) {
+    if (!&isOkStart($line) &&
+        $lline !~ m/{$/ &&
+        $lline !~ m/,$/ &&
+        $lline !~ m/\($/ &&
+        $lline !~ m/:$/ &&
+        $lline !~ m/=$/ &&
+        $lline !~ m+\\$+ &&
+        $line !~ m+\\$+ &&
+        $lline !~ m/^\s*return/ &&
+        $lline !~ m/^\s*Q_PROPERTY/ &&
+        !&endOkCond($lline) &&
+        !&isLoop($lline) &&
+        !&isOper($lline) &&
+        !&isMacroContinuation($rawlline) &&
+        !&isOneLineBody($linecnt)) {
         $Issues{'BADINDENT'}{'count'}++;
         if ($Issues{'BADINDENT'}{'count'} == 1) {
           $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
@@ -768,7 +817,17 @@ foreach $line (@lines) {
           $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
         }
         print "$linecnt (bad indent, too much) => $tline\n" if (&verboseArg());
-      }
+    }
+
+    if (&isMacroContinuation($rawlline) && ($indent != $KRAZY_STYLE_OFFSET)) {
+        $Issues{'BADINDENT'}{'count'}++;
+        if ($Issues{'BADINDENT'}{'count'} == 1) {
+          $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
+        } else {
+          $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
+        }
+        print "$linecnt (bad indent after a macro definition) => $tline\n" if (&verboseArg());
+    }
   }
   if ($KRAZY_STYLE_CPPSTYLE eq "pim" &&
       (($line =~ m/^\s*public\s*:/ && $line !~ m/\s{2}public/) ||
@@ -808,7 +867,11 @@ $llline = '';
 foreach $line (@data_lines) {
   $linecnt++;
   chomp($line);
-  next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+) {
+    $llline = $lline;
+    $lline = $line;
+    next;
+  }
 
   if ($line =~ m/[[:space:]]$/) {
     $Issues{'TRAILWHITE'}{'count'}++;
@@ -910,6 +973,10 @@ sub initIssues() {
   $Issues{'PARENNOSPACE'}{'count'} = 0;
   $Issues{'PARENNOSPACE'}{'lines'} = '';
 
+  $Issues{'SPACEOPAREN'}{'issue'} = 'Do not put spaces before an opening paren';
+  $Issues{'SPACEOPAREN'}{'count'} = 0;
+  $Issues{'SPACEOPAREN'}{'lines'} = '';
+
   $Issues{'COMMASPACE'}{'issue'} = 'Bad spacing after a comma';
   $Issues{'COMMASPACE'}{'count'} = 0;
   $Issues{'COMMASPACE'}{'lines'} = '';
@@ -962,7 +1029,7 @@ sub initIssues() {
   $Issues{'ENUMBRACE'}{'count'} = 0;
   $Issues{'ENUMBRACE'}{'lines'} = '';
 
-  if ($KRAZY_STYLE_CPPSTYLE eq "pim") {
+  if ($KRAZY_STYLE_CPPSTYLE eq "pim" || $KRAZY_STYLE_CPPSTYLE eq "qt" ) {
     $Issues{'NAMESPACEBRACE'}{'issue'} = 'Put a brace on the line with the \'namespace\'';
   } else {
     $Issues{'NAMESPACEBRACE'}{'issue'} = 'No brace on the line with the \'namespace\'';
@@ -1188,6 +1255,13 @@ sub isOper() {
         $l =~ m/\*\s*$/ ||
         $l =~ m+\/\s*$+ ||
         $l =~ m+/\s*$+);
+  return 0;
+}
+
+# isMacroContinuation function: return 1 if the string is a define with a continuation
+sub isMacroContinuation() {
+  my($l) = @_;
+  return 1 if ($l =~ m/^\s*#define\s.*\\\s*$/);
   return 0;
 }
 

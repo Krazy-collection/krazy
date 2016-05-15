@@ -25,9 +25,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Tests Python program files for adherence to a coding style
 
 # Supports these environment variables:
-#  KRAZY_STYLE_PYTHONSTYLE: a predefined style, currently available styles are "kde" (currently ignored)
-#  KRAZY_STYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4 (currently ignored)
-#  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to unlimited)
+#  KRAZY_PYTHONSTYLE_STYLE: a predefined style, currently available styles are "kde" (currently ignored)
+#  KRAZY_PYTHONSTYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4 (currently ignored)
+#  KRAZY_PYTHONSTYLE_LINEMAX: max number of chars per line allowed (defaults to unlimited)
 
 # Does Not Check:
 # * proper indentation, since Python requires that anyway
@@ -47,7 +47,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Env qw (KRAZY_STYLE_PYTHONSTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
+use Env qw (KRAZY_PYTHONSTYLE_STYLE KRAZY_PYTHONSTYLE_OFFSET KRAZY_PYTHONSTYLE_LINEMAX);
 use Cwd 'abs_path';
 use Tie::IxHash;
 use FindBin qw($Bin);
@@ -55,7 +55,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.03";
+my($Version) = "1.04";
 
 &parseArgs();
 
@@ -78,13 +78,13 @@ if ($f =~ m/\.py$/) {
   Exit 0;
 }
 
-$KRAZY_STYLE_LINEMAX = 0 if ( !$KRAZY_STYLE_LINEMAX );
-if ( !$KRAZY_STYLE_PYTHONSTYLE ) {
-  $KRAZY_STYLE_PYTHONSTYLE = "kde";
+$KRAZY_PYTHONSTYLE_LINEMAX = 0 if ( !$KRAZY_PYTHONSTYLE_LINEMAX );
+if ( !$KRAZY_PYTHONSTYLE_STYLE ) {
+  $KRAZY_PYTHONSTYLE_STYLE = "kde";
 }
 
-if ( !$KRAZY_STYLE_OFFSET ) {
-  $KRAZY_STYLE_OFFSET = 2;
+if ( !$KRAZY_PYTHONSTYLE_OFFSET ) {
+  $KRAZY_PYTHONSTYLE_OFFSET = 2;
 }
 
 #open file and slurp it in
@@ -138,7 +138,7 @@ foreach $line (@lines) {
     }
   }
 
-  if (($KRAZY_STYLE_LINEMAX > 0) && (length($line) > $KRAZY_STYLE_LINEMAX)) {
+  if (($KRAZY_PYTHONSTYLE_LINEMAX > 0) && (length($line) > $KRAZY_PYTHONSTYLE_LINEMAX)) {
     $Issues{'LINELEN'}{'count'}++;
     if ($Issues{'LINELEN'}{'count'} == 1) {
       $Issues{'LINELEN'}{'lines'} = "line\#" . $linecnt;
@@ -231,6 +231,18 @@ foreach $line (@lines) {
     print "$linecnt (no space after '\(') => $line\n" if (&verboseArg());
   }
 
+  if ($pline =~ m/\(/ && $line =~ m/\w+\s\(/) {
+    if ($line !~ m/\sif\s\(/ && $line !~ m/\selif\s\(/ && $line !~ m/\swhile\s\(/ ) {
+      $Issues{'SPACEOPAREN'}{'count'}++;
+      if ($Issues{'SPACEOPAREN'}{'count'} == 1) {
+        $Issues{'SPACEOPAREN'}{'lines'} = "line\#" . $linecnt;
+      } else {
+        $Issues{'SPACEOPAREN'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (no space after '\(') => $line\n" if (&verboseArg());
+    }
+  }
+
   if ($pline =~ m/,[[:alnum:]]/ || $line =~ m/, {2,}/) {
     if ($line !~ m/,[[:space:]]*$/ && $line !~ m/<.*,.*>/) {
       $Issues{'COMMASPACE'}{'count'}++;
@@ -251,6 +263,16 @@ foreach $line (@lines) {
       $Issues{'SPACECOMMA'}{'lines'} .= "," . $linecnt;
     }
     print "$linecnt (no space before ',') => $line\n" if (&verboseArg());
+  }
+
+  if ($line =~ m/\sif\(/ || $line =~ m/\selif\(/ ||  $line =~ m/\swhile\(/) {
+    $Issues{'IFSPACEPAREN'}{'count'}++;
+    if ($Issues{'IFSPACEPAREN'}{'count'} == 1) {
+      $Issues{'IFSPACEPAREN'}{'lines'} = "line\#" . $linecnt;
+    } else {
+      $Issues{'IFSPACEPAREN'}{'lines'} .= "," . $linecnt;
+    }
+    print "$linecnt (Missing space before opening paren) => $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/\+/ && $line =~ m/\+/ && $line !~ m/[[:space:]]{1}\+[[:space:]]{1}/ && $line !~ m/\+=/ && $line !~ m/\+\+/ && $line !~ m/\+[[:digit:]]/ && $line !~ m/^[[:space:]]*\+/ && $line !~ m/\([[:space:]]*\+/ && $line !~ m/\+$/ && $line !~ m/operator\+/ && $line !~ m/,\s\+/) {
@@ -335,7 +357,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Some checks for Python coding style -- very basic.\n";
+  print "Some checks for Python coding style.\n";
   Exit 0 if &explainArg();
 }
 
@@ -378,7 +400,7 @@ sub initIssues() {
   $Issues{'TAB'}{'count'} = 0;
   $Issues{'TAB'}{'lines'} = '';
 
-  $Issues{'LINELEN'}{'issue'} = "Line longer than $KRAZY_STYLE_LINEMAX characters";
+  $Issues{'LINELEN'}{'issue'} = "Line longer than $KRAZY_PYTHONSTYLE_LINEMAX characters";
   $Issues{'LINELEN'}{'count'} = 0;
   $Issues{'LINELEN'}{'lines'} = '';
 
@@ -410,6 +432,10 @@ sub initIssues() {
   $Issues{'PARENNOSPACE'}{'count'} = 0;
   $Issues{'PARENNOSPACE'}{'lines'} = '';
 
+  $Issues{'SPACEOPAREN'}{'issue'} = 'Do not put spaces before an opening paren';
+  $Issues{'SPACEOPAREN'}{'count'} = 0;
+  $Issues{'SPACEOPAREN'}{'lines'} = '';
+
   $Issues{'COMMASPACE'}{'issue'} = 'Bad spacing after a comma';
   $Issues{'COMMASPACE'}{'count'} = 0;
   $Issues{'COMMASPACE'}{'lines'} = '';
@@ -426,4 +452,7 @@ sub initIssues() {
   $Issues{'RETURNPAREN'}{'count'} = 0;
   $Issues{'RETURNPAREN'}{'lines'} = '';
 
+  $Issues{'IFSPACEPAREN'}{'issue'} = 'Put 1 space between a conditional and its open paren';
+  $Issues{'IFSPACEPAREN'}{'count'} = 0;
+  $Issues{'IFSPACEPAREN'}{'lines'} = '';
 }

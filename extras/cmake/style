@@ -25,9 +25,9 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Tests CMake files for adherence to a coding style
 
 # Supports these environment variables:
-#  KRAZY_STYLE_CMAKESTYLE: a predefined style, currently available styles are "kde"
-#  KRAZY_STYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4
-#  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to unlimited)
+#  KRAZY_CMAKESTYLE_STYLE: a predefined style, currently available styles are "kde"
+#  KRAZY_CMAKESTYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4
+#  KRAZY_CMAKESTYLE_LINEMAX: max number of chars per line allowed (defaults to unlimited)
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -43,7 +43,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use Env qw (KRAZY_STYLE_CMAKESTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
+use Env qw (KRAZY_CMAKESTYLE_STYLE KRAZY_CMAKESTYLE_OFFSET KRAZY_CMAKESTYLE_LINEMAX);
 use Cwd 'abs_path';
 use Tie::IxHash;
 use FindBin qw($Bin);
@@ -51,7 +51,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.04";
+my($Version) = "1.05";
 
 &parseArgs();
 
@@ -74,13 +74,13 @@ if ($f =~ m/CMakeLists\.txt/ || $f =~ m/\.cmake$/) {
   Exit 0;
 }
 
-$KRAZY_STYLE_LINEMAX = 0 if ( !$KRAZY_STYLE_LINEMAX );
-if ( !$KRAZY_STYLE_CMAKESTYLE ) {
-  $KRAZY_STYLE_CMAKESTYLE = "kde";
+$KRAZY_CMAKESTYLE_LINEMAX = 0 if ( !$KRAZY_CMAKESTYLE_LINEMAX );
+if ( !$KRAZY_CMAKESTYLE_STYLE ) {
+  $KRAZY_CMAKESTYLE_STYLE = "kde";
 }
 
-if ( !$KRAZY_STYLE_OFFSET ) {
-  $KRAZY_STYLE_OFFSET = 2;
+if ( !$KRAZY_CMAKESTYLE_OFFSET ) {
+  $KRAZY_CMAKESTYLE_OFFSET = 2;
 }
 
 #open file and slurp it in
@@ -126,7 +126,7 @@ foreach $line (@lines) {
   $tpline =~ s/\s*$//;  #remove trailing whitespace
 
   $indent = length($line) - length($tline) if (length($tline) > 0);
-  if ($indent % $KRAZY_STYLE_OFFSET) {
+  if ($indent % $KRAZY_CMAKESTYLE_OFFSET) {
     $Issues{'BADINDENTOFF'}{'count'}++;
     if ($Issues{'BADINDENTOFF'}{'count'} == 1) {
       $Issues{'BADINDENTOFF'}{'lines'} = "line\#" . $linecnt;
@@ -137,9 +137,9 @@ foreach $line (@lines) {
   }
 
   if ($indent != $lindent) {
-    #allow to get bigger by $KRAZY_STYLE_OFFSET if previous line started a block
+    #allow to get bigger by $KRAZY_CMAKESTYLE_OFFSET if previous line started a block
     if (&startBlock($lline) || $lline =~ m/\(\s*$/) {
-      if ($lindent != $indent - $KRAZY_STYLE_OFFSET ) {
+      if ($lindent != $indent - $KRAZY_CMAKESTYLE_OFFSET ) {
         $Issues{'BADINDENT'}{'count'}++;
         if ($Issues{'BADINDENT'}{'count'} == 1) {
           $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
@@ -150,9 +150,9 @@ foreach $line (@lines) {
       }
       goto ncheck;
     }
-    #allow to get smaller by $KRAZY_STYLE_OFFSET if current line ended a block
+    #allow to get smaller by $KRAZY_CMAKESTYLE_OFFSET if current line ended a block
     if (&endBlock($line) || $line =~ m/^\s*\)\s*$/) {
-      if ($lindent < $indent + $KRAZY_STYLE_OFFSET ) {
+      if ($lindent < $indent + $KRAZY_CMAKESTYLE_OFFSET ) {
         $Issues{'BADINDENT'}{'count'}++;
         if ($Issues{'BADINDENT'}{'count'} == 1) {
           $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
@@ -176,7 +176,7 @@ foreach $line (@lines) {
   }
 
  ncheck:
-  if (($KRAZY_STYLE_LINEMAX > 0) && (length($line) > $KRAZY_STYLE_LINEMAX)) {
+  if (($KRAZY_CMAKESTYLE_LINEMAX > 0) && (length($line) > $KRAZY_CMAKESTYLE_LINEMAX)) {
     if ($line !~ m/^\s*(message|macro_log_feature|option)\s*\(/) {
       $Issues{'LINELEN'}{'count'}++;
       if ($Issues{'LINELEN'}{'count'} == 1) {
@@ -384,7 +384,7 @@ sub initIssues() {
   $Issues{'TAB'}{'count'} = 0;
   $Issues{'TAB'}{'lines'} = '';
 
-  $Issues{'LINELEN'}{'issue'} = "Line longer than $KRAZY_STYLE_LINEMAX characters";
+  $Issues{'LINELEN'}{'issue'} = "Line longer than $KRAZY_CMAKESTYLE_LINEMAX characters";
   $Issues{'LINELEN'}{'count'} = 0;
   $Issues{'LINELEN'}{'lines'} = '';
 

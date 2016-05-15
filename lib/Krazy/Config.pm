@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007,2009-2010 by Allen Winter <winter@kde.org>                   #
+# Copyright 2007,2009-2016 by Allen Winter <winter@kde.org>                   #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -30,7 +30,7 @@ use Krazy::Utils;
 use Env qw (KRAZY_STYLE_CPPSTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
 
 use Exporter;
-$VERSION = 1.50;
+$VERSION = 1.51;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(ParseKrazyRC);
@@ -57,7 +57,7 @@ $VERSION = 1.50;
 # IGNORESUBS subdir1[,subdir2,...]
 # EXTRASUBS subdir1[,subdir2,...]
 # IGNOREMODS module1[,module2,...]
-# STYLE_CPPSTYLE <kde|pim>
+# STYLE_CPPSTYLE <qt|kde|pim>
 # STYLE_OFFSET <integer > 0>
 # STYLE_LINEMAX <integer > 0>
 #
@@ -138,6 +138,14 @@ sub ParseKrazyRC {
               $directive eq "STYLE_OFFSET" ||
               $directive eq "STYLE_LINEMAX") {
       &styleSettings( $directive, $arg, $linecnt, $rcfile );
+    } elsif ( $directive eq "STYLE_CMAKESTYLE_STYLE" ||
+              $directive eq "STYLE_CMAKESTYLE_OFFSET" ||
+              $directive eq "STYLE_CMAKESTYLE_LINEMAX") {
+      &cmakeStyleSettings( $directive, $arg, $linecnt, $rcfile );
+    } elsif ( $directive eq "STYLE_PYTHONSTYLE_STYLE" ||
+              $directive eq "STYLE_PYTHONSTYLE_OFFSET" ||
+              $directive eq "STYLE_PYTHONSTYLE_LINEMAX") {
+      &pythonStyleSettings( $directive, $arg, $linecnt, $rcfile );
     } else {
       print "$rcfile: Invalid directive \"$saveDirective\" (line $linecnt)\n";
       close(F);
@@ -250,9 +258,9 @@ sub styleSettings {
   }
 
   if ($s eq "STYLE_CPPSTYLE") {
-    if ($args ne "kde" && $args ne "pim") {
-      print "invalid $s value \"$args\", line $l, $f\n";
-      print "legal values are: \"kde\" and \"pim\"\n";
+    if ( !&validateStyleType($args) ) {
+      my($lst) = &styleTypeStr();
+      print "invalid STYLE_CPPSTYLE argument \"$args\", line $l, $f\nChoices are: $lst\n";
       exit 1;
     } else {
       $ENV{KRAZY_STYLE_CPPSTYLE} = $args;
@@ -267,11 +275,85 @@ sub styleSettings {
     }
   } elsif ($s eq "STYLE_LINEMAX") {
     my ($max) = sprintf("%d",$args);
-    if ($max < 1) {
-      print "setting $s value less than 1, line $l, $f\n";
+    if ($max < 0) {
+      print "setting $s value less than 0, line $l, $f\n";
       exit 1;
     } else {
       $ENV{KRAZY_STYLE_LINEMAX} = $max;
+    }
+  } else {
+    print "unknown style setting $s, line $l, $f\n";
+    exit 1;
+  }
+}
+
+sub cmakeStyleSettings {
+  my ($s, $args, $l, $f) = @_;
+  if ( !defined($args) ) {
+    print "missing $s arguments, line $l, $f\n";
+    exit 1;
+  }
+
+  if ($s eq "STYLE_CMAKESTYLE_STYLE") {
+    if ( !&validateCMakeStyleType($args) ) {
+      my($lst) = &cmakeStyleTypeStr();
+      print "invalid STYLE_CMAKESTYLE_STYLE argument \"$args\", line $l, $f\nChoices are: $lst\n";
+      exit 1;
+    } else {
+      $ENV{KRAZY_CMAKESTYLE_STYLE} = $args;
+    }
+  } elsif ($s eq "STYLE_CMAKESTYLE_OFFSET") {
+    my ($offset) = sprintf("%d", $args);
+    if ($offset < 1) {
+      print "setting $s value less than 1, line $l, $f\n";
+      exit 1;
+    } else {
+      $ENV{KRAZY_CMAKESTYLE_OFFSET} = $offset;
+    }
+  } elsif ($s eq "STYLE_CMAKESTYLE_LINEMAX") {
+    my ($max) = sprintf("%d",$args);
+    if ($max < 0) {
+      print "setting $s value less than 0, line $l, $f\n";
+      exit 1;
+    } else {
+      $ENV{KRAZY_CMAKESTYLE_LINEMAX} = $max;
+    }
+  } else {
+    print "unknown style setting $s, line $l, $f\n";
+    exit 1;
+  }
+}
+
+sub pythonStyleSettings {
+  my ($s, $args, $l, $f) = @_;
+  if ( !defined($args) ) {
+    print "missing $s arguments, line $l, $f\n";
+    exit 1;
+  }
+
+  if ($s eq "STYLE_PYTHONSTYLE_STYLE") {
+    if ( !&validatePythonStyleType($args) ) {
+      my($lst) = &pythonStyleTypeStr();
+      print "invalid STYLE_PYTHONSTYLE_STYLE argument \"$args\", line $l, $f\nChoices are: $lst\n";
+      exit 1;
+    } else {
+      $ENV{KRAZY_PYTHONSTYLE_STYLE} = $args;
+    }
+  } elsif ($s eq "STYLE_PYTHONSTYLE_OFFSET") {
+    my ($offset) = sprintf("%d", $args);
+    if ($offset < 1) {
+      print "setting $s value less than 1, line $l, $f\n";
+      exit 1;
+    } else {
+      $ENV{KRAZY_PYTHONSTYLE_OFFSET} = $offset;
+    }
+  } elsif ($s eq "STYLE_PYTHONSTYLE_LINEMAX") {
+    my ($max) = sprintf("%d",$args);
+    if ($max < 0) {
+      print "setting $s value less than 0, line $l, $f\n";
+      exit 1;
+    } else {
+      $ENV{KRAZY_PYTHONSTYLE_LINEMAX} = $max;
     }
   } else {
     print "unknown style setting $s, line $l, $f\n";
@@ -324,7 +406,7 @@ sub priority {
   $args=lc($args);
   if ( !&validatePriorityType($args) ) {
     my($lst) = &priorityTypeStr();
-    print "invalid PRIORITY argument \"$args\", line $l, $f\nChoices for PRIORITY are: $lst";
+    print "invalid PRIORITY argument \"$args\", line $l, $f\nChoices for PRIORITY are: $lst\n";
     exit 1;
   }
   $rcPriority = $args;
@@ -339,7 +421,7 @@ sub strict {
   $args=lc($args);
   if ( !&validateStrictType($args) ) {
     my($lst) = &strictTypeStr();
-    print "invalid STRICT argument \"$args\", line $l, $f\nChoices for STRICT are: $lst";
+    print "invalid STRICT argument \"$args\", line $l, $f\nChoices for STRICT are: $lst\n";
     exit 1;
   }
   $rcStrict = $args;
@@ -349,7 +431,7 @@ sub output {
   my ($args,$l,$f) = @_;
   if ( !defined($args) ) {
     my($lst) = &outputTypeStr();
-    print "missing OUTPUT argument, line $l, $f\nChoices for OUTPUT are: $lst";
+    print "missing OUTPUT argument, line $l, $f\nChoices for OUTPUT are: $lst\n";
     exit 1;
   }
   $args=lc($args);
@@ -369,7 +451,7 @@ sub export {
   $args=lc($args);
   if ( !&validateExportType($args) ) {
     my($lst) = &exportTypeStr();
-    print "invalid EXPORT argument \"$args\", line $l, $f\nChoices for EXPORT are: $lst";
+    print "invalid EXPORT argument \"$args\", line $l, $f\nChoices for EXPORT are: $lst\n";
     exit 1;
   }
   $rcExport = $args;

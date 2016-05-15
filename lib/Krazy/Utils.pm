@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.27;
+$VERSION = 1.28;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -42,8 +42,10 @@ $VERSION = 1.27;
              explainArg quietArg verboseArg installedArg
              priorityTypeStr strictTypeStr exportTypeStr
              outputTypeStr checksetTypeStr
+             styleTypeStrsub cmakeStyleTypeStr pythonStyleTypeStr
              validateExportType validatePriorityType validateStrictType
              validateOutputType validateCheckSet
+             validateStyleType validateCMakeStyleType validatePythonStyleType
              usingCheckSet usingQtCheckSet usingKDECheckSet
              linesSearchInFile linesCaseSearchInFile
              allLinesCaseSearchInFile
@@ -76,6 +78,17 @@ my(@Outputs) = ( "normal",       # standard stuff (default)
                  "brief",        # only checks with issues
                  "quiet"         # no output, even if verbosity turned-on
                );
+
+my(@Styles) = ( "qt",            # Qt style
+                "kde",           # KDE style (default)
+                "pim"            # KDEPIM style
+               );
+
+my(@CMakeStyles) = ( "kde"       # KDE style (default)
+                   );
+
+my(@PythonStyles) = ( "kde"       # KDE style (default)
+                    );
 
 my(@Sets) = ( "c++",             # Pure C/C++ source
               "qt4",             # Qt4 source (C++, QML, Qt Designer, Qt Doc)
@@ -236,6 +249,10 @@ sub fileType {
 
   if ( $f =~ m/\.(?:cpp|cc|cxx|c|C|tcc|h|hxx|hpp|H\+\+)$/ ) {
     return "c++";
+  } elsif ( $f =~ m/\.(?:cpp|cc|cxx|c|C|tcc|h|hxx|hpp|H\+\+)\.in$/ ) {
+    return "c++";
+  } elsif ( $f =~ m/\.(?:cpp|cc|cxx|c|C|tcc|h|hxx|hpp|H\+\+)\.cmake$/ ) {
+    return "c++";
   } elsif ( $f =~ m/\.desktop$/ ) {
     return "desktop";
   } elsif ( $f =~ m/\.ui$/ ) {
@@ -304,6 +321,8 @@ sub fileTypeIs {
   #special case C vs. C++
   if ($t eq "c++") {
     return 1 if ($f =~ m/\.(?:cpp|cc|cxx|C|tcc|hxx|hpp|H\+\+)$/);
+    return 1 if ($f =~ m/\.(?:cpp|cc|cxx|C|tcc|hxx|hpp|H\+\+)\.in$/);
+    return 1 if ($f =~ m/\.(?:cpp|cc|cxx|C|tcc|hxx|hpp|H\+\+)\.cmake$/);
     if ($f =~ m/\.h$/) {
       my($tf) = $f;
       $tf =~ s/\.h$/\.cpp/;
@@ -315,6 +334,32 @@ sub fileTypeIs {
       $tf =~ s/\.cxx$/\.C/;
       return 1 if (-e $tf);
       $tf =~ s/\.C$/\.tcc/;
+      return 1 if (-e $tf);
+    }
+    if ($f =~ m/\.h\.in$/) {
+      my($tf) = $f;
+      $tf =~ s/\.h\.in$/\.cpp\.in/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.cpp\.in$/\.cc.in/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.cc\.in$/\.cxx.in/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.cxx\.in$/\.C.in/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.C\.in$/\.tcc.in/;
+      return 1 if (-e $tf);
+    }
+    if ($f =~ m/\.h\.cmake$/) {
+      my($tf) = $f;
+      $tf =~ s/\.h\.cmake$/\.cpp\.cmake/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.cpp\.cmake$/\.cc.cmake/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.cc\.cmake$/\.cxx.cmake/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.cxx\.cmake$/\.C.cmake/;
+      return 1 if (-e $tf);
+      $tf =~ s/\.C\.cmake$/\.tcc.cmake/;
       return 1 if (-e $tf);
     }
   }
@@ -477,6 +522,45 @@ sub validateOutputType { #output type doesn't consider verbosity (except in the 
   if ($output) {
     $output = lc($output);
     return grep {$_ eq $output} @Outputs;
+  }
+  return 0;
+}
+
+sub styleTypeStr {
+  return join ', ', @Styles;
+}
+
+sub validateStyleType {
+  my ($style) = @_;
+  if ($style) {
+    $style = lc($style);
+    return grep {$_ eq $style} @Styles;
+  }
+  return 0;
+}
+
+sub cmakeStyleTypeStr {
+  return join ', ', @CMakeStyles;
+}
+
+sub validateCMakeStyleType {
+  my ($style) = @_;
+  if ($style) {
+    $style = lc($style);
+    return grep {$_ eq $style} @CMakeStyles;
+  }
+  return 0;
+}
+
+sub pythonStyleTypeStr {
+  return join ', ', @PythonStyles;
+}
+
+sub validatePythonStyleType {
+  my ($style) = @_;
+  if ($style) {
+    $style = lc($style);
+    return grep {$_ eq $style} @PythonStyles;
   }
   return 0;
 }

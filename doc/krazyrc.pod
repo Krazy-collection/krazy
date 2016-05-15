@@ -133,6 +133,67 @@ Overrides the KRAZY_STYLE_LINEMAX environment variable, see krazy2(1).
 
 =back
 
+=item STYLE_CMAKESTYLE_STYLE CMake-style
+
+Tell the "style" checker to follow the guidelines of the specified CMake-style.
+
+CMake-style must be one of the following:
+
+=over 2
+
+"kde" (default).  uses offset of 2.
+
+=back
+
+Overrides the KRAZY_CMAKESTYLE_STYLE environment variable, see krazy2(1).
+
+=item STYLE_CMAKESTYLE_OFFSET indent
+
+Tell the "style" checker to check for a basic indentation level, usually a
+small integer like 2 or 4.  This value overrides the default offset provided
+by the CMake-style.
+
+Overrides the KRAZY_CMAKESTYLE_OFFSET environment variable, see krazy2(1).
+
+=item STYLE_CMAKESTYLE_LINEMAX length
+
+Tell the "style" checker to check for lines longer than this number of characters.
+The default is unlimited line length.
+
+Overrides the KRAZY_CMAKESTYLE_LINEMAX environment variable, see krazy2(1).
+
+=back
+
+=item STYLE_PYTHONSTYLE_STYLE Python-style
+
+Tell the "style" checker to follow the guidelines of the specified Python-style.
+
+Python-style must be one of the following:
+
+=over 2
+
+"kde" (default) uses offset of 2.
+
+=back
+
+Overrides the KRAZY_PYTHONSTYLE_STYLE environment variable, see krazy2(1).
+
+=item STYLE_PYTHONSTYLE_OFFSET indent
+
+Tell the "style" checker to check for a basic indentation level, usually a
+small integer like 2 or 4.  This value overrides the offset provided by the Python-style.
+
+Overrides the KRAZY_PYTHONSTYLE_OFFSET environment variable, see krazy2(1).
+
+=item STYLE_PYTHONSTYLE_LINEMAX length
+
+Tell the "style" checker to check for lines longer than this number of characters.
+The default is unlimited line length.
+
+Overrides the KRAZY_PYTHONSTYLE_LINEMAX environment variable, see krazy2(1).
+
+=back
+
 =head1 ADMIN DIRECTIVES
 
 This is a list of administrator directives used only by the krazy2xml(1) program

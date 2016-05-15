@@ -1867,6 +1867,16 @@ the offset provided as part of the C++-style (see B<KRAZY_STYLE_CPPSTYLE>).
 B<KRAZY_STYLE_LINEMAX> - tells the "style" checker to check for lines longer
 than this number of characters.  The default is unlimited length.
 
+Similarly:
+
+=over 2
+
+for controlling the CMake style checker, use B<KRAZY_CMAKESTYLE_STYLE>, B<KRAZY_CMAKESTYLE_OFFSET>and B<KRAZY_CMAKESTYLE_LINEMAX>.
+
+for controlling the Python style checker, use B<KRAZY_PYTHONSTYLE_STYLE>, B<KRAZY_PYTHONSTYLE_OFFSET> and B<KRAZY_PYTHONSTYLE_LINEMAX>.
+
+=back
+
 =head1 EXIT STATUS
 
 In normal operation, krazy2 exits with a status equal to the total number
