@@ -189,8 +189,14 @@ cd ..
 mkdir -p $TOP/conf
 cp conf/settings.yaml $TOP/conf
 
+#create a krazy2rc man page (a symlink to the krazyrc man page)
+if ( test -d $TOP/share/man/man3 )
+then
+  (cd $TOP/share/man/man3; ln -sf krazyrc.3 krazy2rc.3)
+fi
+
 #remove old checkers no longer in use
-rm -f $TOP/lib/krazy2/krazy-plugins/*/contractions
+rm -f $TOP/lib/krazy2/krazy-extras/*/contractions
 rm -f $TOP/lib/krazy2/krazy-plugins/*/qconnect
 
 #permissions
