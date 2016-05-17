@@ -114,10 +114,11 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Krazy::Config;
 use Krazy::Utils;
+use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.993';    #split line so MakeMaker can find the version here
+ $VERSION = '2.994';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -381,7 +382,7 @@ if ( !$ignorerc ) {
 
     # read directives from the project's .krazy
     $rcfile = "";
-    my ($projpath) = &topProject($CWD);
+    my ($projpath) = &topOfProject($CWD);
     if ($projpath) {
       $rcfile = $projpath . "/.krazy";
     } else {
@@ -708,11 +709,12 @@ if ( $ARGV[0] eq "-" ) {
 my ( $f, $absf, $absfh, $ftype );
 my (@types) = ();
 for $f (@allfiles) {
-  if ( !-f $f ) {
+  $absf = abs_path($f);
+  if ( !-f $absf ) {
     print STDERR "Cannot access file $f\n";
     next;
   }
-  if ( $f =~ m+$skip+ ) {
+  if ( $absf =~ m+$skip+ ) {
     print STDERR "skipping $f\n" if ($verbose);
     next;
   }
@@ -756,7 +758,8 @@ for $ftype (@types) {
       my ($nf) = 0;
       $num_checkers++;
       for $f (@allfiles) {
-        next if ( $f =~ m+$skip+ );
+        $absf = abs_path($f);
+        next if ( $absf =~ m+$skip+ );
         next unless ( fileType($f) eq $ftype );
 
         $nf++;
@@ -777,7 +780,6 @@ for $ftype (@types) {
 
         # use the helper program to determine if this file is to be installed
         $insopt = "";
-        $absf   = abs_path($f);
         $absfh  = $absf;
         $absfh  =~ s/\.cpp$/\.h/;  #one day deal with .hpp
         $absfh  =~ s/\.cc$/\.h/;
