@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qminmax";
-my($Version) = "1.60";
+my($Version) = "1.61";
 
 &parseArgs();
 
@@ -174,7 +174,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Obsolete macros QMIN(), Q_MIN(), QMAX() and Q_MAX() should be replaced by the qMin() and qMax() functions. Additionally, when passing floating point constants make sure to cast them as qreal's so the code builds ok on machines without an fpu (like ARMs). For example, qMax(foo(),1.0) should be changed to qMax(foo(),qreal(1.0))\n";
+  print "Obsolete macros QMIN(), Q_MIN(), QMAX() and Q_MAX() should be replaced by the qMin() and qMax() functions. Additionally, when passing floating point constants make sure to cast them as qreal's so the code builds ok on machines without an fpu (like ARMs). For example, qMax(foo(),1.0) should be changed to qMax(foo(),qreal(1.0)) see <http://www.thelins.se/johan/blog/2011/12/qbound-on-arm>\n";
   Exit 0 if &explainArg();
 }
-
