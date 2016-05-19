@@ -118,7 +118,7 @@ use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.994';    #split line so MakeMaker can find the version here
+ $VERSION = '2.995';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -823,9 +823,17 @@ for $ftype (@types) {
         }
         print STDERR "." unless ( $nf % 10 || $quiet || $export =~ m/text[a-z]+/);
       } # foreach file to process
-      if ( $nf > 0 ) {
-        $overall_status += $status{$p} if ( defined( $status{$p} ) );
-        print STDERR "done\n" unless ($quiet || $brief);
+      if ($nf > 0) {
+        if (defined($status{$p})) {
+          if ($status{$p}) {
+            print STDERR "fail\n" unless ($quiet || $brief);
+          } else {
+            print STDERR "pass\n"unless ($quiet || $brief);
+          }
+          $overall_status += $status{$p};
+        } else {
+          print STDERR "unknown\n" unless ($quiet || $brief);
+        }
       }
     } # foreach Checker of this type
   } # if any Checker is defined for file of this type
