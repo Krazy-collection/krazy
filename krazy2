@@ -118,7 +118,7 @@ use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.995';    #split line so MakeMaker can find the version here
+ $VERSION = '2.996';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -225,6 +225,14 @@ tie my (%pCheckers), "Tie::IxHash";    # the final list
 # Sets hash
 tie my (%Sets), "Tie::IxHash";
 &initSets();
+
+#Compute the Project Path and guess the Project Checksets
+my($ProjPath) = &topOfProject($CWD);
+my($GuessCheckSets) = '';
+if ($ProjPath) {
+  $GuessCheckSets = &guessCheckSet($ProjPath);
+}
+$GuessCheckSets = $DEFAULT_CHECKSETS if (!$GuessCheckSets);
 
 ######################################################################
 # This section builds the list of checker programs and checker sets. #
@@ -382,9 +390,8 @@ if ( !$ignorerc ) {
 
     # read directives from the project's .krazy
     $rcfile = "";
-    my ($projpath) = &topOfProject($CWD);
-    if ($projpath) {
-      $rcfile = $projpath . "/.krazy";
+    if ($ProjPath) {
+      $rcfile = $ProjPath . "/.krazy";
     } else {
       if (!&topModule($CWD)) {
         #not in a project dir, so use the one in cwd
@@ -426,6 +433,7 @@ $output    = $ds{'OUTPUT'}       if (               $ds{'OUTPUT'});
 $export    = $ds{'EXPORT'}       if (!$export    && $ds{'EXPORT'});
 
 # fallback defaults
+$checksets = $GuessCheckSets if (!$checksets);
 $export = "text" if (!$export);
 $quiet = 1 if ( !$quiet && $output eq "quiet" );
 $brief = 1 if ( !$brief && $output eq "brief" );
@@ -433,6 +441,7 @@ $brief = 0 if ( $nobrief );
 
 # if ($verbose) {
 #    print "\nDirectives:\n";
+#    print "CHECKSETS\n"            if ($checksets);
 #    print "CHECK $only\n"          if ($only);
 #    print "EXCLUDE $exclude\n"     if ($exclude);
 #    print "EXTRA $extra\n"         if ($extra);
