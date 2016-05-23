@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.992";
+my($Version) = "1.993";
 
 &parseArgs();
 
@@ -189,7 +189,7 @@ while ($linecnt <= $#lines) {
             # perhaps a non-const d-pointer
             if (($line =~ m/Private/ && $line !~ m/\(.*Private.*\)/ ||
                  $line =~ m/Priv/    && $line !~ m/\(.*Priv.*\)/) &&
-                $line !~ m/class/ && $line !~ m/struct/ &&
+                $line !~ m/class/ && $line !~ m/struct/ && $line !~ m/friend/ &&
                 $line !~ m/std::unique_ptr/ &&
                 $line !~ m/boost::shared_ptr/ &&
                 $line !~ m/boost::scoped_ptr/ &&
