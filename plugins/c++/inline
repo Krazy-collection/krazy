@@ -45,7 +45,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "inline";
-my($Version) = "1.14";
+my($Version) = "1.15";
 
 &parseArgs();
 
@@ -247,6 +247,8 @@ sub Inline {
   return 0 if ($l =~ m+//.*in-line+);#if in-line in a comment on the line
 
   return 0 if ($l =~ m+virtual\s~+); #allow inline virtual destructors
+
+  return 0 if ($l =~ m/=\s*{.*}/); #allow initializers
 
 #  return 0 if ($l =~ m+{\s*}+);
   return 0 if ($l =~ m+^\s*:+);
