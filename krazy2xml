@@ -51,7 +51,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.997';    #split line so MakeMaker can find the version here
+ $VERSION = '2.998';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -335,6 +335,7 @@ sub gitRevFromDB {
   my($gitRev) = "";
   if (defined($generation) && $generation) {
     $gitRev = &execSql("\"SELECT checksum FROM results_krazy WHERE module='$module' AND application='$subdir' AND generation=$generation;\"");
+    chomp($gitRev);
   }
   return $gitRev;
 }
@@ -540,15 +541,18 @@ sub doIt {
 
   my ($checksum) = &gitRevFromDB($cms);
 
-  my ($checksets) =  '';
-  my ($rcsets) = join ', ', @sCheckSets;
-  if ($rcsets) {
-    $checksets = "--check-sets=$rcsets";
-  } else {
-    my ($guesssets) = &guessCheckSet($in);
-    $checksets = "--check-sets=$guesssets" if ($guesssets);
+  #if the git revision hasn't changed there is no need to rerun krazy
+  #if the .krazy is changed so will the git revision so maybe this is ok
+  if ($gitrev eq $checksum) {
+    if (&updateExistingPage("$out", "$comp/$module/$subdir") == 1) {
+      print "      No changes since last run for $cms\n";
+      return $gitrev;
+    } else {
+      print "      No changes since last run but unable to update page for $cms\n";
+    }
   }
-  my ($command) = "$krazy $checks $checksets --ignorerc $priority $strict --export=xml --explain --title \"$title\" --cms $cms $rev $exclude $extra";
+
+  my ($command) = "$krazy --ignorerc $priority $strict --export=xml --explain --title \"$title\" --cms $cms $rev $exclude $extra";
 
   # Find the files to process
   chdir($in) || die "Error: Cannot change dir to $in";
@@ -600,10 +604,6 @@ sub doIt {
   }
 
   # TODO: translate the xml reports to SQL queries and execute them.
-
-  # We're finished, remove the xml file.
-  #$command = "rm $out/result.xml";
-  #system($command);
 
   return $gitrev;
 }
@@ -747,6 +747,30 @@ sub execSql {
       print "echo @_ | PSQL -t -h localhost -U kde ebn -A -q\n";
     }
   }
+}
+
+sub updateExistingPage {
+  my ($outdir, $cms) = @_;
+  my ($in) = "$destdir" . "/" . "$cms" . "/index.html";
+  my ($out) = "$outdir" . "/index.html";
+
+  # read the existing file and replace the date, then write it back out
+  open(F, "<$in") || return 0;
+  my (@alldata) = <F>;
+  close(F);
+
+  my ($line, @outdata);
+  my ($n) = &asOf();
+  foreach $line (@alldata) {
+    $line =~ s/(^.*as of ).*$/$1$n/;
+    push(@outdata, $line);
+  }
+  open(F, ">$out") || return 0;
+  foreach $line (@outdata) {
+    print F $line;
+  }
+  close(F);
+  return 1;
 }
 
 # createIgnorePage: create an empty "ignore" page.
