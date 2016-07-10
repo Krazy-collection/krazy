@@ -51,7 +51,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.998';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9981';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -552,7 +552,16 @@ sub doIt {
     }
   }
 
-  my ($command) = "$krazy --ignorerc $priority $strict --export=xml --explain --title \"$title\" --cms $cms $rev $exclude $extra";
+  my ($checksets) =  '';
+  my ($rcsets) = join ', ', @sCheckSets;
+  if ($rcsets) {
+    $checksets = "--check-sets=$rcsets";
+  } else {
+    my ($guesssets) = &guessCheckSet($in);
+    $checksets = "--check-sets=$guesssets" if ($guesssets);
+  }
+
+  my ($command) = "$krazy $checks $checksets --ignorerc $priority $strict --export=xml --explain --title \"$title\" --cms $cms $rev $exclude $extra";
 
   # Find the files to process
   chdir($in) || die "Error: Cannot change dir to $in";
