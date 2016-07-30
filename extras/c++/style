@@ -286,14 +286,28 @@ foreach $line (@lines) {
     }
   }
 
-  if ($line =~ m/[[:space:]],/) {
-    $Issues{'SPACECOMMA'}{'count'}++;
-    if ($Issues{'SPACECOMMA'}{'count'} == 1) {
-      $Issues{'SPACECOMMA'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'SPACECOMMA'}{'lines'} .= "," . $linecnt;
+  if ($KRAZY_STYLE_CPPSTYLE ne "qt") {
+    if ($line =~ m/[[:space:]],/) {
+      $Issues{'SPACECOMMA'}{'count'}++;
+      if ($Issues{'SPACECOMMA'}{'count'} == 1) {
+        $Issues{'SPACECOMMA'}{'lines'} = "line\#" . $linecnt;
+      } else {
+        $Issues{'SPACECOMMA'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (no space before ',') => $line\n" if (&verboseArg());
     }
-    print "$linecnt (no space before ',') => $line\n" if (&verboseArg());
+  } else { #allow comma to start a line
+    my ($tmpl) = $line;
+    $tmpl =~ s/^[[:space:]]*,//;
+    if ($tmpl =~ m/[[:space:]],/) {
+      $Issues{'SPACECOMMA'}{'count'}++;
+      if ($Issues{'SPACECOMMA'}{'count'} == 1) {
+        $Issues{'SPACECOMMA'}{'lines'} = "line\#" . $linecnt;
+      } else {
+        $Issues{'SPACECOMMA'}{'lines'} .= "," . $linecnt;
+      }
+      print "$linecnt (no space before ',') => $line\n" if (&verboseArg());
+    }
   }
 
   if ($pline =~ m/\w+\*/ || $pline =~ m/\w+&/) {
@@ -1181,7 +1195,9 @@ sub isOkStart() {
     if ($l =~ m/^\s*<</ ||
         $l =~ m/^\s*>>/ ||
         $l =~ m/^\s*\"/ ||
-        $l =~ m/^\s*:/);
+        $l =~ m/^\s*:/  ||
+        ($l =~ m/^\s*=/ && $KRAZY_STYLE_CPPSTYLE eq "qt")
+    );
   return 0;
 }
 
