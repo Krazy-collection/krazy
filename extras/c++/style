@@ -869,7 +869,7 @@ foreach $line (@lines) {
   if (length($line)) {
     if ($lline !~ m/,$/ && $lline !~ m/&&$/ && $lline !~ m/\|\|$/) {
       #do not change indent level if line to be continued
-      $lindent = $indent
+      $lindent = $indent;
     }
     $lline = $line;
   }
