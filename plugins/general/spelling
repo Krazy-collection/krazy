@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.903";
+my($Version) = "1.904";
 
 &parseArgs();
 
@@ -1578,6 +1578,7 @@ remaing                remaining
 remeber                remember
 remebers               remembers
 remotley               remotely
+removeable             removable
 renderes               renders
 renewd                 renewed
 reorienting            reorientating
