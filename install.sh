@@ -3,7 +3,7 @@
 # install krazy
 
 #Exit this script if it any subprocess exits non-zero.
-set -e
+#set -e  qmake from qt3 exits with non-zero status, so we can set this
 
 #save current working dir
 savedir=`pwd`
