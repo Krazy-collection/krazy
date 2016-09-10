@@ -30,7 +30,7 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.992';    #split line so MakeMaker can find the version here
+ $VERSION = '2.993';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';

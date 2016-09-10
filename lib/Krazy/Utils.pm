@@ -277,6 +277,8 @@ sub fileType {
     return "perl";
   } elsif ( $f =~ m/\.py$/ ) {
     return "python";
+  } elsif ( $f =~ m/\.svg$/ ) {
+    return "svg";
   }
   return "";
 }
@@ -310,6 +312,8 @@ sub fileTypeDesc {
     return "Perl program files";
   } elsif ( $t eq "python" ) {
     return "Python program files";
+  } elsif ( $t eq "svg" ) {
+    return "SVG (uncompressed) files";
   }
   return "";
 }
@@ -381,6 +385,7 @@ sub fileTypeIs {
   return 1 if (($t eq "perl") &&
                ($f =~ m/\.pl$/ || $f =~ m/\.PL$/));
   return 1 if (($t eq "python") && ($f =~ m/\.py$/));
+  return 1 if (($t eq "svg") && ($f =~ m/\.svg$/));
 
   &userMessage("BAD FILETYPE PASSED TO fileTypeIs()") if (&fileType($f) eq "");
   return 0;

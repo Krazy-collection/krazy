@@ -1,6 +1,6 @@
 # krazy kde5 sets Makefile
 #
-# Copyright 2013,2015 by Allen Winter <winter@kde.org>
+# Copyright 2013,2015-2016 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@ typedefs \
 # links to designer plugins
 UI_PLUGINS = \
 endswithnewline \
+filenames \
 fixuifiles \
 i18ncheckarg \
 qclasses \
@@ -62,6 +63,7 @@ spelling \
 # links to desktop plugins
 DESKTOP_PLUGINS = \
 endswithnewline \
+filenames \
 iconnames \
 spelling \
 validate \
@@ -69,6 +71,7 @@ validate \
 # lines to kconfigxt plugins
 KCFG_PLUGINS = \
 endswithnewline \
+filenames \
 i18ncheckarg \
 spelling \
 validate \
@@ -76,6 +79,7 @@ validate \
 # links to kpartgui plugins
 RC_PLUGINS = \
 endswithnewline \
+filenames \
 i18ncheckarg \
 spelling \
 validate \
@@ -83,16 +87,20 @@ validate \
 # links to tips plugins
 TIPS_PLUGINS = \
 endswithnewline \
+filenames \
 spelling \
 
 # links to Messages.sh plugins
 MSG_PLUGINS = \
+endswithnewline \
+filenames \
 rcappend \
 
 # links to QML plugins
 QML_PLUGINS = \
 copyright \
 endswithnewline \
+filenames \
 iconnames \
 license \
 qmlsyntax \
@@ -102,6 +110,7 @@ spelling \
 PERL_PLUGINS = \
 copyright \
 endswithnewline \
+filenames \
 license \
 spelling \
 
@@ -109,13 +118,20 @@ spelling \
 PYTHON_PLUGINS = \
 copyright \
 endswithnewline \
+filenames \
 license \
 qtemits \
 spelling \
 
+# links to SVG plugins
+SVG_PLUGINS = \
+filenames \
+validate \
+
 # links to CMake plugins
 CMAKE_PLUGINS = \
 endswithnewline \
+filenames \
 spelling \
 
 #default installation location
@@ -169,6 +185,10 @@ install::
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing kde5 set python plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/python/$$plugin $(DESTDIR)$(INSTDIR)/python-$$plugin; \
+	done
+	list="$(SVG_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing kde5 set SVG plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/svg/$$plugin $(DESTDIR)$(INSTDIR)/svg-$$plugin; \
 	done
 	list="$(CMAKE_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing kde5 set cmake plugin link $$plugin"; \

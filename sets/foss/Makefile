@@ -29,12 +29,21 @@ license \
 # links to Perl plugins
 PERL_PLUGINS = \
 copyright \
+endswithnewline \
+filenames \
 license \
 
 # links to Python plugins
 PYTHON_PLUGINS = \
 copyright \
+endswithnewline \
+filenames \
 license \
+
+# links to SVG plugins
+SVG_PLUGINS = \
+filenames \
+validate \
 
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/foss
@@ -66,6 +75,11 @@ install::
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing foss set python plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/python/$$plugin $(DESTDIR)$(INSTDIR)/python-$$plugin; \
+	done
+
+	list="$(SVG_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing foss set SVG plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/svg/$$plugin $(DESTDIR)$(INSTDIR)/svg-$$plugin; \
 	done
 
 clean:

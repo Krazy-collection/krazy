@@ -118,7 +118,7 @@ use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.996';    #split line so MakeMaker can find the version here
+ $VERSION = '2.997';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -985,6 +985,7 @@ sub initCheckers {
     'qdoc'      => [],
     'perl'      => [],
     'python'    => [],
+    'svg'       => [],
   );
   my ($type);
   foreach $type ( keys %Checkers ) {

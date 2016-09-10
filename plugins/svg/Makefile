@@ -1,6 +1,6 @@
-# krazy plugins Makefile
+# krazy plugins/svg Makefile
 #
-# Copyright 2007-2008,2010,2012-2013,2015 by Allen Winter <winter@kde.org>
+# Copyright 2016 Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,39 +16,36 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# list of all plugin subdirs to install
-SUBDIRS = \
-general \
-c++ \
-cmake \
-designer \
-desktop \
-kconfigxt \
-messages \
-kpartgui \
-tips \
-qml \
-qdoc \
-perl \
-python \
-svg
+# list of all plugins to install
+PLUGINS = \
+validate \
+
+# links to general purpose plugins
+PLUGINLNS = \
+filenames \
 
 #default installation location
-PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy/krazy-plugins
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/svg
 
 all:
 
 install::
-	list="$(SUBDIRS)"; for dir in $$list; do \
-		echo "Installing plugin subdir $$dir"; \
-		( cd $$dir && $(MAKE) install ); \
+	@if test ! -d $(DESTDIR)$(INSTDIR); then \
+		mkdir -p $(DESTDIR)$(INSTDIR) || exit 1; \
+	fi
+
+	cp -f description.txt $(DESTDIR)$(INSTDIR)
+
+	list="$(PLUGINS)"; for plugin in $$list; do \
+		echo "Installing plugin $$plugin"; \
+		cp -f $$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
+	done
+	list="$(PLUGINLNS)"; for plugin in $$list; do \
+		echo "Installing plugin link $$plugin"; \
+		ln -sf ../general/$$plugin $(DESTDIR)$(INSTDIR)/$$plugin; \
 	done
 
 clean:
-	list="$(SUBDIRS)"; for dir in $$list; do \
-		echo "Cleaning plugin subdir $$dir"; \
-		( cd $$dir && $(MAKE) clean ); \
-	done
+	@echo "Nothing to clean"
 
 realclean: clean
