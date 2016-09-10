@@ -117,7 +117,7 @@ cd ..
 
 #install binary helper scripts
 if ( test $EBN -eq 0 ) then
-  cd src/desktop-file-utils-0.22 && \
+  cd src/desktop-file-utils-0.23 && \
   touch configure.ac aclocal.m4 configure Makefile.am Makefile.in && \
   sh configure && make && \
   cp -f ./src/desktop-file-validate $TOP/lib/krazy2/krazy-helpers && \

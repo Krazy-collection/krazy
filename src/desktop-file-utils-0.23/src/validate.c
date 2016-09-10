@@ -211,6 +211,10 @@ handle_actions_key (kf_validator *kf,
                     const char   *locale_key,
                     const char   *value);
 static gboolean
+handle_dbus_activatable_key (kf_validator *kf,
+                             const char   *locale_key,
+                             const char   *value);
+static gboolean
 handle_dev_key (kf_validator *kf,
                 const char   *locale_key,
                 const char   *value);
@@ -313,7 +317,7 @@ static DesktopKeyDefinition registered_desktop_keys[] = {
    * specified) */
   { DESKTOP_STRING_LIST_TYPE,       "Actions",           FALSE, FALSE, FALSE, handle_actions_key },
 
-  { DESKTOP_BOOLEAN_TYPE,           "DBusActivatable",   FALSE, FALSE, FALSE, NULL },
+  { DESKTOP_BOOLEAN_TYPE,           "DBusActivatable",   FALSE, FALSE, FALSE, handle_dbus_activatable_key },
 
   /* Keys reserved for KDE */
 
@@ -363,7 +367,7 @@ static DesktopKeyDefinition registered_action_keys[] = {
 };
 
 static const char *show_in_registered[] = {
-  "GNOME", "KDE", "LXDE", "MATE", "Razor", "ROX", "TDE", "Unity", "XFCE", "Old"
+    "GNOME", "KDE", "LXDE", "LXQt", "MATE", "Razor", "ROX", "TDE", "Unity", "XFCE", "Cinnamon", "EDE", "Old"
 };
 
 static struct {
@@ -765,9 +769,6 @@ validate_numeric_key (kf_validator *kf,
 /* + Values of type string may contain all ASCII characters except for control
  *   characters.
  *   Checked.
- * + The multiple values should be separated by a semicolon. Those keys which
- *   have several values should have a semicolon as the trailing character.
- *   Checked.
  * + FIXME: how should an empty list be handled?
  */
 static gboolean
@@ -795,24 +796,6 @@ validate_string_regexp_list_key (kf_validator *kf,
                      "contain all ASCII characters except for control "
                      "characters\n",
                      value, type, key, kf->current_group, value[i], type);
-
-    return FALSE;
-  }
-
-  if (i > 0 && value[i - 1] != ';') {
-    print_fatal (kf, "value \"%s\" for %s list key \"%s\" in group \"%s\" "
-                     "does not have a semicolon (';') as trailing "
-                     "character\n",
-                     value, type, key, kf->current_group);
-
-    return FALSE;
-  }
-
-  if (i > 1 && value[i - 1] == ';' && value[i - 2] == '\\' &&
-      (i < 3 || value[i - 3] != '\\')) {
-    print_fatal (kf, "value \"%s\" for %s list key \"%s\" in group \"%s\" "
-                     "has an escaped semicolon (';') as trailing character\n",
-                     value, type, key, kf->current_group);
 
     return FALSE;
   }
@@ -845,10 +828,6 @@ validate_regexp_list_key (kf_validator *kf,
  * + If a postfixed key occurs, the same key must be also present without the
  *   postfix.
  *   Checked.
- * + The multiple values should be separated by a semicolon. Those keys which
- *   have several values should have a semicolon as the trailing character.
- *   FIXME: partly checked. We use checks that work for sure for ascii
- *   characters, but that could possibly fail in some weird UTF-8 strings.
  * + FIXME: how should an empty list be handled?
  */
 static gboolean
@@ -858,7 +837,6 @@ validate_localestring_list_key (kf_validator *kf,
                                 const char   *value)
 {
   char     *locale_key;
-  int       len;
 
   if (locale)
     locale_key = g_strdup_printf ("%s[%s]", key, locale);
@@ -872,27 +850,6 @@ validate_localestring_list_key (kf_validator *kf,
                      "list values should be encoded in UTF-8\n",
                      value, locale_key, kf->current_group);
     g_free (locale_key);
-
-    return FALSE;
-  }
-
-  len = strlen (value);
-
-  if (len > 0 && value[len - 1] != ';') {
-    print_fatal (kf, "value \"%s\" for locale string list key \"%s\" in group "
-                     "\"%s\" does not have a semicolon (';') as trailing "
-                     "character\n",
-                     value, locale_key, kf->current_group);
-
-    return FALSE;
-  }
-
-  if (len > 1 && value[len - 1] == ';' && value[len - 2] == '\\' &&
-      (len < 3 || value[len - 3] != '\\')) {
-    print_fatal (kf, "value \"%s\" for locale string list key \"%s\" in group "
-                     "\"%s\" has an escaped semicolon (';') as trailing "
-                     "character\n",
-                     value, locale_key, kf->current_group);
 
     return FALSE;
   }
@@ -969,6 +926,9 @@ handle_version_key (kf_validator *kf,
                     const char   *locale_key,
                     const char   *value)
 {
+  if (!strcmp (value, "1.1"))
+    return TRUE;
+
   if (!strcmp (value, "1.0"))
     return TRUE;
 
@@ -1272,6 +1232,16 @@ handle_exec_key (kf_validator *kf,
         break;
       case '\\':
         PRINT_INVALID_IF_FLAG;
+
+        /* Escape character immediately followed by \0? */
+        if (*(c + 1) == '\0') {
+          print_fatal (kf, "value \"%s\" for key \"%s\" in group \"%s\" "
+                           "ends in an incomplete escape sequence\n",
+                           value, locale_key, kf->current_group);
+          retval = FALSE;
+          break;
+        }
+
         c++;
         if (*c == '\\' && in_quote)
           escaped = !escaped;
@@ -1824,6 +1794,46 @@ handle_actions_key (kf_validator *kf,
 
   g_strfreev (actions);
 
+  return retval;
+}
+
+/* + If the file describes a D-Bus activatable service, the filename must be in
+ *   reverse-DNS notation, i.e. contain at least two dots including the dot
+ *   in ".desktop".
+ *   Checked.
+ */
+static gboolean
+handle_dbus_activatable_key (kf_validator *kf,
+                             const char   *locale_key,
+                             const char   *value)
+{
+  gchar *basename_utf8;
+  gchar *basename;
+  const gchar *p = NULL;
+  gboolean retval = TRUE;
+
+  /* If DBusActivatable=false, don't check */
+  if (strcmp (value, "true") && strcmp (value, "1"))
+    return TRUE;
+
+  basename = g_path_get_basename (kf->filename);
+  basename_utf8 = g_filename_to_utf8 (basename, -1, NULL, NULL, NULL);
+  if (!basename_utf8)
+    goto out;
+
+  p = g_utf8_strchr (basename_utf8, -1, '.');
+  if (!p)
+    goto out;
+  p = g_utf8_strchr (p + 1, -1, '.');
+
+out:
+  if (!p) {
+    print_fatal (kf, "DBusActivatable filename must conform to reverse-DNS notation\n");
+    retval = FALSE;
+  }
+
+  g_free (basename_utf8);
+  g_free (basename);
   return retval;
 }
 
@@ -3109,75 +3119,17 @@ desktop_file_validate (const char *filename,
   return (!kf.fatal_error);
 }
 
-static void
-fixup_list (GKeyFile    *keyfile,
-            const gchar *filename,
-            const gchar *key)
-{
-  char *value;
-  int   len;
-
-  value = g_key_file_get_value (keyfile, GROUP_DESKTOP_ENTRY, key, NULL);
-  if (!value)
-    return;
-
-  len = strlen (value);
-
-  if (len > 0 && (value[len - 1] != ';' ||
-                  (len > 1 && value[len - 2] == '\\' &&
-                  (len < 3 || value[len - 3] != '\\')))) {
-    char *str;
-
-    g_printerr ("%s: warning: key \"%s\" is a list and does not have a "
-                "semicolon as trailing character, fixing\n",
-                filename, key);
-
-    str = g_strconcat (value, ";", NULL);
-    g_key_file_set_value (keyfile, GROUP_DESKTOP_ENTRY,
-                          key, str);
-    g_free (str);
-  }
-}
-
 /* return FALSE if we were unable to fix the file */
 gboolean
 desktop_file_fixup (GKeyFile   *keyfile,
                     const char *filename)
 {
-  gchar        **keys;
-  gsize          keys_nb;
-  unsigned int   i;
-
   if (g_key_file_has_group (keyfile, GROUP_KDE_DESKTOP_ENTRY)) {
     g_printerr ("%s: warning: renaming deprecated \"%s\" group to \"%s\"\n",
                 filename, GROUP_KDE_DESKTOP_ENTRY, GROUP_DESKTOP_ENTRY);
     dfu_key_file_rename_group (keyfile,
                                GROUP_KDE_DESKTOP_ENTRY, GROUP_DESKTOP_ENTRY);
   }
-
-  keys = g_key_file_get_keys (keyfile, GROUP_DESKTOP_ENTRY, &keys_nb, NULL);
-
-  /* Fix lists to have a ';' at the end if they don't */
-  for (i = 0; i < G_N_ELEMENTS (registered_desktop_keys); i++) {
-    if (registered_desktop_keys[i].type == DESKTOP_STRING_LIST_TYPE ||
-        registered_desktop_keys[i].type == DESKTOP_REGEXP_LIST_TYPE)
-      fixup_list (keyfile, filename, registered_desktop_keys[i].name);
-
-    if (registered_desktop_keys[i].type == DESKTOP_LOCALESTRING_LIST_TYPE) {
-      gsize keylen;
-      guint j;
-
-      keylen = strlen (registered_desktop_keys[i].name);
-      for (j = 0; j < keys_nb; j++) {
-        if (g_str_has_prefix (keys[j], registered_desktop_keys[i].name) &&
-            (keys[j][keylen] == '[' || keys[j][keylen] == '\0')) {
-          fixup_list (keyfile, filename, keys[j]);
-        }
-      }
-    }
-  }
-
-  g_strfreev (keys);
 
   return TRUE;
 }

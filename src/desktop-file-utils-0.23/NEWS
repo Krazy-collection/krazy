@@ -1,4 +1,21 @@
 ============
+Version 0.23
+============
+
+ desktop-file-validate
+  - Accept version 1.1 desktop files (Matthias Clasen).
+  - Add Cinnamon, EDE and LXQt to the list of registered desktop environments
+    (fdo#73497, fdo#56353, fdo#79561) (Michael Webster, David Faure,
+    Jauhien Piatlicki).
+  - Allow multipart/related MIME type; it's used for MHTML (fdo#93376)
+    (Hans Petter Jansson).
+  - Ensure DBusActivatable filenames conform to reverse-DNS notation
+    (fdo#66904) (Hans Petter Jansson).
+  - Downgrade trailing semicolons to optional (fdo#76902) (Jerome Leclanche).
+  - Fix buffer over-read (fdo#94303) (Hans Petter Jansson; reported by
+    Hanno Boeck and Agostino Sarubbo).
+
+============
 Version 0.22
 ============
 

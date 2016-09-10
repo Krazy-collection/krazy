@@ -71,6 +71,9 @@ static const char *registered_not_used_media_types[] = {
 static const char *valid_exceptions_mime_types[] = {
   /* mail: a mail saved in a file will have this mime type */
   "message/rfc822",
+  /* Implemented as an extension of RFC 822; used for MHTML, in addition to
+   * application/x-mimearchive */
+  "multipart/related",
   /* some multimedia mime type; it clearly doesn't respect the mime type rules,
    * but it's widely deployed */
   "misc/ultravox"
