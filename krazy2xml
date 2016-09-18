@@ -151,7 +151,7 @@ if (-e "$configf") {
   $PSQL       = '/usr/bin/psql' if ( !$PSQL );
   $md5        = '/usr/bin/md5sum';
   $checks     = ''; # execute all checks.
-  $saxon      = '/usr/bin/saxon8';
+  $saxon      = '/usr/bin/saxon9-transform';
   $stylesheet = '/mnt/ebn/share/xsl/krazy-main.xsl';
   $ProjDB     = '/mnt/ebn/bin/kde-checkout-list.pl';
   $ProjDB_opts= '';
@@ -763,17 +763,24 @@ sub updateExistingPage {
   my ($in) = "$destdir" . "/" . "$cms" . "/index.html";
   my ($out) = "$outdir" . "/index.html";
 
-  # read the existing file and replace the date, then write it back out
   open(F, "<$in") || return 0;
   my (@alldata) = <F>;
   close(F);
 
+  # read the existing file and replace the date
   my ($line, @outdata);
   my ($n) = &asOf();
   foreach $line (@alldata) {
     $line =~ s/(^.*as of ).*$/$1$n/;
     push(@outdata, $line);
   }
+
+  #sanity check that the existing page wasn't corrupted somehow
+  if ($#outdata < 5) {
+    return 0;
+  }
+
+  # write the file back out
   open(F, ">$out") || return 0;
   foreach $line (@outdata) {
     print F $line;
