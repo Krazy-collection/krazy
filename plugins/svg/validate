@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "validate";
-my($Version) = "0.1";
+my($Version) = "0.2";
 
 &parseArgs();
 
@@ -72,7 +72,7 @@ if (!$cnt) {
 }
 
 sub Help {
-  print "Validates uncompressed SVG files using 'xmllint'\n";
+  print "Validate uncompressed SVG files using 'xmllint'\n";
   Exit 0 if &helpArg();
 }
 
@@ -91,7 +91,7 @@ sub processFile() {
   my($in) = @_;
   my($line,$result);
   my($cnt)=0;
-  open(VAL, "$valp --noout $in 2>&1 | ") || print STDERR "Cannot run: xmllint\n";
+  open(VAL, "$valp --noout \"$in\" 2>&1 | ") || print STDERR "Cannot run: xmllint\n";
   while($line = <VAL>) {
     chomp($line);
     $result = &analyze($line);
