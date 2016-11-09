@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.30";
+my($Version) = "1.31";
 
 &parseArgs();
 
@@ -208,6 +208,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Don't use Qt 4 classes that are deprecated. Additionally make sure to use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. <http://community.kde.org/Policies/API_to_Avoid> *Please* *refer* *to* *the* *API* *documentation* *for* *details* *before* *porting* *to* *the* *K* *classes*.\n";
+  print "Don't use deprecated Qt classes. Additionally make sure to use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. <http://community.kde.org/Policies/API_to_Avoid> *Please* *refer* *to* *the* *API* *documentation* *for* *details* *before* *porting* *to* *the* *K* *classes*.\n";
   Exit 0 if &explainArg();
 }
