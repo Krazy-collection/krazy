@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.904";
+my($Version) = "1.905";
 
 &parseArgs();
 
@@ -134,6 +134,9 @@ sub check_file
 
     next if (fileType($filename) eq "c++" &&
              ($original =~ m/^\s*#\s*include/));;
+
+    next if (fileType($filename) eq "cmake" &&
+             ($original =~ m+uniq+));
 
     next if ($original =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
