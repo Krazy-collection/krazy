@@ -56,7 +56,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.54";
+my($Version) = "1.55";
 
 &parseArgs();
 
@@ -503,7 +503,7 @@ foreach $line (@lines) {
     print "$linecnt (spaces around '==') => $line\n" if (&verboseArg());
   }
 
-  if ($line =~ m/!=/ && $line !~ m/[[:space:]]{1}!=[[:space:]]{1}/ && $line !~ m/!=[[:space:]]*\(/) {
+  if ($line =~ m/!=/ && $line !~ m/[[:space:]]{1}!=[[:space:]]{1}/ && $line !~ m/!=[[:space:]]*\(/ && $line !~ m/[[:space:]]{1}!=$/) {
     $Issues{'EQUALSPACE'}{'count'}++;
     if ($Issues{'EQUALSPACE'}{'count'} == 1) {
       $Issues{'EQUALSPACE'}{'lines'} = "line\#" . $linecnt;
