@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2010,2012-2016 by Allen Winter <winter@kde.org>              #
+# Copyright 2007-2010,2012-2017 by Allen Winter <winter@kde.org>              #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.29;
+$VERSION = 1.30;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -278,6 +278,8 @@ sub fileType {
     if ( $f !~ m/\.json\.cmake$/ ) {
       return "cmake";
     }
+  } elsif ( $f =~ m/\.cmake\.in$/ ) {
+    return "cmake";
   } elsif ( $f =~ m/\.pl$/ || $f =~ m/\.PL\$/ ) {
     return "perl";
   } elsif ( $f =~ m/\.py$/ ) {
@@ -386,7 +388,7 @@ sub fileTypeIs {
   return 1 if (($t eq "qml") && ($f =~ m/\.qml$/));
   return 1 if (($t eq "qdoc") && ($f =~ m/\.qdoc$/));
   return 1 if (($t eq "cmake") &&
-               ($f =~ m/CMakeLists\.txt$/ || $f =~ m/\.cmake$/));
+               ($f =~ m/CMakeLists\.txt$/ || $f =~ m/\.cmake$/ || $f =~ m/\.cmake\.in$/));
   return 1 if (($t eq "perl") &&
                ($f =~ m/\.pl$/ || $f =~ m/\.PL$/));
   return 1 if (($t eq "python") && ($f =~ m/\.py$/));
