@@ -51,7 +51,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.9982';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9983';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -736,7 +736,7 @@ sub myRmdir {
   my ($d) = @_;
   if ( -d "$d" ) {
     rmtree("$d") || die "Error: Cannot remove directory $d: $!\n";
-  } elif ( -f "$d" ) {
+  } elsif ( -f "$d" ) {
     unlink("$d") || die "Error: Cannot remove file $d: $!\n";
   }
 }
