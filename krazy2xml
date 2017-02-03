@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the KDE source code for the EnglishBreakfastNetwork (EBN)   #
-# Copyright 2006-2008,2010-2016 by Allen Winter <winter@kde.org>              #
+# Copyright 2006-2008,2010-2017 by Allen Winter <winter@kde.org>              #
 # Copyright 2009-2010 by Bertjan Broeksema <b.broeksema@kdemail.net>          #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -51,7 +51,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.9981';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9982';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -726,7 +726,7 @@ sub arrayToCSL {
 
 sub myMkdir {
   my ($d) = @_;
-  if ( !-d "$d" ) {
+  if ( ! -d "$d" ) {
     mkpath("$d") || die "Error: Cannot create directory $d: $!\n";
     chmod 0775, $d;
   }
@@ -736,6 +736,8 @@ sub myRmdir {
   my ($d) = @_;
   if ( -d "$d" ) {
     rmtree("$d") || die "Error: Cannot remove directory $d: $!\n";
+  } elif ( -f "$d" ) {
+    unlink("$d") || die "Error: Cannot remove file $d: $!\n";
   }
 }
 
@@ -743,7 +745,9 @@ sub myMvdir {
   my ( $d1, $d2 ) = @_;
   &myRmdir($d2);
   if ( -d "$d1" ) {
-    rename( $d1, $d2 ) || die "Error: Cannot move directory $d1 to $d2: $!\n";
+    #rename doesn't work across devices
+    #rename( $d1, $d2 ) || die "Error: Cannot rename directory $d1 to $d2: $!\n";
+    system("cp -dpr $d1 $d2; rm -rf $d1");
     chmod 0775, $d2;
   }
 }
