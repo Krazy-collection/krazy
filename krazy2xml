@@ -51,7 +51,7 @@ use YAML::Any qw(LoadFile Load);
 
 my ($Prog) = 'krazy2xml';
 my
- $VERSION = '2.9983';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9984';    #split line so MakeMaker can find the version here
 
 my (@modules);    # list of modules to process.  change as desired.
 my ($comp);       # default component to process
@@ -548,7 +548,7 @@ sub doIt {
       print "      No changes since last run for $cms\n";
       return $gitrev;
     } else {
-      print "      No changes since last run but unable to update page for $cms\n";
+      print "      No changes since last run but running anyway since report page for $cms is too small\n";
     }
   }
 
@@ -780,7 +780,7 @@ sub updateExistingPage {
   }
 
   #sanity check that the existing page wasn't corrupted somehow
-  if ($#outdata < 5) {
+  if ($#outdata < 100) {
     return 0;
   }
 
