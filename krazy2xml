@@ -553,7 +553,7 @@ sub doIt {
   }
 
   my ($checksets) =  '';
-  my ($rcsets) = join ', ', @sCheckSets;
+  my ($rcsets) = join ',', @sCheckSets;
   if ($rcsets) {
     $checksets = "--check-sets=$rcsets";
   } else {
