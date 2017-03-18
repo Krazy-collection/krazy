@@ -75,7 +75,7 @@
     </xsl:variable>
 
     <xsl:choose>
-      <xsl:when test="$line eq -1" >
+      <xsl:when test="$maxlines eq -1" >
         <xsl:value-of select="concat('http://lxr.kde.org/source/', $componentModule, '/', $submodule, '/', $file)" />
       </xsl:when>
       <xsl:otherwise>
@@ -100,7 +100,7 @@
         <xsl:otherwise>
           <xsl:value-of select="message" /> line#
           <xsl:for-each select="issues/line">
-            <xsl:variable name="lxrlinelink" select="ebn:createLexerLink($filename, $maxlines, .)" />
+            <xsl:variable name="lxrlinelink" select="ebn:createLexerLink($filename, .,  $maxlines)" />
             <a href="{$lxrlinelink}"><xsl:value-of select="."/></a>
             <xsl:if test="@issue ne ''" >[<xsl:value-of select="@issue" />]</xsl:if>
             <xsl:if test="position() ne $count">,</xsl:if></xsl:for-each>
