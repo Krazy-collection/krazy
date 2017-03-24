@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2008,2012-2013 by Allen Winter <winter@kde.org>          #
+# Copyright (C) 2006-2008,2012-2013,2017 by Allen Winter <winter@kde.org>     #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -53,7 +53,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "explicit";
-my($Version) = "1.50";
+my($Version) = "1.55";
 
 &parseArgs();
 
@@ -117,19 +117,19 @@ while ($linecnt < $#lines) {
       last if (&endClass($line,$linecnt));
 
       if ($CNAME ne "" && defined($stuff{$CNAME}{'section'}) &&
-	  $stuff{$CNAME}{'section'} eq "public") {
+          $stuff{$CNAME}{'section'} eq "public") {
         # we are in the public declarations
         print "  Searching for constructors\n" if ($debug);
 
-	while ($linecnt < $#lines) {
-	  $lastl = $line;
-	  $line = $lines[$linecnt++];
+        while ($linecnt < $#lines) {
+          $lastl = $line;
+          $line = $lines[$linecnt++];
           &Section($line);
           if (&Cname($line,$lastl)) { $linecnt--; last; }
-	  if (&endClass($line,$linecnt)) { last; }
+          if (&endClass($line,$linecnt)) { last; }
 
-	  next if ($line =~ m/[[:space:]]*public[[:space:]]*:/);
-	  last if ($line =~ m/[[:space:]]*private[[:space:]]*Q_SLOTS[[:space:]]*:
+          next if ($line =~ m/[[:space:]]*public[[:space:]]*:/);
+          last if ($line =~ m/[[:space:]]*private[[:space:]]*Q_SLOTS[[:space:]]*:
 /);
           last if ($line =~ m/[[:space:]]*private[[:space:]]*slots[[:space:]]*:/)
 ;
@@ -146,9 +146,9 @@ while ($linecnt < $#lines) {
           last if ($line =~ m/[[:space:]]*k_dcop_signals[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*Q_SIGNALS[[:space:]]*:/);
 
-	  if ($line =~ m/[[:space:]]$CNAME[[:space:]]*\(/ &&
-	      &Ctor($lastl,$line,$lines[$linecnt])) {
-	    # found a non-explicit constructor
+          if ($line =~ m/[[:space:]]$CNAME[[:space:]]*\(/ &&
+              &Ctor($lastl,$line,$lines[$linecnt])) {
+            # found a non-explicit constructor
             print "   ($linecnt) found non-explicit ctor ($line)\n" if ($debug);
             $stuff{$CNAME}{'ctor'}++;
             if ($stuff{$CNAME}{'ctor'} == 1) {
@@ -157,7 +157,7 @@ while ($linecnt < $#lines) {
               $stuff{$CNAME}{'privLinesList'} .= "," . $linecnt;
             }
             print "=> $line\n" if (&verboseArg());
-	  }
+          }
         }
       }
     }
@@ -280,6 +280,7 @@ sub Ctor {
     return 0 if ($l =~ m+//.*[Kk]razy:exclude=.*$Prog+);
     return 0 if ($l =~ m/$CNAME[[:space:]]*\([[:space:]]*\)/);  # no args
     return 0 if ($l =~ /\([[:space:]]*const[[:space:]]$CNAME[[:space:]]*&[[:space:]]*[[:print:]]*[[:space:]]*\)/); # copy constructor
+    return 0 if ($l =~ /\([[:space:]]*$CNAME[[:space:]]*&[[:space:]]*&[[:space:]]*[[:print:]]*[[:space:]]*\)/); # copy constructor
     return 0 if ($l =~ m/[[:space:]]operator/);
     return 0 if ($l =~ m/[[:space:]]*inline[[:space:]]$CNAME/);
     return 0 if ($l =~ m/[[:space:]]*return[[:space:]]$CNAME/);
