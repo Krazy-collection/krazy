@@ -61,7 +61,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.99";
+my($Version) = "1.991";
 
 &parseArgs();
 
@@ -177,7 +177,7 @@ while ($linecnt < $#lines) {
       $Issues{'ANGLE'}{'lines'} .= "$linecnt,";
       print "=> $line\n" if (&verboseArg());
     }
-    if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ ) {
+    if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ && $incpath !~ m+^KParts/.*$+) {
       if ($incpath !~ m+\.h$+ ) {
         $Issues{'KINC'}{'count'}++;
         $Issues{'KINC'}{'lines'} .= "$linecnt,";
