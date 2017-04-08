@@ -177,11 +177,13 @@ while ($linecnt < $#lines) {
       $Issues{'ANGLE'}{'lines'} .= "$linecnt,";
       print "=> $line\n" if (&verboseArg());
     }
-    if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ && $incpath !~ m+^KParts/.*$+) {
-      if ($incpath !~ m+\.h$+ ) {
-        $Issues{'KINC'}{'count'}++;
-        $Issues{'KINC'}{'lines'} .= "$linecnt,";
-        print "=> $line\n" if (&verboseArg());
+    if (&usingKDECheckSet() && &usingCheckSet("kde4")) {
+      if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ && $incpath !~ m+^KParts/.*$+) {
+        if ($incpath !~ m+\.h$+ ) {
+          $Issues{'KINC'}{'count'}++;
+          $Issues{'KINC'}{'lines'} .= "$linecnt,";
+          print "=> $line\n" if (&verboseArg());
+        }
       }
     }
     # do not include config.h or config-foo.h in an installed header
