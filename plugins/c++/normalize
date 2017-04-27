@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2011-2013 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2011-2013,2017 by Allen Winter <winter@kde.org>               #
 # Copyright (C) 2012 by Daniel Calviño Sánchez <danxuliu@gmail.com>           #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "normalize";
-my($Version) = "1.21";
+my($Version) = "1.25";
 
 &parseArgs();
 
@@ -98,8 +98,10 @@ while ($linecnt <= $#lines) {
   if ($pline =~ m/SIGNAL\s*\(\s/ ||
       $pline =~ m/SIGNAL\s*\([\w:]+\s/ ||
       $pline =~ m/SIGNAL\s*\([\w:]+\(\s/ ||
-      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&]+\s/ ||
-      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&]*\)\s/) {
+      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&\>\<]+\s/ ||
+      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&\>\<]*\)\s/ ||
+      ($pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&\>\<]*\s*,\s*$/ &&
+       $pline !~ m/\)\s*[,;]\s*$/)) {
     $sig_cnt++;
     if ($sig_cnt == 1) {
       $sig_str = "line\#" . $linecnt;
@@ -111,8 +113,10 @@ while ($linecnt <= $#lines) {
   if ($pline =~ m/SLOT\s*\(\s/ ||
       $pline =~ m/SLOT\s*\([\w:]+\s/ ||
       $pline =~ m/SLOT\s*\([\w:]+\(\s/ ||
-      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&]+\s/ ||
-      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&]*\)\s/) {
+      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&\>\<]+\s/ ||
+      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&\>\<]*\)\s/ ||
+      ($pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&\>\<]*\s*,\s*$/ &&
+       $pline !~ m/\)\s*[,;]\s*$/)) {
     $slot_cnt++;
     if ($slot_cnt == 1) {
       $slot_str = "line\#" . $linecnt;
