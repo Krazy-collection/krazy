@@ -118,7 +118,7 @@ use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.997';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9971';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -1447,6 +1447,7 @@ sub xmlify {
   my ($s) = @_;
   $s = encode_entities($s);
   $s =~ s+&lt;http:(.*?)&gt;+&lt;a href="http:$1"&gt;http:$1&lt;/a&gt;+gs;
+  $s =~ s+&lt;https:(.*?)&gt;+&lt;a href="https:$1"&gt;https:$1&lt;/a&gt;+gs;
   $s =~ s=\*(\S+)\*=&lt;strong&gt;$1&lt;/strong&gt;=g;    # *word* becomes boldified
   $s =~ s=\b\_(\S+)\_\b=&lt;em&gt;$1&lt;/em&gt;=g;        # _word_ becomes italicized
   return $s;
