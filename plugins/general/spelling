@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2016 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2017 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2003 by Dirk Mueller <mueller@kde.org>                        #
 # Copyright (C) 2004 Richard Evans <rich@ridas.com>                           #
 #                                                                             #
@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.905";
+my($Version) = "1.906";
 
 &parseArgs();
 
@@ -294,6 +294,7 @@ activ                  active
 acton                  action
 actons                 actions
 acually                actually
+acuordance             accordance
 adapat                 adapt
 adapated               adapted
 adapater               adapter
