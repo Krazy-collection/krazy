@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.906";
+my($Version) = "1.907";
 
 &parseArgs();
 
@@ -327,6 +327,7 @@ addtionaly             additionalyy
 aditional              additional
 aditionally            additionally
 aditionaly             additionally
+ajust                  adjust
 adminstrator           administrator
 adminstrators          administrators
 adminstrator           administrator
