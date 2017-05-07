@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.30;
+$VERSION = 1.35;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -280,7 +280,9 @@ sub fileType {
     }
   } elsif ( $f =~ m/\.cmake\.in$/ ) {
     return "cmake";
-  } elsif ( $f =~ m/\.pl$/ || $f =~ m/\.PL\$/ ) {
+  } elsif ( $f =~ m/\.pl$/i && $f !~ m/makefile\.pl$/i) {
+    return "perl";
+  } elsif ( $f =~ m/\.pm$/i ) {
     return "perl";
   } elsif ( $f =~ m/\.py$/ ) {
     return "python";
@@ -390,7 +392,7 @@ sub fileTypeIs {
   return 1 if (($t eq "cmake") &&
                ($f =~ m/CMakeLists\.txt$/ || $f =~ m/\.cmake$/ || $f =~ m/\.cmake\.in$/));
   return 1 if (($t eq "perl") &&
-               ($f =~ m/\.pl$/ || $f =~ m/\.PL$/));
+               ($f =~ m/\.pl$/i || $f =~ m/\.pm$/i));
   return 1 if (($t eq "python") && ($f =~ m/\.py$/));
   return 1 if (($t eq "svg") && ($f =~ m/\.svg$/));
 
