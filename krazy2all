@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the source code                                             #
-# Copyright 2005-2016 by Allen Winter <winter@kde.org>                        #
+# Copyright 2005-2017 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -30,12 +30,13 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.993';    #split line so MakeMaker can find the version here
+ $VERSION = '2.994';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
 my ($list)      = '';
 my ($listtypes) = '';
+my ($listtype)  = '';
 my ($listsets)  = '';
 my ($listset)   = '';
 my ($verbose)   = '';
@@ -65,6 +66,7 @@ exit 1
        'version'        => \$version,
        'list'           => \$list,
        'list-types'     => \$listtypes,
+       'list-type=s'    => \$listtype,
        'list-sets'      => \$listsets,
        'list-set=s'     => \$listset,
        'dry-run'        => \$dryrun,
@@ -101,6 +103,11 @@ if ($list) {
 
 if ($listtypes) {
   system("krazy2 --list-types");
+  exit 0;
+}
+
+if ($listtype) {
+  system("krazy2 --list-type=$listtype");
   exit 0;
 }
 
@@ -207,9 +214,11 @@ sub Help {
   print "  --version    display version information and exit\n";
   print "  --list       print a list of all the checker programs\n";
   print "  --list-types print a list of all the supported file types\n";
-  print "  --list-sets  print a list of all the checker sets\n";
+  print "  --list-type <type>\n";
+  print "               print the list of available checkers for the specified file typet\n";
+  print "  --list-sets  print a list of all the check-sets\n";
   print "  --list-set <set>\n";
-  print "               print the list of available checkers for the specified set\n";
+  print "               print the list of available checkers for the specified check-set\n";
   print "  --priority <low|normal|high|important|all>\n";
   print "               report only issues with the specified priorities:\n";
   print "                 low -> print low priority issues only\n";
@@ -305,9 +314,13 @@ Print a list of all available checker programs and exit.
 
 Print a list of the support file types and exit.
 
+=item B<--list-type> <type>
+
+Print the list of available checkers for the specified file type and exit.
+
 =item B<--list-sets>
 
-Print a list of all the checker sets and exit.
+Print a list of all the check-sets and exit.
 
 =item B<--list-set> <set>
 
@@ -362,7 +375,7 @@ Use the B<--list> option to show the list of available checkers.
 Run the checker programs belonging to the specified set(s) only.
 You may not combine this option with B<--check>.
 
-Use the B<--list-sets> option to see the list of available check sets and programs.
+Use the B<--list-sets> option to see the list of available check-sets and programs.
 
 =item B<--exclude> <prog[,prog1,prog2,...,progN]>
 
@@ -441,7 +454,7 @@ searched when locating "extra" plugins. By default, the "extras" are searched
 for in the path F<$TOP/lib/krazy2/krazy-extras:krazy-extras>.
 
 KRAZY_SET_PATH - this is a colon-separated list of paths which is
-searched when locating checker sets. By default, the sets are searched
+searched when locating check-sets. By default, the sets are searched
 for in the path F<$TOP/lib/krazy2/krazy-sets:krazy-sets>.
 
 where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/local/Krazy2>)
@@ -459,7 +472,7 @@ or B<--list-types> options it will exit with status=0.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2016 by Allen Winter <winter@kde.org>
+Copyright (c) 2005-2017 by Allen Winter <winter@kde.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

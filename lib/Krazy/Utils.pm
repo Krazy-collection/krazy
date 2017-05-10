@@ -31,12 +31,12 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.35;
+$VERSION = 1.50;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
              userMessage userError Exit
-             fileType fileTypeDesc fileTypeIs findFiles asOf deDupe addRegEx
+             fileType validateFileType fileTypeIs findFiles asOf deDupe addRegEx
              addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
              parseArgs helpArg versionArg priorityArg strictArg
              explainArg quietArg verboseArg installedArg
@@ -49,7 +49,9 @@ $VERSION = 1.35;
              usingCheckSet usingQtCheckSet usingKDECheckSet
              linesSearchInFile linesCaseSearchInFile
              allLinesCaseSearchInFile
-             guessCheckSet);
+             guessCheckSet
+             checkSetDesc checkSetsList prettyPrintCheckSetsList
+             fileTypeDesc fileTypesList prettyPrintTypesList);
 @EXPORT_OK = qw();
 
 my(@tmp);
@@ -89,6 +91,21 @@ my(@CMakeStyles) = ( "kde"       # KDE style (default)
 
 my(@PythonStyles) = ( "kde"       # KDE style (default)
                     );
+
+my(@FileTypes) = ('c++',
+                  'cmake',
+                  'desktop',
+                  'designer',
+                  'kconfigxt',
+                  'messages',
+                  'kpartgui',
+                  'tips',
+                  'qml',
+                  'qdoc',
+                  'perl',
+                  'python',
+                  'svg'
+                 );
 
 my(@Sets) = ( "c++",             # Pure C/C++ source
               "qt4",             # Qt4 source (C++, QML, Qt Designer, Qt Doc)
@@ -240,6 +257,31 @@ sub arrayToCommaSeparated {
   }
   $l =~ s/,$//;
   return $l;
+}
+
+# print a pretty list of supported file types with descriptions
+sub prettyPrintTypesList()
+{
+  my ($type);
+  foreach $type (&fileTypesList()) {
+    printf("%12.12s: %s\n", $type, &fileTypeDesc($type));
+  }
+}
+
+# returns 1 if the specified file type is valid
+sub validateFileType() {
+  my ($type) = @_;
+  if ($type) {
+    $type = lc($type);
+    return grep {$_ eq $type} @FileTypes;
+  }
+  return 0;
+}
+
+# returns an array of supported file types
+sub fileTypesList()
+{
+  return @FileTypes;
 }
 
 # return a file type string determined by the filename extension
@@ -471,12 +513,13 @@ sub parseArgs {
 
   my($set);
   foreach $set ( split( ",", $checksets ) ) {
-    my($lst) = &checksetTypeStr();
-    if (!validateCheckSet($set)) {
+    if (!&validateCheckSet($set)) {
+      my($lst) = &checksetTypeStr();
       print "Bad checkset \"$set\" specified... exiting\nChoices for checksets are: $lst\n";
       exit(1);
     }
   }
+
 }
 
 sub helpArg { return $help; }
@@ -579,8 +622,40 @@ sub validatePythonStyleType {
   return 0;
 }
 
+# print a pretty list of supported check-sets with descriptions
+sub prettyPrintCheckSetsList() {
+  my ($set);
+  foreach $set (&checkSetsList()) {
+    printf("%12.12s: %s\n", $set, &checkSetDesc($set));
+  }
+}
+
+# return the description string for the specified check-set
+sub checkSetDesc() {
+  my ($s) = @_;
+
+  if ( $s eq "c++" ) {
+    return "Pure C/C++ source";
+  } elsif ( $s eq "qt4" ) {
+    return "Qt4 source (C++, QML, Qt Designer, Qt Doc)";
+  } elsif ( $s eq "qt5" ) {
+    return "Qt5 source (C++, QML, Qt Designer, Qt Doc)";
+  } elsif ( $s eq "kde4" ) {
+    return "KDE4 source (C++, Qt Designer, FDO desktop files, etc.)";
+  } elsif ( $s eq "kde5" ) {
+    return "KDE5 source (C++, Qt Designer, FDO desktop files, etc.)";
+  } elsif ( $s eq "foss" ) {
+    return "Free and open source software (FOSS)";
+  }
+  return "";
+}
+
 sub checksetTypeStr {
   return join ', ', @Sets;
+}
+
+sub checkSetsList() {
+  return @Sets;
 }
 
 sub validateCheckSet {

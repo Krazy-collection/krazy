@@ -52,7 +52,9 @@
 #   --version:      display version information and exit
 #   --list:         print a list of all the checker programs
 #   --list-types:   print a list of all the supported file types
-#   --list-sets:    print a list of all the checker sets
+#   --list-type <type>:
+#                   print the list of available checkers for the specified file type.
+#   --list-sets:    print a list of all the check-sets
 #   --list-set <set>:
 #                   print the list of available checkers for the specified set.
 #   --explain:      if issues found, print an explanation along with
@@ -118,7 +120,7 @@ use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.9971';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9980';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -127,6 +129,7 @@ my ($version)   = '';
 my ($explain)   = '';
 my ($list)      = '';
 my ($listtypes) = '';
+my ($listtype)  = '';
 my ($listsets)  = '';
 my ($listset)   = '';
 my ($brief)     = '';
@@ -158,6 +161,7 @@ exit 1
        'explain'        => \$explain,
        'list'           => \$list,
        'list-types'     => \$listtypes,
+       'list-type=s'    => \$listtype,
        'list-sets'      => \$listsets,
        'list-set=s'     => \$listset,
        'dry-run'        => \$dryrun,
@@ -183,7 +187,9 @@ exit 1
      );
 
 &Help() if ($help);
-if ( !$list && !$listtypes && !$listset && !$listsets && $#ARGV < 0 ) { &Help(); exit 0; }
+if ( !$list && !$listtypes && !$listtype && !$listset && !$listsets && $#ARGV < 0 ) {
+  &Help(); exit 0;
+}
 &Version() if ($version);
 
 #if ($only && $checksets) {
@@ -234,9 +240,9 @@ if ($ProjPath) {
 }
 $GuessCheckSets = $DEFAULT_CHECKSETS if (!$GuessCheckSets);
 
-######################################################################
-# This section builds the list of checker programs and checker sets. #
-######################################################################
+####################################################################
+# This section builds the list of checker programs and check-sets. #
+####################################################################
 $KRAZY_PLUGIN_PATH =
   "$KRAZYPATH/lib64/krazy2/krazy-plugins:" .
   "$KRAZYPATH/lib/krazy2/krazy-plugins:"
@@ -282,7 +288,7 @@ foreach $type ( keys %Checkers ) {
   }
 }
 
-# Generate an array of paths to search for checker sets
+# Generate an array of paths to search for check-sets
 my ($setp);
 for $setp ( split( /:/, $KRAZY_SET_PATH ) ) {
   push( @set_paths, abs_path $setp ) if ( -d $setp );
@@ -292,7 +298,7 @@ if ( $#set_paths < 0 ) {
   &userError("No checker set paths found.\nPlease check your KRAZY_SET_PATH environment variable... exiting");
 }
 
-# Generate a hash of arrays for the checker sets
+# Generate a hash of arrays for the check-sets
 my($set);
 foreach $set ( keys %Sets ) {
   splice @tpaths;
@@ -344,7 +350,10 @@ foreach $type ( keys %xCheckers ) {
 # Print the list of supported file types and exit.
 &ListTypes() if $listtypes;
 
-# Print the list of checker sets and exit.
+# Print the list of checkers for the specified type and exit.
+&ListType($listtype) if $listtype;
+
+# Print the list of check-sets and exit.
 &ListSets() if $listsets;
 
 # Print the list of checkers for the specifed set and exit.
@@ -466,7 +475,7 @@ my($kdesets) = '';
 if ($checksets) {
   foreach $set ( split( ",", $checksets ) ) {
     if (!validateCheckSet($set)) {
-      &userError("No such check set \"$set\".\nRun $Prog --list-sets to see the list of available check sets.");
+      &userError("No such check-set \"$set\".\nRun $Prog --list-sets to see the list of available check-sets.");
     }
     if ($set =~ m/^qt/i) {
       if ($qtsets) {
@@ -490,7 +499,7 @@ if ($checksets) {
 
 }
 
-# Now subtract away the checkers that aren't found in the check sets.
+# Now subtract away the checkers that aren't found in the check-sets.
 if ($checksets) {
   my ($tprog,$sprog);
   foreach $type ( keys %Checkers ) {
@@ -619,7 +628,7 @@ if ($only) {
       if ( !$checksets) {
         $emess = "No such checker \"$o\".\nRun $Prog --list to see the list of available checker programs.";
       } else {
-        $emess = "No such checker \"$o\" in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check sets and programs.";
+        $emess = "No such checker \"$o\" in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check-sets and programs.";
       }
       &userError($emess);
     }
@@ -655,7 +664,7 @@ if ($exclude) {
       if ( !$checksets) {
         $emess = "No such checker \"$e\" to exclude.\nRun $Prog --list to see the list of available checker programs.";
       } else {
-        $emess = "No such checker \"$e\" to exclude in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check sets and programs.";
+        $emess = "No such checker \"$e\" to exclude in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check-sets and programs.";
       }
       &userError($emess);
     }
@@ -835,7 +844,7 @@ for $ftype (@types) {
       if ($nf > 0) {
         if (defined($status{$p})) {
           if ($status{$p}) {
-            print STDERR "fail\n" unless ($quiet || $brief);
+            print STDERR "fail (" . $status{$p} . ")\n" unless ($quiet || $brief);
           } else {
             print STDERR "pass\n"unless ($quiet || $brief);
           }
@@ -914,9 +923,11 @@ sub Help {
   print "  --version    display version information and exit\n";
   print "  --list       print a list of all the checker programs\n";
   print "  --list-types print a list of all the supported file types\n";
-  print "  --list-sets  print a list of all the checker sets\n";
+  print "  --list-type <type>\n";
+  print "               print the list of available checkers for the specified file type.\n";
+  print "  --list-sets  print a list of all the check-sets\n";
   print "  --list-set <set>\n";
-  print "               print the list of available checkers for the specified set\n";
+  print "               print the list of available checkers for the specified check-set\n";
   print "  --priority <low|normal|high|important|all>\n";
   print "               report only issues with the specified priorities:\n";
   print "                 low -> print low priority issues only\n";
@@ -972,22 +983,11 @@ sub Version {
 
 # Initialize the Checkers hash
 sub initCheckers {
-  %Checkers = (
-    'c++'       => [],
-    'cmake'     => [],
-    'desktop'   => [],
-    'designer'  => [],
-    'kconfigxt' => [],
-    'messages'  => [],
-    'kpartgui'  => [],
-    'tips'      => [],
-    'qml'       => [],
-    'qdoc'      => [],
-    'perl'      => [],
-    'python'    => [],
-    'svg'       => [],
-  );
   my ($type);
+  foreach $type (&fileTypesList()) {
+    $Checkers{$type} = [];
+  }
+
   foreach $type ( keys %Checkers ) {
 
     # add in these extra checkers
@@ -1006,15 +1006,10 @@ sub initCheckers {
 
 # Initialize the Sets hash
 sub initSets {
-  %Sets = (
-    'c++' => [],
-    'qt4' => [],
-    'qt5' => [],
-    'kde4' => [],
-    'kde5' => [],
-    'foss' => [],
-  );
   my ($set);
+  foreach $set (&checkSetsList()) {
+    $Sets{$set} = [];
+  }
   foreach $set (keys %Sets ) {
     @{ $Sets{$set} } = ();
   }
@@ -1107,51 +1102,67 @@ sub ListTypes {
 
   &printXmlHeader() if ( $export =~ "xml" );
 
-  print "Supported file types:\n";
-
-  foreach $type ( keys %Checkers ) {
-    my($desc) = &fileTypeDesc($type);
-    printf( "%12.12s: %s", $type, $desc );
-    print "\n";
-  }
+  print "List of supported file types:\n";
+  &prettyPrintTypesList();
 
   &printFooter();
   exit 0 if $listtypes;
 }
 
-# ListSets function: print a list of checker sets.
+# ListType function: list all the checkers for a specific file type.
+sub ListType {
+  my($type) = @_;
+  my($prog, $prprog, $use);
+
+  if (!&validateFileType($type)) {
+    print "No such file type: $type\n\n";
+    $listtypes='yes';
+    &ListTypes();
+  }
+
+  &printXmlHeader() if ( $export =~ "xml" );
+
+  print "List of available checkers for file type $type:\n";
+
+  if ( $#{ $Checkers{$type} } >= 0 ) {
+    &printList( 0, @{ $Checkers{$type} } );
+  } else {
+    printf( "%18.18s\n", "(none)" );
+  }
+  if ( $#{ $xCheckers{$type} } >= 0 ) {
+    &printList( 1, @{ $xCheckers{$type} } );
+  }
+
+  &printFooter();
+  exit 0 if $listtype;
+}
+
+# ListSets function: print a list of check-sets.
 sub ListSets {
   &printXmlHeader() if ( $export =~ "xml" );
 
-  print "List of available checker sets:\n";
+  print "List of available check-sets:\n";
+  &prettyPrintCheckSetsList();
 
-  foreach $set ( keys %Sets ) {
-    my($desc) = &textDescription(dirname(${ $Sets{$set} }[0]));
-    print "  $set: $desc\n";
-  }
-
-  print "\n";
   &printFooter();
   exit 0 if $listsets;
 }
 
-# ListSet function: list all the checkers for a specific set.
+# ListSet function: list all the checkers for a specific check-set.
 sub ListSet {
   my($set) = @_;
   my($prog, $prprog, $use, $type);
 
-  if (!defined($Sets{$set})) {
-    print "No such set: $set\n\n";
+  if (!&validateCheckSet($set)) {
+    print "No such check-set: $set\n\n";
     $listsets='yes';
     &ListSets();
   }
 
   &printXmlHeader() if ( $export =~ "xml" );
 
-  print "List of available checker sets:\n";
+  print "List of available checkers for check-set $set:\n";
 
-  my($desc) = &textDescription(dirname(${ $Sets{$set} }[0]));
-  print "== $set: $desc ==\n";
   foreach $prog (sort @{ $Sets{$set} }) {
     $use = "";
     $use .= `$prog --help 2>/dev/null`;
@@ -1199,8 +1210,9 @@ sub printHeader {
     print "  </global>\n";
     print "  <file-types>\n";
   } elsif ($export eq "text") {
-    print "\n$title\n" if ($title);
-    print "\nCheck Sets = $cs\n";
+    print "\n";
+    print "$title\n\n" if ($title);
+    print "Check-Sets = $cs\n";
     print "Checkers Run = $num_checks\n";
     print "Files Processed = $num_files\n";
     if ($num_issues) {
@@ -1266,8 +1278,12 @@ sub printFType {
 
   return if ( $export eq "textlist" || $export eq "textedit" );
 
-  my ($desc) = &textDescription($pth);
-  $desc = "For File Type $ftype" if ( $desc eq "" );
+  my ($desc) = &fileTypeDesc($ftype);
+  if ($pth =~ m+extras+) {
+    $desc = "Extra checks for " . $desc;
+  } else {
+    $desc = "Checks for " . $desc;
+  }
   if ( $export eq "xml" ) {
     print "    <file-type value=\"$ftype\">\n";
   } else {
@@ -1528,9 +1544,13 @@ Print a list of all available checker programs and exit.
 
 Print a list of all the supported file types and exit.
 
+=item B<--list-type> <type>
+
+Print the list of available checkers for the specified file type and exit.
+
 =item B<--list-sets>
 
-Print a list of all the checker sets and exit.
+Print a list of all the check-sets and exit.
 
 =item B<--list-set> <set>
 
@@ -1592,7 +1612,7 @@ Use the B<--list> option to show the list of available checkers.
 Run the checker programs belonging to the specified set(s) only.
 You may not combine this option with B<--check>.
 
-Use the B<--list-sets> option to see the list of available check sets and programs.
+Use the B<--list-sets> option to see the list of available check-sets and programs.
 
 =item B<--exclude> <prog[,prog1,prog2,...,progN]>
 
@@ -1861,7 +1881,7 @@ searched when locating "extra" plugins. By default, the "extras" are searched
 for in the path F<$TOP/lib/krazy2/krazy-extras:krazy-extras>.
 
 B<KRAZY_SET_PATH> - this is a colon-separated list of paths which is
-searched when locating checker sets. By default, the sets are searched
+searched when locating check-sets. By default, the sets are searched
 for in the path F<$TOP/lib/krazy2/krazy-sets:krazy-sets>.
 
 where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/local/Krazy2>)
@@ -1907,12 +1927,12 @@ If a command line option was incorrectly provided, krazy2 exits with
 status=1.
 
 If krazy2 was envoked with the B<--help>, B<--version>, B<--list>,
-B<--list-types>, B<--list-sets> or B<--list-set> options it will
-exit with status=0.
+B<--list-types>, B<--list-type>, B<--list-sets> or B<--list-set> options
+it will exit with status=0.
 
 =head1 LICENSE
 
-Copyright (c) 2005-2016 by Allen Winter <winter@kde.org>
+Copyright (c) 2005-2017 by Allen Winter <winter@kde.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
