@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007,2009-2016 by Allen Winter <winter@kde.org>                   #
+# Copyright 2007,2009-2017 by Allen Winter <winter@kde.org>                   #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -30,7 +30,7 @@ use Krazy::Utils;
 use Env qw (KRAZY_STYLE_CPPSTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
 
 use Exporter;
-$VERSION = 1.51;
+$VERSION = 1.52;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(ParseKrazyRC);
@@ -98,9 +98,10 @@ sub ParseKrazyRC {
 
   while ( $line = <F> ) {
     $linecnt++;
-    $line =~ s/#.*//;     #strip comment
-    $line =~ s/^\s+//;    #strip leading whitespace
-    $line =~ s/\s+$//;    #strip trailing whitespace
+    $line =~ s/#.*//;       #strip comment
+    $line =~ s/^\s+//;      #strip leading whitespace
+    $line =~ s/\s+$//;      #strip trailing whitespace
+    $line =~ s/\s*,\s*/,/g; #remove whitespace around commas
     next if ( !$line );
 
     ( $directive, $arg ) = split( " ", $line );
