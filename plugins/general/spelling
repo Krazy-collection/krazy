@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.907";
+my($Version) = "1.908";
 
 &parseArgs();
 
@@ -1623,6 +1623,8 @@ ressoures              resources
 retreive               retrieve
 retreived              retrieved
 retreives              retrieves
+retrn                  return
+retrns                 returns
 retult                 result
 retults                results
 rewriteble             rewritable
