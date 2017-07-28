@@ -56,7 +56,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.56";
+my($Version) = "1.57";
 
 &parseArgs();
 
@@ -914,7 +914,7 @@ foreach $line (@data_lines) {
      print "$linecnt (extra blank lines) => $tline\n" if (&verboseArg());
    }
 
-  if ($line =~ m/^\s*}\s*$/ && $lline =~ m/^\s*$/) {
+  if ($line =~ m/^\s*}\s*$/ && $lline =~ m/^\s*$/ && $llline !~ m/};\s*$/) {
      $Issues{'BLANKS'}{'count'}++;
      if ($Issues{'BLANKS'}{'count'} == 1) {
        $Issues{'BLANKS'}{'lines'} = "line\#" . $linecnt;
