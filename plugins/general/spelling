@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.908";
+my($Version) = "1.909";
 
 &parseArgs();
 
@@ -346,6 +346,7 @@ alligned               aligned
 allignment             alignment
 alligns                aligns
 allmost                almost
+alread                 already
 allready               already
 allways                always
 alook                  a look
