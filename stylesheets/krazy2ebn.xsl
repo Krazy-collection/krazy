@@ -205,7 +205,7 @@
           </div>
         </div>
         <div id="footer">
-          <p>Site content Copyright 2005-2015 by Allen Winter and Adriaan de Groot,<br/>
+          <p>Site content Copyright 2005-2017 by Allen Winter and Adriaan de Groot,<br/>
           except images as indicated.</p>
         </div>
       </body>
