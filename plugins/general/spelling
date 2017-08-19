@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.909";
+my($Version) = "1.910";
 
 &parseArgs();
 
@@ -1096,7 +1096,6 @@ informaion             information
 informatation          information
 informationon          information
 informations           information
-infos                  information
 inifity                infinity
 inital                 initial
 initally               initially
