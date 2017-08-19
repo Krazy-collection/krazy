@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "normalize";
-my($Version) = "1.25";
+my($Version) = "1.26";
 
 &parseArgs();
 
@@ -94,6 +94,7 @@ while ($linecnt <= $#lines) {
   $pline =~ s/const [\w:]+\s*\*//g;
   $pline =~ s/long\slong/longlong/g;
   $pline =~ s/longlong\sint/longlongint/g;
+  $pline =~ s/std::shared_ptr<.*>/shared_ptr/g;
 
   if ($pline =~ m/SIGNAL\s*\(\s/ ||
       $pline =~ m/SIGNAL\s*\([\w:]+\s/ ||
