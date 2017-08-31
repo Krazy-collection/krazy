@@ -56,7 +56,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.57";
+my($Version) = "1.58";
 
 &parseArgs();
 
@@ -149,6 +149,7 @@ foreach $line (@lines) {
   next if ($line =~ m/#[[:space:]]*undef/);
   next if ($line =~ m/#[[:space:]]*warning/);
   next if ($line =~ m/#[[:space:]]*error/);
+  next if ($line =~ m/#[[:space:]]*pragma/);
 
   $tline = $line;
   if ($line =~ m+//+ && $line !~ m+".*//.*"+) {
