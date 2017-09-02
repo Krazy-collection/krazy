@@ -44,7 +44,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "copyright";
-my($Version) = "1.71";
+my($Version) = "1.72";
 
 &parseArgs();
 
@@ -151,6 +151,7 @@ while ($line = <F>) {
   next if ($line =~ m/Ximian/i);
   next if ($line =~ m/Intevation GmbH/i);
   next if ($line =~ m/Bundesamt für Sicherheit in der Informationstechnik/i);
+  next if ($line =~ m/ScalingWeb/i);
 
   #Non-legal entities are not allowed to hold copyright. Don't use things like
   #'The KDE Developers' or 'The KDE Authors'
