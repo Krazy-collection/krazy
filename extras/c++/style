@@ -56,7 +56,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.58";
+my($Version) = "1.59";
 
 &parseArgs();
 
@@ -449,7 +449,7 @@ foreach $line (@lines) {
   }
 
   if ($pline =~ m/^\s*\w+::\w+.*\(.*{/) {
-    if ($line !~ m/\{\s*\}$/) {
+    if ($line !~ m/\{\s*\}$/ && $line !~ m/^\s*QObject::connect/) {
       $Issues{'FUNCBRACE'}{'count'}++;
       if ($Issues{'FUNCBRACE'}{'count'} == 1) {
         $Issues{'FUNCBRACE'}{'lines'} = "line\#" . $linecnt;
