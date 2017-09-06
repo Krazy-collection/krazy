@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.64";
+my($Version) = "1.65";
 
 &parseArgs();
 
@@ -103,14 +103,14 @@ while ($linecnt < $#lines) {
     next if (&isCamelCase($incpath));
     next if ($sep eq "<" && $incpath =~ m/^(c|io)/ && $incpath !~ m/\.h$/);
     next if ($sep eq "<" && $incpath =~ m/^config/ && $incpath =~ m/\.h$/);
-    next if ($sep eq "<" && $incpath =~ m+^(k3|q3|ical|uuid|uni|os|ieee|gmp|graphviz|vtk|qjson|std|if|sys/|net|netinet/|arpa|mach/|tr1/|xcb/)+);
+    next if ($sep eq "<" && $incpath =~ m+^(k3|q3|ical|libical|uuid|uni|os|ieee|gmp|graphviz|vtk|qjson|std|if|sys/|net|netinet/|arpa|mach/|tr1/|xcb/)+);
     next if ($sep eq "<" && $incpath =~ m/^(algorithm|functional|iterator|limits|map|memory|set|vector|string|exception|deque)|queue|numeric/);
     next if ($sep eq "<" && $incpath =~ m/^(calendarsupport|calendarviews|incidenceeditor|akonadi_next)/);
     next if ($sep eq "<" && $incpath =~ m/^(messagecomposer|messagecore|messagelist|messageviewer|ontologies)/);
     next if ($sep eq "<" && $incpath =~ m+^private/q.*_p.h$+);
     next if ($sep eq "<" && $incpath =~ m+keychain/keychain.h$+);
     next if ($incpath =~ m/version/);
-    next if ($incpath eq "kdemacros.h" || $incpath eq "fixx11h.h");
+    next if ($incpath eq "kdemacros.h" || $incpath eq "qtest_kde.h" || $incpath eq "fixx11h.h");
     next if ($incpath eq "qglobal.h" ||
              $incpath eq "qwindowdefs.h" ||
              $incpath eq "qmath.h" ||
