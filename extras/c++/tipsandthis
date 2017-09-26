@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "tipsandthis";
-my($Version) = "1.71";
+my($Version) = "1.80";
 
 &parseArgs();
 
@@ -68,6 +68,8 @@ close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+# Remove Krazy conditional blocks
+@lines = RemoveCondBlockC( $Prog, @lines );
 
 my($tcnt) = 0;
 my($tlstr) = "";
@@ -105,7 +107,7 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;  #skip C++ comments
 
   if ($line =~ m/new\sQ\w+/ || $line =~ m/new\s(KPIM::)*K(UrlRequester|ComboBox|CheckComboBox|LineEdit|TabBar|TextEdit|TimeEdit|DateEdit|Action|IntNumInput)/) {
-    next if ($line =~ m/(Application|Buffer|Date|DBus|Hash|Map|Process|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|ActionCollection|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|ButtonGroup|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|Shortcut|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation|QGraphicsSimpleTextItem|SignalMapper|ScrollArea|ItemSelection|StandardItem|MessageBox|Completer|ToolBox|ProgressBar|TableView|TextStream)/ && $line !~ m/(UrlRequester|LineEdit|ComboBox|TimeEdit|DateEdit|KAction|IntNumInput)/);
+    next if ($line =~ m/(Application|Buffer|Date|DBus|Hash|Map|Process|Widget|Label|List|Layout|Frame|Menu|HBox|VBox|Dir|Url|Action|ActionCollection|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|ButtonGroup|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|Shortcut|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation|QGraphicsSimpleTextItem|SignalMapper|ScrollArea|ItemSelection|StandardItem|MessageBox|Completer|ToolBox|ProgressBar|TableView|Temporary|TextStream)/ && $line !~ m/(UrlRequester|LineEdit|ComboBox|TimeEdit|DateEdit|KAction|IntNumInput)/);
 
     next if ($line =~ m/QFile\s*\(/);
     next if ($line =~ m/KActionCollection/);
