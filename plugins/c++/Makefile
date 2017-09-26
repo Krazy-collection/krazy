@@ -27,7 +27,6 @@ doxytags \
 dpointer \
 emptystrcompare \
 explicit \
-foreach \
 includes \
 inline \
 normalize \

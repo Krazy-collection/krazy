@@ -28,7 +28,6 @@ emptystrcompare \
 endswithnewline \
 explicit \
 filenames \
-foreach \
 includes \
 inline \
 normalize \
