@@ -198,7 +198,7 @@ fi
 #remove old checkers no longer in use
 rm -f $TOP/lib/krazy2/krazy-plugins/*/contractions #moved to extras
 rm -f $TOP/lib/krazy2/krazy-plugins/*/qconnect
-rm -f $TOP/lib/krazy2/krazy-plugins/*/foreach
+rm -f $TOP/lib/krazy2/krazy-plugins/*/foreach $TOP/lib/krazy2/krazy-sets/*/*-foreach
 
 #permissions
 if ( test $EBN -eq 1 ) then
