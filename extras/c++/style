@@ -56,7 +56,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.59";
+my($Version) = "1.591";
 
 &parseArgs();
 
@@ -1258,7 +1258,9 @@ sub isOper() {
         $l =~ m/-\s*$/  ||
         $l =~ m/\*\s*$/ ||
         $l =~ m+\/\s*$+ ||
-        $l =~ m+/\s*$+);
+        $l =~ m+/\s*$+  ||
+        $l =~ m+\^\s*$+
+    );
   return 0;
 }
 
