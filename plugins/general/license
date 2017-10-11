@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.92";
+my($Version) = "1.93";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -215,6 +215,7 @@ sub checkLicense()
    $license = "LGPL$gl$wrong$wrongurl $license" if ($text =~ /under (the (terms|conditions) of )?the GNU (Library|Lesser) General Public License/i);
    $license = "LGPL$gl$wrong$wrongurl $license" if ($text =~ /under (the (terms|conditions) of )?the (Library|Lesser) GNU General Public License/i);
    $license = "LGPL$gl$wrong$wrongurl $license" if ($text =~ /under (the (terms|conditions) of )?the (GNU )?LGPL/i);
+   $license = "LGPL$gl$wrong$wrongurl $license" if ($text =~ /GNU Lesser General Public License version/i);
    $license="LGPL$gl$wrong$wrongurl $license" if ($text =~ /[Tt]he LGPL as published by the Free Software Foundation/i);
    $license="LGPL$gl$wrong$wrongurl $license" if ($text =~ /LGPL with the following explicit clarification/i);
    $license = "GPL$gl$qte$wrong$wrongurl $license" if ($text =~ /under (the terms of )?(version 2 of )?the GNU (General Public License|GENERAL PUBLIC LICENSE)/i);
