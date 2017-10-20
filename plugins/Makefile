@@ -31,6 +31,7 @@ qml \
 qdoc \
 perl \
 python \
+json \
 svg
 
 #default installation location

@@ -51,6 +51,7 @@ The modules are:
   Tie::IxHash
   XML::LibXML
   YAML
+  JSON
 
 Otherwise, Krazy should work with all known UNIXish operating systems where
 Perl and Qt4 (or higher) are available.

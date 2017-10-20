@@ -120,7 +120,7 @@ use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.9980';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9981';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -659,15 +659,15 @@ if ($exclude) {
         }
       }
     }
-    if ( !$found ) {
-      my($emess);
-      if ( !$checksets) {
-        $emess = "No such checker \"$e\" to exclude.\nRun $Prog --list to see the list of available checker programs.";
-      } else {
-        $emess = "No such checker \"$e\" to exclude in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check-sets and programs.";
-      }
-      &userError($emess);
-    }
+#    if ( !$found ) {
+#      my($emess);
+#      if ( !$checksets) {
+#        $emess = "No such checker \"$e\" to exclude.\nRun $Prog --list to see the list of available checker programs.";
+#      } else {
+#        $emess = "No such checker \"$e\" to exclude in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check-sets and programs.";
+#      }
+#      &userError($emess);
+#    }
   }
 }
 
@@ -761,6 +761,7 @@ my ($use, %result, $pid, %status);
 my ($insp) = $KRAZYPATH . "/lib64/krazy2/krazy-helpers/getInstalledHeaders.pl";
   $insp = $KRAZYPATH . "/lib/krazy2/krazy-helpers/getInstalledHeaders.pl" if (! -f $insp);
 my ($dirf);
+my ($nf) = 0;
 for $ftype (@types) {
   if ( defined( $pCheckers{$ftype} ) ) {
     for $p ( sort @{ $pCheckers{$ftype} } ) {
@@ -773,7 +774,7 @@ for $ftype (@types) {
         }
       }
       $result{$p} = "";
-      my ($nf) = 0;
+      $nf = 0;
       $num_checkers++;
       for $f (@allfiles) {
         $absf = abs_path($f);
@@ -862,7 +863,7 @@ for $ftype (@types) {
 ###############################
 if ( !$quiet ) {
 
-  &printHeader( $overall_status, $num_checkers, $#allfiles + 1 );
+  &printHeader( $overall_status, $num_checkers, $nf );
 
   my ($st,$bp);
   my ($cline, $rline);

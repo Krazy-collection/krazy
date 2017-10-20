@@ -104,6 +104,7 @@ my(@FileTypes) = ('c++',
                   'qdoc',
                   'perl',
                   'python',
+                  'json',
                   'svg'
                  );
 
@@ -328,6 +329,8 @@ sub fileType {
     return "perl";
   } elsif ( $f =~ m/\.py$/ ) {
     return "python";
+  } elsif ( $f =~ m/\.json$/i ) {
+    return "json";
   } elsif ( $f =~ m/\.svg$/ ) {
     return "svg";
   }
@@ -363,6 +366,8 @@ sub fileTypeDesc {
     return "Perl program files";
   } elsif ( $t eq "python" ) {
     return "Python program files";
+  } elsif ( $t eq "json" ) {
+    return "JSON files";
   } elsif ( $t eq "svg" ) {
     return "SVG (uncompressed) files";
   }
@@ -436,6 +441,7 @@ sub fileTypeIs {
   return 1 if (($t eq "perl") &&
                ($f =~ m/\.pl$/i || $f =~ m/\.pm$/i));
   return 1 if (($t eq "python") && ($f =~ m/\.py$/));
+  return 1 if (($t eq "json") && ($f =~ m/\.json$/i));
   return 1 if (($t eq "svg") && ($f =~ m/\.svg$/));
 
   &userMessage("BAD FILETYPE PASSED TO fileTypeIs()") if (&fileType($f) eq "");

@@ -1,6 +1,6 @@
 # krazy kde4 sets Makefile
 #
-# Copyright 2010-2013,2015 by Allen Winter <winter@kde.org>
+# Copyright 2010-2013,2015,2017 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -125,6 +125,13 @@ license \
 qtemits \
 spelling \
 
+# links to JSON plugins
+JSON_PLUGINS = \
+endswithnewline \
+filenames \
+spelling \
+validate \
+
 # links to SVG plugins
 SVG_PLUGINS = \
 filenames \
@@ -187,6 +194,10 @@ install::
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing kde4 set python plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/python/$$plugin $(DESTDIR)$(INSTDIR)/python-$$plugin; \
+	done
+	list="$(JSON_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing kde4 set json plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/json/$$plugin $(DESTDIR)$(INSTDIR)/json-$$plugin; \
 	done
 	list="$(SVG_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing kde4 set SVG plugin link $$plugin"; \
