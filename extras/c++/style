@@ -56,7 +56,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.591";
+my($Version) = "1.592";
 
 &parseArgs();
 
@@ -639,7 +639,7 @@ foreach $line (@lines) {
     }
   }
 
-  if ($pline =~ m/;.*;/ && $line !~ m/\sfor\s*\(\s*/ && $line !~ m/\swhile\s*\(\s*/) {
+  if ($pline =~ m/;.*;/ && $line !~ m/\sfor\s*\(\s*/ && $line !~ m/\swhile\s*\(\s*/ && $pline !~ m/\[\s*\]/) {
     $Issues{'MULTISTATE'}{'count'}++;
     if ($Issues{'MULTISTATE'}{'count'} == 1) {
       $Issues{'MULTISTATE'}{'lines'} = "line\#" . $linecnt;
