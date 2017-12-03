@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2016 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2017 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2012 by Daniel Calviño Sánchez <danxuliu@gmail.com>           #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
@@ -47,7 +47,7 @@ use Krazy::Utils;
 
 my($debug) = 0;  #set to go into debug mode
 my($Prog) = "dpointer";
-my($Version) = "1.993";
+my($Version) = "1.994";
 
 &parseArgs();
 
@@ -422,7 +422,8 @@ sub isQInterfaces {
 sub isDeclarePrivate {
   my($l) = @_;
   $l =~ s+//.*++; #strip trailing C++ comment
-  if ($l =~ m+_DECLARE_PRIVATE[[:space:]]*\(.*\)+) {
+  if ($l =~ m+_DECLARE_PRIVATE[[:space:]]*\(.*\)+ ||
+      $l =~ m+_DECLARE_PRIVATE_D[[:space:]]*\(.*\)+) {
     return 1;
   } else {
     return 0;
