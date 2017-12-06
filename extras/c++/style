@@ -56,7 +56,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.592";
+my($Version) = "1.593";
 
 &parseArgs();
 
@@ -616,7 +616,7 @@ foreach $line (@lines) {
     print "$linecnt (bad open brace at end-of-line) => $line\n" if (&verboseArg());
   }
 
-  if ($line =~ m/{};/ && $line !~ m/^\s*template\s<.*>\s(struct|class)/) {
+  if ($line =~ m/{\s*}\s*;/ && $line !~ m/^\s*template\s<.*>\s(struct|class)/ && $line !~ m/return\s*{\s*};/) {
     $Issues{'BADSEMI'}{'count'}++;
     if ($Issues{'BADSEMI'}{'count'} == 1) {
       $Issues{'BADSEMI'}{'lines'} = "line\#" . $linecnt;
