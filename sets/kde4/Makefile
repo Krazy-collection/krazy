@@ -94,8 +94,6 @@ spelling \
 
 # links to Messages.sh plugins
 MSG_PLUGINS = \
-endswithnewline \
-filenames \
 rcappend \
 
 # links to QML plugins
