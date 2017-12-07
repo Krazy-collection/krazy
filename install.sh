@@ -28,7 +28,12 @@ else
   TOP=/usr/local/Krazy2
   if ( test -z "$QMAKE") then
     # Assumed to be in the PATH
-    QMAKE=qmake
+     if ( test -e "/Cygwin.ico" )
+     then
+       QMAKE=qmake-qt5
+     else
+       QMAKE=qmake
+     fi
   fi
 fi
 
