@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.910";
+my($Version) = "1.911";
 
 &parseArgs();
 
@@ -1645,6 +1645,7 @@ scenerios              scenarios
 sceptical              skeptical
 schduler               scheduler
 schdulers              schedulers
+seach                  search
 sectionning            sectioning
 selction               selection
 selctions              selections
