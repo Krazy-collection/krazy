@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2010,2012-2017 by Allen Winter <winter@kde.org>              #
+# Copyright 2007-2010,2012-2018 by Allen Winter <winter@kde.org>              #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.50;
+$VERSION = 1.601;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -51,7 +51,8 @@ $VERSION = 1.50;
              allLinesCaseSearchInFile
              guessCheckSet
              checkSetDesc checkSetsList prettyPrintCheckSetsList
-             fileTypeDesc fileTypesList prettyPrintTypesList);
+             fileTypeDesc fileTypesList prettyPrintTypesList
+             printIssue printIssueTextEdit);
 @EXPORT_OK = qw();
 
 my(@tmp);
@@ -777,7 +778,7 @@ sub allLinesCaseSearchInFile {
     return -1;
   }
 
-  my($outLines);
+  my($outLines) = "";
   while (my $line = <F>) {
     chomp($line);
 
@@ -878,6 +879,30 @@ sub guessCheckSet {
     $checkset = $fcheckset;
   }
   return $checkset;
+}
+
+#print the Issue, text export
+sub printIssueTextEdit()
+{
+  my ($fullpath, $line, $desc, $checker, $hint, $offendingcode) = @_;
+  print $fullpath . ":" . $line . ":" . $desc . " [" . $checker . "]\n";
+}
+
+#print the Issue, figures out the export mode and does the right thing
+sub printIssue()
+{
+  my ($export, $fullpath, $line, $desc, $checker, $hint, $offendingcode) = @_;
+  if ($export eq "text") {
+    &printIssueText($fullpath, $line, $desc, $checker, $hint, $offendingcode);
+  } elsif ($export eq "textlist") {
+    &printIssueTextList($fullpath, $line, $desc, $checker, $hint, $offendingcode);
+  } elsif ($export eq "textedit") {
+    &printIssueTextEdit($fullpath, $line, $desc, $checker, $hint, $offendingcode);
+  } elsif ($export eq "xml") {
+    &printIssueXML($fullpath, $line, $desc, $checker, $hint, $offendingcode);
+  } else {
+    &userMessage("BAD EXPORT PASSED TO printIssue()");
+  }
 }
 
 1;
