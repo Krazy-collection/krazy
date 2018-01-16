@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2010,2016 by Allen Winter <winter@kde.org>               #
+# Copyright (C) 2006-2010,2016,2018 by Allen Winter <winter@kde.org>          #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "doublequote_chars";
-my($Version) = "1.20";
+my($Version) = "1.30";
 
 &parseArgs();
 
@@ -106,6 +106,7 @@ foreach $line (@lines) {
     next if ($line =~ m/\"[[:print:]]\"\s[A-Z]/);
     next if ($line =~ m/\(\s*\)\s*\+=/);  #skip foo()+=
     next if ($line =~ m/[[:print:]]\s*[=!]=\s*\"/);
+    next if ($line =~ m/const\schar\s\w+\[\s*\]\s*=\s*\"?\"/);
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
