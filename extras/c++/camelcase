@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.69";
+my($Version) = "1.70";
 
 &parseArgs();
 
@@ -192,6 +192,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Qt4, kdelibs, and kdepimlibs provide CamelCase headers. For example, #include <kfoo.h> can be replaced with #include <KFoo>. Using CamelCase headers is up to personal taste in most cases.\n";
+  print "Some libraries, like Qt and KDE frameworks provide CamelCase, class-based headers.\n";
   Exit 0 if &explainArg();
 }
