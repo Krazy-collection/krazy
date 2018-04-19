@@ -91,7 +91,7 @@ sub processFileNamesAndVariables {
 
     foreach (split('\s+', $fileNamesAndVariables)) {
         # Matches "${theNameOfTheVariable}"
-        if (m/^\$\{(.*)\}/i) {
+        if (m/^\$\{(.*)\}/i && $1 !~ m/\$/) {
             push(@fileNames, getVariableValues($fileToParse, $1));
         } else {
             push(@fileNames, $_);
@@ -108,7 +108,7 @@ sub parseFile {
     open(FH, "< $file") or return;
     foreach(<FH>) {
         chomp;
-	s/#.*$//;  #remove comments
+        s/#.*$//;  #remove comments
         # Matches "install("
         #
         # Matches "install(FILES"
@@ -181,4 +181,3 @@ foreach (@makefiles) {
     chomp;
     parseFile($_);
 }
-
