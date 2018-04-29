@@ -392,10 +392,11 @@ sub fileTypeIs {
       return 1 if (-e $tf);
       $tf =~ s/\.cc$/\.cxx/;
       return 1 if (-e $tf);
-      $tf =~ s/\.cxx$/\.C/;
+      $tf =~ s/\.cxx$/\.tcc/;
       return 1 if (-e $tf);
-      $tf =~ s/\.C$/\.tcc/;
-      return 1 if (-e $tf);
+      #causes insanity on case-insenstive filesystems
+      #$tf =~ s/\.tcc$/\.C/;
+      #return 1 if (-e $tf);
     }
     if ($f =~ m/\.h\.in$/) {
       my($tf) = $f;
@@ -405,10 +406,11 @@ sub fileTypeIs {
       return 1 if (-e $tf);
       $tf =~ s/\.cc\.in$/\.cxx.in/;
       return 1 if (-e $tf);
-      $tf =~ s/\.cxx\.in$/\.C.in/;
+      $tf =~ s/\.cxx\.in$/\.tcc.in/;
       return 1 if (-e $tf);
-      $tf =~ s/\.C\.in$/\.tcc.in/;
-      return 1 if (-e $tf);
+      #causes insanity on case-insenstive filesystems
+      #$tf =~ s/\.tcc\.in$/\.C.in/;
+      #return 1 if (-e $tf);
     }
     if ($f =~ m/\.h\.cmake$/) {
       my($tf) = $f;
@@ -418,10 +420,11 @@ sub fileTypeIs {
       return 1 if (-e $tf);
       $tf =~ s/\.cc\.cmake$/\.cxx.cmake/;
       return 1 if (-e $tf);
-      $tf =~ s/\.cxx\.cmake$/\.C.cmake/;
+      $tf =~ s/\.cxx\.cmake$/\.tcc.cmake/;
       return 1 if (-e $tf);
-      $tf =~ s/\.C\.cmake$/\.tcc.cmake/;
-      return 1 if (-e $tf);
+      #causes insanity on case-insenstive filesystems
+      #$tf =~ s/\.tcc\.cmake$/\.C.cmake/;
+      #return 1 if (-e $tf);
     }
   }
 
