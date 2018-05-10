@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2017 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2018 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "cpp";
-my($Version) = "1.80";
+my($Version) = "1.85";
 
 &parseArgs();
 
@@ -632,9 +632,10 @@ sub compilerMacros() {
         );
     }
   }
-  if ($l =~ m/__GNUC__/ && $lp1 !~ /warning/){
-    push(@COMP,"__GNUC__");
-  }
+  # stop complaining about __GNUC__ (see Issue#8)
+  #if ($l =~ m/__GNUC__/ && $lp1 !~ /warning/){
+  #  push(@COMP,"__GNUC__");
+  #}
   return $#COMP;
 }
 
