@@ -3,10 +3,19 @@
 # install krazy
 
 #Exit this script if it any subprocess exits non-zero.
-#set -e  qmake from qt3 exits with non-zero status, so we can set this
+#set -e  #qmake from qt3 exits with non-zero status, so we can't set this
 
-#save current working dir
-savedir=`pwd`
+COMMAND_EXISTS () {
+  command -v $1 >/dev/null 2>&1
+  if ( test $? != 0 )
+    then
+    echo "$1 is not in your PATH. Must install this program before continuing"
+    exit 1
+  fi
+}
+#make sure some helper programs exist before continuing
+COMMAND_EXISTS autoconf #needed by desktop-file-utils only
+COMMAND_EXISTS autoheader #needed by desktop-file-utils only
 
 #bootstrap by checking that the MakeMaker module is installed
 module="ExtUtils::MakeMaker"
@@ -17,6 +26,9 @@ if ( test $status -ne 0 ) then
   echo "Please install this module... exiting"
   exit 1
 fi
+
+#save current working dir
+savedir=`pwd`
 
 #change TOP to whatever you like for your top-level installation directory
 if ( test `hostname | egrep -c www` -gt 0 ) then
@@ -77,9 +89,15 @@ then
   echo "Continuing with the installation..."
 fi
 
-if ( test ! -d "$TOP" ) then
+if ( test ! -d "$TOP" )
+then
   echo "Installation dir \"$TOP\" does not exist. Creating..."
   mkdir -p $TOP || exit 1
+fi
+if ( test ! -w "$TOP")
+then
+  echo "Installation dir \"$TOP\" is not writable by the current user. Exiting..."
+  exit 1
 fi
 
 #install user-interface scripts
