@@ -1,6 +1,6 @@
 # krazy Makefile.PL
 #
-# Copyright 2005-2007 by Allen Winter <winter@kde.org>
+# Copyright 2005-2018 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ WriteMakefile(
                                      "XML::LibXML"  => 1.57,
                                      "YAML"         => 0.68,
                                      "JSON"         => 2.90,
+                                     "Env"          => 1.00,
                                    },
               'dist'            => { COMPRESS => 'gzip',
                                      SUFFIX => '.gz', },
