@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2006-2017 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2006-2018 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2003 by Dirk Mueller <mueller@kde.org>                        #
 # Copyright (C) 2004 Richard Evans <rich@ridas.com>                           #
 #                                                                             #
@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.911";
+my($Version) = "1.920";
 
 &parseArgs();
 
@@ -243,6 +243,9 @@ sub build_dictionary_lookup_table
 #centre                 center
 #chatwindow             chat window
 #contactlist            contact list
+#visualisation          visualization
+#visualisations         visualizations
+#visualise              visualize
 
 __DATA__
 
@@ -1952,9 +1955,6 @@ veryify                verify
 vicitim                victim
 vicitims               victims
 visiblity              visibility
-visualisation          visualization
-visualisations         visualizations
-visualise              visualize
 visul                  visual
 volonteer              volunteer
 volonteering           volunteering
