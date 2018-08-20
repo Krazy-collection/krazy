@@ -102,7 +102,7 @@ fi
 
 #install user-interface scripts
 #perl Makefile.PL PREFIX=$TOP
-perl Makefile.PL INSTALLSITESCRIPT=$TOP/bin INSTALLSITEBIN=$TOP/bin INSTALLSITELIB=$TOP/lib PREFIX=$TOP
+perl Makefile.PL INSTALLSITESCRIPT=$TOP/bin INSTALLSITEBIN=$TOP/bin INSTALLSITELIB=$TOP/lib 
 stat=$?
 if ( test $stat -ne 0 ) then
   exit $stat
