@@ -1,6 +1,6 @@
 # krazy FOSS sets Makefile
 #
-# Copyright 2010,2013,2015,2017 by Allen Winter <winter@kde.org>
+# Copyright 2010-2018 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+SET=foss
 
 # links to c++ plugins
 CPP_PLUGINS = \
@@ -51,8 +53,14 @@ SVG_PLUGINS = \
 filenames \
 validate \
 
+# links to QSS plugins
+QSS_PLUGINS = \
+endswithnewline \
+filenames \
+validate \
+
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/foss
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}
 
 all:
 
@@ -64,33 +72,38 @@ install::
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
 	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set c++ plugin link $$plugin"; \
+		echo "Installing ${SET} set c++ plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
 	done
 
 	list="$(QML_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set qml plugin link $$plugin"; \
+		echo "Installing ${SET} set qml plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
 	done
 
 	list="$(PERL_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set perl plugin link $$plugin"; \
+		echo "Installing ${SET} set perl plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/perl/$$plugin $(DESTDIR)$(INSTDIR)/perl-$$plugin; \
 	done
 
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set python plugin link $$plugin"; \
+		echo "Installing ${SET} set python plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/python/$$plugin $(DESTDIR)$(INSTDIR)/python-$$plugin; \
 	done
 
 	list="$(JSON_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set json plugin link $$plugin"; \
+		echo "Installing ${SET} set json plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/json/$$plugin $(DESTDIR)$(INSTDIR)/json-$$plugin; \
 	done
 
 	list="$(SVG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set SVG plugin link $$plugin"; \
+		echo "Installing ${SET} set svg plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/svg/$$plugin $(DESTDIR)$(INSTDIR)/svg-$$plugin; \
+	done
+
+	list="$(QSS_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing ${SET} set qss plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/qss/$$plugin $(DESTDIR)$(INSTDIR)/qss-$$plugin; \
 	done
 
 clean:

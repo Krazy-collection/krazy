@@ -1,6 +1,6 @@
 # krazy qt5 sets Makefile
 #
-# Copyright 2013-2017 by Allen Winter <winter@kde.org>
+# Copyright 2013-2018 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -101,6 +101,12 @@ endswithnewline \
 filenames \
 spelling \
 
+# links to QSS plugins
+QSS_PLUGINS = \
+endswithnewline \
+filenames \
+validate \
+
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}
 
@@ -146,12 +152,16 @@ install::
 		ln -sf ../../krazy-plugins/json/$$plugin $(DESTDIR)$(INSTDIR)/json-$$plugin; \
 	done
 	list="$(SVG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing ${SET} set SVG plugin link $$plugin"; \
+		echo "Installing ${SET} set svg plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/svg/$$plugin $(DESTDIR)$(INSTDIR)/svg-$$plugin; \
 	done
 	list="$(CMAKE_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing ${SET} set cmake plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/cmake/$$plugin $(DESTDIR)$(INSTDIR)/cmake-$$plugin; \
+	done
+	list="$(QSS_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing ${SET} set qss plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/qss/$$plugin $(DESTDIR)$(INSTDIR)/qss-$$plugin; \
 	done
 
 clean:

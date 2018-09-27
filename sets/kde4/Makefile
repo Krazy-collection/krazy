@@ -1,6 +1,6 @@
 # krazy kde4 sets Makefile
 #
-# Copyright 2010-2013,2015,2017 by Allen Winter <winter@kde.org>
+# Copyright 2010-2018 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+SET=kde4
 
 # links to c++ plugins
 CPP_PLUGINS = \
@@ -141,8 +143,14 @@ endswithnewline \
 filenames \
 spelling \
 
+# links to QSS plugins
+QSS_PLUGINS = \
+endswithnewline \
+filenames \
+validate \
+
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/kde4
+INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}
 
 all:
 
@@ -154,56 +162,60 @@ install::
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
 	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set c++ plugin link $$plugin"; \
+		echo "Installing ${SET} set c++ plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
 	done
 	list="$(UI_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set designer plugin link $$plugin"; \
+		echo "Installing ${SET} set designer plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/designer/$$plugin $(DESTDIR)$(INSTDIR)/designer-$$plugin; \
 	done
 	list="$(DESKTOP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set desktop plugin link $$plugin"; \
+		echo "Installing ${SET} set desktop plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/desktop/$$plugin $(DESTDIR)$(INSTDIR)/desktop-$$plugin; \
 	done
 	list="$(KCFG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set kconfigxt plugin link $$plugin"; \
+		echo "Installing ${SET} set kconfigxt plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/kconfigxt/$$plugin $(DESTDIR)$(INSTDIR)/kconfigxt-$$plugin; \
 	done
 	list="$(RC_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set kpartgui plugin link $$plugin"; \
+		echo "Installing ${SET} set kpartgui plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/kpartgui/$$plugin $(DESTDIR)$(INSTDIR)/kpartgui-$$plugin; \
 	done
 	list="$(TIPS_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set tips plugin link $$plugin"; \
+		echo "Installing ${SET} set tips plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/tips/$$plugin $(DESTDIR)$(INSTDIR)/tips-$$plugin; \
 	done
 	list="$(MSG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set messages plugin link $$plugin"; \
+		echo "Installing ${SET} set messages plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/messages/$$plugin $(DESTDIR)$(INSTDIR)/messages-$$plugin; \
 	done
 	list="$(QML_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set qml plugin link $$plugin"; \
+		echo "Installing ${SET} set qml plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
 	done
 	list="$(PERL_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set perl plugin link $$plugin"; \
+		echo "Installing ${SET} set perl plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/perl/$$plugin $(DESTDIR)$(INSTDIR)/per-$$plugin; \
 	done
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set python plugin link $$plugin"; \
+		echo "Installing ${SET} set python plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/python/$$plugin $(DESTDIR)$(INSTDIR)/python-$$plugin; \
 	done
 	list="$(JSON_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set json plugin link $$plugin"; \
+		echo "Installing ${SET} set json plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/json/$$plugin $(DESTDIR)$(INSTDIR)/json-$$plugin; \
 	done
 	list="$(SVG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set SVG plugin link $$plugin"; \
+		echo "Installing ${SET} set svg plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/svg/$$plugin $(DESTDIR)$(INSTDIR)/svg-$$plugin; \
 	done
 	list="$(CMAKE_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde4 set cmake plugin link $$plugin"; \
+		echo "Installing ${SET} set cmake plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/cmake/$$plugin $(DESTDIR)$(INSTDIR)/cmake-$$plugin; \
+	done
+	list="$(QSS_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing ${SET} set qss plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/qss/$$plugin $(DESTDIR)$(INSTDIR)/qss-$$plugin; \
 	done
 
 clean:

@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2010,2012-2018 by Allen Winter <winter@kde.org>              #
+# Copyright 2007-2018 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.601;
+$VERSION = 1.602;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -106,7 +106,8 @@ my(@FileTypes) = ('c++',
                   'perl',
                   'python',
                   'json',
-                  'svg'
+                  'svg',
+                  'qss'
                  );
 
 my(@Sets) = ( "c++",             # Pure C/C++ source
@@ -332,8 +333,10 @@ sub fileType {
     return "python";
   } elsif ( $f =~ m/\.json$/i ) {
     return "json";
-  } elsif ( $f =~ m/\.svg$/ ) {
+  } elsif ( $f =~ m/\.svg$/i ) {
     return "svg";
+  } elsif ( $f =~ m/\.qss$/i ) {
+    return "qss";
   }
   return "";
 }
@@ -371,6 +374,8 @@ sub fileTypeDesc {
     return "JSON files";
   } elsif ( $t eq "svg" ) {
     return "SVG (uncompressed) files";
+  } elsif ( $t eq "qss" ) {
+    return "Qt stylesheet files";
   }
   return "";
 }
@@ -446,7 +451,8 @@ sub fileTypeIs {
                ($f =~ m/\.pl$/i || $f =~ m/\.pm$/i));
   return 1 if (($t eq "python") && ($f =~ m/\.py$/));
   return 1 if (($t eq "json") && ($f =~ m/\.json$/i));
-  return 1 if (($t eq "svg") && ($f =~ m/\.svg$/));
+  return 1 if (($t eq "svg") && ($f =~ m/\.svg$/i));
+  return 1 if (($t eq "qss") && ($f =~ m/\.qss$/i));
 
   &userMessage("BAD FILETYPE PASSED TO fileTypeIs()") if (&fileType($f) eq "");
   return 0;
