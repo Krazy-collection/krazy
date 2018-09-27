@@ -101,8 +101,8 @@ then
 fi
 
 #install user-interface scripts
-#perl Makefile.PL PREFIX=$TOP
-perl Makefile.PL INSTALLSITESCRIPT=$TOP/bin INSTALLSITEBIN=$TOP/bin INSTALLSITELIB=$TOP/lib 
+#perl Makefile.PL INSTALL_BASE=$TOP
+perl Makefile.PL INSTALLSITESCRIPT=$TOP/bin INSTALLSITEBIN=$TOP/bin INSTALLSITELIB=$TOP/lib INSTALLSITEMAN1DIR=$TOP/share/man/man1 INSTALLSITEMAN3DIR=$TOP/share/man/man3
 stat=$?
 if ( test $stat -ne 0 ) then
   exit $stat
