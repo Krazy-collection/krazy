@@ -107,7 +107,7 @@ spelling \
 QSS_PLUGINS = \
 endswithnewline \
 filenames \
-validate \
+qsssyntax \
 
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}
