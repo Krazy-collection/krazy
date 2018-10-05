@@ -11,7 +11,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # All the real work in this program uses code derived from kde-spellcheck.pl  #
 # written by Dirk Mueller <mueller@kde.org> and later modified by             #
 # Richard Evans <rich@ridas.com>.  You may find kde-spellcheck.pl in          #
-# the kdesdk module, in the scripts subdirectory.                             #
+# the kde-dev-scripts module.                                                 #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #

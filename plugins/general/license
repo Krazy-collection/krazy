@@ -24,7 +24,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.              #
 #                                                                             #
 # This program borrows a lot of code from the KDE 'licensecheck' which can be #
-# found in the kdesdk module under the scripts directory.                     #
+# found in the kde-dev-scripts module.                                        #
 ###############################################################################
 
 # Tests KDE source for an acceptable license
