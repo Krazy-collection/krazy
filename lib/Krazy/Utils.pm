@@ -291,11 +291,11 @@ sub fileTypesList()
 sub fileType {
   my ($f) = @_;
 
-  if ( $f =~ m/\.(?:cpp|cc|cxx|c|C|tcc|h|hxx|hpp|H\+\+)$/ ) {
+  if ( $f =~ m/\.(?:cpp|cc|cxx|mm|c|C|tcc|h|hxx|hpp|H\+\+)$/ ) {
     return "c++";
-  } elsif ( $f =~ m/\.(?:cpp|cc|cxx|c|C|tcc|h|hxx|hpp|H\+\+)\.in$/ ) {
+  } elsif ( $f =~ m/\.(?:cpp|cc|cxx|mm|c|C|tcc|h|hxx|hpp|H\+\+)\.in$/ ) {
     return "c++";
-  } elsif ( $f =~ m/\.(?:cpp|cc|cxx|c|C|tcc|h|hxx|hpp|H\+\+)\.cmake$/ ) {
+  } elsif ( $f =~ m/\.(?:cpp|cc|cxx|mm|c|C|tcc|h|hxx|hpp|H\+\+)\.cmake$/ ) {
     return "c++";
   } elsif ( $f =~ m/\.desktop$/ ) {
     return "desktop";
@@ -381,9 +381,9 @@ sub fileTypeIs {
 
   #special case C vs. C++
   if ($t eq "c++") {
-    return 1 if ($f =~ m/\.(?:cpp|cc|cxx|C|tcc|hxx|hpp|H\+\+)$/);
-    return 1 if ($f =~ m/\.(?:cpp|cc|cxx|C|tcc|hxx|hpp|H\+\+)\.in$/);
-    return 1 if ($f =~ m/\.(?:cpp|cc|cxx|C|tcc|hxx|hpp|H\+\+)\.cmake$/);
+    return 1 if ($f =~ m/\.(?:cpp|cc|cxx|mm|C|tcc|hxx|hpp|H\+\+)$/);
+    return 1 if ($f =~ m/\.(?:cpp|cc|cxx|mm|C|tcc|hxx|hpp|H\+\+)\.in$/);
+    return 1 if ($f =~ m/\.(?:cpp|cc|cxx|mm|C|tcc|hxx|hpp|H\+\+)\.cmake$/);
     if ($f =~ m/\.h$/) {
       my($tf) = $f;
       $tf =~ s/\.h$/\.cpp/;
