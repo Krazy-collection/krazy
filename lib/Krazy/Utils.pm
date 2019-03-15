@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.601;
+$VERSION = 1.700;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -49,10 +49,10 @@ $VERSION = 1.601;
              usingCheckSet usingQtCheckSet usingKDECheckSet
              linesSearchInFile linesCaseSearchInFile
              allLinesCaseSearchInFile
-             guessCheckSet
-             checkSetDesc checkSetsList prettyPrintCheckSetsList
+             guessCheckSet checkSetDesc checkSetsList prettyPrintCheckSetsList
              fileTypeDesc fileTypesList prettyPrintTypesList
-             printIssue printIssueTextEdit);
+             printIssue printIssueTextEdit
+             isCInclude isCSource);
 @EXPORT_OK = qw();
 
 my(@tmp);
@@ -394,8 +394,10 @@ sub fileTypeIs {
       return 1 if (-e $tf);
       $tf =~ s/\.cxx$/\.tcc/;
       return 1 if (-e $tf);
+      $tf =~ s/\.tcc$/\.mm/;
+      return 1 if (-e $tf);
       #causes insanity on case-insenstive filesystems
-      #$tf =~ s/\.tcc$/\.C/;
+      #$tf =~ s/\.mm$/\.C/;
       #return 1 if (-e $tf);
     }
     if ($f =~ m/\.h\.in$/) {
@@ -408,8 +410,10 @@ sub fileTypeIs {
       return 1 if (-e $tf);
       $tf =~ s/\.cxx\.in$/\.tcc.in/;
       return 1 if (-e $tf);
+      $tf =~ s/\.tcc\.in$/\.mm.in/;
+      return 1 if (-e $tf);
       #causes insanity on case-insenstive filesystems
-      #$tf =~ s/\.tcc\.in$/\.C.in/;
+      #$tf =~ s/\.mm\.in$/\.C.in/;
       #return 1 if (-e $tf);
     }
     if ($f =~ m/\.h\.cmake$/) {
@@ -422,8 +426,10 @@ sub fileTypeIs {
       return 1 if (-e $tf);
       $tf =~ s/\.cxx\.cmake$/\.tcc.cmake/;
       return 1 if (-e $tf);
+      $tf =~ s/\.tcc\.cmake$/\.mm.cmake/;
+      return 1 if (-e $tf);
       #causes insanity on case-insenstive filesystems
-      #$tf =~ s/\.tcc\.cmake$/\.C.cmake/;
+      #$tf =~ s/\.mm\.cmake$/\.C.cmake/;
       #return 1 if (-e $tf);
     }
   }
@@ -449,6 +455,25 @@ sub fileTypeIs {
   return 1 if (($t eq "svg") && ($f =~ m/\.svg$/));
 
   &userMessage("BAD FILETYPE PASSED TO fileTypeIs()") if (&fileType($f) eq "");
+  return 0;
+}
+
+#is the file a C source (explicitly NOT C++ and NOT a C/C++ include)?
+sub isCSource {
+  my ($f) = @_;
+
+  return 1 if ($f =~ m/\.c$/);
+  return 0;
+}
+
+#is the file a C/C++ include?
+sub isCInclude {
+  my ($f) = @_;
+
+  return 1 if ($f =~ m/\.(?:h|hxx|hpp|H\+\+)$/);
+  return 1 if ($f =~ m/\.(?:h|hxx|hpp|H\+\+)\.in$/ );
+  return 1 if ($f =~ m/\.(?:h|hxx|hpp|H\+\+)\.cmake$/);
+
   return 0;
 }
 
