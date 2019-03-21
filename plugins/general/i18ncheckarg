@@ -1280,7 +1280,7 @@ sub check_in_string_xml_r {
     my ($fname, $node) = @_;
     my $tag = lc($node->nodeName);
 
-    # This match is like that in trunk/KDE/kdesdk/scripts/extractrc.
+    # This match is like that in kde-dev-scripts/extractrc.
     if ($tag =~ /^([tT][eE][xX][tT]|title|string|whatsthis|tooltip|label|text)$/i) {
 
         # Check if the message has context.

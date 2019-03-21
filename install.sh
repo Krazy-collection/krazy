@@ -171,7 +171,7 @@ cd src && \
 $QMAKE && \
 make && \
 make install INSTALL_ROOT=$TOP
-make distclean
+make distclean && rm -f .qmake.stash
 cd ..
 
 # build and install cppcheck plugins

@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2016 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2019 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.35";
+my($Version) = "1.36";
 
 &parseArgs();
 
@@ -58,7 +58,7 @@ if ($#ARGV != 0){ &Help(); Exit 0; }
 my($f) = $ARGV[0];
 my($absf) = abs_path($f);
 
-my($filetype) = fileType($f);
+my($filetype) = &fileType($f);
 
 # open file and slurp it in (C++, non-headers only)
 if (($absf !~ m+/kdesupport/+ && $absf !~ m+/kdelibs/+) &&
