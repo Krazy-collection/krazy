@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.922";
+my($Version) = "1.923";
 
 &parseArgs();
 
@@ -824,6 +824,7 @@ divizors               divisors
 docucument             document
 docucuments            documents
 documentaiton          documentation
+documention            documentation
 documentors            documenters
 doens't                doesn't
 doesnt                 doesn't
