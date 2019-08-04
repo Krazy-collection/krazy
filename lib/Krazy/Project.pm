@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your source code                                          #
-# Copyright 2016 by Allen Winter <winter@kde.org>                             #
+# Copyright 2016-2019 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -27,7 +27,7 @@ use Cwd 'abs_path';
 use File::Basename;
 
 use Exporter;
-$VERSION = 0.95;
+$VERSION = 0.96;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topOfProject projectType);
@@ -226,6 +226,7 @@ sub topOfProject {
     if (! $t) {
       $t = findUp($td, $s);
       if ($t) {
+        $t = $t . "/foo"; #append foo file due to running dirname before returning
         &setProjectType("top of SCM");
         goto Done;
       }
