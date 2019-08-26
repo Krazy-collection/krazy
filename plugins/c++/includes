@@ -61,7 +61,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.992";
+my($Version) = "1.995";
 
 &parseArgs();
 
@@ -227,11 +227,12 @@ foreach $inc (keys %Incs) {
   }
 
   # check for config.h in doublequotes
-  if (&configH($inc) && $Incs{$inc}{'sep'} ne "<") {
-    $Issues{'CONFIGSEP'}{'count'}++;
-    $Issues{'CONFIGSEP'}{'lines'} .= "$Incs{$inc}{'lines'};";
-    print "=> $line\n" if (&verboseArg());
-  }
+  #26 Aug 2019: no longer check for <config.h>
+  #if (&configH($inc) && $Incs{$inc}{'sep'} ne "<") {
+  #  $Issues{'CONFIGSEP'}{'count'}++;
+  #  $Issues{'CONFIGSEP'}{'lines'} .= "$Incs{$inc}{'lines'};";
+  #  print "=> $line\n" if (&verboseArg());
+  #}
 
   # check for including a blacklisted include
   if (&blackList($inc)) {
