@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.36";
+my($Version) = "1.40";
 
 &parseArgs();
 
@@ -118,7 +118,6 @@ while ($linecnt < $#lines) {
 
   # These Qt4/5 classes should be avoided in KDE4 and KDE5
   &doIt($line,"QErrorMessage","KMessageBox",'');
-  &doIt($line,"QSystemTrayIcon","KStatusNotifierItem",'');
 
   # These KDE classes provide additional features over their Qt4/5 counterparts
   if (&strictArg() eq "super") {
