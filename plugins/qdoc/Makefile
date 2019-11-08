@@ -1,6 +1,6 @@
 # krazy plugins/qdoc Makefile
 #
-# Copyright 2010,2015 by Allen Winter <winter@kde.org>
+# Copyright 2010-2019 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ PLUGINS = \
 PLUGINLNS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling
 
 #default installation location

@@ -1,6 +1,6 @@
 # krazy kde5 sets Makefile
 #
-# Copyright 2013,2015-2017 by Allen Winter <winter@kde.org>
+# Copyright 2013-2019 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ filenames \
 i18ncheckarg \
 includes \
 inline \
+insecurenet \
 license \
 normalize \
 nullstrassign \
@@ -56,6 +57,7 @@ endswithnewline \
 filenames \
 fixuifiles \
 i18ncheckarg \
+insecurenet \
 qclasses \
 spelling \
 
@@ -64,6 +66,7 @@ DESKTOP_PLUGINS = \
 endswithnewline \
 filenames \
 iconnames \
+insecurenet \
 spelling \
 validate \
 
@@ -72,6 +75,7 @@ KCFG_PLUGINS = \
 endswithnewline \
 filenames \
 i18ncheckarg \
+insecurenet \
 spelling \
 validate \
 
@@ -80,6 +84,7 @@ RC_PLUGINS = \
 endswithnewline \
 filenames \
 i18ncheckarg \
+insecurenet \
 spelling \
 validate \
 
@@ -87,6 +92,7 @@ validate \
 TIPS_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 
 # links to Messages.sh plugins
@@ -99,6 +105,7 @@ copyright \
 endswithnewline \
 filenames \
 iconnames \
+insecurenet \
 license \
 qmlsyntax \
 spelling \
@@ -109,6 +116,7 @@ copyright \
 endswithnewline \
 filenames \
 license \
+insecurenet \
 spelling \
 
 # links to Python plugins
@@ -117,6 +125,7 @@ copyright \
 endswithnewline \
 filenames \
 license \
+insecurenet \
 qtemits \
 spelling \
 
@@ -124,6 +133,7 @@ spelling \
 JSON_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 validate \
 
@@ -136,6 +146,7 @@ validate \
 CMAKE_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 
 #default installation location

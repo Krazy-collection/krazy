@@ -1,6 +1,6 @@
 # krazy qt4 sets Makefile
 #
-# Copyright 2010-2011,2015-2017 by Allen Winter <winter@kde.org>
+# Copyright 2010-2019 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ explicit \
 filenames \
 includes \
 inline \
+insecurenet \
 normalize \
 nullstrassign \
 nullstrcompare \
@@ -50,12 +51,14 @@ typedefs \
 UI_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 
 # links to desktop plugins
 DESKTOP_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 validate \
 
@@ -63,12 +66,14 @@ validate \
 QDOC_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 
 # links to QML plugins
 QML_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 qmlsyntax \
 spelling \
 
@@ -76,12 +81,14 @@ spelling \
 PERL_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 
 # links to Python plugins
 PYTHON_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 qtemits \
 spelling \
 
@@ -89,6 +96,7 @@ spelling \
 JSON_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 validate \
 
@@ -101,6 +109,7 @@ validate \
 CMAKE_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 
 #default installation location

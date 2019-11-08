@@ -1,6 +1,6 @@
 # krazy c++ sets Makefile
 #
-# Copyright 2010,2014 by Allen Winter <winter@kde.org>
+# Copyright 2010-2019 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ explicit \
 filenames \
 includes \
 inline \
+insecurenet \
 operators \
 postfixop \
 spelling \

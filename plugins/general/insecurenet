@@ -1,0 +1,160 @@
+#!/usr/bin/perl -w
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+###############################################################################
+# Sanity check plugin for the Krazy project.                                  #
+# Copyright (C) 2019 by Allen Winter <winter@kde.org>                         #
+#                                                                             #
+# This program is free software; you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation; either version 2 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc.,     #
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.               #
+#                                                                             #
+###############################################################################
+
+# Tests source for insecure network connections (i.e. not using transport encryption).
+# Inspired by Volker Krause, see
+# https://www.volkerkrause.eu/2018/12/08/kde-privacy-finding-insecure-network-connections.html
+
+# Program options:
+#   --help:          print one-line help message and exit
+#   --version:       print one-line version information and exit
+#   --priority:      report issues of the specified priority only
+#   --strict:        report issues with the specified strictness level only
+#   --check-sets:    list of checksets
+#   --explain:       print an explanation with solving instructions
+#   --installed      file is to be installed
+#   --quiet:         suppress all output messages
+#   --verbose:       print the offending content
+
+# Exits with status=0 if test condition is not present in the source;
+# else exits with the number of failures encountered.
+
+use strict;
+use Cwd 'abs_path';
+use FindBin qw($Bin);
+use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
+use Krazy::Utils;
+
+my($Prog) = "insecurenet";
+my($Version) = "0.90";
+
+&parseArgs();
+
+&Help() if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
+if ($#ARGV != 0){ &Help(); Exit 0; }
+
+my($f) = $ARGV[0];
+my($absf) = abs_path($f);
+
+my($filetype) = &fileType($f);
+
+# open file and slurp it in
+open(F, $f) || die "Couldn't open $f";
+my(@lines) = <F>;
+close(F);
+
+my($linecnt) = 0;
+my($http_cnt) = 0;
+my($http_str) = "";
+
+my($line);
+while ($linecnt < $#lines) {
+  $line = $lines[$linecnt++];
+  if ($filetype eq "c++") {
+    if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+        $line =~ m+//.*[Kk]razy:skip+) {
+      $http_cnt = 0;
+      last;
+    }
+    next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  }
+
+  #skip whitelisted urls
+  next if (&whiteList($line));
+
+  #look for http:
+  if ($line =~ m+http:+i) {
+    $http_cnt++;
+    if ($http_cnt == 1) {
+        $http_str = "line\#" . $linecnt;
+      } else {
+        $http_str = $http_str . "," . $linecnt;
+      }
+      print "=> $linecnt: $line\n" if (&verboseArg());
+  }
+}
+
+if (!$http_cnt) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+} else {
+  print "$http_str\n" if (!&quietArg());
+  Exit $http_cnt;
+}
+
+sub whiteList {
+  my($l) = @_;
+  return 1 if
+    ($l =~ m+http://\"+) ||
+    ($l =~ m+http://\<+) ||
+    ($l =~ m+//www.trolltech.com/+) || # no longer exists and there is no https
+
+    ($l =~ m+//www.example.com+) ||
+    ($l =~ m+//example.com+) ||
+    ($l =~ m+//127.0.0.1+) ||
+    ($l =~ m+//localhost+) ||
+
+    #Technically issues, but very widely used in license headers
+    ($l =~ m+//www.gnu.org/licenses/+) ||
+    ($l =~ m+​//www.gnu.org/copyleft/+) ||
+    ($l =~ m+//www.qt-project.org/legal+) ||
+    ($l =~ m+//www.equi4.com/metakit+) ||
+
+    #schemas-n-stuff
+    ($l =~ m+//www.kde.org/standards/kcfg/+) ||
+    ($l =~ m+//www.kde.org/standards/kxmlgui/+) ||
+    ($l =~ m+//www.freedesktop.org/standards/+) ||
+    ($l =~ m+//www.w3.org/+) ||
+
+    ($l =~ m+//docbook.sf.net/+) ||
+    ($l =~ m+//schemas.xmlsoap.org/+) ||
+    ($l =~ m+//www.inkscape.org/+) ||
+    ($l =~ m+//purl.org/+) ||
+    ($l =~ m+//schema.org+) ||
+    ($l =~ m+//xml.org/sax/+) ||
+    ($l =~ m+​schemas.google.com+) ||
+    ($l =~ m+schemas.microsoft.com+) ||
+    ($l =~ m+​semanticdesktop.org/onto+) ||
+    ($l =~ m+//nepomuk.kde.org/ontologies/+);
+
+  return 0;
+}
+#
+sub Help {
+  print "Check for URLs not using transport encryption\n";
+  Exit 0 if &helpArg();
+}
+
+sub Version {
+  print "$Prog, version $Version\n";
+  Exit 0 if &versionArg();
+}
+
+sub Explain {
+  print "Prefer URLs using transport encryption.  See <https://www.volkerkrause.eu/2018/12/08/kde-privacy-finding-insecure-network-connections.html> for more information.\n";
+  Exit 0 if &explainArg();
+}

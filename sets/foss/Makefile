@@ -1,6 +1,6 @@
 # krazy FOSS sets Makefile
 #
-# Copyright 2010,2013,2015,2017 by Allen Winter <winter@kde.org>
+# Copyright 2010-2019 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,36 +19,48 @@
 # links to c++ plugins
 CPP_PLUGINS = \
 copyright \
+insecurenet \
 license \
+spelling \
 
 # links to QML plugins
 QML_PLUGINS = \
 copyright \
+insecurenet \
 license \
+spelling \
 
 # links to Perl plugins
 PERL_PLUGINS = \
 copyright \
 endswithnewline \
 filenames \
+insecurenet \
 license \
+spelling \
 
 # links to Python plugins
 PYTHON_PLUGINS = \
 copyright \
 endswithnewline \
 filenames \
+insecurenet \
 license \
+spelling \
 
 # links to JSON plugins
 JSON_PLUGINS = \
 endswithnewline \
 filenames \
+insecurenet \
+spelling \
 validate \
 
 # links to SVG plugins
 SVG_PLUGINS = \
 filenames \
+insecurenet \
+spelling \
 validate \
 
 #default installation location

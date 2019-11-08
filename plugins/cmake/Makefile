@@ -1,6 +1,6 @@
 # krazy plugins/cmake Makefile
 #
-# Copyright 2012,2015 by Allen Winter <winter@kde.org>
+# Copyright 2012-2019 by Allen Winter <winter@kde.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ copyright \
 endswithnewline \
 filenames \
 license \
+insecurenet \
 spelling \
 
 #default installation location
