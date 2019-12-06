@@ -1,7 +1,8 @@
 /*
  * Sanity check plugin for the Krazy project.
- * Copyright (C) 2014 by Allen Winter <winter@kde.org>
- * Copyright (C) 2014 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Sergio Martins <sergio.martins@kdab.com>
+ * Copyright (C) 2014-2019 by Allen Winter <winter@kde.org>
+ * Copyright (C) 2014-2019 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+ * Author: Sergio Martins <sergio.martins@kdab.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -108,13 +109,14 @@ static QMap<QString, QList<int> > lint_file(const QString &filename, bool silent
     }
     lexer.setCode(code, /*line = */1, true);
 #else
-    lexer.setCode(code, /*line = */ 1, /*qmlMode=*/ !isJavaScript);
+    lexer.setCode(code, /*line = */1, /*qmlMode=*/!isJavaScript);
 #endif
     QQmlJS::Parser parser(&engine);
 
     bool success = isJavaScript ? parser.parseProgram() : parser.parse();
 
     if (!success) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
         foreach (const QQmlJS::DiagnosticMessage &m, parser.diagnosticMessages()) {
             if (issues.contains(m.message)) {
                 if (!issues.value(m.message).contains(m.loc.startLine)) {
@@ -125,6 +127,18 @@ static QMap<QString, QList<int> > lint_file(const QString &filename, bool silent
                 lines[0] = m.loc.startLine;
                 issues.insert(m.message, lines);
             }
+#else
+        foreach (const QQmlJS::DiagnosticMessage &m, parser.diagnosticMessages()) {
+            if (issues.contains(m.message)) {
+                if (!issues.value(m.message).contains(m.line)) {
+                  issues[m.message] << m.line;
+                }
+            } else {
+                QList<int> lines;
+                lines[0] = m.line;
+                issues.insert(m.message, lines);
+            }
+#endif
         }
     }
 
@@ -150,7 +164,7 @@ int main(int argc, char **argv)
         } else if (!strcmp(*argv,"--quiet")) {
             quiet = true;
         } else if (!strcmp(*argv,"--version")) {
-            printf("qmlsyntax, version 0.1\n");
+            printf("qmlsyntax, version 0.2\n");
             return 0;
         } else if (!strcmp(*argv,"--help")) {
             printf("Check for syntax errors in QML code\n");
