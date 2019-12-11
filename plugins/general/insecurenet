@@ -48,7 +48,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "insecurenet";
-my($Version) = "0.92";
+my($Version) = "0.93";
 
 &parseArgs();
 
@@ -115,6 +115,7 @@ sub whiteList {
     ($l =~ m+//man7.org/+) || # https doesn't exist
     ($l =~ m+//www.doxygen.org+) || #https doesn't exist
     ($l =~ m+//0pointer.de/+) || #https doesn't exist
+    ($l =~ m+//id3.org+) || #https doesn't exist
 
     ($l =~ m+//www.example.com+) ||
     ($l =~ m+//example.com+) ||
