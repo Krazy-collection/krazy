@@ -48,7 +48,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "insecurenet";
-my($Version) = "0.94";
+my($Version) = "0.95";
 
 &parseArgs();
 
@@ -111,14 +111,17 @@ sub whiteList {
   return 1 if
     ($l =~ m+http://\"+) ||
     ($l =~ m+http://\<+) ||
-    ($l =~ m+//www.trolltech.com/+) || # no longer exists and there is no https
-    ($l =~ m+//man7.org/+) || # https doesn't exist
-    ($l =~ m+//xmlsoft.org+) || #https doesn't exist
-    ($l =~ m+//www.xmlsoft.org+) || #https doesn't exist
-    ($l =~ m+//www.doxygen.org+) || #https doesn't exist
-    ($l =~ m+//www.icu-project.org+) || #https doesn't exist
-    ($l =~ m+//0pointer.de/+) || #https doesn't exist
-    ($l =~ m+//id3.org+) || #https doesn't exist
+    #time for people to change trolltech to qt-project
+    #($l =~ m+//www.trolltech.com/+) || # no longer exists and there is no https
+    #https doesn't exist for these
+    ($l =~ m+//man7.org/+) ||
+    ($l =~ m+//xmlsoft.org+) ||
+    ($l =~ m+//www.xmlsoft.org+) ||
+    ($l =~ m+//www.doxygen.org+) ||
+    ($l =~ m+//www.icu-project.org+) ||
+    ($l =~ m+//0pointer.de/+) ||
+    ($l =~ m+//id3.org+) ||
+    ($l =~ m+//docs.oasis-open.org+) ||
 
     ($l =~ m+//www.example.com+) ||
     ($l =~ m+//example.com+) ||
