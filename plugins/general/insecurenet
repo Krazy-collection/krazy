@@ -130,7 +130,7 @@ sub whiteList {
 
     #Technically issues, but very widely used in license headers
     ($l =~ m+//www.gnu.org/licenses/+) ||
-    ($l =~ m+​//www.gnu.org/copyleft/+) ||
+    ($l =~ m+//www.gnu.org/copyleft/+) ||
     ($l =~ m+//www.qt-project.org/legal+) ||
     ($l =~ m+//www.equi4.com/metakit+) ||
 
