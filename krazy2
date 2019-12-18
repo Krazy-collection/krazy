@@ -768,6 +768,7 @@ my ($insp) = $KRAZYPATH . "/lib64/krazy2/krazy-helpers/getInstalledHeaders.pl";
   $insp = $KRAZYPATH . "/lib/krazy2/krazy-helpers/getInstalledHeaders.pl" if (! -f $insp);
 my ($dirf);
 my ($nf) = 0;
+my (@processedFiles);
 for $ftype (@types) {
   if ( defined( $pCheckers{$ftype} ) ) {
     for $p ( sort @{ $pCheckers{$ftype} } ) {
@@ -780,7 +781,6 @@ for $ftype (@types) {
         }
       }
       $result{$p} = "";
-      $nf = 0;
       $num_checkers++;
       for $f (@allfiles) {
         $absf = abs_path($f);
@@ -846,6 +846,7 @@ for $ftype (@types) {
         } else {
           print "$p $opts $insopt $f\n";
         }
+        push(@processedFiles, $absf);
         print STDERR "." unless ( $nf % 10 || $quiet || $export =~ m/text[a-z]+/);
       } # foreach file to process
       if ($nf > 0) {
@@ -869,7 +870,8 @@ for $ftype (@types) {
 ###############################
 if ( !$quiet ) {
 
-  &printHeader( $overall_status, $num_checkers, $nf );
+  @processedFiles= deDupe(@processedFiles);
+  &printHeader($overall_status, $num_checkers, scalar(@processedFiles));
 
   my ($st,$bp);
   my ($cline, $rline);
