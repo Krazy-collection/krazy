@@ -50,7 +50,8 @@
 # Program options:
 #   --help:         display help message and exit
 #   --version:      display version information and exit
-#   --list:         print a list of all the checker programs
+#   --list:         print a list of all available checker programs
+#   --list-runtime: print a list of the checker programs that will be executed and exit.
 #   --list-types:   print a list of all the supported file types
 #   --list-type <type>:
 #                   print the list of available checkers for the specified file type.
@@ -120,7 +121,7 @@ use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.9982';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9990';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde4";
 
@@ -128,6 +129,7 @@ my ($help)      = '';
 my ($version)   = '';
 my ($explain)   = '';
 my ($list)      = '';
+my ($listrunt)  = '';
 my ($listtypes) = '';
 my ($listtype)  = '';
 my ($listsets)  = '';
@@ -160,6 +162,7 @@ exit 1
        'version'        => \$version,
        'explain'        => \$explain,
        'list'           => \$list,
+       'list-runtime'   => \$listrunt,
        'list-types'     => \$listtypes,
        'list-type=s'    => \$listtype,
        'list-sets'      => \$listsets,
@@ -187,7 +190,7 @@ exit 1
      );
 
 &Help() if ($help);
-if ( !$list && !$listtypes && !$listtype && !$listset && !$listsets && $#ARGV < 0 ) {
+if ( !$list && !$listtypes && !$listtype && !$listset && !$listsets &&!$listrunt && $#ARGV < 0 ) {
   &Help(); exit 0;
 }
 &Version() if ($version);
@@ -694,6 +697,9 @@ if ( $nprogs == 0 ) {
   &userError("No checker programs to run... exiting");
 }
 
+# Print the filetype by checker matrix and exit
+&ListRuntime() if $listrunt;
+
 #####################################################################
 # This section runs each checker program for each specified file,   #
 # collecting the output and exit status into a hash on the checker. #
@@ -781,8 +787,6 @@ for $ftype (@types) {
         next if ( $absf =~ m+$skip+ );
         next unless ( &fileType($f) eq $ftype );
 
-        $nf++;
-
         # skip the following files because they are auto-generated but do not
         # contain text that can be tested to determine that situation.
         next if ( $f =~ m/la\.all_cpp\.cpp$/ );
@@ -796,6 +800,8 @@ for $ftype (@types) {
           if ( $tt =~
      /(All changes made in this file will be lost|All changes made to it will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
              );
+
+        $nf++;
 
         # use the helper program to determine if this file is to be installed
         $insopt = "";
@@ -816,7 +822,7 @@ for $ftype (@types) {
         }
         close(INS);
 
-        # run the checker, concatentating the output
+        # run the checker, concatenating the output
         if ( !$dryrun ) {
           $pid = open( SANE, "$p $opts $insopt \'$f\' 2>/dev/null |" )
             or print STDERR "Cannot run: &basename($p)\n";
@@ -920,58 +926,60 @@ sub Help {
   print "A source code sanitizer.\n\n";
   print "Usage: $Prog [OPTION] [FILES]\n\n";
   print "When FILE is - read a list of files (1 file per line) from standard input.\n\n";
-  print "  --help       display help message and exit\n";
-  print "  --version    display version information and exit\n";
-  print "  --list       print a list of all the checker programs\n";
-  print "  --list-types print a list of all the supported file types\n";
+  print "  --help         display help message and exit\n";
+  print "  --version      display version information and exit\n";
+  print "  --list         print a list of all available checker programs\n";
+  print "  --list-runtime print a list of the checker programs that will be executed and exit.\n";
+
+  print "  --list-types   print a list of all the supported file types\n";
   print "  --list-type <type>\n";
-  print "               print the list of available checkers for the specified file type.\n";
-  print "  --list-sets  print a list of all the check-sets\n";
+  print "                 print the list of available checkers for the specified file type.\n";
+  print "  --list-sets    print a list of all the check-sets\n";
   print "  --list-set <set>\n";
-  print "               print the list of available checkers for the specified check-set\n";
+  print "                 print the list of available checkers for the specified check-set\n";
   print "  --priority <low|normal|high|important|all>\n";
-  print "               report only issues with the specified priorities:\n";
-  print "                 low -> print low priority issues only\n";
-  print "                 normal -> print normal priority issues only\n";
-  print "                 high -> print high priority issues only\n";
-  print "                 important -> print issues with normal or high priority\n";
-  print "                 all -> print all issues (default)\n";
-  print "               use priorities to help put the issues in fix-first order.\n";
+  print "                 report only issues with the specified priorities:\n";
+  print "                   low -> print low priority issues only\n";
+  print "                   normal -> print normal priority issues only\n";
+  print "                   high -> print high priority issues only\n";
+  print "                   important -> print issues with normal or high priority\n";
+  print "                   all -> print all issues (default)\n";
+  print "                 use priorities to help put the issues in fix-first order.\n";
   print "  --strict <normal|super|all>\n";
-  print "               report only issues matching the strictness level:\n";
-  print "                 normal -> print non-super strict issues only\n";
-  print "                 super -> print super strict issues only\n";
-  print "                 all -> print all issues (default)\n";
-  print "               use strictness to help filter out issues of less importance\n";
-  print "  --explain    print explanations with solving instructions\n";
+  print "                 report only issues matching the strictness level:\n";
+  print "                   normal -> print non-super strict issues only\n";
+  print "                   super -> print super strict issues only\n";
+  print "                   all -> print all issues (default)\n";
+  print "                 use strictness to help filter out issues of less importance\n";
+  print "  --explain      print explanations with solving instructions\n";
   print "  --check <prog[,prog1,prog2,...,progN]>\n";
-  print "               run the specified checker program(s) only\n";
+  print "                 run the specified checker program(s) only\n";
   print "  --check-sets <set[,set1,set2,...,setN]>\n";
-  print "               run the checker programs belonging to the specified set(s) only\n";
+  print "                 run the checker programs belonging to the specified set(s) only\n";
   print "  --exclude <prog[,prog1,prog2,...,progN]>\n";
-  print "               do NOT run the specified checker program(s)\n";
+  print "                 do NOT run the specified checker program(s)\n";
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
-  print "               add the specified \"extra\" program(s) to the checker list\n";
+  print "                 add the specified \"extra\" program(s) to the checker list\n";
   print "  --types <type[,type1,type2,...,typeN]>:\n";
-  print "               check the specified file type(s) only\n";
+  print "                 check the specified file type(s) only\n";
   print "  --exclude-types <type[,type1,type2,...,typeN]>:\n";
-  print "               do NOT check the specified file type(s)\n";
+  print "                 do NOT check the specified file type(s)\n";
   print "  --export <text|textlist|textedit|xml>\n";
-  print "               output in one of the following formats:\n";
-  print "                 text (default)\n";
-  print "                 textlist -> plain old text, 1 offending file-per-line\n";
-  print "                 textedit -> text formatted for IDEs, 1 issue-per-line\n";
-  print "                 xml -> XML formatted\n";
-  print "  --title      give the output a project title\n";
-  print "  --rev:       subversion revision number\n";
-  print "  --ignorerc:  ignore .krazy files\n";
+  print "                 output in one of the following formats:\n";
+  print "                   text (default)\n";
+  print "                   textlist -> plain old text, 1 offending file-per-line\n";
+  print "                   textedit -> text formatted for IDEs, 1 issue-per-line\n";
+  print "                   xml -> XML formatted\n";
+  print "  --title        give the output a project title\n";
+  print "  --rev:         subversion revision number\n";
+  print "  --ignorerc:    ignore .krazy files\n";
   print "  --config <krazyrc>\n";
-  print "               read settings from the specified configfile\n";
-  print "  --dry-run    don't execute the checks; only show what would be run\n";
-  print "  --brief:     print only checks with at least 1 issue\n";
-  print "  --no-brief:  print the result of all checks i.e, the opposite of brief (default)\n";
-  print "  --quiet      suppress all output messages\n";
-  print "  --verbose    print the offending content for each file processed\n";
+  print "                 read settings from the specified configfile\n";
+  print "  --dry-run      don't execute the checks; only show what would be run\n";
+  print "  --brief:       print only checks with at least 1 issue\n";
+  print "  --no-brief:    print the result of all checks i.e, the opposite of brief (default)\n";
+  print "  --quiet        suppress all output messages\n";
+  print "  --verbose      print the offending content for each file processed\n";
   print "\n";
   exit 0 if $help;
 }
@@ -1021,7 +1029,9 @@ sub printList {
   my ( $isextra, @list ) = @_;
 
   my ($prog);
+  my ($np) = 0;
   for $prog ( sort @list ) {
+    $np++;
     $use = "";
     $use = "[EXTRA] " if ($isextra && $export ne "xml");
     $use .= `$prog --help 2>/dev/null`;
@@ -1062,6 +1072,7 @@ sub printList {
    print "  " if ( $isextra && $export eq "xml");
    print "      </plugin>\n" if ( $export eq "xml" && $explain );
   }
+  return $np;
 }
 
 # List function: print a list of all checker programs available to run.
@@ -1095,6 +1106,31 @@ sub List {
 
   &printFooter();
   exit 0 if $list;
+}
+
+# List function: print a list of all checker programs that would be run.
+sub ListRuntime {
+  my ( $prog, $use, $type );
+
+  if ( $export =~ "xml" ) {
+    &printXmlHeader();
+    print "  <file-types>\n";
+  }
+
+  my($np) = 0;
+  foreach $type ( keys %pCheckers ) {
+    my ($pth) = ${ $pCheckers{$type} }[0];
+    if ( $#{ $pCheckers{$type} } >= 0 ) {
+      &printFType( dirname($pth), $type, "Runtime checks for " );
+      $np = $np + &printList( 0, @{ $pCheckers{$type} } );
+      print "    </file-type>" if ( $export eq "xml" );
+      print "\n";
+    }
+  }
+  print "Total number of runtime checkers = " . $np . "\n";
+
+  &printFooter();
+  exit 0 if $listrunt;
 }
 
 # ListTypes function: print a list of supported file types.
@@ -1275,15 +1311,19 @@ sub textDescription {
 
 # printFType function: print the File Type line, according to export type.
 sub printFType {
-  my ( $pth, $ftype ) = @_;
+  my ( $pth, $ftype, $title ) = @_;
 
   return if ( $export eq "textlist" || $export eq "textedit" );
 
   my ($desc) = &fileTypeDesc($ftype);
-  if ($pth =~ m+extras+) {
-    $desc = "Extra checks for " . $desc;
+  if (!defined($title) || ($title eq "")) {
+    if ($pth =~ m+extras+) {
+      $desc = "Extra checks for " . $desc;
+    } else {
+      $desc = "Checks for " . $desc;
+    }
   } else {
-    $desc = "Checks for " . $desc;
+    $desc = $title . $desc;
   }
   if ( $export eq "xml" ) {
     print "    <file-type value=\"$ftype\">\n";
@@ -1540,6 +1580,10 @@ Print version information and exit.
 =item B<--list>
 
 Print a list of all available checker programs and exit.
+
+=item B<--list-runtime>
+
+Print a list of all the checker programs that will be executed and exit.
 
 =item B<--list-types>
 
@@ -1928,12 +1972,12 @@ If a command line option was incorrectly provided, krazy2 exits with
 status=1.
 
 If krazy2 was envoked with the B<--help>, B<--version>, B<--list>,
-B<--list-types>, B<--list-type>, B<--list-sets> or B<--list-set> options
-it will exit with status=0.
+B<--list-runtime>, B<--list-types>, B<--list-type>, B<--list-sets
+or B<--list-set> options it will exit with status=0.
 
 =head1 LICENSE
 
-Copyright (c) 2005-2017 by Allen Winter <winter@kde.org>
+Copyright (c) 2005-2019 by Allen Winter <winter@kde.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

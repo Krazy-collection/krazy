@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Runs krazy over the source code                                             #
-# Copyright 2005-2017 by Allen Winter <winter@kde.org>                        #
+# Copyright 2005-2019 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -30,11 +30,12 @@ use Krazy::Utils;
 
 my ($Prog) = 'krazy2all';
 my
- $VERSION = '2.994';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9990';    #split line so MakeMaker can find the version here
 
 my ($help)      = '';
 my ($version)   = '';
 my ($list)      = '';
+my ($listrunt)  = '';
 my ($listtypes) = '';
 my ($listtype)  = '';
 my ($listsets)  = '';
@@ -65,6 +66,7 @@ exit 1
        'help'           => \$help,
        'version'        => \$version,
        'list'           => \$list,
+       'list-runtime'   => \$listrunt,
        'list-types'     => \$listtypes,
        'list-type=s'    => \$listtype,
        'list-sets'      => \$listsets,
@@ -98,6 +100,11 @@ exit 1
 
 if ($list) {
   system("krazy2 --list");
+  exit 0;
+}
+
+if ($listrunt) {
+  system("krazy2 --list-runtime");
   exit 0;
 }
 
@@ -190,10 +197,11 @@ if ($top eq $cwd) {
 $files =~ s+\\n+\'\\n\'+g;
 
 # Pipe the file list to krazy2 for the actual processing work
+my ($cmd) = "krazy2 $opts -";
 if ($outf) {
-  open(P, "| krazy2 $opts - > $outf");
+  open(P, "| $cmd > $outf");
 } else {
-  open(P, "| krazy2 $opts -");
+  open(P, "| $cmd");
 }
 print P "$files\n";
 close(P);
@@ -210,62 +218,63 @@ sub Help {
   &Version();
   print "Run krazy2 on all the source in the current working directory\n\n";
   print "Usage: $Prog [OPTION]\n";
-  print "  --help       display help message and exit\n";
-  print "  --version    display version information and exit\n";
-  print "  --list       print a list of all the checker programs\n";
-  print "  --list-types print a list of all the supported file types\n";
+  print "  --help         display help message and exit\n";
+  print "  --version      display version information and exit\n";
+  print "  --list         print a list of all the checker programs\n";
+  print "  --list-runtime print a list of the checker programs that will be execute and exit.\n";
+  print "  --list-types   print a list of all the supported file types\n";
   print "  --list-type <type>\n";
-  print "               print the list of available checkers for the specified file typet\n";
-  print "  --list-sets  print a list of all the check-sets\n";
+  print "                 print the list of available checkers for the specified file typet\n";
+  print "  --list-sets    print a list of all the check-sets\n";
   print "  --list-set <set>\n";
-  print "               print the list of available checkers for the specified check-set\n";
+  print "                 print the list of available checkers for the specified check-set\n";
   print "  --priority <low|normal|high|important|all>\n";
-  print "               report only issues with the specified priorities:\n";
-  print "                 low -> print low priority issues only\n";
-  print "                 normal -> print normal priority issues only\n";
-  print "                 high -> print high priority issues only\n";
-  print "                 important -> print issues with normal or high priority\n";
-  print "                 all -> print all issues (default)\n";
-  print "               use priorities to help put the issues in fix-first order.\n";
+  print "                 report only issues with the specified priorities:\n";
+  print "                   low -> print low priority issues only\n";
+  print "                   normal -> print normal priority issues only\n";
+  print "                   high -> print high priority issues only\n";
+  print "                   important -> print issues with normal or high priority\n";
+  print "                   all -> print all issues (default)\n";
+  print "                 use priorities to help put the issues in fix-first order.\n";
   print "  --strict <normal|super|all>\n";
-  print "               report only issues matching the strictness level:\n";
-  print "                 normal -> print non-super strict issues only\n";
-  print "                 super -> print super strict issues only\n";
-  print "                 all -> print all issues (default)\n";
-  print "               use strictness to help filter out issues of less importance\n";
+  print "                 report only issues matching the strictness level:\n";
+  print "                   normal -> print non-super strict issues only\n";
+  print "                   super -> print super strict issues only\n";
+  print "                   all -> print all issues (default)\n";
+  print "                 use strictness to help filter out issues of less importance\n";
   print "  --check <prog[,prog1,prog2,...,progN]>\n";
-  print "               run the specified sanity checker program(s) only\n";
+  print "                 run the specified sanity checker program(s) only\n";
   print "  --check-sets <set[,set1,set2,...,setN]>\n";
-  print "               run the checker programs belonging to the specified set(s) only\n";
+  print "                 run the checker programs belonging to the specified set(s) only\n";
   print "  --exclude <prog[,prog1,prog2,...,progN]>\n";
-  print "               do NOT run the specified checker program(s)\n";
+  print "                 do NOT run the specified checker program(s)\n";
   print "  --extra <prog[,prog1,prog2,...,progN]>:\n";
-  print "               add the specified \"extra\" program(s) to the checker list\n";
+  print "                 add the specified \"extra\" program(s) to the checker list\n";
   print "  --types <type[,type1,type2,...,typeN]>:\n";
-  print "               check the specified file type(s) only\n";
+  print "                 check the specified file type(s) only\n";
   print "  --exclude-types <type[,type1,type2,...,typeN]>:\n";
-  print "               do NOT check the specified file type(s)\n";
+  print "                 do NOT check the specified file type(s)\n";
   print "  --export <text|textlist|textedit|xml>\n";
-  print "               output in one of the following formats:\n";
-  print "                 text (default)\n";
-  print "                 textlist -> plain old text, 1 offending file-per-line\n";
-  print "                 textedit -> text formatted for IDEs, 1 issue-per-line\n";
-  print "                 xml -> XML formatted\n";
-  print "  --title:     give the output a project title\n";
-  print "  --cms        component/module/subdir triple for XML\n";
+  print "                 output in one of the following formats:\n";
+  print "                   text (default)\n";
+  print "                   textlist -> plain old text, 1 offending file-per-line\n";
+  print "                   textedit -> text formatted for IDEs, 1 issue-per-line\n";
+  print "                   xml -> XML formatted\n";
+  print "  --title:       give the output a project title\n";
+  print "  --cms          component/module/subdir triple for XML\n";
   print "  --topdir <dir>\n";
-  print "               find files to process recursively in the specified dir\n";
-  print "               rather than the current working directory.\n";
+  print "                 find files to process recursively in the specified dir\n";
+  print "                 rather than the current working directory.\n";
   print "  --outfile <file>\n";
-  print "               write the output to the specified file instead of standard output\n";
-  print "  --ignorerc:  ignore .krazy files\n";
+  print "                 write the output to the specified file instead of standard output\n";
+  print "  --ignorerc:    ignore .krazy files\n";
   print "  --config <krazyrc>\n";
-  print "               read settings from the specified config file\n";
-  print "  --dry-run    don't execute the checks; only show what would be run\n";
-  print "  --brief:     print only checks with at least 1 issue\n";
-  print "  --no-brief:  print the result of all checks i.e, the opposite of brief (default)\n";
-  print "  --quiet      suppress all output messages\n";
-  print "  --verbose    print the offending content for each file processed\n";
+  print "                 read settings from the specified config file\n";
+  print "  --dry-run      don't execute the checks; only show what would be run\n";
+  print "  --brief:       print only checks with at least 1 issue\n";
+  print "  --no-brief:    print the result of all checks i.e, the opposite of brief (default)\n";
+  print "  --quiet        suppress all output messages\n";
+  print "  --verbose      print the offending content for each file processed\n";
   print "\n";
   exit 0 if !$keepgoing;
 }
@@ -309,6 +318,10 @@ Print version information and exit.
 =item B<--list>
 
 Print a list of all available checker programs and exit.
+
+=item B<--list-runtime>
+
+Print a list of all the checker programs that will be executed and exit.
 
 =item B<--list-types>
 
