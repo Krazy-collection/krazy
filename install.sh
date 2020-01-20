@@ -40,12 +40,17 @@ else
   TOP=/usr/local/Krazy2
   if ( test -z "$QMAKE") then
     # Assumed to be in the PATH
-     if ( test -e "/Cygwin.ico" )
-     then
-       QMAKE=qmake-qt5
-     else
-       QMAKE=qmake
-     fi
+    if ( test -e "/Cygwin.ico" )
+    then
+      QMAKE=qmake-qt5
+    else
+      if ( test "`uname -s`" = "Darwin" )
+      then
+        QMAKE=/usr/local/opt/qt5/bin/qmake
+      else
+        QMAKE=qmake
+      fi
+    fi
   fi
 fi
 
