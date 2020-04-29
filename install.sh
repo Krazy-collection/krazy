@@ -46,7 +46,15 @@ else
     else
       if ( test "`uname -s`" = "Darwin" )
       then
-        QMAKE=/usr/local/opt/qt5/bin/qmake
+        if ( test ! -x /usr/local/opt/qt5/bin/qmake )
+        then
+          echo "Cannot find qmake"
+          echo "Try running 'brew install qt5'"
+          echo "else 'export QMAKE=/path/to/qt5/bin/qmake'"
+          exit 1
+        else
+          QMAKE=/usr/local/opt/qt5/bin/qmake
+        fi
       else
         QMAKE=qmake
       fi
