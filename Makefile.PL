@@ -35,6 +35,7 @@ WriteMakefile(
                                      "XML::LibXML"  => 1.57,
                                      "YAML"         => 0.68,
                                      "JSON"         => 2.90,
+                                     "JSON::XS"     => 2.90,
                                      "Env"          => 1.00,
                                    },
               'dist'            => { COMPRESS => 'gzip',
