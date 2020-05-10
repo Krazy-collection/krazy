@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2010,2012-2018 by Allen Winter <winter@kde.org>              #
+# Copyright 2007-2020 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.700;
+$VERSION = 1.800;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -493,7 +493,7 @@ sub findFiles {
   my ($i,$l);
   $l="";
   foreach $i (@tmp) {
-    $l = "$l" . "$i\n" if (&fileType($i));
+    $l = "$l" . "$i\n" if (&fileType($i) && ($i !~ m+\.(git|svn|hg)/+));
   }
   return $l;
 }
