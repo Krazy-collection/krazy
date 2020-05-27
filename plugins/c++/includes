@@ -545,7 +545,8 @@ sub configH {
   my($p) = @_;
   if($p eq "config.h" ||
      $p =~ m+config-[[:alpha:]]*\.h+ ||
-     $p =~ m+version-[[:alpha:]]*\.h+) {
+     $p =~ m+version-[[:alpha:]]*\.h+ ||
+     $p =~ m+[[:alpha:]]*-config\.h+) {
     return 1;
   } else {
     return 0;
