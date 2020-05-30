@@ -128,38 +128,7 @@ while ($line = <F>) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
   #Businesses and legal entities are allowed to not have email addresses.
-  next if ($line =~ m/Datakonsult/i);
-  next if ($line =~ m/Kitware, inc/i);
-  next if ($line =~ m/Apple Computer/i);
-  next if ($line =~ m/Apple\s*,?\s*Inc/i);
-  next if ($line =~ m/Free Software Foundation/i);
-  next if ($line =~ m/(World Wide Web Consortium|W3C)/i);
-  next if ($line =~ m/Aladdin Enterprises/i);
-  next if ($line =~ m/SUSE Linux/i);
-  next if ($line =~ m/Open Group/i);
-  next if ($line =~ m/Netscape/i);
-  next if ($line =~ m/NLNet Labs/i);
-  next if ($line =~ m/Nokia/i);
-  next if ($line =~ m/Novell, Inc/i);
-  next if ($line =~ m/Tridia Corporation/i);
-  next if ($line =~ m/AT\&T Laboratories/i);
-  next if ($line =~ m/X Consortium/i);
-  next if ($line =~ m/heXoNet Support/i);
-  next if ($line =~ m/Trolltech AS/i);
-  next if ($line =~ m/Lucent Tech/i);
-  next if ($line =~ m/University of California/i);
-  next if ($line =~ m/Sendmail\, INC/i);
-  next if ($line =~ m/Sun Microsystems/i);
-  next if ($line =~ m/Network Computing Devices/i);
-  next if ($line =~ m/MP3tunes, LLC/i);
-  next if ($line =~ m/4Front Technologies/i);
-  next if ($line =~ m/Critical Path/i);
-  next if ($line =~ m/Ximian/i);
-  next if ($line =~ m/Intevation GmbH/i);
-  next if ($line =~ m/Bundesamt für Sicherheit in der Informationstechnik/i);
-  next if ($line =~ m/ScalingWeb/i);
-  next if ($line =~ m/Red Hat/i);
-  next if ($line =~ m/Digia Plc/i);
+  next if (&isBusinessEntity($line));
 
   #Non-legal entities are not allowed to hold copyright. Don't use things like
   #'The KDE Developers' or 'The KDE Authors'
@@ -193,14 +162,17 @@ close(F);
 # SPDX Specification (https://reuse.software/spec)
 if (! $found && $spdxfound) {
   $found = 1;
-  #check email is specified in angle brackets
-  #TODO: Note that we check the first SPDX line encountered only.  not good.
-  my($foo, $em);
-  ($foo, $em) = split("<", $line);
-  if (!defined($em) || $em !~ m/(\@| at |\(at\)| \(at\) |#| # | \@ )[[:alnum:]]/i) {
-    $tags .= "email address line\#$lcnt ";
-    $tags .= "($line) " if (&verboseArg());
-    $cnt++;
+  #Businesses and legal entities are allowed to not have email addresses.
+  if (!&isBusinessEntity($line)) {
+    #check email is specified in angle brackets
+    #TODO: Note that we check the first SPDX line encountered only.  not good.
+    my($foo, $em);
+    ($foo, $em) = split("<", $line);
+    if (!defined($em) || $em !~ m/(\@| at |\(at\)| \(at\) |#| # | \@ )[[:alnum:]]/i) {
+      $tags .= "email address line\#$lcnt ";
+      $tags .= "($line) " if (&verboseArg());
+      $cnt++;
+    }
   }
 }
 
@@ -235,4 +207,44 @@ sub Version {
 sub Explain {
   print "All source files must contain a copyright header which identifies the copyright holder(s) together with a e-mail address that can be used to reach the copyright holder.  One copyright holder per line, with real email addresses please. For details regarding KDE's licensing policy please visit <http://community.kde.org/Policies/Licensing_Policy>.  A typical copyright looks like: \"Copyright 2002,2005-2006 Joe Hacker <joe.hacker\@kde.org>\"\n";
   Exit 0 if &explainArg();
+}
+
+sub isBusinessEntity() {
+  my($line) = @_;
+
+  return 1 if ($line =~ m/Datakonsult/i);
+  return 1 if ($line =~ m/Kitware, inc/i);
+  return 1 if ($line =~ m/Apple Computer/i);
+  return 1 if ($line =~ m/Apple\s*,?\s*Inc/i);
+  return 1 if ($line =~ m/Free Software Foundation/i);
+  return 1 if ($line =~ m/(World Wide Web Consortium|W3C)/i);
+  return 1 if ($line =~ m/Aladdin Enterprises/i);
+  return 1 if ($line =~ m/SUSE Linux/i);
+  return 1 if ($line =~ m/Open Group/i);
+  return 1 if ($line =~ m/Netscape/i);
+  return 1 if ($line =~ m/NLNet Labs/i);
+  return 1 if ($line =~ m/Nokia/i);
+  return 1 if ($line =~ m/Novell, Inc/i);
+  return 1 if ($line =~ m/Tridia Corporation/i);
+  return 1 if ($line =~ m/AT\&T Laboratories/i);
+  return 1 if ($line =~ m/X Consortium/i);
+  return 1 if ($line =~ m/heXoNet Support/i);
+  return 1 if ($line =~ m/Trolltech AS/i);
+  return 1 if ($line =~ m/Lucent Tech/i);
+  return 1 if ($line =~ m/University of California/i);
+  return 1 if ($line =~ m/Sendmail\, INC/i);
+  return 1 if ($line =~ m/Sun Microsystems/i);
+  return 1 if ($line =~ m/Network Computing Devices/i);
+  return 1 if ($line =~ m/MP3tunes, LLC/i);
+  return 1 if ($line =~ m/4Front Technologies/i);
+  return 1 if ($line =~ m/Critical Path/i);
+  return 1 if ($line =~ m/Ximian/i);
+  return 1 if ($line =~ m/Intevation GmbH/i);
+  return 1 if ($line =~ m/Bundesamt für Sicherheit in der Informationstechnik/i);
+  return 1 if ($line =~ m/ScalingWeb/i);
+  return 1 if ($line =~ m/Red Hat/i);
+  return 1 if ($line =~ m/Digia Plc/i);
+  return 1 if ($line =~ m/Canonical/i);
+
+  return 0;
 }
