@@ -1840,7 +1840,7 @@ The Krazy plugins support the following list of in-code directives:
 
  The Krazy tests name1, etc. will not be run starting on the line
  where this directive is found. Running of the specified tests will
- remain interruptted until a line matching
+ remain interrupted until a line matching
  krazy:endcond=<name1[,name2,...,nameN]> is encountered
 
 =back
