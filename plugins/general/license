@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "1.93";
+my($Version) = "2.00";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -60,7 +60,8 @@ sub checkOneFile($)
   my ($f) = @_;
 
   my($absf) = abs_path($f);
-  my($LibPath) = ($absf =~ m+/kde.*libs/+ ||
+  my($LibPath) = ($absf =~ m+/frameworks/+ ||
+                  $absf =~ m+/kde.*libs/+ ||
                   $absf =~ m+/koffice/libs/+ ||
                   $absf =~ m+/kdesupport/+) ? 1 : 0;
 
@@ -191,7 +192,6 @@ sub checkLicense()
    }
    if ( $license && !$verbose ) { return "$license"; }
 
-
    $gl = " (v2)" if ($text =~ /version 2(?:\.0)? .{0,40}as published by the Free Software Foundation/i);
    $gl = " (v2)" if ($text =~ /version 2(?:\.0)? of the License/i);
    $gl = " (v3)" if ($text =~ /version 3(?:\.0)? .{0,40}as published by the Free Software Foundation/i);
@@ -268,6 +268,10 @@ sub checkLicense()
    $license = "Public Domain $license" if ($text =~ / disclaims [Cc]opyright/i);
    if ( $license && !$verbose ) { return "$license"; }
 
+   # SPDX License Format
+   $license = &spdxToLicense($text) . $license if ($text =~ m/SPDXLicenseIdentifier/);
+   if ( $license && !$verbose ) { return "$license"; }
+
    if ( !$license ) {
       #About every license has this clause; but we've failed to detect which type it is.
       $license = "Unknown license" if ($text =~ /This (software|package)( is free software and)? is provided /i);
@@ -292,4 +296,27 @@ sub Version {
 sub Explain {
   print "Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed.  For details regarding KDE's licensing policy please visit <http://community.kde.org/Policies/Licensing_Policy>.\n";
   exit 0 if &explainArg();
+}
+
+sub spdxToLicense() {
+  my($spdx) = @_;
+  my($license) = "";
+  #NOTE: the input string has some punctuation (esp. '-') removed
+  $license = $license . " LGPL (v2.1)" if ($spdx =~ m/LGPL2.1only/);
+  $license = $license . " LGPL (v3.0)" if ($spdx =~ m/LGPL3.0only/);
+  $license = $license . " LGPL (v3+KDEev)" if ($spdx =~ m/LicenseRefKDEAcceptedLGPL/);
+  $license = $license . " LGPL (v2.0+)" if ($spdx =~ m/LGPL2.0orlater/);
+  $license = $license . " LGPL (v2.1+)" if ($spdx =~ m/LGPL2.1orlater/);
+  $license = $license . " BSD 2 (simplified)" if ($spdx =~ m/BSD2Clause/);
+  $license = $license . " MIT" if ($spdx =~ m/MIT/);
+  $license = $license . " X11" if ($spdx =~ m/X11/);
+  $license = $license . " GPL (v2.0)" if ($spdx =~ m/ GPL2.0only/);
+  $license = $license . " GPL (v3.0)" if ($spdx =~ m/ GPL3.0only/);
+  $license = $license . " GPL (v3+KDEev)" if ($spdx =~ m/LicenseRefKDEAcceptedGPL/);
+  $license = $license . " GPL (v2.0+)" if ($spdx =~ m/ GPL2.0orlater/);
+  $license = $license . " GPL (v3.0+)" if ($spdx =~ m/ GPL3.0orlater/);
+  $license = $license . " GNU AGPL (v3.0+)" if ($spdx =~ m/AGPL3.0orlater/);
+  $license = $license . " Creative Commons (v4.0)" if ($spdx =~ m/CCBYSA4.0/);
+  $license =~ s/^\s*//;
+  return $license;
 }
