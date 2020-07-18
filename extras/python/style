@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2013-2016 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2013-2020 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -55,7 +55,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "style";
-my($Version) = "1.04";
+my($Version) = "1.10";
 
 &parseArgs();
 
@@ -232,7 +232,7 @@ foreach $line (@lines) {
   }
 
   if ($pline =~ m/\(/ && $line =~ m/\w+\s\(/) {
-    if ($line !~ m/\sif\s\(/ && $line !~ m/\selif\s\(/ && $line !~ m/\swhile\s\(/ ) {
+    if ($line !~ m/\sif\s\(/ && $line !~ m/\selif\s\(/ && $line !~ m/\swhile\s\(/ && $line !~ m/\sreturn\s\(/) {
       $Issues{'SPACEOPAREN'}{'count'}++;
       if ($Issues{'SPACEOPAREN'}{'count'} == 1) {
         $Issues{'SPACEOPAREN'}{'lines'} = "line\#" . $linecnt;
@@ -325,7 +325,8 @@ foreach $line (@lines) {
     print "$linecnt (whitespace preceeding colon) => $line\n" if (&verboseArg());
   }
 
-  if ($pline =~ m/return[[:space:]]*\(.*\)$/) {
+  #allow returning tuplets
+  if ($pline =~ m/return\s+\(.*\)$/ && $line !~m/return\s+\(\s*\S+\s*,/) {
     $Issues{'RETURNPAREN'}{'count'}++;
     if ($Issues{'RETURNPAREN'}{'count'} == 1) {
       $Issues{'RETURNPAREN'}{'lines'} = "line\#" . $linecnt;
