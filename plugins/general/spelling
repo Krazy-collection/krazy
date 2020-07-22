@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.926";
+my($Version) = "1.930";
 
 &parseArgs();
 
@@ -155,20 +155,23 @@ sub check_file
         $lstr = $lstr . "," . $linecnt . "[$word]";
       }
       info "$filename ($linecnt): $word => $correction\n";
+
     }
 
-    #special case: "the the"
-    if ($original =~ m/the\s+the\s+/i ||
-        $original =~ m/the\s+the\s*[,:;.]+/i) {
-      $cnt++;
-      if ($cnt == 1) {
-        $lstr = "line\#" . $linecnt . "[the the]";
-      } else {
-        $lstr = $lstr . "," . $linecnt . "[the the]";
+    #check for consecutive words
+    my($last) = "";
+    for my $word ( split /[\s]/ ) {
+      if ($word =~ m/^[A-Za-z]+$/ && $word && $last && $word eq $last) {
+        $cnt++;
+        if ($cnt == 1) {
+          $lstr = "line\#" . $linecnt . "[$last $word]";
+        } else {
+          $lstr = $lstr . "," . $linecnt . "[$last $word]";
+        }
+        info "$filename ($linecnt): $last $word => $last\n";
       }
-      info "$filename ($linecnt): the the => the\n";
+      $last = $word;
     }
-
   }
 
   if (!$cnt) {
@@ -1558,6 +1561,7 @@ recommand              recommend
 recommanded            recommended
 recomment              recommend
 recommented            recommended
+recurrance             recurrence
 redialling             redialing
 reets                  resets
 refered                referred
