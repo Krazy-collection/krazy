@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.931";
+my($Version) = "1.932";
 
 &parseArgs();
 
@@ -163,7 +163,8 @@ sub check_file
     for my $word ( split /[\s]/ ) {
       #words must be at least 2 chars long so that we skip over "ASCII graphics".
       #unfortunately this means we'll miss "a a" and "I I"
-      if ($word =~ m/^[A-Za-z]{2,}$/ && $word && $last && $word eq $last) {
+      if ($word =~ m/^[A-Za-z]{2,}$/ && $word && $last && $word eq $last &&
+          $word ne "long") { #allow "long long"
         $cnt++;
         if ($cnt == 1) {
           $lstr = "line\#" . $linecnt . "[$last $word]";
