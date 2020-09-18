@@ -114,10 +114,8 @@ sub whiteList {
     #time for people to change trolltech to qt-project
     #($l =~ m+//www.trolltech.com/+) || # no longer exists and there is no https
     #https doesn't exist for these
-    ($l =~ m+//man7.org/+) ||
     ($l =~ m+//xmlsoft.org+) ||
     ($l =~ m+//www.xmlsoft.org+) ||
-    ($l =~ m+//www.doxygen.org+) ||
     ($l =~ m+//www.icu-project.org+) ||
     ($l =~ m+//0pointer.de/+) ||
     ($l =~ m+//id3.org+) ||
