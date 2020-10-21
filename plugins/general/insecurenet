@@ -48,7 +48,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "insecurenet";
-my($Version) = "0.97";
+my($Version) = "0.98";
 
 &parseArgs();
 
@@ -122,6 +122,7 @@ sub whiteList {
     ($l =~ m+//docs.oasis-open.org+) ||
     ($l =~ m+//timestamp.globalsign.com+) ||
     ($l =~ m+//filmicworlds.com+) ||
+    ($l =~ m+//www.open-std.org+) ||
 
     ($l =~ m+//www.example.com+) ||
     ($l =~ m+//example.com+) ||
