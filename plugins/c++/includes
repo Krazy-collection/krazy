@@ -61,7 +61,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.996";
+my($Version) = "1.997";
 
 &parseArgs();
 
@@ -487,50 +487,104 @@ sub qPath {
 }
 
 # determine if $1 is a QtModule
-# Note: we allow QtTest
 sub qModule {
   my($p) = @_;
-  if($p eq "QtBluetooth" ||
-     $p eq "QtCLucene" ||
+  if($p eq "Enginio" ||
+     $p eq "Qt3DAnimation" ||
+     $p eq "Qt3DCore" ||
+     $p eq "Qt3DExtras" ||
+     $p eq "Qt3DInput" ||
+     $p eq "Qt3DLogic" ||
+     $p eq "Qt3DQuick" ||
+     $p eq "Qt3DQuickAnimation" ||
+     $p eq "Qt3DQuickExtras" ||
+     $p eq "Qt3DQuickInput" ||
+     $p eq "Qt3DQuickRender" ||
+     $p eq "Qt3DQuickScene2D" ||
+     $p eq "Qt3DRender" ||
+     $p eq "QtAccessibilitySupport" ||
+     $p eq "QtBluetooth" ||
+     $p eq "QtCharts" ||
      $p eq "QtConcurrent" ||
      $p eq "QtCore" ||
+     $p eq "QtDataVisualization" ||
      $p eq "QtDBus" ||
-     $p eq "QtDeclarative" ||
      $p eq "QtDesigner" ||
      $p eq "QtDesignerComponents" ||
+     $p eq "QtDeviceDiscoverySupport" ||
+     $p eq "QtEdidSupport" ||
+     $p eq "QtEglFSDeviceIntegration" ||
+     $p eq "QtEglSupport" ||
+     $p eq "QtEventDispatcherSupport" ||
+     $p eq "QtFbSupport" ||
+     $p eq "QtFontDatabaseSupport" ||
+     $p eq "QtGamepad" ||
+     $p eq "QtGlxSupport" ||
      $p eq "QtGui" ||
      $p eq "QtHelp" ||
+     $p eq "QtInputSupport" ||
+     $p eq "QtKmsSupport" ||
+     $p eq "QtLinuxAccessibilitySupport" ||
+     $p eq "QtLocation" ||
      $p eq "QtMultimedia" ||
-     $p eq "QtMultimediaQuick_p" ||
+     $p eq "QtMultimediaGstTools" ||
+     $p eq "QtMultimediaQuick" ||
      $p eq "QtMultimediaWidgets" ||
      $p eq "QtNetwork" ||
+     $p eq "QtNetworkAuth" ||
      $p eq "QtNfc" ||
      $p eq "QtOpenGL" ||
      $p eq "QtOpenGLExtensions" ||
-     $p eq "QtPlatformSupport" ||
+     $p eq "QtPacketProtocol" ||
+     $p eq "QtPlatformCompositorSupport" ||
+     $p eq "QtPlatformHeaders" ||
      $p eq "QtPositioning" ||
+     $p eq "QtPositioningQuick" ||
      $p eq "QtPrintSupport" ||
      $p eq "QtQml" ||
+     $p eq "QtQmlDebug" ||
+     $p eq "QtQmlModels" ||
+     $p eq "QtQmlWorkerScript" ||
      $p eq "QtQuick" ||
+     $p eq "QtQuickControls2" ||
      $p eq "QtQuickParticles" ||
+     $p eq "QtQuickShapes" ||
+     $p eq "QtQuickTemplates2" ||
      $p eq "QtQuickTest" ||
      $p eq "QtQuickWidgets" ||
+     $p eq "QtRemoteObjects" ||
+     $p eq "QtRepParser" ||
      $p eq "QtScript" ||
      $p eq "QtScriptTools" ||
+     $p eq "QtScxml" ||
      $p eq "QtSensors" ||
+     $p eq "QtSerialBus" ||
      $p eq "QtSerialPort" ||
+     $p eq "QtServiceSupport" ||
      $p eq "QtSql" ||
      $p eq "QtSvg" ||
+     $p eq "QtTest" ||
+     $p eq "QtTextToSpeech" ||
+     $p eq "QtThemeSupport" ||
+     $p eq "QtUiPlugin" ||
      $p eq "QtUiTools" ||
+     $p eq "QtWaylandClient" ||
+     $p eq "QtWaylandCompositor" ||
+     $p eq "QtWebChannel" ||
+     $p eq "QtWebEngine" ||
+     $p eq "QtWebEngineCore" ||
+     $p eq "QtWebEngineWidgets" ||
      $p eq "QtWebKit" ||
      $p eq "QtWebKitWidgets" ||
      $p eq "QtWebSockets" ||
+     $p eq "QtWebView" ||
      $p eq "QtWidgets" ||
      $p eq "QtX11Extras" ||
+     $p eq "QtXcb" ||
+     $p eq "QtXkbCommonSupport" ||
      $p eq "QtXml" ||
      $p eq "QtXmlPatterns" ||
      #Qt4 starts here
-     $p eq "QtUiTools" ||
      $p eq "QtAssistant" ||
      $p eq "Qt3Support"
     ) {
