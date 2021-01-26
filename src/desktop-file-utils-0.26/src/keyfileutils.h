@@ -20,6 +20,9 @@
  * USA.
  */
 
+#ifndef __DFU_KEYFILEUTILS_H__
+#define __DFU_KEYFILEUTILS_H__
+
 #include <glib.h>
 
 #define GROUP_DESKTOP_ENTRY "Desktop Entry"
@@ -51,3 +54,6 @@ void     dfu_key_file_remove_list  (GKeyFile   *keyfile,
 gboolean dfu_key_file_to_path      (GKeyFile     *keyfile,
                                     const char   *path,
                                     GError      **error);
+
+#endif /* __DFU_KEYFILEUTILS_H__ */
+

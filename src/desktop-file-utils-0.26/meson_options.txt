@@ -1,0 +1,2 @@
+option('ansi', type: 'boolean', value: false)
+option('gcov', type: 'boolean', value: false)

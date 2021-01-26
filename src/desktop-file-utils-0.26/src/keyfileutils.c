@@ -187,9 +187,14 @@ dfu_key_file_merge_list (GKeyFile   *keyfile,
 
   value = g_key_file_get_value (keyfile, group, key, NULL);
 
-  if (value)
-    str = g_strconcat (value, to_merge, ";", NULL);
-  else
+  if (value) {
+    size_t len = strlen (value);
+    if (len > 0 && value[len - 1] != ';') {
+      str = g_strconcat (value, ";", to_merge, ";", NULL);
+    } else {
+      str = g_strconcat (value, to_merge, ";", NULL);
+    }
+  } else
     str = g_strconcat (to_merge, ";", NULL);
 
   g_key_file_set_value (keyfile, group, key, str);

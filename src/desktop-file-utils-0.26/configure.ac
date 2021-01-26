@@ -1,4 +1,4 @@
-AC_INIT([desktop-file-utils], [0.23],
+AC_INIT([desktop-file-utils], [0.26],
         [https://bugs.freedesktop.org/enter_bug.cgi?product=desktop-file-utils])
 AC_CONFIG_SRCDIR(src/validate.h)
 
@@ -9,6 +9,8 @@ AM_CONFIG_HEADER(config.h)
 
 AC_PROG_LN_S
 AC_PROG_CC
+
+AC_CHECK_FUNCS(pledge)
 
 if test "x$GCC" = "xyes"; then
   changequote(,)dnl

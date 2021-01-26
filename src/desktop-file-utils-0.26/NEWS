@@ -1,4 +1,61 @@
 ============
+Version 0.26
+============
+
+This version fixes an error that snuck into the Meson build files in version
+0.25. The Autotools build is unaffected. Since the previous release has only
+been out for a day, Autotools support is maintained in this release.
+
+ update-desktop-database
+  - Fix erroneous installation as "desktop-file-update" when using the Meson
+    build system (fdo#58) (Antoine Jacoutot).
+
+============
+Version 0.25
+============
+
+This version adds support for the Meson build system and deprecates
+Autotools. Support for the latter will be removed in the next release.
+
+ common
+  - Add Meson build system (fdo#14) (Félix Piédallu).
+
+ desktop-file-validate
+  - Allow desktop file spec version 1.4.
+  - Make it possible to deprecate keys starting with "X-" (Bastien Nocera).
+  - Add the "Implements" field from spec version 1.2 (fdo#55) (Dylan Baker).
+  - Add the "PrefersNonDefaultGPU" key and deprecate "X-KDE-RunOnDiscreteGpu"
+    (Bastien Nocera).
+  - Set locale for correct output message encoding (Philip Withnall).
+  - Add coloured output support (Philip Withnall).
+  - Fix parsing of escaped double quote in quoted strings (fdo#56). Found
+    by Frédéric Brière.
+  - Add GNOME Flashback, GNOME Classic desktops (Alberts Muktupāvels).
+
+============
+Version 0.24
+============
+
+ desktop-file-validate
+  - Allow desktop file spec version 1.2 (Severin Glöckner).
+  - Add Budgie, Deepin, Enlightenment and Pantheon to list of
+    registered desktop environments (fdo#10, fdo#11, fdo#16, oldfdo#97385)
+    (Ikey Doherty, sensor.wen, Joonas Niilola, David Faure).
+
+ update-desktop-database
+  - Sort output lines internally to conserve reproduceability (fdo#12)
+    (Chris Lamb).
+  - Use pledge(2) on OpenBSD to limit capabilities (fdo#13) (Jasper Lievisse
+    Adriaanse).
+
+ common
+  - Fix missing ; when appending to a list not ending with one (oldfdo#97388)
+    (Pascal Terjan).
+  - Add font as valid media type (Matthias Clasen).
+  - Fix broken emacs blocking compile (fdo#15) (Hans Petter Jansson, reported
+    by John).
+
+============
 Version 0.23
 ============
 

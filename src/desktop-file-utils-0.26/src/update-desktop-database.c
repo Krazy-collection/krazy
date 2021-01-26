@@ -307,6 +307,7 @@ add_mime_type (const char *mime_type, GList *desktop_files, FILE *f)
 
   list = g_string_new (mime_type);
   g_string_append_c (list, '=');
+  desktop_files = g_list_sort (desktop_files, (GCompareFunc) g_strcmp0);
   for (desktop_file = desktop_files;
        desktop_file != NULL;
        desktop_file = desktop_file->next)
@@ -449,6 +450,13 @@ main (int    argc,
        NULL, N_("[DIRECTORY...]") },
      { NULL }
    };
+
+#if HAVE_PLEDGE
+  if (pledge("stdio rpath wpath cpath fattr", NULL) == -1) {
+    g_printerr ("pledge\n");
+    return 1;
+  }
+#endif
 
   context = g_option_context_new ("");
   g_option_context_set_summary (context, _("Build cache database of MIME types handled by desktop files."));

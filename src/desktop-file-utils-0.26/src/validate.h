@@ -25,9 +25,12 @@
  * USA.
  */
 
+#ifndef __DFU_VALIDATE_H__
+#define __DFU_VALIDATE_H__
+
 #include <glib.h>
 
-#define CURRENT_SPEC_VERSION "1.1"
+#define CURRENT_SPEC_VERSION "1.4"
 
 #define GROUP_KDE_DESKTOP_ENTRY "KDE Desktop Entry"
 #define GROUP_DESKTOP_ACTION "Desktop Action "
@@ -39,3 +42,4 @@ gboolean desktop_file_validate (const char *filename,
 gboolean desktop_file_fixup    (GKeyFile   *keyfile,
                                 const char *filename);
 
+#endif /* __DFU_VALIDATE_H__ */

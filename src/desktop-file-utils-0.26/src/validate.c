@@ -128,6 +128,8 @@ struct _kf_validator {
   GHashTable  *action_groups;
 
   gboolean     fatal_error;
+
+  gboolean     use_colors;
 };
 
 static gboolean
@@ -316,8 +318,13 @@ static DesktopKeyDefinition registered_desktop_keys[] = {
   /* since 1.1 (used to be in the spec before 1.0, but was not really
    * specified) */
   { DESKTOP_STRING_LIST_TYPE,       "Actions",           FALSE, FALSE, FALSE, handle_actions_key },
+  /* Since 1.2 */
+  { DESKTOP_STRING_LIST_TYPE,       "Implements",        FALSE, FALSE, FALSE, NULL },
 
   { DESKTOP_BOOLEAN_TYPE,           "DBusActivatable",   FALSE, FALSE, FALSE, handle_dbus_activatable_key },
+
+  /* Since 1.4 */
+  { DESKTOP_BOOLEAN_TYPE,           "PrefersNonDefaultGPU", FALSE, FALSE, FALSE, NULL },
 
   /* Keys reserved for KDE */
 
@@ -351,6 +358,8 @@ static DesktopKeyDefinition registered_desktop_keys[] = {
   /* since 0.9.6 */
   { DESKTOP_STRING_LIST_TYPE,       "SortOrder",         FALSE, TRUE,  FALSE, NULL },
   { DESKTOP_REGEXP_LIST_TYPE,       "FilePattern",       FALSE, TRUE,  FALSE, NULL },
+  /* since 1.4 */
+  { DESKTOP_BOOLEAN_TYPE,           "X-KDE-RunOnDiscreteGpu", FALSE, TRUE, FALSE, NULL },
 
   /* Keys from other specifications */
 
@@ -366,8 +375,9 @@ static DesktopKeyDefinition registered_action_keys[] = {
   { DESKTOP_STRING_TYPE,            "Exec",               TRUE,  FALSE, FALSE, handle_exec_key }
 };
 
+/* This should be the same list as in xdg-specs/menu/menu-spec.xml */
 static const char *show_in_registered[] = {
-    "GNOME", "KDE", "LXDE", "LXQt", "MATE", "Razor", "ROX", "TDE", "Unity", "XFCE", "Cinnamon", "EDE", "Old"
+    "GNOME", "GNOME-Classic", "GNOME-Flashback", "KDE", "LXDE", "LXQt", "MATE", "Razor", "ROX", "TDE", "Unity", "XFCE", "EDE", "Cinnamon", "Pantheon", "Budgie", "Enlightenment", "Deepin", "Old"
 };
 
 static struct {
@@ -537,6 +547,20 @@ static struct {
   { "Applications",           FALSE, FALSE, TRUE,  { NULL }, { NULL } }
 };
 
+/* Escape values for console colors */
+#define UNDERLINE     "\033[4m"
+#define MAGENTA       "\033[35m"
+#define RED           "\033[31m"
+#define YELLOW        "\033[33m"
+
+/* Colour definitions */
+#define RESET_COLOR        (kf->use_colors ? "\033[0m" : "")
+#define FILENAME_COLOR     (kf->use_colors ? UNDERLINE : "")
+#define FATAL_COLOR        (kf->use_colors ? RED : "")
+#define FUTURE_FATAL_COLOR (kf->use_colors ? RED : "")
+#define WARNING_COLOR      (kf->use_colors ? MAGENTA : "")
+#define HINT_COLOR         (kf->use_colors ? YELLOW : "")
+
 static void
 print_fatal (kf_validator *kf, const char *format, ...)
 {
@@ -551,7 +575,9 @@ print_fatal (kf_validator *kf, const char *format, ...)
   str = g_strdup_vprintf (format, args);
   va_end (args);
 
-  g_print ("%s: error: %s", kf->filename, str);
+  g_print ("%s%s%s: %serror%s: %s",
+           FILENAME_COLOR, kf->filename, RESET_COLOR,
+           FATAL_COLOR, RESET_COLOR, str);
 
   g_free (str);
 }
@@ -568,7 +594,9 @@ print_future_fatal (kf_validator *kf, const char *format, ...)
   str = g_strdup_vprintf (format, args);
   va_end (args);
 
-  g_print ("%s: error: (will be fatal in the future): %s", kf->filename, str);
+  g_print ("%s%s%s: %serror%s: (will be fatal in the future): %s",
+           FILENAME_COLOR, kf->filename, RESET_COLOR,
+           FUTURE_FATAL_COLOR, RESET_COLOR, str);
 
   g_free (str);
 }
@@ -585,7 +613,9 @@ print_warning (kf_validator *kf, const char *format, ...)
   str = g_strdup_vprintf (format, args);
   va_end (args);
 
-  g_print ("%s: warning: %s", kf->filename, str);
+  g_print ("%s%s%s: %swarning%s: %s",
+           FILENAME_COLOR, kf->filename, RESET_COLOR,
+           WARNING_COLOR, RESET_COLOR, str);
 
   g_free (str);
 }
@@ -605,7 +635,9 @@ print_hint (kf_validator *kf, const char *format, ...)
   str = g_strdup_vprintf (format, args);
   va_end (args);
 
-  g_print ("%s: hint: %s", kf->filename, str);
+  g_print ("%s%s%s: %shint%s: %s",
+           FILENAME_COLOR, kf->filename, RESET_COLOR,
+           HINT_COLOR, RESET_COLOR, str);
 
   g_free (str);
 }
@@ -926,6 +958,15 @@ handle_version_key (kf_validator *kf,
                     const char   *locale_key,
                     const char   *value)
 {
+  if (!strcmp (value, "1.4"))
+    return TRUE;
+
+  if (!strcmp (value, "1.3"))
+    return TRUE;
+
+  if (!strcmp (value, "1.2"))
+    return TRUE;
+
   if (!strcmp (value, "1.1"))
     return TRUE;
 
@@ -965,9 +1006,9 @@ handle_comment_key (kf_validator *kf,
 
   if (keyvalue && g_ascii_strcasecmp (value, keyvalue->value) == 0) {
     print_warning (kf, "value \"%s\" for key \"%s\" in group \"%s\" "
-                       "looks redundant with value \"%s\" of key \"%s\"\n",
+                       "looks the same as that of key \"%s\"\n",
                        value, locale_key, kf->current_group,
-                       keyvalue->value, keyvalue->key);
+                       keyvalue->key);
     return FALSE;
   }
 
@@ -978,9 +1019,9 @@ handle_comment_key (kf_validator *kf,
 
   if (keyvalue && g_ascii_strcasecmp (value, keyvalue->value) == 0) {
     print_warning (kf, "value \"%s\" for key \"%s\" in group \"%s\" "
-                       "looks redundant with value \"%s\" of key \"%s\"\n",
+                       "looks the same as that of key \"%s\"\n",
                        value, locale_key, kf->current_group,
-                       keyvalue->value, keyvalue->key);
+                       keyvalue->key);
     return FALSE;
   }
 
@@ -1204,10 +1245,10 @@ handle_exec_key (kf_validator *kf,
                              "a reserved character\n",
                              value, locale_key, kf->current_group);
             retval = FALSE;
-
-            escaped = FALSE;
           }
         }
+
+        escaped = FALSE;
         break;
       case '`':
       case '$':
@@ -2219,9 +2260,6 @@ validate_known_key (kf_validator         *kf,
   unsigned int i;
   unsigned int j;
 
-  if (!strncmp (key, "X-", 2))
-    return TRUE;
-
   for (i = 0; i < n_keys; i++) {
     if (strcmp (key, keys[i].name))
       continue;
@@ -2229,6 +2267,8 @@ validate_known_key (kf_validator         *kf,
     if (keys[i].type != DESKTOP_LOCALESTRING_TYPE &&
         keys[i].type != DESKTOP_LOCALESTRING_LIST_TYPE &&
         locale != NULL) {
+      if (!strncmp (key, "X-", 2))
+        return TRUE;
       print_fatal (kf, "file contains key \"%s\" in group \"%s\", "
                        "but \"%s\" is not defined as a locale string\n",
                        locale_key, kf->current_group, key);
@@ -2251,6 +2291,9 @@ validate_known_key (kf_validator         *kf,
                          "KDE\n",
                          locale_key, kf->current_group);
 
+    if (!strncmp (key, "X-", 2))
+      return TRUE;
+
     if (!validate_for_type[j].validate (kf, key, locale, value))
       return FALSE;
 
@@ -2262,7 +2305,7 @@ validate_known_key (kf_validator         *kf,
     break;
   }
 
-  if (i == n_keys) {
+  if (i == n_keys && strncmp (key, "X-", 2)) {
     print_fatal (kf, "file contains key \"%s\" in group \"%s\", but "
                      "keys extending the format should start with "
                      "\"X-\"\n", key, kf->current_group);
@@ -3084,6 +3127,11 @@ desktop_file_validate (const char *filename,
   kf.action_groups    = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                NULL, g_free);
   kf.fatal_error      = FALSE;
+#if GLIB_CHECK_VERSION(2, 50, 0)
+  kf.use_colors       = g_log_writer_supports_color (fileno (stdout));
+#else
+  kf.use_colors       = FALSE;
+#endif
 
   validate_load_and_parse (&kf);
   //FIXME: this does not work well if there are both a Desktop Entry and a KDE

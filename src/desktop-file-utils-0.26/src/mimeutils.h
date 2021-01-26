@@ -22,6 +22,9 @@
  * USA.
  */
 
+#ifndef __DFU_MIMEUTILS_H__
+#define __DFU_MIMEUTILS_H__
+
 #include <glib.h>
 
 typedef enum {
@@ -32,3 +35,5 @@ typedef enum {
 
 MimeUtilsValidity mu_mime_type_is_valid (const char  *mime_type,
                                          char       **error);
+
+#endif /* __DFU_MIMEUTILS_H__ */

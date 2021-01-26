@@ -26,6 +26,8 @@
  * USA.
  */
 
+#include <locale.h>
+
 #include "validate.h"
 
 static gboolean   warn_kde = FALSE;
@@ -48,6 +50,8 @@ main (int argc, char *argv[])
   GError         *error;
   int i;
   gboolean all_valid;
+
+  setlocale (LC_ALL, "");
 
   context = g_option_context_new (NULL);
   g_option_context_set_summary (context, "Validate desktop entry files "

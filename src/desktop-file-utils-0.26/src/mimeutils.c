@@ -52,9 +52,9 @@ static const char *known_old_fdo_media_types[] = {
   "x-directory"
 };
 
-/* Defined in RFC 2045/2046 and RFC 2077 */
+/* Defined in RFC 2045/2046, RFC 2077 and RFC 8081 */
 static const char *registered_discrete_media_types[] = {
-  "application", "audio", "image", "model", "text", "video"
+  "application", "audio", "font", "image", "model", "text", "video"
 };
 
 /* Defined in RFC 2045/2046 */
