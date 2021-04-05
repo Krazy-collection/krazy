@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.933";
+my($Version) = "1.934";
 
 &parseArgs();
 
@@ -1104,6 +1104,7 @@ indicdated             indicated
 indicdates             indicates
 #indice                 index
 indictes               indicates
+intertia               inertia
 infinitv               infinitive
 infomation             information
 informa                inform
