@@ -1,7 +1,7 @@
 /*
  * Sanity check plugin for the Krazy project.
- * Copyright (C) 2014-2019 by Allen Winter <winter@kde.org>
- * Copyright (C) 2014-2019 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+ * Copyright (C) 2014-2021 by Allen Winter <winter@kde.org>
+ * Copyright (C) 2014-2021 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
  * Author: Sergio Martins <sergio.martins@kdab.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -116,7 +116,7 @@ static QMap<QString, QList<int> > lint_file(const QString &filename, bool silent
     bool success = isJavaScript ? parser.parseProgram() : parser.parse();
 
     if (!success) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0) || QT_VERSION > QT_VERSION_CHECK(5, 14, 0)
         foreach (const QQmlJS::DiagnosticMessage &m, parser.diagnosticMessages()) {
             if (issues.contains(m.message)) {
                 if (!issues.value(m.message).contains(m.loc.startLine)) {
