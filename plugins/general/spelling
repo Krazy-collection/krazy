@@ -51,7 +51,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "spelling";
-my($Version) = "1.934";
+my($Version) = "1.935";
 
 &parseArgs();
 
@@ -242,9 +242,13 @@ sub build_dictionary_lookup_table
 #organiser              organizer
 #organising             organizing
 #organising             organizing
+#practise               practice
 #recognised             recognized
 #recognise              recognize
 #recognises             recognizes
+#synchronised           synchronized
+#synchronises           synchronizes
+#synchronise            synchronize
 #centre                 center
 #centre                 center
 #chatwindow             chat window
@@ -1450,7 +1454,6 @@ possiblity             possibility
 posssibility           possibility
 potental               potential
 potentally             potentially
-practise               practice
 practising             practicing
 preceede               precede
 preceeded              preceded
@@ -1811,9 +1814,6 @@ synchronisations       synchronizations
 synchronisation        synchronization
 synchronitation        synchronization
 synchronisations       synchronizations
-synchronised           synchronized
-synchronises           synchronizes
-synchronise            synchronize
 synchronyze            synchronize
 syncronization         synchronization
 syncronized            synchronized
