@@ -192,6 +192,13 @@ The default is unlimited line length.
 
 Overrides the KRAZY_PYTHONSTYLE_LINEMAX environment variable, see krazy2(1).
 
+=item CPP_INCLUDE_ORDER boolean
+
+Tell the "includes" checker not to look for problems with the ordering of include files.
+The default is True.
+
+The boolean value can be any of "yes", "no", "true", "false", "on", "off" (case-insensitive).
+
 =back
 
 =head1 ADMIN DIRECTIVES
@@ -223,7 +230,7 @@ the top level of a KDE component.
 
 =head1 COPYRIGHT
 
-Copyright 2005-2015 by Allen Winter <winter@kde.org>
+Copyright 2005-2021 by Allen Winter <winter@kde.org>
 
 =head1 SEE ALSO
 

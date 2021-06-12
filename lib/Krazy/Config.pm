@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007,2009-2017 by Allen Winter <winter@kde.org>                   #
+# Copyright 2007,2009-2021 by Allen Winter <winter@kde.org>                   #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -30,7 +30,7 @@ use Krazy::Utils;
 use Env qw (KRAZY_STYLE_CPPSTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
 
 use Exporter;
-$VERSION = 1.52;
+$VERSION = 1.60;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(ParseKrazyRC);
@@ -60,6 +60,7 @@ $VERSION = 1.52;
 # STYLE_CPPSTYLE <qt|kde|pim>
 # STYLE_OFFSET <integer > 0>
 # STYLE_LINEMAX <integer > 0>
+# CPP_INCLUDE_ORDER <true|false>
 #
 # Multiple directives may be specified per file; they will be combined in
 # a logical way.
@@ -95,6 +96,7 @@ sub ParseKrazyRC {
   @rcIgSubsList = ();
   @rcExSubsList = ();
   @rcIgModsList = ();
+  $ENV{KRAZY_CPP_INCLUDE_ORDER} = "true";
 
   while ( $line = <F> ) {
     $linecnt++;
@@ -147,6 +149,8 @@ sub ParseKrazyRC {
               $directive eq "STYLE_PYTHONSTYLE_OFFSET" ||
               $directive eq "STYLE_PYTHONSTYLE_LINEMAX") {
       &pythonStyleSettings( $directive, $arg, $linecnt, $rcfile );
+    } elsif ( $directive eq "CPP_INCLUDE_ORDER") {
+      &cppIncludeSettings( $directive, $arg, $linecnt, $rcfile );
     } else {
       print "$rcfile: Invalid directive \"$saveDirective\" (line $linecnt)\n";
       close(F);
@@ -359,6 +363,29 @@ sub pythonStyleSettings {
   } else {
     print "unknown style setting $s, line $l, $f\n";
     exit 1;
+  }
+}
+
+sub cppIncludeSettings {
+  my ($s, $args, $l, $f) = @_;
+  if ( !defined($args) ) {
+    print "missing $s arguments, line $l, $f\n";
+    exit 1;
+  }
+
+  if ($s eq "CPP_INCLUDE_ORDER") {
+    if ( !&validateCppIncludeOrderType($args) ) {
+      my($lst) = &cppIncludeOrderTypeStr();
+      print "invalid CPP_INCLUDE_ORDER argument \"$args\", line $l, $f\nChoices are: $lst\n";
+      exit 1;
+    } else {
+      $args = lc($args);
+      if ($args eq "yes" || $args eq "on" || $args eq "true" ) {
+        $ENV{KRAZY_CPP_INCLUDE_ORDER} = "true";
+      } else {
+        $ENV{KRAZY_CPP_INCLUDE_ORDER} = "false";
+      }
+    }
   }
 }
 

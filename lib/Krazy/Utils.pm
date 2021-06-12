@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2020 by Allen Winter <winter@kde.org>                        #
+# Copyright 2007-2021 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.800;
+$VERSION = 1.900;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -42,10 +42,10 @@ $VERSION = 1.800;
              explainArg quietArg verboseArg installedArg
              priorityTypeStr strictTypeStr exportTypeStr
              outputTypeStr checksetTypeStr
-             styleTypeStrsub cmakeStyleTypeStr pythonStyleTypeStr
+             styleTypeStrsub cmakeStyleTypeStr pythonStyleTypeStr cppIncludeOrderTypeStr
              validateExportType validatePriorityType validateStrictType
              validateOutputType validateCheckSet
-             validateStyleType validateCMakeStyleType validatePythonStyleType
+             validateStyleType validateCMakeStyleType validatePythonStyleType validateCppIncludeOrderType
              usingCheckSet usingQtCheckSet usingKDECheckSet
              linesSearchInFile linesCaseSearchInFile
              allLinesCaseSearchInFile
@@ -92,6 +92,8 @@ my(@CMakeStyles) = ( "kde"       # KDE style (default)
 
 my(@PythonStyles) = ( "kde"       # KDE style (default)
                     );
+
+my(@CppIncludeOrderTypes) = ( "true", "false", "yes", "no", "on", "off" );
 
 my(@FileTypes) = ('c++',
                   'cmake',
@@ -653,6 +655,19 @@ sub validatePythonStyleType {
   if ($style) {
     $style = lc($style);
     return grep {$_ eq $style} @PythonStyles;
+  }
+  return 0;
+}
+
+sub cppIncludeOrderTypeStr {
+  return join ', ', @CppIncludeOrderTypes;
+}
+
+sub validateCppIncludeOrderType {
+  my ($order) = @_;
+  if ($order) {
+    $order = lc($order);
+    return grep {$_ eq $order} @CppIncludeOrderTypes;
   }
   return 0;
 }

@@ -52,6 +52,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
+use Env qw (KRAZY_CPP_INCLUDE_ORDER);
 use Tie::IxHash;
 use File::Basename;
 use Cwd 'abs_path';
@@ -61,7 +62,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.998";
+my($Version) = "1.9990";
 
 &parseArgs();
 
@@ -252,6 +253,7 @@ foreach $inc (keys %Incs) {
 }
 
 # check for include positions within a .cpp file
+if ($KRAZY_CPP_INCLUDE_ORDER eq "true" ) {
 my($foo,$foop,$fooi);
 if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/ || $f =~ m/\.c/) {
   $foo = basename(abs_path($f));
@@ -327,6 +329,7 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/ || $f =~ m/\.c/) {
       print "=> $lines[$Incs{$fooi}{'lines'}-1]\n" if (&verboseArg());
     }
   }
+}
 }
 
 # check for missing include guard (headers only)
