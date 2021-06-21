@@ -62,7 +62,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "includes";
-my($Version) = "1.9990";
+my($Version) = "1.9991";
 
 &parseArgs();
 
@@ -553,7 +553,7 @@ sub qModule {
      $p eq "QtQuickParticles" ||
      $p eq "QtQuickShapes" ||
      $p eq "QtQuickTemplates2" ||
-     $p eq "QtQuickTest" ||
+     #$p eq "QtQuickTest" ||
      $p eq "QtQuickWidgets" ||
      $p eq "QtRemoteObjects" ||
      $p eq "QtRepParser" ||
