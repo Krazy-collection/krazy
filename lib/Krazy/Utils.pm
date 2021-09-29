@@ -31,7 +31,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 1.900;
+$VERSION = 1.910;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -320,10 +320,14 @@ sub fileType {
   } elsif ( $f =~ m/CMakeLists\.txt$/ || $f =~ m/\.cmake$/ ) {
     if ($f =~ m/\.kcfg\.cmake$/) {
       return "kconfigxt";
+    } elsif ($f =~ m/\.py\.cmake$/) {
+      return "python";
+    } elsif ($f =~ m/\.desktop\.cmake$/) {
+      return "desktop";
+    } elsif ($f =~ m/\.json\.cmake$/ ) {
+      return "json";
     }
-    if ( $f !~ m/\.json\.cmake$/ ) {
-      return "cmake";
-    }
+    return "cmake";
   } elsif ( $f =~ m/\.cmake\.in$/ ) {
     return "cmake";
   } elsif ( $f =~ m/\.pl$/i && $f !~ m/makefile\.pl$/i) {
