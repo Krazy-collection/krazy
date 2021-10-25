@@ -121,7 +121,7 @@ use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.9991';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9992';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde5";
 
@@ -798,7 +798,7 @@ for $ftype (@types) {
         close(F);
         next
           if ( $tt =~
-     /(All changes made in this file will be lost|All changes made to it will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
+     /(All changes made in this file will be lost|All changes made to it will be lost|DO NOT EDIT|DO NOT MODIFY|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
              );
 
         $nf++;
