@@ -33,6 +33,8 @@ tipsandthis \
 EXTRALNS = \
 contractions \
 crud \
+copyright-reuse \
+license-reuse \
 
 #default installation location
 PREFIX=/usr/local
