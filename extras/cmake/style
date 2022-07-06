@@ -80,7 +80,7 @@ if ( !$KRAZY_CMAKESTYLE_STYLE ) {
 }
 
 if ( !$KRAZY_CMAKESTYLE_OFFSET ) {
-  $KRAZY_CMAKESTYLE_OFFSET = 2;
+  $KRAZY_CMAKESTYLE_OFFSET = 4;
 }
 
 #open file and slurp it in
