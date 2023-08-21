@@ -48,7 +48,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "insecurenet";
-my($Version) = "0.98";
+my($Version) = "0.99";
 
 &parseArgs();
 
@@ -64,8 +64,16 @@ my($filetype) = &fileType($f);
 
 # open file and slurp it in
 open(F, $f) || die "Couldn't open $f";
-my(@lines) = <F>;
+my(@data_lines) = <F>;
 close(F);
+
+my(@lines);
+if ($filetype eq "c++") {
+  # Remove Krazy conditional blocks
+  @lines = RemoveCondBlockC( $Prog, @data_lines );
+} else {
+  @lines = @data_lines;
+}
 
 my($linecnt) = 0;
 my($http_cnt) = 0;
