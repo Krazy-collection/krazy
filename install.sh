@@ -31,7 +31,7 @@ fi
 savedir=`pwd`
 
 #change TOP to whatever you like for your top-level installation directory
-if ( test `hostname | egrep -c www` -gt 0 ) then
+if ( test `hostname | grep -E -c www` -gt 0 ) then
   EBN=1
   TOP=/mnt/ebn
   QMAKE=/usr/bin/qmake
