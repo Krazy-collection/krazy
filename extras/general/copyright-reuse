@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "copyright-reuse";
-my($Version) = "1.00";
+my($Version) = "1.01";
 
 my($ThisYear) = (localtime)[5] + 1900;
 
@@ -199,6 +199,7 @@ sub isBusinessEntity() {
   return 1 if ($line =~ m/Red Hat/i);
   return 1 if ($line =~ m/Digia Plc/i);
   return 1 if ($line =~ m/Canonical/i);
+  return 1 if ($line =~ m/Fastmail Pty/i);
 
   return 0;
 }
