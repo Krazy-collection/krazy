@@ -8,6 +8,10 @@
   SYSTEM "kpartgui.dtd"
 
   This DTD should be included at the head of an xmlguibuilder XML file like this:
+  <!DOCTYPE gui SYSTEM "kpartgui.dtd">
+
+  When using the old deprecated root element <kpartgui>,
+  the respective doctype name must be used, like this:
   <!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
 -->
 
@@ -102,7 +106,7 @@
        to KAction properties.
  -->
 <!ELEMENT Action EMPTY>
-<!-- We defined only a few standard KAction properties here. Theoretically we can have
+<!-- We defined only a few standard KAction properties here. Theoritically we can have
      any property here -->
 <!ATTLIST Action
   name CDATA #REQUIRED
@@ -154,10 +158,10 @@
 >
 
 <!-- Not explicitly defined or in widely used yet. -->
-<!ELEMENT MainWindow (ANY)>
+<!ELEMENT MainWindow ANY>
 
 <!-- Not explicitly defined or in widely used yet. -->
-<!ELEMENT StatusBar (ANY)>
+<!ELEMENT StatusBar ANY>
 
 <!-- Specifies the entry index for merging in a gui client -->
 <!ELEMENT Merge EMPTY>

@@ -2,8 +2,8 @@
 <!--  kxmlgui XSD v1.0 -->
 <xsd:schema
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        xmlns="http://www.kde.org/standards/kxmlgui/1.0"
-        targetNamespace="http://www.kde.org/standards/kxmlgui/1.0"
+        xmlns="https://www.kde.org/standards/kxmlgui/1.0"
+        targetNamespace="https://www.kde.org/standards/kxmlgui/1.0"
         version="1.0"
         elementFormDefault="qualified" >
 
@@ -38,10 +38,10 @@
                 <?xml version="1.0" encoding="UTF-8" ?>
                 <gui name=""
                      version=""
-                     xmlns="http://www.kde.org/standards/kxmlgui/1.0"
+                     xmlns="https://www.kde.org/standards/kxmlgui/1.0"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
-                                         http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
+                     xsi:schemaLocation="https://www.kde.org/standards/kxmlgui/1.0
+                                         https://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
                 <!-- the content -->
                 </gui>
 
@@ -75,6 +75,20 @@
         <xsd:complexType>
             <xsd:attribute name="lineSeparator" default="true" type="xsd:boolean"/>
             <xsd:attribute name="weakSeparator" default="true" type="xsd:boolean"/>
+            <xsd:attribute name="append" type="identifier"/>
+            <xsd:attribute name="group" type="identifier"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="Spacer">
+        <xsd:annotation>
+            <xsd:documentation>
+
+                Inserts a spacer item into a toolbar.
+
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
             <xsd:attribute name="append" type="identifier"/>
             <xsd:attribute name="group" type="identifier"/>
         </xsd:complexType>
@@ -335,6 +349,7 @@
                             <xsd:element ref="Action" minOccurs="0" maxOccurs="unbounded" />
                             <!-- Should 0 ActionS really be allowed? konqueror.rc does it.. -->
                             <xsd:element ref="Separator" minOccurs="0" maxOccurs="unbounded" />
+                            <xsd:element ref="Spacer" minOccurs="0" maxOccurs="unbounded" />
                             <xsd:element ref="ActionList" minOccurs="0" maxOccurs="unbounded" />
                             <xsd:element ref="Merge" minOccurs="0" />
                             <xsd:element ref="MergeLocal" minOccurs="0" />

@@ -212,7 +212,7 @@ mkdir -p $TOP/share/dtd
 cd share && \
 cp kpartgui.dtd $TOP/share/dtd
 cp kxmlgui.xsd $TOP/share/dtd
-cp kcfg.dtd $TOP/share/dtd
+#cp kcfg.dtd $TOP/share/dtd
 cp kcfg.xsd $TOP/share/dtd
 cd ..
 

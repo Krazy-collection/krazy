@@ -11,11 +11,11 @@
     <xsd:annotation>
         <xsd:documentation>
 
-            Copyright (c) 2003 Cornelius Schumacher &lt;schumacher@kde.org&gt;
-            Copyright (c) 2003 Waldo Bastian &lt;bastian@kde.org&gt;
-            Copyright (c) 2003 Zack Rusin &lt;zack@kde.org&gt;
-            Copyright (c) 2004 Frans Englich &lt;frans.englich@telia.com&gt;
-            Copyright (c) 2006 Michaël Larouche &lt;michael.larouche@kdemail.net&gt;
+            SPDX-FileCopyrightText: 2003 Cornelius Schumacher &lt;schumacher@kde.org&gt;
+            SPDX-FileCopyrightText: 2003 Waldo Bastian &lt;bastian@kde.org&gt;
+            SPDX-FileCopyrightText: 2003 Zack Rusin &lt;zack@kde.org&gt;
+            SPDX-FileCopyrightText: 2004 Frans Englich &lt;frans.englich@telia.com&gt;
+            SPDX-FileCopyrightText: 2006 Michaël Larouche &lt;michael.larouche@kdemail.net&gt;
 
             Permission to use, copy, modify and distribute this DTD
             and its accompanying documentation for any purpose and without fee
@@ -68,6 +68,7 @@
                             <!-- FIXME: Are really unbounded occurrences of parameter allowed? -->
                         </xsd:sequence>
                         <xsd:attribute name="name" type="xsd:string" use="optional"/>
+                        <xsd:attribute name="stateConfig" type="xsd:boolean" use="optional"/>
                         <xsd:attribute name="arg" type="xsd:boolean" use="optional"/>
                     </xsd:complexType>
                 </xsd:element>
@@ -93,6 +94,7 @@
                                                                 <xsd:element minOccurs="0" name="tooltip" type="kcfg:translatableString"/>
                                                             </xsd:all>
                                                             <xsd:attribute name="name" use="required" type="xsd:string"/>
+                                                            <xsd:attribute name="value" use="optional" type="xsd:string"/>
                                                         </xsd:complexType>
                                                     </xsd:element>
                                                 </xsd:sequence>
@@ -154,6 +156,7 @@
                             </xsd:element>
                         </xsd:sequence>
                         <xsd:attribute name="name" use="required" type="xsd:string"/>
+                        <xsd:attribute name="parentGroupName" use="optional" type="xsd:string"/>
                     </xsd:complexType>
                 </xsd:element>
             </xsd:sequence>
@@ -166,9 +169,12 @@
             <xsd:enumeration value="StringList"/>
             <xsd:enumeration value="Font"/>
             <xsd:enumeration value="Rect"/>
+            <xsd:enumeration value="RectF"/>
             <xsd:enumeration value="Size"/>
+            <xsd:enumeration value="SizeF"/>
             <xsd:enumeration value="Color"/>
             <xsd:enumeration value="Point"/>
+            <xsd:enumeration value="PointF"/>
             <xsd:enumeration value="Int"/>
             <xsd:enumeration value="UInt"/>
             <xsd:enumeration value="Bool"/>
@@ -231,4 +237,3 @@
         </xsd:simpleContent>
     </xsd:complexType>
 </xsd:schema>
-
