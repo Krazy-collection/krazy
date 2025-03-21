@@ -1,6 +1,6 @@
 ###############################################################################
 # Sanity checks for your KDE source code                                      #
-# Copyright 2007-2021 by Allen Winter <winter@kde.org>                        #
+# Copyright 2007-2025 by Allen Winter <winter@kde.org>                        #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -114,8 +114,10 @@ my(@FileTypes) = ('c++',
 my(@Sets) = ( "c++",             # Pure C/C++ source
               "qt4",             # Qt4 source (C++, QML, Qt Designer, Qt Doc)
               "qt5",             # Qt5 source (C++, QML, Qt Designer, Qt Doc)
+              "qt6",             # Qt6 source (C++, QML, Qt Designer, Qt Doc)
               "kde4",            # KDE4 source (C++, Qt4, FDO desktop files, etc.)
               "kde5",            # KDE5 source (C++, Qt5, FDO desktop files, etc.)
+              "kde6",            # KDE6 source (C++, Qt6, FDO desktop files, etc.)
               "foss"             # Free and open source software (FOSS)
             );
 
@@ -692,12 +694,16 @@ sub checkSetDesc() {
     return "Pure C/C++ source";
   } elsif ( $s eq "qt4" ) {
     return "Qt4 source (C++, QML, Qt Designer, Qt Doc)";
+  } elsif ( $s eq "qt6" ) {
+    return "Qt6 source (C++, QML, Qt Designer, Qt Doc)";
   } elsif ( $s eq "qt5" ) {
     return "Qt5 source (C++, QML, Qt Designer, Qt Doc)";
   } elsif ( $s eq "kde4" ) {
     return "KDE4 source (C++, Qt Designer, FDO desktop files, etc.)";
   } elsif ( $s eq "kde5" ) {
     return "KDE5 source (C++, Qt Designer, FDO desktop files, etc.)";
+  } elsif ( $s eq "kde6" ) {
+    return "KDE6 source (C++, Qt Designer, FDO desktop files, etc.)";
   } elsif ( $s eq "foss" ) {
     return "Free and open source software (FOSS)";
   }
@@ -885,11 +891,17 @@ sub guessCheckSet {
   #CMake buildsystems
   if (-e $cmakepath) {
     if (&allLinesCaseSearchInFile($cmakepath,
+                                  ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KF6")) > 0) {
+      $checkset = "kde6";
+    } elsif (&allLinesCaseSearchInFile($cmakepath,
                                   ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KF5")) > 0) {
       $checkset = "kde5";
     } elsif (&allLinesCaseSearchInFile($cmakepath,
                                        ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KDE4")) > 0) {
       $checkset = "kde4";
+    } elsif (&allLinesCaseSearchInFile($cmakepath,
+                                       ("find_package\\s*\\(\\s*Qt6")) > 0) {
+      $checkset = "qt6";
     } elsif (&allLinesCaseSearchInFile($cmakepath,
                                        ("find_package\\s*\\(\\s*Qt5")) > 0) {
       $checkset = "qt5";
@@ -901,11 +913,11 @@ sub guessCheckSet {
       $checkset = "c++";
     }
   } elsif (-e $qmakepath) {
-    $checkset = "qt5";
+    $checkset = "qt6";
   } elsif (bsd_glob($in . "/*.pro")) {
-    $checkset = "qt5";
+    $checkset = "qt6";
   } elsif (-e $autopath) {
-    $checkset = "qt5";
+    $checkset = "qt6";
   }
 
   my($p);

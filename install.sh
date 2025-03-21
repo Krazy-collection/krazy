@@ -42,18 +42,18 @@ else
     # Assumed to be in the PATH
     if ( test -e "/Cygwin.ico" )
     then
-      QMAKE=qmake-qt5
+      QMAKE=qmake-qt6
     else
       if ( test "`uname -s`" = "Darwin" )
       then
-        if ( test ! -x /usr/local/opt/qt5/bin/qmake )
+        if ( test ! -x /usr/local/opt/qt6/bin/qmake )
         then
           echo "Cannot find qmake"
-          echo "Try running 'brew install qt5'"
-          echo "else 'export QMAKE=/path/to/qt5/bin/qmake'"
+          echo "Try running 'brew install qt6'"
+          echo "else 'export QMAKE=/path/to/qt6/bin/qmake'"
           exit 1
         else
-          QMAKE=/usr/local/opt/qt5/bin/qmake
+          QMAKE=/usr/local/opt/qt6/bin/qmake
         fi
       else
         QMAKE=qmake
