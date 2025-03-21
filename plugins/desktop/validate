@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2009,2011 by Allen Winter <winter@kde.org>               #
+# Copyright (C) 2007-2009,2011,2025 by Allen Winter <winter@kde.org>          #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -43,7 +43,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "validate";
-my($Version) = "1.42";
+my($Version) = "1.43";
 
 &parseArgs();
 
@@ -119,6 +119,7 @@ sub processFile() {
       next if ($line =~ m/file contains group \"PropertyDef:/);
       next if ($line =~ m/key \"InitialPreference\" in group \"Desktop Entry\"/);
       next if ($line =~ m/looks redundant with value/);
+      next if ($line =~ m/looks the same as that of key/);
 
       $cnt++;
       $line =~ s+^$f:\s*++;
