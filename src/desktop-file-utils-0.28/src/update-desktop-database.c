@@ -65,7 +65,7 @@ static const char ** get_default_search_path (void);
 static void print_desktop_dirs (const char **dirs);
 
 static GHashTable *mime_types_map = NULL;
-static gboolean verbose = FALSE, quiet = FALSE;
+static gboolean verbose = FALSE, quiet = FALSE, print_version = FALSE;
 
 static void
 list_free_deep (gpointer key, GList *l, gpointer data)
@@ -446,13 +446,17 @@ main (int    argc,
        N_("Display more information about processing and updating progress"),
        NULL},
 
+     { "version", 0, 0, G_OPTION_ARG_NONE, &print_version,
+       N_("Show the program version"),
+       NULL},
+
      { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &desktop_dirs,
        NULL, N_("[DIRECTORY...]") },
      { NULL }
    };
 
-#if HAVE_PLEDGE
-  if (pledge("stdio rpath wpath cpath fattr", NULL) == -1) {
+#ifdef HAVE_PLEDGE
+  if (pledge ("stdio rpath wpath cpath fattr", NULL) == -1) {
     g_printerr ("pledge\n");
     return 1;
   }
@@ -471,6 +475,11 @@ main (int    argc,
     g_printerr (_("Run \"%s --help\" to see a full list of available command line options.\n"), argv[0]);
     g_error_free (error);
     return 1;
+  }
+
+  if (print_version) {
+    g_print("update-desktop-database %s\n", VERSION);
+    return 0;
   }
 
   if (desktop_dirs == NULL || desktop_dirs[0] == NULL)

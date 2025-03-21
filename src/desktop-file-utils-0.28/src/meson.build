@@ -7,7 +7,7 @@ desktop_file_lib = static_library('desktop_file',
   'keyfileutils.c',
   'mimeutils.c',
   'validate.c',
-  dependencies: glib,
+  dependencies: [glib, gio],
 )
 
 executable('desktop-file-validate',

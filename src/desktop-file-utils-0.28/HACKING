@@ -1,22 +1,19 @@
 Hacking on desktop-file-utils
 =============================
 
- + The development occurs in git:
+ + The development occurs in Gitlab:
 
-     http://cgit.freedesktop.org/desktop-file-utils/
+     https://gitlab.freedesktop.org/xdg/desktop-file-utils/
 
    For information on how to access freedesktop.org git please read:
 
-     http://www.freedesktop.org/wiki/Infrastructure/git
+     https://www.freedesktop.org/wiki/Infrastructure/git
 
- + Please send patches as bug reports in freedesktop.org Bugzilla:
+ + Please submit any changes using merge requests in Gitlab.
 
-     https://bugs.freedesktop.org/ (product desktop-file-utils)
-
-   Your patch should be in unified diff form (the -u option to GNU
-   diff). See also:
-
-     http://live.gnome.org/GnomeLove/SubmittingPatches
+   If you prefer to submit patches, you can do so by creating a new issue
+   and attaching the patch. It should be in unified diff form (the -u option
+   to GNU diff).
 
  + Please try and send a patch against a recent version of this package.
    Patches against git master are most preferable.

@@ -30,7 +30,7 @@
 
 #include <glib.h>
 
-#define CURRENT_SPEC_VERSION "1.4"
+#define CURRENT_SPEC_VERSION "1.5"
 
 #define GROUP_KDE_DESKTOP_ENTRY "KDE Desktop Entry"
 #define GROUP_DESKTOP_ACTION "Desktop Action "

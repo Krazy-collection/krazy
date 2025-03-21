@@ -1,4 +1,39 @@
 ============
+Version 0.28
+============
+
+ common
+  - Increase GLib requirement to 2.26 (Corentin Noël).
+  - Fix install failing on second run (Raziel Anarki).
+  - Fix use of deprecated Meson feature resulting in a warning (Raziel
+    Anarki).
+
+ desktop-file-validate
+  - Allow groups with the same name as interfaces in Implements (Corentin
+    Noël).
+  - Add support for the COSMIC environment (Ryan Brue).
+
+============
+Version 0.27
+============
+
+ common
+  - Remove Autotools support.
+  - Minor updates to project documentation.
+  - Add pledge(2) support to remaining utilities (Antoine Jacoutot).
+  - Add --version support to utilities (fdo#64) (JakobDev).
+
+ desktop-file-validate
+  - Support desktop spec version 1.5 (fdo#59) (David King).
+  - Add LXQt to categories (fdo#63) (rezso).
+  - Use DDE category for Deepin desktop (Wang Zichong).
+  - Add Endless to list of desktop IDs (Philip Withnall).
+  - Fix field code escaping in messages (fdo#71).
+
+ desktop-entry-mode.el
+  - Highlight action groups when ID includes hyphens (Peter Oliver).
+
+============
 Version 0.26
 ============
 

@@ -168,7 +168,7 @@
   "Expression for matching deprecated desktop entry keys.")
 
 (defconst desktop-entry-group-header-re
-  "^\\[\\(X-[^\][]+\\|\\(?:Desktop \\(?:Entry\\|Action [a-zA-Z]+\\)\\)\\)\\]"
+  "^\\[\\(X-[^\][]+\\|\\(?:Desktop \\(?:Entry\\|Action [a-zA-Z-]+\\)\\)\\)\\]"
   "Regular expression for matching desktop entry group headers.")
 
 (defconst desktop-entry-font-lock-keywords

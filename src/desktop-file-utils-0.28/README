@@ -1,7 +1,7 @@
 desktop-file-utils
 ==================
 
-http://www.freedesktop.org/wiki/Software/desktop-file-utils
+https://www.freedesktop.org/wiki/Software/desktop-file-utils
 
 desktop-file-utils contains a few command line utilities for working
 with desktop entries.
@@ -18,16 +18,16 @@ update-desktop-database: updates the database containing a cache of
 More information about desktop files and the "Desktop Entry
 Specification" is available on:
 
-  http://freedesktop.org/wiki/Specifications/desktop-entry-spec
-  http://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+  https://freedesktop.org/wiki/Specifications/desktop-entry-spec
+  https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
 
 You may download updates to the package from:
 
-   http://www.freedesktop.org/software/desktop-file-utils/releases/
+  https://www.freedesktop.org/software/desktop-file-utils/releases/
 
 To discuss desktop-file-utils, you may use the xdg mailing list:
 
-  http://lists.freedesktop.org/mailman/listinfo/xdg
+  https://lists.freedesktop.org/mailman/listinfo/xdg
 
 
 Installation
@@ -39,25 +39,15 @@ Using Meson:
   ninja -C _build
   sudo ninja -C _build install
 
-Using Autotools (deprecated):
-
-  ./autogen.sh
-  make
-  sudo make install
-
 
 How to report bugs
 ==================
 
 Bugs should be reported to the freedesktop.org bug tracking system:
 
-   https://bugs.freedesktop.org/ (product desktop-file-utils)
+   https://gitlab.freedesktop.org/xdg/desktop-file-utils/-/issues/new
 
 You will need to create an account for yourself.
-
-Please read the following page on how to prepare a useful bug report:
-
-   https://bugs.freedesktop.org/page.cgi?id=bug-writing.html
 
 Please read the HACKING file for information on where to send changes or
 bugfixes for this package.

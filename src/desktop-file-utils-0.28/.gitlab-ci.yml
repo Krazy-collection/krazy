@@ -1,0 +1,7 @@
+image: fedora:31
+
+meson-build:
+    script:
+    - dnf -y install @development-tools meson glib2-devel
+    - meson _build
+    - ninja -C _build test

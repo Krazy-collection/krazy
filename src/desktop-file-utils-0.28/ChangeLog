@@ -1,3 +1,233 @@
+commit bc403b7e9ea4847b1590c41eb1581aa3f1d24b36
+Author: Hans Petter Jansson <hpj@hpjansson.org>
+Date:   Fri Oct 25 22:52:48 2024 +0200
+
+    Release 0.28
+
+M	NEWS
+M	meson.build
+
+commit 242d888b9aa0fdde776c9697aacff590d07df8a0
+Author: Raziel Anarki <razielanarki@semmi.se>
+Date:   Thu Nov 2 00:02:32 2023 +0100
+
+    FIX: deprecated feature used `man/meson.build`:
+    
+    fixes the following warning/notice
+    ```
+    NOTICE: Future-deprecated features used:
+    * 0.64.0: {'copy arg in configure_file'}
+    ```
+
+M	man/meson.build
+
+commit e0cc507f60f928e92d239d21ab7d03b5bc296f34
+Author: Raziel Anarki <razielanarki@semmi.se>
+Date:   Thu Nov 2 00:01:52 2023 +0100
+
+    FIX: `install.py` script fails on second run
+    
+    python `os.symlink` fails to overwrite an already existing target:
+    fixed with updating the `meson_version` requiement to `'>=0.61.0'` and handling the symlink via `install_symlink()`
+
+D	install.py
+M	meson.build
+
+commit 67d09f0c851cfaf0ff3ae8689c14a09ec08d6fa1
+Author: Ryan Brue <ryanbrue@gmail.com>
+Date:   Sat Jul 20 15:35:57 2024 +0000
+
+    validate: add COSMIC
+    
+    Signed-off-by: Ryan Brue <ryanbrue@gmail.com>
+
+M	src/validate.c
+
+commit 0edb077899d696601d285c9891c8be61b8903634
+Author: Corentin Noël <corentin.noel@collabora.com>
+Date:   Wed Jan 31 11:32:16 2024 +0100
+
+    validate: Allow groups with the same name as interfaces in Implements
+    
+    From the specification:
+    
+    if the interface wishes to allow for details about the implementation, it should
+    do so by specifying that implementers add a group in their desktop file with the
+    same name as the interface (eg: "[org.freedesktop.ImageAcquire]")
+    
+    Also add interface name validation using GIO.
+    
+    Increases GLib requirement to 2.26.
+
+M	meson.build
+M	src/meson.build
+M	src/validate.c
+
+commit 2470d73f93d02b354ecbee7c2f02a83efaae84d8
+Author: Hans Petter Jansson <hpj@hpjansson.org>
+Date:   Thu Oct 5 17:07:13 2023 +0200
+
+    Release: 0.27
+
+M	NEWS
+
+commit dda9978b46b4fbbc1f341ec77bb3a8d3fdcb6356
+Author: Hans Petter Jansson <hpj@hpjansson.org>
+Date:   Thu Oct 5 16:26:47 2023 +0200
+
+    docs: Remove Autotools info from README and update stale links
+
+M	README
+
+commit 115d62a1684deeb69fa1f4816e8c16af1c91286f
+Author: Hans Petter Jansson <hpj@hpjansson.org>
+Date:   Thu Oct 5 16:00:57 2023 +0200
+
+    docs: Bring HACKING notes into the Gitlab era
+
+M	HACKING
+
+commit b226bf5ea18de6ea6c61eb06fec93edfe0cbc85e
+Author: Hans Petter Jansson <hpj@hpjansson.org>
+Date:   Thu Oct 5 15:55:47 2023 +0200
+
+    validate: Properly escape field codes in messages
+    
+    Fixes #71.
+
+M	src/validate.c
+
+commit ec04c7df45d2974103108813549502e322ae7c7c
+Author: Hans Petter Jansson <hpj@hpjansson.org>
+Date:   Thu Oct 5 15:53:01 2023 +0200
+
+    validate: Add G_GNUC_PRINTF() to verify message formatting
+
+M	src/validate.c
+
+commit 48167c9de89477a9898fce237ce3abf382abb1b4
+Author: Hans Petter Jansson <hpj@hpjansson.org>
+Date:   Thu Oct 5 15:20:54 2023 +0200
+
+    Remove Autotools build files - support only Meson from now on
+
+D	Makefile.am
+D	autogen.sh
+D	configure.ac
+D	git.mk
+D	man/Makefile.am
+D	misc/Makefile.am
+D	src/Makefile.am
+
+commit 679cb6f7d46896167ec105e0713401bfaca23516
+Author: Philip Withnall <philip@tecnocode.co.uk>
+Date:   Tue Sep 12 10:30:51 2023 +0100
+
+    validate: Add Endless to the list of valid desktop IDs
+    
+    See https://gitlab.freedesktop.org/xdg/xdg-specs/-/merge_requests/73 and
+    https://github.com/ximion/appstream/pull/522.
+    
+    Signed-off-by: Philip Withnall <philip@tecnocode.co.uk>
+
+M	src/validate.c
+
+commit 8c83300b5f81338696765f1184a82283da25265b
+Author: Wang Zichong <wangzichong@deepin.org>
+Date:   Tue May 23 14:46:09 2023 +0800
+
+    validate: add DDE as a category
+    
+    Related: https://gitlab.freedesktop.org/xdg/xdg-specs/-/merge_requests/68
+
+M	src/validate.c
+
+commit 5c11578cb590cf45b2e3c094d04ca381cb054a19
+Author: Wang Zichong <wangzichong@deepin.org>
+Date:   Tue Mar 21 13:43:31 2023 +0800
+
+    validate: use DDE for deepin desktop
+    
+    Since DDE (and its distro 'deepin') v23 beta, 'DDE' will be used
+    instead of 'Deepin', so we just also update the name here.
+    
+    Related links:
+    
+    - https://gitlab.freedesktop.org/xdg/xdg-specs/-/merge_requests/69
+    - https://www.freelists.org/post/deepin-devel/xdgspec-DDE
+    - https://github.com/linuxdeepin/developer-center/issues/3829
+
+M	src/validate.c
+
+commit e966d55382e34609a6ab6b9a4200eb5a9dcf05fa
+Author: JakobDev <jakobdev@gmx.de>
+Date:   Tue Jan 10 11:41:28 2023 +0000
+
+    Add --version
+
+M	src/install.c
+M	src/update-desktop-database.c
+M	src/validator.c
+
+commit 8818dac847ce50794d8fd03659d3c93d8310adbc
+Author: rezso <rezso@rezso.net>
+Date:   Sat Jun 25 23:01:09 2022 +0000
+
+    Add LXQt to registered categories. LXQt requires it.
+
+M	src/validate.c
+
+commit 56d220dd679c7c3a8f995a41a27a7d6f3df49dea
+Author: David King <amigadave@amigadave.com>
+Date:   Tue Feb 15 10:56:04 2022 +0000
+
+    validate: Support version 1.5
+    
+    Bump CURRENT_SPEC_VERSION to 1.5.
+
+M	man/desktop-file-validate.1
+M	src/validate.c
+M	src/validate.h
+
+commit 425177a28b6215e0745f95100160a08e810fd47c
+Author: David King <amigadave@amigadave.com>
+Date:   Tue Feb 15 10:54:40 2022 +0000
+
+    validate: support SingleMainWindow key from 1.5
+    
+    Fixes https://gitlab.freedesktop.org/xdg/desktop-file-utils/-/issues/59
+
+M	src/validate.c
+
+commit 4d56ab25fd045297912d783280a55a15dcbd95e8
+Author: Peter Oliver <git@mavit.org.uk>
+Date:   Tue May 25 21:35:38 2021 +0100
+
+    desktop-entry-mode.el: highlight action groups when id includes hyphens
+    
+    Hypens are legal characters in identifiers.
+
+M	misc/desktop-entry-mode.el
+
+commit 1926ae7021a2f8e842ad566a49f3a947c02cec92
+Author: Antoine Jacoutot <ajacoutot@gnome.org>
+Date:   Fri Jun 19 10:12:04 2020 +0200
+
+    pledge: add support to remaining utilities
+
+M	src/install.c
+M	src/update-desktop-database.c
+M	src/validator.c
+
+commit 02e13daa5a6a532181b66c8a197930b6f0171909
+Author: Hans Petter Jansson <hpj@cl.no>
+Date:   Fri Jun 19 14:25:04 2020 +0200
+
+    Post-release version bump to 0.27
+
+M	configure.ac
+M	meson.build
+
 commit 54cec012921e52eb66b6ee1a1f40f2e9c9849f7c
 Author: Hans Petter Jansson <hpj@cl.no>
 Date:   Fri Jun 19 14:22:26 2020 +0200

@@ -1,7 +1,7 @@
 desktop_file_edit_man = configure_file(
   input : 'desktop-file-install.1',
   output: 'desktop-file-edit.1',
-  copy: true,
+  command: ['cp', '@INPUT@', '@OUTPUT@']
 )
 
 install_man([

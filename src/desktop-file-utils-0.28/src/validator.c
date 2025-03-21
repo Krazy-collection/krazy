@@ -26,19 +26,26 @@
  * USA.
  */
 
+#include <config.h>
 #include <locale.h>
+
+#ifdef HAVE_PLEDGE
+#include <unistd.h>
+#endif
 
 #include "validate.h"
 
 static gboolean   warn_kde = FALSE;
 static gboolean   no_hints = FALSE;
 static gboolean   no_warn_deprecated = FALSE;
+static gboolean   print_version = FALSE;
 static char     **filename = NULL;
 
 static GOptionEntry option_entries[] = {
   { "no-hints", 0, 0, G_OPTION_ARG_NONE, &no_hints, "Do not output hints to improve desktop file", NULL },
   { "no-warn-deprecated", 0, 0, G_OPTION_ARG_NONE, &no_warn_deprecated, "Do not warn about usage of deprecated items", NULL },
   { "warn-kde", 0, 0, G_OPTION_ARG_NONE, &warn_kde, "Warn if KDE extensions to the specification are used", NULL },
+  { "version", 0, 0, G_OPTION_ARG_NONE, &print_version, "Show the program version", NULL },
   { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filename, NULL, "<desktop-file>..." },
   { NULL }
 };
@@ -50,6 +57,13 @@ main (int argc, char *argv[])
   GError         *error;
   int i;
   gboolean all_valid;
+
+#ifdef HAVE_PLEDGE
+  if (pledge ("stdio rpath", NULL) == -1) {
+    g_printerr ("pledge\n");
+    return 1;
+  }
+#endif
 
   setlocale (LC_ALL, "");
 
@@ -71,6 +85,11 @@ main (int argc, char *argv[])
   }
 
   g_option_context_free (context);
+
+  if (print_version) {
+    g_print("desktop-file-validate %s\n", VERSION);
+    return 0;
+  }
 
   if (filename == NULL || filename[0] == NULL) {
     g_printerr ("See \"%s --help\" for correct usage.\n", g_get_prgname ());
