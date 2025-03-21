@@ -206,11 +206,11 @@ sub userError {
 sub deDupe {
   my (@list) = @_;
   my (%seen) = ();
-  my ( @uniq, $item );
+  my ( @unik, $item );
   foreach $item (@list) {
-    push( @uniq, $item ) unless $seen{$item}++;
+    push( @unik, $item ) unless $seen{$item}++;
   }
-  return @uniq;
+  return @unik;
 }
 
 sub addRegEx {
@@ -404,7 +404,7 @@ sub fileTypeIs {
       return 1 if (-e $tf);
       $tf =~ s/\.tcc$/\.mm/;
       return 1 if (-e $tf);
-      #causes insanity on case-insenstive filesystems
+      #causes insanity on case-insensitive filesystems
       #$tf =~ s/\.mm$/\.C/;
       #return 1 if (-e $tf);
     }
@@ -420,7 +420,7 @@ sub fileTypeIs {
       return 1 if (-e $tf);
       $tf =~ s/\.tcc\.in$/\.mm.in/;
       return 1 if (-e $tf);
-      #causes insanity on case-insenstive filesystems
+      #causes insanity on case-insensitive filesystems
       #$tf =~ s/\.mm\.in$/\.C.in/;
       #return 1 if (-e $tf);
     }
@@ -436,7 +436,7 @@ sub fileTypeIs {
       return 1 if (-e $tf);
       $tf =~ s/\.tcc\.cmake$/\.mm.cmake/;
       return 1 if (-e $tf);
-      #causes insanity on case-insenstive filesystems
+      #causes insanity on case-insensitive filesystems
       #$tf =~ s/\.mm\.cmake$/\.C.cmake/;
       #return 1 if (-e $tf);
     }

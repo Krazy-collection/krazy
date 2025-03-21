@@ -1,0 +1,6 @@
+[codespell]
+skip = ./build-*,.git,./testdata,./plugins/general/spelling,./plugins/general/iconnames,./src/desktop-file-utils-0.26,./cppchecks
+interactive = 0
+#ignore camelCase, regardless. also mixed case words with correct spelling
+ignore-regex = \b([a-z]+[A-Z0-9][a-z0-9]*)\b
+ignore-words-list = truct

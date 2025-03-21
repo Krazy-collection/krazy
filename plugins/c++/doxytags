@@ -103,6 +103,6 @@ sub Version {
 }
 
 sub Explain {
-  print "The \"\@since\" doxygen tag should not be used in the API documention for major versions (i.e. 4.0).  Please remove those tags. \"\@since 4.0.1\" or \"\@since 4.1\" is OK of course.\n";
+  print "The \"\@since\" doxygen tag should not be used in the API documentation for major versions (i.e. 4.0).  Please remove those tags. \"\@since 4.0.1\" or \"\@since 4.1\" is OK of course.\n";
   Exit 0 if &explainArg();
 }

@@ -323,7 +323,7 @@ foreach $line (@lines) {
     } else {
       $Issues{'SPACECOLON'}{'lines'} .= "," . $linecnt;
     }
-    print "$linecnt (whitespace preceeding colon) => $line\n" if (&verboseArg());
+    print "$linecnt (whitespace preceding colon) => $line\n" if (&verboseArg());
   }
 
   #allow returning tuplets

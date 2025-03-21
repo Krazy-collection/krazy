@@ -108,6 +108,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Please run the kde-dev-scripts/fixuifiles on all your .ui files as there are some artifacts created by Qt designer that are undesireable for KDE.\n";
+  print "Please run the kde-dev-scripts/fixuifiles on all your .ui files as there are some artifacts created by Qt designer that are undesirable for KDE.\n";
   Exit 0 if &explainArg();
 }

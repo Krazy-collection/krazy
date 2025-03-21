@@ -148,6 +148,6 @@ sub Version {
 }
 
 sub Explain {
-  print "For Qt color enums please use KColorScheme whereever possible; or at least use Oxygen color instead.\n";
+  print "For Qt color enums please use KColorScheme wherever possible; or at least use Oxygen color instead.\n";
   Exit 0 if &explainArg();
 }

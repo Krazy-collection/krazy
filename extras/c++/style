@@ -656,7 +656,7 @@ foreach $line (@lines) {
       } else {
         $Issues{'SPACESEMI'}{'lines'} .= "," . $linecnt;
       }
-      print "$linecnt (whitespace preceeding semicolon) => $line\n" if (&verboseArg());
+      print "$linecnt (whitespace preceding semicolon) => $line\n" if (&verboseArg());
     }
   }
 

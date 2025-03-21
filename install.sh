@@ -189,7 +189,7 @@ cd ..
 
 # build and install cppcheck plugins
 # TODO: Probably the whole cpp checks will move out of krazy because I think
-#       that it makes more sense as a seperate tool. For it is certainly not
+#       that it makes more sense as a separate tool. For it is certainly not
 #       ready for use anyway so we comment it out.
 # cd cppchecks && \
 # mkdir -p build && \

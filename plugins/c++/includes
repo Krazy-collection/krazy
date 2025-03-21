@@ -414,7 +414,7 @@ sub initIssues() {
   $Issues{'DONT'}{'lines'} = '';
 
   $Issues{'OWN1'}{'issue'} = "include own header first";
-  $Issues{'OWN1'}{'explain'} = "foo.cpp should always include its own header foo.h first, helping to check that foo.h is useable as standalone";
+  $Issues{'OWN1'}{'explain'} = "foo.cpp should always include its own header foo.h first, helping to check that foo.h is usable as standalone";
   $Issues{'OWN1'}{'count'} = 0;
   $Issues{'OWN1'}{'lines'} = '';
 

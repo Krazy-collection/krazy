@@ -344,7 +344,7 @@ Print the list of available checkers for the specified set and exit.
 Tell each checker program to report issues with the specified priority only.
 This option is useful to help put issues into "fix-first" order.
 
-Supported priorites are:
+Supported priorities are:
      low -> print low priority issues only
      normal -> print normal priority issues only
      high -> print high priority issues only
@@ -480,7 +480,7 @@ is encountered; else when no issues are found the exit status=0.
 If a command line option was incorrectly provided, krazy2all exits with
 status=1.
 
-If krazy2all was envoked with the B<--help>, B<--version>  B<--list>
+If krazy2all was invoked with the B<--help>, B<--version>  B<--list>
 or B<--list-types> options it will exit with status=0.
 
 =head1 COPYRIGHT

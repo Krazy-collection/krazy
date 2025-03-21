@@ -50,7 +50,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 #TODO:
 # implement verbose
-# implment exclude, skip, excludeall
+# implement exclude, skip, excludeall
 
 use warnings;
 use strict;
@@ -109,7 +109,7 @@ my $OTH = "~OTH~";
 
 # Some global state variables:
 # those with g_ are global per file, reset on each new file;
-# those wiht gg_ are global over all files, initialized only here.
+# those with gg_ are global over all files, initialized only here.
 my ($g_lineno, $g_fname);
 my ($g_nmsg, $g_nmsgkuit);
 my ($gg_nwgaps, $gg_ncount, $gg_nqnumber, $gg_nkfmtnum, $gg_novermax,

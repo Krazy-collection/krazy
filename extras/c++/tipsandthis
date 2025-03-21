@@ -214,7 +214,7 @@ foreach my $w (keys %Widgets) {
 
 # for each KAction, skip to its starting line and search for stuff.
 # dfaure says:
-#   "Ignore setWhatsThis - if it's called explicitely then it has a longer text,
+#   "Ignore setWhatsThis - if it's called explicitly then it has a longer text,
 #   that's fine. A krazy check could look for a variable of type KAction* that
 #   is used like action->setToolTip(). If there is no action->setStatusTip(),
 #   then this would be better off with setHelpText in order to provide both

@@ -590,7 +590,7 @@ sub doIt {
 
   # Translate the xml report to ebn website
   # NOTE: This is imo a temporary solution. As soon as we store the results in
-  #       the database in a fine grained enough manner, we can change te ebn site
+  #       the database in a fine grained enough manner, we can change the ebn site
   #       to be a php only site and not a mixture of php and krazy generated pages.
   if (!$nosaxon) {
     if ($saxon =~ m/saxon8/) { #support ancient saxon version
@@ -989,7 +989,7 @@ In normal operation, krazy2xml exits with status 0.
 If a command line option was incorrectly provided, krazy2xml exits with
 status=1.
 
-If krazy2 was envoked with the B<--help> or B<--version> options it
+If krazy2 was invoked with the B<--help> or B<--version> options it
 will exit with status=0.
 
 =head1 COPYRIGHT

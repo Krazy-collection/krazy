@@ -180,6 +180,6 @@ sub Version {
 }
 
 sub Explain {
-  print "A (poor) attempt at determing if a specific set of Doxygen tags are present in a source file.  Not sure how to use this yet.  Ignore for now.\n";
+  print "A (poor) attempt at determining if a specific set of Doxygen tags are present in a source file.  Not sure how to use this yet.  Ignore for now.\n";
   Exit 0 if $explain;
 }

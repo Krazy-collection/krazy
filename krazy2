@@ -359,7 +359,7 @@ foreach $type ( keys %xCheckers ) {
 # Print the list of check-sets and exit.
 &ListSets() if $listsets;
 
-# Print the list of checkers for the specifed set and exit.
+# Print the list of checkers for the specified set and exit.
 &ListSet($listset) if $listset;
 
 ###############################################
@@ -1608,7 +1608,7 @@ Print the list of available checkers for the specified set and exit.
 Tell each checker program to report issues with the specified priority only.
 This option is useful to help put issues into "fix-first" order.
 
-Supported priorites are:
+Supported priorities are:
      low -> print low priority issues only
      normal -> print normal priority issues only
      high -> print high priority issues only
@@ -1973,7 +1973,7 @@ of issues encountered during processing.
 If a command line option was incorrectly provided, krazy2 exits with
 status=1.
 
-If krazy2 was envoked with the B<--help>, B<--version>, B<--list>,
+If krazy2 was invoked with the B<--help>, B<--version>, B<--list>,
 B<--list-runtime>, B<--list-types>, B<--list-type>, B<--list-sets
 or B<--list-set> options it will exit with status=0.
 
