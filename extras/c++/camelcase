@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "camelcase";
-my($Version) = "1.77";
+my($Version) = "1.78";
 
 &parseArgs();
 
@@ -104,7 +104,7 @@ while ($linecnt < $#lines) {
     next if ($sep eq "<" && $incpath =~ m/^(c|io)/ && $incpath !~ m/\.h$/);
     next if ($sep eq "<" && $incpath =~ m/^config/ && $incpath =~ m/\.h$/);
     next if ($sep eq "<" && $incpath =~ m+^(k3|q3|ical|libical|uuid|uni|os|ieee|gmp|graphviz|vtk|qjson|std|if|sys/|net|netinet/|arpa|mach/|phonenumbers/|tr1/|xcb/)+);
-    next if ($sep eq "<" && $incpath =~ m/^(algorithm|functional|iterator|limits|map|memory|set|vector|string|exception|deque)|queue|numeric|unordered_map|fstream|sstream|random|optional|list|numbers|variant/);
+    next if ($sep eq "<" && $incpath =~ m/^(algorithm|functional|iterator|limits|map|memory|set|vector|string|exception|deque)|queue|numeric|unordered_map|fstream|sstream|random|optional|list|numbers|ranges|variant/);
     next if ($sep eq "<" && $incpath =~ m/^(calendarsupport|calendarviews|incidenceeditor|akonadi_next)/);
     next if ($sep eq "<" && $incpath =~ m/^(messagecomposer|messagecore|messagelist|messageviewer|ontologies)/);
     next if ($sep eq "<" && $incpath =~ m+^private/q.*_p.h$+);
