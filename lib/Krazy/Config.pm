@@ -96,7 +96,7 @@ sub ParseKrazyRC {
   @rcIgSubsList = ();
   @rcExSubsList = ();
   @rcIgModsList = ();
-  $ENV{KRAZY_CPP_INCLUDE_ORDER} = "true";
+  $ENV{KRAZY_CPP_INCLUDE_ORDER} = "false";
 
   while ( $line = <F> ) {
     $linecnt++;
