@@ -18,36 +18,22 @@
 
 # links to c++ plugins
 CPP_PLUGINS = \
-constref \
 copyright \
 cpp \
 crashy \
-doublequote_chars \
 doxytags \
 dpointer \
 emptystrcompare \
 endswithnewline \
-explicit \
 filenames \
 i18ncheckarg \
 includes \
-inline \
 insecurenet \
 license \
-normalize \
-nullstrassign \
-nullstrcompare \
-operators \
-passbyvalue \
 postfixop \
 qbytearray \
 qclasses \
 qmethods \
-qobject \
-sigsandslots \
-spelling \
-staticobjects \
-strings \
 syscalls \
 typedefs \
 
@@ -59,7 +45,6 @@ fixuifiles \
 i18ncheckarg \
 insecurenet \
 qclasses \
-spelling \
 
 # links to desktop plugins
 DESKTOP_PLUGINS = \
@@ -67,7 +52,6 @@ endswithnewline \
 filenames \
 iconnames \
 insecurenet \
-spelling \
 validate \
 
 # lines to kconfigxt plugins
@@ -76,7 +60,6 @@ endswithnewline \
 filenames \
 i18ncheckarg \
 insecurenet \
-spelling \
 validate \
 
 # links to kpartgui plugins
@@ -85,7 +68,6 @@ endswithnewline \
 filenames \
 i18ncheckarg \
 insecurenet \
-spelling \
 validate \
 
 # links to tips plugins
@@ -93,7 +75,6 @@ TIPS_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 
 # links to Messages.sh plugins
 MSG_PLUGINS = \
@@ -108,7 +89,6 @@ iconnames \
 insecurenet \
 license \
 qmlsyntax \
-spelling \
 
 # links to Perl plugins
 PERL_PLUGINS = \
@@ -117,7 +97,6 @@ endswithnewline \
 filenames \
 license \
 insecurenet \
-spelling \
 
 # links to Python plugins
 PYTHON_PLUGINS = \
@@ -127,14 +106,12 @@ filenames \
 license \
 insecurenet \
 qtemits \
-spelling \
 
 # links to JSON plugins
 JSON_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 validate \
 
 # links to SVG plugins
@@ -147,7 +124,6 @@ CMAKE_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/kde6

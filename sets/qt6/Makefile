@@ -20,28 +20,14 @@ SET=qt6
 
 # links to c++ plugins
 CPP_PLUGINS = \
-constref \
 cpp \
-doublequote_chars \
 dpointer \
 emptystrcompare \
 endswithnewline \
-explicit \
 filenames \
 includes \
-inline \
 insecurenet \
-normalize \
-nullstrassign \
-nullstrcompare \
-operators \
-passbyvalue \
 postfixop \
-qobject \
-sigsandslots \
-spelling \
-staticobjects \
-strings \
 syscalls \
 typedefs \
 
@@ -50,14 +36,12 @@ UI_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 
 # links to desktop plugins
 DESKTOP_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 validate \
 
 # links to qdoc plugins
@@ -65,7 +49,6 @@ QDOC_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 
 # links to QML plugins
 QML_PLUGINS = \
@@ -73,14 +56,12 @@ endswithnewline \
 filenames \
 insecurenet \
 qmlsyntax \
-spelling \
 
 # links to Perl plugins
 PERL_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 
 # links to Python plugins
 PYTHON_PLUGINS = \
@@ -88,14 +69,12 @@ endswithnewline \
 filenames \
 insecurenet \
 qtemits \
-spelling \
 
 # links to JSON plugins
 JSON_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 validate \
 
 # links to SVG plugins
@@ -108,7 +87,6 @@ CMAKE_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 
 #default installation location
 INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}
