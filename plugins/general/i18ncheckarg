@@ -62,7 +62,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "i18ncheckarg";
-my($Version) = "1.2";
+my($Version) = "1.21";
 
 my($krazy) = ''; #swallowed
 my($help) = '';
@@ -1438,7 +1438,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Make the translators' job easier and detect problems in the usage of the i18n() calls. When the fix is not clear, check the Techbase article at <http://techbase.kde.org/Development/Tutorials/Localization/i18n_Krazy> for more information.\n";
+  print "Make the translators' job easier and detect problems in the usage of the i18n() calls. When the fix is not clear, check the Techbase articles at <http://techbase.kde.org/Development/Tutorials/Localization/i18n_Krazy> and https://techbase.kde.org/Development/Tutorials/Localization/i18n_Semantics>.\n";
   Exit 0 if $explain;
 }
 
