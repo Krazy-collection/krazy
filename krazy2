@@ -93,7 +93,7 @@
 #                     textedit -> text formatted for IDEs, 1 issue-per-line
 #                     xml -> XML formatted
 #   --title:        give the output a project title.
-#   --rev:          revision number
+#   --rev:          print this revision number on the output
 #   --ignorerc:     ignore .krazy files
 #   --config <krazyrc> read settings from the specified config file
 #   --dry-run:      don't execute the checks; only show what would be run
@@ -973,7 +973,7 @@ sub Help {
   print "                   textedit -> text formatted for IDEs, 1 issue-per-line\n";
   print "                   xml -> XML formatted\n";
   print "  --title        give the output a project title\n";
-  print "  --rev:         revision number\n";
+  print "  --rev:         print this revision number on the output\n";
   print "  --ignorerc:    ignore .krazy files\n";
   print "  --config <krazyrc>\n";
   print "                 read settings from the specified configfile\n";
