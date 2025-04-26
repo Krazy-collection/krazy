@@ -415,8 +415,10 @@ Do NOT check the specified file type(s).
 
 =item B<--skip> <regular-expression>
 
-Skip files that match the specified regular-expression. For example, B<--skip '/build-*\|/po'> will exclude processing
-for all files in the build or po directories.
+Skip files that match the specified regular-expression. For example, B<--skip '/build-|/po'> will exclude
+processing for all files in the build-* or po directories.
+
+Note: the command line skip is merged with any SKIP directives found in the .krazy configuration files.
 
 =item B<--export> <text|textlist|textedit|xml>
 
