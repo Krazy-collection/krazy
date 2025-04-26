@@ -93,7 +93,7 @@
 #                     textedit -> text formatted for IDEs, 1 issue-per-line
 #                     xml -> XML formatted
 #   --title:        give the output a project title.
-#   --rev:          subversion revision number
+#   --rev:          revision number
 #   --ignorerc:     ignore .krazy files
 #   --config <krazyrc> read settings from the specified config file
 #   --dry-run:      don't execute the checks; only show what would be run
@@ -973,7 +973,7 @@ sub Help {
   print "                   textedit -> text formatted for IDEs, 1 issue-per-line\n";
   print "                   xml -> XML formatted\n";
   print "  --title        give the output a project title\n";
-  print "  --rev:         subversion revision number\n";
+  print "  --rev:         revision number\n";
   print "  --ignorerc:    ignore .krazy files\n";
   print "  --config <krazyrc>\n";
   print "                 read settings from the specified configfile\n";
@@ -1703,7 +1703,9 @@ component, module, and subdir which is being scanned.
 
 =item B<--rev>
 
-Subversion revision number to be printed on the output report, if provided.
+A revision number to be printed on the output report, if provided.
+This number is not checked or used for anything at all; it exists
+only as a way to differentiate reports.
 
 =item B<--brief>
 
