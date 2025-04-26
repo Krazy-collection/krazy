@@ -22,8 +22,6 @@ copyright \
 cpp \
 crashy \
 doxytags \
-dpointer \
-emptystrcompare \
 endswithnewline \
 filenames \
 i18ncheckarg \
