@@ -86,6 +86,8 @@
 #                     super -> print super strict issues only
 #                     all -> print all issues (default)
 #                   use strictness to help filter out issues of less importance
+#   --skip <regular-expression>
+#                   skip files matching the regular-expression
 #   --export <text|textlist|textedit|xml>
 #                   output in one of the following formats:
 #                     text (default)
@@ -121,7 +123,7 @@ use Krazy::Project;
 
 my ($Prog) = 'krazy2';
 my
- $VERSION = '2.9992';    #split line so MakeMaker can find the version here
+ $VERSION = '2.9993';    #split line so MakeMaker can find the version here
 
 my ($DEFAULT_CHECKSETS) = "kde6";
 
@@ -182,6 +184,7 @@ exit 1
        'extra=s'        => \$extra,
        'priority=s'     => \$priority,
        'strict=s'       => \$strict,
+       'skip=s'         => \$skip,
        'export=s'       => \$export,
        'title=s'        => \$title,
        'cms=s'          => \$cms,
@@ -438,7 +441,7 @@ $checksets = $ds{'CHECKSETS'}    if (!$checksets && $ds{'CHECKSETS'});
 $exclude   = $ds{'EXCLUDE'}      if (!$exclude   && $ds{'EXCLUDE'});
 $inctypes  = $ds{'TYPES'}        if (!$inctypes  && $ds{'TYPES'});
 $exctypes  = $ds{'EXCLUDETYPES'} if (!$exctypes  && $ds{'EXCLUDETYPES'});
-$skip      = $ds{'SKIPREGEX'}    if (               $ds{'SKIPREGEX'});
+$skip      = $ds{'SKIPREGEX'}    if (!$skip      && $ds{'SKIPREGEX'});
 $priority  = $ds{'PRIORITY'}     if (!$priority  && $ds{'PRIORITY'});
 $strict    = $ds{'STRICT'}       if (!$strict    && $ds{'STRICT'});
 $output    = $ds{'OUTPUT'}       if (               $ds{'OUTPUT'});
@@ -966,6 +969,8 @@ sub Help {
   print "                 check the specified file type(s) only\n";
   print "  --exclude-types <type[,type1,type2,...,typeN]>:\n";
   print "                 do NOT check the specified file type(s)\n";
+  print "  --skip <regular-expression>\n";
+  print "                 skip files matching the regular-expression\n";
   print "  --export <text|textlist|textedit|xml>\n";
   print "                 output in one of the following formats:\n";
   print "                   text (default)\n";
@@ -1681,6 +1686,11 @@ Check the specified file type(s) only.
 =item B<--exclude-types> <type[,type1,type2,...,typeN]>
 
 Do NOT check the specified file type(s).
+
+=item B<--skip> <regular-expression>
+
+Skip files that match the specified regular-expression. For example, B<--skip '/build-*\|/po'> will exclude processing
+for all files in the build or po directories.
 
 =item B<--export> <text|textlist|textedit|xml>
 
