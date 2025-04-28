@@ -50,7 +50,6 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 #TODO:
 # implement verbose
-# implement exclude, skip, excludeall
 
 use warnings;
 use strict;
@@ -59,10 +58,11 @@ use XML::LibXML;
 use POSIX qw{floor ceil};
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "i18ncheckarg";
-my($Version) = "1.21";
+my($Version) = "1.22";
 
 my($krazy) = ''; #swallowed
 my($help) = '';
@@ -92,6 +92,26 @@ if (!GetOptions('krazy' => \$krazy, 'help' => \$help, 'version' => \$version,
 &Version() if $version;
 &Explain() if $explain;
 if ($#ARGV != 0 and not $allsources) { &Help(); Exit 0; }
+
+my($f) = $ARGV[0];
+
+#open file and slurp it in
+open(F, "$f") || die "Couldn't open $f";
+my(@data_lines) = <F>;
+close(F);
+
+# Remove C-style comments and #if 0 blocks from the file input
+my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+
+# support excludeall and skip
+my($line);
+foreach $line (@lines) {
+    if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
+        $line =~ m+//.*[Kk]razy:skip+) {
+    print "okay\n" if (!&quietArg());
+    Exit 0;
+  }
+}
 
 # ------------------------------------------------------------------------------
 # Globals.
@@ -169,13 +189,14 @@ sub normalize {
     my $sym = "S";
 
     my $i = 0;
-    while ($i < length($str)) {
+    my $len = length($str);
+    while ($i < $len) {
         # Put symbols instead of string literals.
         if (substr($str, $i, 1) eq '"' or substr($str, $i, 1) eq "'") {
             my $comm = substr($str, $i, 1);
             $strn .= "S";
             $i++;
-            while (not substr($str, $i, 1) eq $comm) {
+            while ($i < $len and not substr($str, $i, 1) eq $comm) {
                 if (substr($str, $i, 1) eq "\\") {
                     $strn .= $sym;
                     $i++;
@@ -292,7 +313,7 @@ sub uniqpl {
     return sort {$a <=> $b} keys %plh;
 }
 
-# Unquote string literall and report success, or set empty and report failure.
+# Unquote string literal and report success, or set empty and report failure.
 sub unquote_string {
     my ($str) = @_;
 
@@ -1007,7 +1028,9 @@ sub check_in_string {
     if (length($ostr) != length($ostrn)) {
         #print ">>>>>>>>>>>>>>>>>>>>|$ostr|\n";
         #print "<<<<<<<<<<<<<<<<<<<<|$ostrn|\n";
-        error "Internal: Normalized string has different length!";
+        #error "Internal: Normalized string has different length!";
+        print "Internal issue: unable to deal with unmatched single or double-quote. Consider using an exclude directive.\n";
+        Exit 1;
     }
     my $nstr;
 
@@ -1373,6 +1396,7 @@ sub check_in_file {
 
         if ($fname !~ /\.(rc|kcfg|ui)$/i) {
             return if not $fstr =~ /i18n/s; # quick check
+            return if $fstr =~ m+//.*[Kk]razy:exclude=.*$Prog+;
             check_in_string($fstr);
         }
         else {
