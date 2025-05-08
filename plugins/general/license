@@ -5,7 +5,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2005-2021 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2005-2025 by Allen Winter <winter@kde.org>                    #
 # Copyright (C) 2006 by Jaison Lee <lee.jaison@gmail.com>                     #
 # Copyright (C) 2007 by Dirk Mueller <mueller@kde.org>                        #
 #                                                                             #
@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "2.01";
+my($Version) = "2.02";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -84,16 +84,6 @@ sub checkOneFile($)
       $absf =~ m+/kde.*libs/.*/(?:tests|examples)/+ ||
       $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+ ||
       $absf =~ m+/kdepimlibs/kioslave/+);
-
-  #CMake files we skip
-  if ($f =~ m/CMakeLists\.txt$/ ||
-      $f =~ m/ConfigureChecks\.cmake$/ ||
-      $f =~ m/config-.*\.h\.cmake$/ ||
-      $f =~ m/config\.h\.cmake$/ ||
-      $f =~ m/CTest.*\.cmake$/ ||
-      $f =~ m/\.kcfg\.cmake$/ ) {
-    return (0, "", "");
-  }
 
   open(F, "<$f") || die "Couldn't open $f";
   my(@c) = <F>;
