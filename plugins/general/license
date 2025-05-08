@@ -50,7 +50,7 @@ use Krazy::Utils;
 use Getopt::Long;  #for non-Krazy usage below
 
 my($Prog) = "license";
-my($Version) = "2.02";
+my($Version) = "2.03";
 
 my $verbose = 0;
 my $quiet = 0;
@@ -298,6 +298,7 @@ sub spdxToLicense() {
   $license = $license . " LGPL (v2.0+)" if ($spdx =~ m/LGPL2.0orlater/);
   $license = $license . " LGPL (v2.1+)" if ($spdx =~ m/LGPL2.1orlater/);
   $license = $license . " BSD 2 (simplified)" if ($spdx =~ m/BSD2Clause/);
+  $license = $license . " BSD-3-Clause" if ($spdx =~ m/BSD3Clause/);
   $license = $license . " MIT" if ($spdx =~ m/MIT/);
   $license = $license . " X11" if ($spdx =~ m/X11/);
   $license = $license . " GPL (v2.0)" if ($spdx =~ m/ GPL2.0only/);
