@@ -119,8 +119,10 @@ validate \
 
 # links to CMake plugins
 CMAKE_PLUGINS = \
+copyright \
 endswithnewline \
 filenames \
+license \
 insecurenet \
 
 #default installation location
