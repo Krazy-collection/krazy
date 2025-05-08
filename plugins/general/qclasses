@@ -4,7 +4,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     if 0; # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
-# Copyright (C) 2007-2019 by Allen Winter <winter@kde.org>                    #
+# Copyright (C) 2007-2025 by Allen Winter <winter@kde.org>                    #
 #                                                                             #
 # This program is free software; you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -46,7 +46,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "qclasses";
-my($Version) = "1.40";
+my($Version) = "1.42";
 
 &parseArgs();
 
@@ -123,7 +123,9 @@ while ($linecnt < $#lines) {
   if (&strictArg() eq "super") {
     &doIt($line,"QComboBox","KComboBox",'');
   }
-  &doIt($line,"QMessageBox","KMessageBox",'');
+  if (&usingCheckSet("kde4") || &usingCheckSet("kde5")) {
+    &doIt($line,"QMessageBox","KMessageBox",'');
+  }
   &doIt($line,"QTextEdit","KTextEdit",'');
 }
 
@@ -207,6 +209,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Don't use deprecated Qt classes. Additionally make sure to use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. <http://community.kde.org/Policies/API_to_Avoid> *Please* *refer* *to* *the* *API* *documentation* *for* *details* *before* *porting* *to* *the* *K* *classes*.\n";
+  print "Don't use deprecated Qt classes. Additionally make sure to use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. Also see <http://community.kde.org/Policies/API_to_Avoid>. Please refer to the API documentation for details before porting to the Kfoo classes.\n";
   Exit 0 if &explainArg();
 }
