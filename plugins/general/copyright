@@ -44,7 +44,7 @@ use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
 my($Prog) = "copyright";
-my($Version) = "1.82";
+my($Version) = "1.83";
 
 &parseArgs();
 
@@ -241,6 +241,7 @@ sub isBusinessEntity() {
   return 1 if ($line =~ m/Digia Plc/i);
   return 1 if ($line =~ m/Canonical/i);
   return 1 if ($line =~ m/Fastmail Pty/i);
+  return 1 if ($line =~ m/Hiram Clawson/i);
 
   return 0;
 }
