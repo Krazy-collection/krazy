@@ -150,7 +150,11 @@ sub parseFile {
                 }
                 $inInstallFiles = 0;
             } else {
-                push(@files, processFileNamesAndVariables($file, $_));
+                if (m/^\s*TARGETS\s*/i) {
+                    $inInstallFiles = 0;
+                } else {
+                    push(@files, processFileNamesAndVariables($file, $_));
+                }
             }
         }
     }
