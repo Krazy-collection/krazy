@@ -179,27 +179,13 @@ make install PREFIX=$TOP && \
 make realclean
 cd ..
 
-#build and install (non-cppchecks) binary plugins
+#build and install binary plugins
 cd src && \
 $QMAKE && \
 make && \
 make install INSTALL_ROOT=$TOP
 make distclean && rm -f .qmake.stash
 cd ..
-
-# build and install cppcheck plugins
-# TODO: Probably the whole cpp checks will move out of krazy because I think
-#       that it makes more sense as a separate tool. For it is certainly not
-#       ready for use anyway so we comment it out.
-# cd cppchecks && \
-# mkdir -p build && \
-# cd build && \
-# cmake -DCMAKE_PREFIX_PATH=$TOP .. && \
-# make && \
-# make install
-# cd ..
-# rm -rf build
-# cd ..
 
 #build and install sets
 cd sets && \
