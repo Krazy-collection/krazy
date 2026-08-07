@@ -135,10 +135,6 @@ cp kxmlgui.xsd "$TOP/share/dtd"
 cp kcfg.xsd "$TOP/share/dtd"
 cd ..
 
-#install config file
-mkdir -p "$TOP/conf"
-cp conf/settings.yaml "$TOP/conf"
-
 #create a krazy2rc man page (a symlink to the krazyrc man page)
 if (test -d "$TOP/share/man/man3"); then
   (
