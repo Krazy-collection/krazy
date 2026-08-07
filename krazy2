@@ -422,17 +422,17 @@ if ( !$ignorerc ) {
   #Merge the directives from the possible 2 .krazy files
   $ds{'EXCLUDE'}      = &addCommaSeparated( $ds{'EXCLUDE'},     $pds{'EXCLUDE'});
   $ds{'CHECK'}        = &addCommaSeparated( $ds{'CHECK'},       $pds{'CHECK'});
-  $ds{'CHECKSETS'}    = &addCommaSeparated( $ds{'CHECKSETS'},   $pds{'CHECKSETS'});
   $ds{'EXTRA'}        = &addCommaSeparated( $ds{'EXTRA'},       $pds{'EXTRA'});
   $ds{'TYPES'}        = &addCommaSeparated( $ds{'TYPES'},       $pds{'TYPES'});
   $ds{'EXCLUDETYPES'} = &addCommaSeparated( $ds{'EXCLUDETYPES'},$pds{'EXCLUDETYPES'});
   $ds{'SKIPREGEX'}    = &addRegEx(          $ds{'SKIPREGEX'},   $pds{'SKIPREGEX'});
 
   #override directives from the possible 2 .krazy files
-  $ds{'PRIORITY'} = $pds{'PRIORITY'} if ($pds{'PRIORITY'});
-  $ds{'STRICT'}   = $pds{'STRICT'}   if ($pds{'STRICT'});
-  $ds{'OUTPUT'}   = $pds{'OUTPUT'}   if ($pds{'OUTPUT'});
-  $ds{'EXPORT'}   = $pds{'EXPORT'}   if ($pds{'EXPORT'});
+  $ds{'CHECKSETS'} = $pds{'CHECKSETS'} if ($pds{'CHECKSETS'});
+  $ds{'PRIORITY'}  = $pds{'PRIORITY'}  if ($pds{'PRIORITY'});
+  $ds{'STRICT'}    = $pds{'STRICT'}    if ($pds{'STRICT'});
+  $ds{'OUTPUT'}    = $pds{'OUTPUT'}    if ($pds{'OUTPUT'});
+  $ds{'EXPORT'}    = $pds{'EXPORT'}    if ($pds{'EXPORT'});
 }
 
 # override .krazy file settings with command line settings
