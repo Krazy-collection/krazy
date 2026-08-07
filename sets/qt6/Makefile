@@ -55,7 +55,6 @@ QML_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-qmlsyntax \
 
 # links to Perl plugins
 PERL_PLUGINS = \

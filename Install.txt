@@ -7,22 +7,17 @@ See the "Requirements" section below.
 "Easy" Krazy Installation Instructions
 ======================================
 The easiest and safest way to install Krazy is by using the simple
-install script called 'install.sh'.  Make sure that the first 'qmake'
-found in your execute path is from Qt4 and then run:
+install script called 'install.sh'.
 
   % ./install.sh
 
-which will install by default into /usr/local/Krazy2. Set another
-installation directory by passing it to 'install.sh' on the command line,
-like so:
+which will install by default into /usr/local/Krazy2, making sure
+your user had permissions to write into /usr/local.
+
+Or, set another installation directory by passing it to 'install.sh' on
+the command line, like so:
 
   % ./install.sh /another/location
-
-If your Qt4 'qmake' has another name (some distros do this, for example
-Fedora11 calls it 'qmake-qt4'), then set the QMAKE environment variable
-before calling install.sh.  For example:
-
-  % QMAKE=qmake-qt4 ./install.sh
 
 Next you must add /usr/local/Krazy2/bin (or /another/location/bin)
 to your execute path.
@@ -33,12 +28,10 @@ to your execute path.
 
 Now, the 'krazy2 --list' command should show you a list of available plugins.
 
-
 "Hard" Krazy Installation Instructions
 ======================================
 Read the 'install.sh' script included with this package
 and try to figure it out yourself. :)
-
 
 Requirements
 =============
@@ -58,10 +51,7 @@ from <https://www.freedesktop.org/software/desktop-file-utils/releases>.
 Make sure the program `desktop-file-validate` is in your execute PATH.
 
 Otherwise, Krazy should work with all known UNIXish operating systems
-where Perl and Qt4 (or higher) are available.
-
-At least 1 checker is written in C++ and requires Qt5.3, so we strongly
-recommend building with Qt5.3 or higher.
+where Perl s available.
 
 Contact
 =======

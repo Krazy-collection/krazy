@@ -86,7 +86,6 @@ filenames \
 iconnames \
 insecurenet \
 license \
-qmlsyntax \
 
 # links to Perl plugins
 PERL_PLUGINS = \

@@ -5,7 +5,3 @@ SKIP /testdata/
 
 # skip the plugin template
 SKIP /plugins/TEMPLATE.pl
-
-# skip donated/contributed/3rdparty files
-SKIP /src/passbyvalue/
-SKIP /src/qmlsyntax

@@ -3,7 +3,6 @@
 # install krazy
 
 #Exit this script if it any subprocess exits non-zero.
-#set -e  #qmake from qt3 exits with non-zero status, so we can't set this
 
 COMMAND_EXISTS () {
   command -v $1 >/dev/null 2>&1
@@ -37,30 +36,6 @@ savedir=`pwd`
 #change TOP to whatever you like for your top-level installation directory
 TOP=/usr/local/Krazy2
 
-# Find Qt
-if ( test -z "$QMAKE") then
-  # Assumed to be in the PATH
-  if ( test -e "/Cygwin.ico" )
-  then
-    QMAKE=qmake-qt6
-  else
-    if ( test "`uname -s`" = "Darwin" )
-    then
-      if ( test ! -x /usr/local/opt/qt6/bin/qmake )
-      then
-        echo "Cannot find qmake"
-        echo "Try running 'brew install qt6'"
-        echo "else 'export QMAKE=/path/to/qt6/bin/qmake'"
-        exit 1
-      else
-        QMAKE=/usr/local/opt/qt6/bin/qmake
-      fi
-    else
-      QMAKE=qmake
-     fi
-  fi
-fi
-
 #or pass TOP in as the first command line option
 if ( test $# -gt 0 ) then
   TOP=$1
@@ -69,36 +44,6 @@ fi
 if test "$TOP" = "--help"; then
   echo "Usage: $0 [installation_prefix]";
   exit 1
-fi
-
-qmakever=`$QMAKE -query QT_VERSION`
-if ( test `echo $qmakever | grep -ic unknown` -eq 0 )
-then
-  qmake_majver=`echo $qmakever | cut -d. -f1`
-  qmake_minver=`echo $qmakever | cut -d. -f2`
-else
-  qmake_majver=3
-  qmake_minver=0
-fi
-if ( test $qmake_majver -lt 4) then
-  echo "The qmake found in your \$PATH is too old (must be Qt4 or higher)."
-  echo "You can solve this by:"
-  echo "- prepending a modern Qt bin directory to your \$PATH"
-  echo "- setting \$QMAKE to the name of a modern Qt version of qmake"
-  echo "Exiting..."
-  exit 1
-fi
-
-if ( test $qmake_majver -lt 5 -o $qmake_majver -eq 5 -a $qmake_minver -lt 3 )
-then
-  echo "WARNING: You are using Qt version less than 5.3.0."
-  echo "WARNING: You need at least Qt version 5.3.0 to build the qmlsyntax checker."
-  echo
-  echo "You can solve this by:"
-  echo "- prepending your Qt5.3 bin directory to your \$PATH"
-  echo "- setting \$QMAKE to the name of the Qt5.3 version of qmake"
-  echo
-  echo "Continuing with the installation..."
 fi
 
 if ( test ! -d "$TOP" )
@@ -160,14 +105,6 @@ cd ..
 cd extras && \
 make install PREFIX=$TOP && \
 make realclean
-cd ..
-
-#build and install binary plugins
-cd src && \
-$QMAKE && \
-make && \
-make install INSTALL_ROOT=$TOP
-make distclean && rm -f .qmake.stash
 cd ..
 
 #build and install sets

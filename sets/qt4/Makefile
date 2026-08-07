@@ -36,7 +36,6 @@ normalize \
 nullstrassign \
 nullstrcompare \
 operators \
-passbyvalue \
 postfixop \
 qminmax \
 qobject \
@@ -74,7 +73,6 @@ QML_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-qmlsyntax \
 spelling \
 
 # links to Perl plugins

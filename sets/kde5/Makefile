@@ -38,7 +38,6 @@ normalize \
 nullstrassign \
 nullstrcompare \
 operators \
-passbyvalue \
 postfixop \
 qbytearray \
 qclasses \
@@ -107,7 +106,6 @@ filenames \
 iconnames \
 insecurenet \
 license \
-qmlsyntax \
 spelling \
 
 # links to Perl plugins
