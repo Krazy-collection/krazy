@@ -28,7 +28,7 @@ license-reuse \
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/perl
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/perl"
 
 all:
 

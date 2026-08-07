@@ -27,7 +27,7 @@ filenames \
 spelling \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/json
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/json"
 
 all:
 

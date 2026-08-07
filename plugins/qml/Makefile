@@ -30,7 +30,7 @@ insecurenet \
 spelling \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/qml
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/qml"
 
 all:
 

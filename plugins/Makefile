@@ -36,7 +36,7 @@ svg
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy/krazy-plugins
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy/krazy-plugins"
 
 all:
 

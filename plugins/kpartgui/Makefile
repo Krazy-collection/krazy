@@ -28,7 +28,7 @@ insecurenet \
 spelling
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/kpartgui
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/kpartgui"
 
 all:
 

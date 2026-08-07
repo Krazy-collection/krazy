@@ -38,7 +38,7 @@ license-reuse \
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/c++
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/c++"
 
 all:
 

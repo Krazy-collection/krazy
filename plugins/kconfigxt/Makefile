@@ -29,7 +29,7 @@ insecurenet \
 spelling
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/kconfigxt
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/kconfigxt"
 
 all:
 

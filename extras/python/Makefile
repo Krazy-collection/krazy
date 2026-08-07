@@ -29,7 +29,7 @@ license-reuse \
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/python
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/python"
 
 all:
 

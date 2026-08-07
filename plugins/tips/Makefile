@@ -27,7 +27,7 @@ insecurenet \
 spelling
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/tips
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/tips"
 
 all:
 

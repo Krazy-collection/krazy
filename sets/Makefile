@@ -29,7 +29,7 @@ foss \
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy/krazy-sets
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy/krazy-sets"
 
 all:
 

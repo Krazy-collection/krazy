@@ -25,7 +25,7 @@ PLUGINLNS = \
 filenames \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/svg
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/svg"
 
 all:
 

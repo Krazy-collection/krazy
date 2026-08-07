@@ -64,7 +64,7 @@ spelling \
 validate \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/foss
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/foss"
 
 all:
 

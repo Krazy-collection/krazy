@@ -23,7 +23,7 @@ PLUGINS = rcappend \
 PLUGINLNS = \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/messages
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/messages"
 
 all:
 

@@ -32,7 +32,7 @@ tips \
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras"
 
 all:
 

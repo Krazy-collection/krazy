@@ -148,7 +148,7 @@ insecurenet \
 spelling \
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/kde5
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/kde5"
 
 all:
 

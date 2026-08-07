@@ -24,7 +24,7 @@ krazyprojecttype.pl \
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-helpers
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-helpers"
 
 all:
 

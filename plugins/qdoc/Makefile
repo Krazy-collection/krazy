@@ -27,7 +27,7 @@ insecurenet \
 spelling
 
 #default installation location
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/qdoc
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-plugins/qdoc"
 
 all:
 

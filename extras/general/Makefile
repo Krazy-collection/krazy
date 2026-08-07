@@ -28,7 +28,7 @@ EXTRALNS = \
 
 #default installation location
 PREFIX=/usr/local
-INSTDIR=$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/general
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-extras/general"
 
 all:
 
