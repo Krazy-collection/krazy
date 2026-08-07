@@ -54,13 +54,7 @@ if ($#ARGV != 0){ &Help(); Exit 0; }
 
 my($f) = $ARGV[0];
 
-my($valp) = "$Bin/../../krazy-helpers/desktop-file-validate";
-if ( ! -x $valp ) {
-  $valp = "/usr/local/bin/desktop-file-validate";
-  if ( ! -x $valp ) {
-    $valp = "desktop-file-validate";
-  }
-}
+my($valp) = "desktop-file-validate";
 
 #look for krazy directives in the file
 open(F, "$f") || die "Couldn't open $f";
@@ -89,7 +83,7 @@ if (!$cnt) {
 }
 
 sub Help {
-  print "Validates desktop files using 'desktop-file-validate'\n";
+  print "Validates desktop files using '$valp'\n";
   Exit 0 if &helpArg();
 }
 
@@ -107,7 +101,7 @@ sub processFile() {
   my($in) = @_;
   my($line,$result);
   my($cnt)=0;
-  open(VAL, "$valp --warn-kde $in | ") || print STDERR "Cannot run: desktop-file-validate\n";
+  open(VAL, "$valp --warn-kde $in | ") || print STDERR "Cannot run: $valp\n";
   while($line = <VAL>) {
     chomp($line);
     $result = &analyze($line);

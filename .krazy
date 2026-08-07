@@ -7,6 +7,5 @@ SKIP /testdata/
 SKIP /plugins/TEMPLATE.pl
 
 # skip donated/contributed/3rdparty files
-SKIP /desktop-file-utils
 SKIP /src/passbyvalue/
 SKIP /src/qmlsyntax

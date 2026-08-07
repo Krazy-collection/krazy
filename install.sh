@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # install krazy
 
@@ -7,15 +7,19 @@
 
 COMMAND_EXISTS () {
   command -v $1 >/dev/null 2>&1
-  if ( test $? != 0 )
-    then
-    echo "$1 is not in your PATH. Must install this program before continuing"
+  if ( test $? != 0 ); then
+  	echo "$1 is not in your PATH"
+	  if (test $# -gt 0); then
+			shift
+			echo $@
+		else
+			echo "Must install this program before continuing"
+		fi
     exit 1
   fi
 }
 #make sure some helper programs exist before continuing
-COMMAND_EXISTS autoconf #needed by desktop-file-utils only
-COMMAND_EXISTS autoheader #needed by desktop-file-utils only
+COMMAND_EXISTS desktop-file-validate "Please install the desktop-file-utils package or install it from source"
 
 #bootstrap by checking that the MakeMaker module is installed
 module="ExtUtils::MakeMaker"
@@ -150,22 +154,6 @@ cd helpers && \
 make install PREFIX=$TOP && \
 make realclean
 cd ..
-
-#install binary helper scripts
-if ( test $EBN -eq 0 ) then
-  cd src/desktop-file-utils-0.28 && \
-  touch configure.ac aclocal.m4 configure Makefile.am Makefile.in && \
-  sh configure && make && \
-  cp -f ./src/desktop-file-validate $TOP/lib/krazy2/krazy-helpers && \
-  make distclean; rm -rf autom4te.cache
-  cd ../..
-else
-  if ( test ! -x /usr/bin/desktop-file-validate ) then
-    echo "Please install the desktop-file-utils package"
-    echo "Exiting $0"
-    exit 1
-  fi
-fi
 
 #build and install non-binary plugins
 cd plugins && \
