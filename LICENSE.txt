@@ -1,0 +1,6 @@
+License
+=======
+The Krazy Software is © Allen Winter <winter@kde.org> and is
+available under the terms of the GPL-2.0-or-later license.
+
+See the full license text in the LICENSES folder.

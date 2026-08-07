@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# SPDX-FileCopyrightText: Allen Winter <winter@kde.org>
-# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2007 Allen Winter <winter@kde.org>
+# SPDX-License-Identifier: GPL-2.0-or-later
 
 # install krazy
 

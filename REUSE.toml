@@ -1,0 +1,38 @@
+version = 1
+SPDX-PackageName = "Krazy"
+SPDX-PackageSupplier = "Allen Winter <winter@kde.org>"
+
+#developer tool configuration files
+[[annotations]]
+path = [".codespellrc", ".krazy", ".pre-commit-config.yaml", ".editorconfig", ".shellcheckrc", "REUSE.toml"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Allen Winter <winter@kde.org>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+#documentation
+[[annotations]]
+path = ["ReadMe.txt", "Install.txt", "doc/krazyrc.pod", "**/description.txt", "**/README.txt"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Allen Winter <winter@kde.org>"
+SPDX-License-Identifier = "MIT"
+
+#testdata
+[[annotations]]
+path = ["testdata/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2009 José Manuel Santamaría Lema <panfaust@gmail.com>,2012 Daniel Calviño Sánchez <danxuliu@gmail.com>,2010 Allen Winter <winter@kde.org>"
+SPDX-License-Identifier = "GPL-2.0-or-later"
+
+#misc
+[[annotations]]
+path = ["extras/general/license-reuse", "plugins/TEMPLATE.pl"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Allen Winter <winter@kde.org>"
+SPDX-License-Identifier = "GPL-2.0-or-later"
+
+#from the KDE project
+[[annotations]]
+path = ["share/kcfg.xsd", # KDE frameworks kconfig
+        "share/kpartgui.dtd", "share/kxmlgui.xsd", # KDE frameworks kxmlgui
+       ]
+SPDX-License-Identifier = "LGPL-2.0-or-later"
