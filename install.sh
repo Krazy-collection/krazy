@@ -35,34 +35,29 @@ fi
 savedir=`pwd`
 
 #change TOP to whatever you like for your top-level installation directory
-if ( test `hostname | grep -E -c www` -gt 0 ) then
-  EBN=1
-  TOP=/mnt/ebn
-  QMAKE=/usr/bin/qmake
-else
-  EBN=0
-  TOP=/usr/local/Krazy2
-  if ( test -z "$QMAKE") then
-    # Assumed to be in the PATH
-    if ( test -e "/Cygwin.ico" )
+TOP=/usr/local/Krazy2
+
+# Find Qt
+if ( test -z "$QMAKE") then
+  # Assumed to be in the PATH
+  if ( test -e "/Cygwin.ico" )
+  then
+    QMAKE=qmake-qt6
+  else
+    if ( test "`uname -s`" = "Darwin" )
     then
-      QMAKE=qmake-qt6
-    else
-      if ( test "`uname -s`" = "Darwin" )
+      if ( test ! -x /usr/local/opt/qt6/bin/qmake )
       then
-        if ( test ! -x /usr/local/opt/qt6/bin/qmake )
-        then
-          echo "Cannot find qmake"
-          echo "Try running 'brew install qt6'"
-          echo "else 'export QMAKE=/path/to/qt6/bin/qmake'"
-          exit 1
-        else
-          QMAKE=/usr/local/opt/qt6/bin/qmake
-        fi
+        echo "Cannot find qmake"
+        echo "Try running 'brew install qt6'"
+        echo "else 'export QMAKE=/path/to/qt6/bin/qmake'"
+        exit 1
       else
-        QMAKE=qmake
+        QMAKE=/usr/local/opt/qt6/bin/qmake
       fi
-    fi
+    else
+      QMAKE=qmake
+     fi
   fi
 fi
 
@@ -190,11 +185,6 @@ cp kxmlgui.xsd $TOP/share/dtd
 cp kcfg.xsd $TOP/share/dtd
 cd ..
 
-mkdir -p $TOP/share/xsl
-cd stylesheets && \
-cp *.xsl $TOP/share/xsl
-cd ..
-
 #install config file
 mkdir -p $TOP/conf
 cp conf/settings.yaml $TOP/conf
@@ -209,26 +199,6 @@ fi
 rm -f $TOP/lib/krazy2/krazy-plugins/*/contractions #moved to extras
 rm -f $TOP/lib/krazy2/krazy-plugins/*/qconnect
 rm -f $TOP/lib/krazy2/krazy-plugins/*/foreach $TOP/lib/krazy2/krazy-sets/*/*-foreach
-
-#permissions
-if ( test $EBN -eq 1 ) then
-  chgrp kde $TOP/bin/*
-  chmod ug+w $TOP/bin/*
-  chgrp kde $TOP/lib/krazy2/krazy-plugins/*
-  chmod ug+w $TOP/lib/krazy2/krazy-plugins/*
-  chgrp kde $TOP/lib/krazy2/krazy-plugins/*/*
-  chmod ug+w $TOP/lib/krazy2/krazy-plugins/*/*
-  chgrp kde $TOP/lib/krazy2/krazy-extras/*
-  chmod ug+w $TOP/lib/krazy2/krazy-extras/*
-  chgrp kde $TOP/lib/krazy2/krazy-extras/*/*
-  chmod ug+w $TOP/lib/krazy2/krazy-extras/*/*
-  chgrp kde $TOP/lib/krazy2/krazy-helpers/*
-  chmod ug+w $TOP/lib/krazy2/krazy-helpers/*
-  chgrp kde $TOP/lib/krazy2/krazy-sets/*
-  chmod ug+w $TOP/lib/krazy2/krazy-sets/*
-  chgrp kde $TOP/lib/krazy2/krazy-sets/*/*
-  chmod ug+w $TOP/lib/krazy2/krazy-sets/*/*
-fi
 
 #final cleaning
 cd $savedir

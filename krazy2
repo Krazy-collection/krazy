@@ -2038,7 +2038,7 @@ within the KDE directory structure but above a project subdir
 
 =head1 SEE ALSO
 
-krazyrc(3), krazy2all(1), krazy2xml(1)
+krazyrc(3), krazy2all(1)
 
 Ben Meyer's kdetestscripts - Automated scripts are to catch problems in KDE,
 L<http://websvn.kde.org/trunk/playground/base/kdetestscripts>.

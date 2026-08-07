@@ -2,7 +2,7 @@
  * passbyvalue
  *
  * Q&D C++ symbol parser
- * ...to detect nasty pass-by-value function arguments for EBN
+ * ...to detect nasty pass-by-value function arguments
  *
  * Based on the Kate C/C++ symbol viewer plugin
  *

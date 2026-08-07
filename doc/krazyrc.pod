@@ -201,40 +201,13 @@ The boolean value can be any of "yes", "no", "true", "false", "on", "off" (case-
 
 =back
 
-=head1 ADMIN DIRECTIVES
-
-This is a list of administrator directives used only by the krazy2xml(1) program
-and typically not interesting to the average user.
-
-=over 1
-
-=item IGNORESUBS subdir1[,subdir2,...]
-
-Do not run Krazy on the specified list of subdirectories.
-These must be KDE "project" subdirectories that reside at
-the top level of a KDE module.
-
-=item EXTRASUBS subdir1[,subdir2,...]
-
-Run Krazy on the specified list of subdirectories.
-These must be KDE "project" subdirectories that reside at
-the top level of a KDE module.
-
-=item IGNOREMODS module1[,module2,...]
-
-Do not run Krazy on the specified list of KDE modules.
-These must be KDE "module" subdirectories that reside at
-the top level of a KDE component.
-
-=back
-
 =head1 COPYRIGHT
 
 Copyright 2005-2021 by Allen Winter <winter@kde.org>
 
 =head1 SEE ALSO
 
-krazy2(1), krazy2all(1), krazy2xml(1), perlreftut(1)
+krazy2(1), krazy2all(1)
 
 =head1 AUTHORS
 
