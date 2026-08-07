@@ -1,0 +1,4 @@
+KDE6 source specific to the KDE CI (C++, Qt Designer, FDO desktop files, etc.)
+
+This checkset removes checkers better done by modern tools like: clazy,
+clang-tidy and cppcheck.

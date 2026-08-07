@@ -102,6 +102,7 @@ my (@Sets) = (
   "kde4",         # KDE4 source (C++, Qt4, FDO desktop files, etc.)
   "kde5",         # KDE5 source (C++, Qt5, FDO desktop files, etc.)
   "kde6",         # KDE6 source (C++, Qt6, FDO desktop files, etc.)
+  "kde6-ci",      # KDE6 source specific to the KDE CI (C++, Qt Designer, FDO desktop files, etc.)
   "foss"          # Free and open source software (FOSS)
 );
 
