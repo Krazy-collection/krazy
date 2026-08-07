@@ -1,4 +1,4 @@
-make sure that <whatsthis> text is all on 1 line. Apparently the 
+make sure that <whatsthis> text is all on 1 line. Apparently the
 tool that extracts the translatable string from <whatsthis> can't
 handle newlines.
 
