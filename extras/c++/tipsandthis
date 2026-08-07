@@ -45,7 +45,7 @@ use Krazy::PreProcess;
 use Krazy::Utils;
 
 my($Prog) = "tipsandthis";
-my($Version) = "1.85";
+my($Version) = "1.86";
 
 &parseArgs();
 
@@ -148,10 +148,13 @@ foreach my $w (keys %Widgets) {
   $linecnt = $Widgets{$w}{'linecnt'};
   while ($linecnt < $#lines) {
     $line = $lines[$linecnt++];
+    next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+    $line =~ s+//.*++;  #skip C++ comments
     $line =~ s/\[\w+]/ARRAY/;
 
     $hasToolTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
     $hasWhatsThis = 1 if ($line =~ m/$Widgets{$w}{'name'}->setWhatsThis/);
+    last if ($hasToolTip && $hasWhatsThis);
   }
   if ( !$hasToolTip) {
     $tcnt++;
@@ -190,6 +193,7 @@ foreach my $w (keys %Widgets) {
 
     $hasToolTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
     $hasWhatsThis = 1 if ($line =~ m/$Widgets{$w}{'name'}->setWhatsThis/);
+    last if ($hasToolTip && $hasWhatsThis);
   }
   if ($hasToolTip) {
     $tKcnt++;
