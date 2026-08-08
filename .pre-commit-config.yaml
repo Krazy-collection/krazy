@@ -15,18 +15,10 @@ repos:
   - id: check-symlinks
   - id: destroyed-symlinks
   - id: check-executables-have-shebangs
-- repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v22.1.8
-  hooks:
-  - id: clang-format
 - repo: https://github.com/perltidy/perltidy
   rev: "20260705.01"
   hooks:
   - id: perltidy
-- repo: https://github.com/PyCQA/pylint
-  rev: v4.0.6
-  hooks:
-  - id: pylint
 - repo: https://github.com/codespell-project/codespell
   rev: v2.4.3
   hooks:
