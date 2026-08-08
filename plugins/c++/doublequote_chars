@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2006 Allen Winter <winter@kde.org>                  #
@@ -31,17 +31,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "doublequote_chars";
-my($Version) = "1.30";
+my ($Prog)    = "doublequote_chars";
+my ($Version) = "1.30";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++, non-headers only)
 if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/) {
@@ -50,50 +50,55 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
-# Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
-my($cnt) = 0;
-my($scnt) = 0; #QString::startsWith(), QString::endsWith() issues
-my($rcnt) = 0; #QString::replace() issues
-my($xcnt) = 0; #QString::remove() issues
-my($spcnt) = 0; #QString::split() issues
-my($linecnt) = 0;
-my($line);
-my($lstr) = "";
-my($slstr) = "";
-my($rlstr) = "";
-my($xlstr) = "";
-my($splstr) = "";
+# Remove Krazy conditional blocks
+@lines = RemoveCondBlockC($Prog, @lines);
+
+my ($cnt)     = 0;
+my ($scnt)    = 0;    #QString::startsWith(), QString::endsWith() issues
+my ($rcnt)    = 0;    #QString::replace() issues
+my ($xcnt)    = 0;    #QString::remove() issues
+my ($spcnt)   = 0;    #QString::split() issues
+my ($linecnt) = 0;
+my ($line);
+my ($lstr)   = "";
+my ($slstr)  = "";
+my ($rlstr)  = "";
+my ($xlstr)  = "";
+my ($splstr) = "";
+
 foreach $line (@lines) {
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = $scnt = $rcnt = $xcnt = $spcnt = 0;
     last;
   }
 
   $linecnt++;
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
-  if ($line =~ m/\+\s*\"[[:print:]]\"/ ||
-      $line =~ m/\"[[:print:]]\"\s*\+/ ||
-      $line =~ m/[[:print:]]\s*=\s*\"[[:print:]]\"/ ||
-      $line =~ m/\+=\s*\"[[:print:]]\"/) {
+  if ( $line =~ m/\+\s*\"[[:print:]]\"/
+    || $line =~ m/\"[[:print:]]\"\s*\+/
+    || $line =~ m/[[:print:]]\s*=\s*\"[[:print:]]\"/
+    || $line =~ m/\+=\s*\"[[:print:]]\"/)
+  {
     next if ($line =~ m/\\\"[[:print:]]\"/);
     next if ($line =~ m/\"[[:print:]]\\\"/);
-    next if ($line =~ m/\"\+\",\"/ || $line =~ m/\",\"\+\"/); # "+","x
+    next if ($line =~ m/\"\+\",\"/ || $line =~ m/\",\"\+\"/);    # "+","x
     next if ($line =~ m/\"\\\"/);
     next if ($line =~ m/\"[[:print:]]\"\s[A-Z]/);
-    next if ($line =~ m/\(\s*\)\s*\+=/);  #skip foo()+=
+    next if ($line =~ m/\(\s*\)\s*\+=/);                         #skip foo()+=
     next if ($line =~ m/[[:print:]]\s*[=!]=\s*\"/);
     next if ($line =~ m/const\schar\s\w+\[\s*\]\s*=\s*\"?\"/);
     $cnt++;
+
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
     } else {
@@ -102,9 +107,10 @@ foreach $line (@lines) {
     print "=> $line\n" if (&verboseArg());
     next;
   }
-  if ($line =~ m/\+\s*\"\\n\"/ ||
-      $line =~ m/\"\\n\"\s*\+/ ||
-      $line =~ m/\+=\s*\"\\n\"/) {
+  if ( $line =~ m/\+\s*\"\\n\"/
+    || $line =~ m/\"\\n\"\s*\+/
+    || $line =~ m/\+=\s*\"\\n\"/)
+  {
     next if ($line =~ m/\\\"\\n\"/);
     next if ($line =~ m/\"\\n\\\"/);
     next if ($line =~ m/\"\\\"/);
@@ -117,9 +123,10 @@ foreach $line (@lines) {
     print "=> $line\n" if (&verboseArg());
     next;
   }
-  if ($line =~ m/\+\s*\"\\t\"/ ||
-      $line =~ m/\"\\t\"\s*\+/ ||
-      $line =~ m/\+=\s*\"\\t\"/) {
+  if ( $line =~ m/\+\s*\"\\t\"/
+    || $line =~ m/\"\\t\"\s*\+/
+    || $line =~ m/\+=\s*\"\\t\"/)
+  {
     next if ($line =~ m/\\\"\\t\"/);
     next if ($line =~ m/\"\\t\\\"/);
     next if ($line =~ m/\"\\\"/);
@@ -133,20 +140,21 @@ foreach $line (@lines) {
     next;
   }
   my ($pline) = $line;
-  $pline =~ s/\\\"/ /g; # remove quoted stuff
+  $pline =~ s/\\\"/ /g;            # remove quoted stuff
   $pline =~ s/QString\(\s*\)//g;
 
   #QString::startsWith() and QString::endsWith() checks
-  if ($pline =~ m/startsWith\s*\(\s*\"[[:print:]]\"/ ||
-      $pline =~ m/startsWith\s*\(\s*\"\\n\"/ ||
-      $pline =~ m/startsWith\s*\(\s*\"\\t\"/ ||
-      $pline =~ m/startsWith\s*\(\s*\"\\r\"/ ||
-      $pline =~ m/startsWith\s*\(\s*\"\\\"\"/ ||
-      $pline =~ m/endsWith\s*\(\s*\"[[:print:]]\"/ ||
-      $pline =~ m/endsWith\s*\(\s*\"\\n\"/ ||
-      $pline =~ m/endsWith\s*\(\s*\"\\t\"/ ||
-      $pline =~ m/endsWith\s*\(\s*\"\\r\"/ ||
-      $pline =~ m/endsWith\s*\(\s*\"\\\"\"/) {
+  if ( $pline =~ m/startsWith\s*\(\s*\"[[:print:]]\"/
+    || $pline =~ m/startsWith\s*\(\s*\"\\n\"/
+    || $pline =~ m/startsWith\s*\(\s*\"\\t\"/
+    || $pline =~ m/startsWith\s*\(\s*\"\\r\"/
+    || $pline =~ m/startsWith\s*\(\s*\"\\\"\"/
+    || $pline =~ m/endsWith\s*\(\s*\"[[:print:]]\"/
+    || $pline =~ m/endsWith\s*\(\s*\"\\n\"/
+    || $pline =~ m/endsWith\s*\(\s*\"\\t\"/
+    || $pline =~ m/endsWith\s*\(\s*\"\\r\"/
+    || $pline =~ m/endsWith\s*\(\s*\"\\\"\"/)
+  {
     $scnt++;
     if ($scnt == 1) {
       $slstr = "starts/endsWith issues line\#" . $linecnt;
@@ -158,13 +166,18 @@ foreach $line (@lines) {
   }
 
   #QString::replace() checks
-  if ((($pline =~ m/replace\s*\(.*,\s*\"\"/ || $pline =~ m/replace\s*\(.*,\s*QString\(\s*\)/ ) &&
-       $pline !~ m/\(.*,\s*\d*,.*\)/) ||
-      $pline =~ m/replace\s*\(\s*\"[[:print:]]\"/ ||
-      $pline =~ m/replace\s*\(\s*\"\\n\"/ ||
-      $pline =~ m/replace\s*\(\s*\"\\t\"/ ||
-      $pline =~ m/replace\s*\(\s*\"\\r\"/ ||
-      $pline =~ m/replace\s*\(\s*\"\\\"\"/) {
+  if (
+    (
+      ($pline =~ m/replace\s*\(.*,\s*\"\"/ || $pline =~ m/replace\s*\(.*,\s*QString\(\s*\)/)
+      && $pline !~ m/\(.*,\s*\d*,.*\)/
+    )
+    || $pline =~ m/replace\s*\(\s*\"[[:print:]]\"/
+    || $pline =~ m/replace\s*\(\s*\"\\n\"/
+    || $pline =~ m/replace\s*\(\s*\"\\t\"/
+    || $pline =~ m/replace\s*\(\s*\"\\r\"/
+    || $pline =~ m/replace\s*\(\s*\"\\\"\"/
+    )
+  {
     if ($pline !~ m/:replace/) {
       $rcnt++;
       if ($rcnt == 1) {
@@ -178,11 +191,12 @@ foreach $line (@lines) {
   }
 
   #QString::remove() checks
-  if ($pline =~ m/remove\s*\(\s*\"[[:print:]]\"/ ||
-      $pline =~ m/remove\s*\(\s*\"\\n\"/ ||
-      $pline =~ m/remove\s*\(\s*\"\\t\"/ ||
-      $pline =~ m/remove\s*\(\s*\"\\r\"/ ||
-      $pline =~ m/remove\s*\(\s*\"\\\"\"/) {
+  if ( $pline =~ m/remove\s*\(\s*\"[[:print:]]\"/
+    || $pline =~ m/remove\s*\(\s*\"\\n\"/
+    || $pline =~ m/remove\s*\(\s*\"\\t\"/
+    || $pline =~ m/remove\s*\(\s*\"\\r\"/
+    || $pline =~ m/remove\s*\(\s*\"\\\"\"/)
+  {
     if ($pline !~ m/:remove/) {
       $xcnt++;
       if ($xcnt == 1) {
@@ -196,11 +210,12 @@ foreach $line (@lines) {
   }
 
   #QString::split() checks
-  if ($pline =~ m/split\s*\(\s*\"[[:print:]]\"/ ||
-      $pline =~ m/split\s*\(\s*\"\\n\"/ ||
-      $pline =~ m/split\s*\(\s*\"\\t\"/ ||
-      $pline =~ m/split\s*\(\s*\"\\r\"/ ||
-      $pline =~ m/split\s*\(\s*\"\\\"\"/) {
+  if ( $pline =~ m/split\s*\(\s*\"[[:print:]]\"/
+    || $pline =~ m/split\s*\(\s*\"\\n\"/
+    || $pline =~ m/split\s*\(\s*\"\\t\"/
+    || $pline =~ m/split\s*\(\s*\"\\r\"/
+    || $pline =~ m/split\s*\(\s*\"\\\"\"/)
+  {
     if ($pline !~ m/:split/) {
       $spcnt++;
       if ($spcnt == 1) {
@@ -214,32 +229,36 @@ foreach $line (@lines) {
   }
 }
 
-my($total_count) = $cnt + $scnt + $rcnt + $xcnt + $spcnt;
+my ($total_count) = $cnt + $scnt + $rcnt + $xcnt + $spcnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
   if (!&quietArg()) {
-    print "$lstr ($cnt)\n" if ($cnt);
-    print "$slstr ($scnt)\n" if ($scnt);
-    print "$rlstr ($rcnt)\n" if ($rcnt);
-    print "$xlstr ($xcnt)\n" if ($xcnt);
+    print "$lstr ($cnt)\n"     if ($cnt);
+    print "$slstr ($scnt)\n"   if ($scnt);
+    print "$rlstr ($rcnt)\n"   if ($rcnt);
+    print "$xlstr ($xcnt)\n"   if ($xcnt);
     print "$splstr ($spcnt)\n" if ($spcnt);
   }
   Exit $total_count;
 }
 
-sub Help {
+sub Help
+{
   print "Check single-char QString operations for efficiency\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Adding single characters to a QString is faster if the characters are QChars and not QStrings.  For example: QString path = oldpath + \"/\" + base is better written as QString path = oldpath + \'/\' + base. Same holds for arguments to QString::startsWith(), QString::endsWith(), QString::remove(), QString::split(). Use QString::remove() instead of QString::replace(foo,\"\")\n";
+sub Explain
+{
+  print
+"Adding single characters to a QString is faster if the characters are QChars and not QStrings.  For example: QString path = oldpath + \"/\" + base is better written as QString path = oldpath + \'/\' + base. Same holds for arguments to QString::startsWith(), QString::endsWith(), QString::remove(), QString::split(). Use QString::remove() instead of QString::replace(foo,\"\")\n";
   Exit 0 if &explainArg();
 }

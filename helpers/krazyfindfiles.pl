@@ -16,14 +16,14 @@ use FindBin qw($Bin);
 use lib "$Bin/../../../lib";
 use Krazy::Utils;
 
-my($dir) = $ARGV[0];
+my ($dir) = $ARGV[0];
 
-if (! -d $dir) {
+if (!-d $dir) {
   print "sorry, no such dir $dir. Exiting...\n";
   exit 1;
 }
 
-my($file);
+my ($file);
 foreach $file (split('\s', &findFiles($dir))) {
   $file =~ s+^$dir+\.+gm;
   $file =~ s+\\n+\'\\n\'+g;

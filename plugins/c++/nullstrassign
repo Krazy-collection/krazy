@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2006 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "nullstrassign";
-my($Version) = "1.6";
+my ($Prog)    = "nullstrassign";
+my ($Version) = "1.6";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # skip C source files
 if ($f =~ m/\.c$/) {
@@ -49,32 +49,38 @@ if ($f =~ m/\.c$/) {
 
 #open file and slurp it in
 open(F, "$f") || die "Couldn't open $f";
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($line);
-my($lstr) = "";
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($line);
+my ($lstr) = "";
 foreach $line (@lines) {
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
   $linecnt++;
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
-  $line =~ s+//.*++;  #skip C++ comments
-  if ($line =~ m/[_0-9A-za-z\s]+=\s*QString::[Nn]ull/ ||
-#by popular demand (KDE BUG-323415) don't force using .clear()
-#      $line =~ m/[_0-9A-za-z\s]+=\s*QString\s*\(\s*\)\s*;/ ||
-      $line =~ m/return[[:space:]].*[:]*QString::[Nn]ull/ ||
-      $line =~ m/QString::[Nn]ull\s*[,;\)]/ ||
-      $line =~ m+^\s*QString.*=\s*QString\s*\(\s*\)\s*;+) {
+  $line =~ s+//.*++;    #skip C++ comments
+  if (
+    $line =~ m/[_0-9A-za-z\s]+=\s*QString::[Nn]ull/
+    ||
+
+    #by popular demand (KDE BUG-323415) don't force using .clear()
+    #      $line =~ m/[_0-9A-za-z\s]+=\s*QString\s*\(\s*\)\s*;/ ||
+    $line    =~ m/return[[:space:]].*[:]*QString::[Nn]ull/
+    || $line =~ m/QString::[Nn]ull\s*[,;\)]/
+    || $line =~ m+^\s*QString.*=\s*QString\s*\(\s*\)\s*;+
+    )
+  {
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
@@ -93,17 +99,21 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for assignments to QString::null or QString()\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Do not assign QString::null to a QString.  Instead use the .clear() method.  For example, \"str = QString::null\" becomes \"str.clear()\". When returning an empty string from a method use \"return QString()\"  When passing an empty string use \"QString()\".";
+sub Explain
+{
+  print
+"Do not assign QString::null to a QString.  Instead use the .clear() method.  For example, \"str = QString::null\" becomes \"str.clear()\". When returning an empty string from a method use \"return QString()\"  When passing an empty string use \"QString()\".";
   Exit 0 if &explainArg();
 }

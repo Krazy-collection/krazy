@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2013 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "qtemits";
-my($Version) = "1.0";
+my ($Prog)    = "qtemits";
+my ($Version) = "1.0";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (Python only)
 if (&fileType($f) eq "python") {
@@ -48,52 +48,58 @@ if (&fileType($f) eq "python") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@lines) = <F>;
+my (@lines) = <F>;
 close(F);
 
 # Check Condition
-my($cnt) = 0;
-my($wcnt) = 0;
-my($ncnt) = 0;
-my($linecnt) = 0;
-my($saveline);
-my($line);
-my($pline);
-my($lstr) = "";
-my($wlstr) = "";
-my($nlstr) = "";
+my ($cnt)     = 0;
+my ($wcnt)    = 0;
+my ($ncnt)    = 0;
+my ($linecnt) = 0;
+my ($saveline);
+my ($line);
+my ($pline);
+my ($lstr)  = "";
+my ($wlstr) = "";
+my ($nlstr) = "";
 
 while ($linecnt <= $#lines) {
   $saveline = $linecnt;
-  $line = $lines[$linecnt++];
-  $pline = $line;
+  $line     = $lines[$linecnt++];
+  $pline    = $line;
   $pline =~ s/#.*$//;
 
-  if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+#.*[Kk]razy:skip+) {
-    $cnt = 0; $wcnt = 0; $ncnt = 0;
+  if ( $line =~ m+#.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+#.*[Kk]razy:skip+)
+  {
+    $cnt  = 0;
+    $wcnt = 0;
+    $ncnt = 0;
     last;
   }
 
   next if ($line =~ m+#.*[Kk]razy:exclude=.*$Prog+);
 
   if ($pline =~ m/\.emit\s*\(\s*.*SIGNAL\s*\(/) {
+
     # if line is continued, look skip ahead 1 line
     if ($pline !~ m/\)\s*$/) {
       $line  = $lines[$linecnt++];
       $pline = $line;
       $pline =~ s/#.*$//;
     }
+
     # search for empty last value of n-tuple
-    if ($pline =~ m/,\s*\)\s*\)\s*$/ ||
-        $pline =~ m/,\s*\([_,.()\w\s]*\s*\)\s*$/ ||
-        $pline =~ m/^\s*\([_,.()\w\s]*\s*\)\s*$/ ||
-        $pline =~ m/tuple\s*\(/) {
+    if ( $pline =~ m/,\s*\)\s*\)\s*$/
+      || $pline =~ m/,\s*\([_,.()\w\s]*\s*\)\s*$/
+      || $pline =~ m/^\s*\([_,.()\w\s]*\s*\)\s*$/
+      || $pline =~ m/tuple\s*\(/)
+    {
       $cnt++;
       if ($cnt == 1) {
-	$lstr = "line\#" . $linecnt;
+        $lstr = "line\#" . $linecnt;
       } else {
-	$lstr = $lstr . "," . $linecnt;
+        $lstr = $lstr . "," . $linecnt;
       }
       print "=> emit n-tuple $line\n" if (&verboseArg());
       goto nextCheck;
@@ -101,8 +107,8 @@ while ($linecnt <= $#lines) {
   }
 
   $linecnt = $saveline;
-  $line = $lines[$linecnt++];
-  $pline = $line;
+  $line    = $lines[$linecnt++];
+  $pline   = $line;
   $pline =~ s/#.*$//;
 
   if ($pline =~ m/\.emit\s*\(\s*$/) {
@@ -110,36 +116,41 @@ while ($linecnt <= $#lines) {
     $pline = $line;
     $pline =~ s/#.*$//;
     if ($pline =~ m/.*SIGNAL\s*\(/) {
+
       # if line is continued, look skip ahead 1 line
       if ($pline !~ m/\)\s*$/) {
-	$line  = $lines[$linecnt++];
+        $line  = $lines[$linecnt++];
         $pline = $line;
         $pline =~ s/#.*$//;
       }
+
       # search for empty last value of n-tuple
-      if ($pline =~ m/,\s*\)\s*\)\s*$/ ||
-          $pline =~ m/,\s*\([_,.()\w\s]*\s*\)\s*$/ ||
-          $pline =~ m/^\s*\([_,.()\w\s]*\s*\)\s*$/ ||
-          $pline =~ m/tuple\s*\(/) {
-	$cnt++;
-	if ($cnt == 1) {
-	  $lstr = "line\#" . $linecnt;
-	} else {
-	  $lstr = $lstr . "," . $linecnt;
-	}
-	print "=> emit n-tuple $line\n" if (&verboseArg());
+      if ( $pline =~ m/,\s*\)\s*\)\s*$/
+        || $pline =~ m/,\s*\([_,.()\w\s]*\s*\)\s*$/
+        || $pline =~ m/^\s*\([_,.()\w\s]*\s*\)\s*$/
+        || $pline =~ m/tuple\s*\(/)
+      {
+        $cnt++;
+        if ($cnt == 1) {
+          $lstr = "line\#" . $linecnt;
+        } else {
+          $lstr = $lstr . "," . $linecnt;
+        }
+        print "=> emit n-tuple $line\n" if (&verboseArg());
       }
     }
   }
 
- nextCheck:
+nextCheck:
+
   # Check for QWidget argument in SIGNAL signature
   $linecnt = $saveline;
-  $line = $lines[$linecnt++];
-  $pline = $line;
+  $line    = $lines[$linecnt++];
+  $pline   = $line;
   $pline =~ s/#.*$//;
 
   if ($pline =~ m/.*SIGNAL\s*\(/) {
+
     # if line is continued, look skip ahead 1 line
     if ($pline !~ m/\)\s*$/ && $pline !~ m/\)\s*,\s*$/) {
       $line  = $lines[$linecnt++];
@@ -160,24 +171,27 @@ while ($linecnt <= $#lines) {
   # Check that the number of args in the SIGNAL signature matches
   # the number of args emitted.
   $linecnt = $saveline;
-  $line = $lines[$linecnt++];
-  $pline = $line;
+  $line    = $lines[$linecnt++];
+  $pline   = $line;
   $pline =~ s/#.*$//;
 
-  my($foo,$bar);
-  my($sargs, $eargs);
+  my ($foo,   $bar);
+  my ($sargs, $eargs);
   if ($pline =~ m/\.emit\s*\(/) {
     if ($pline !~ m/QtCore\.SIGNAL\s*\(/) {
+
       # skip ahead 1 line
       $line  = $lines[$linecnt++];
       $pline = $line;
       $pline =~ s/#.*$//;
     }
     if ($pline !~ m/QtCore\.SIGNAL\s*\(/) {
+
       #an emit without a SIGNAL
       next;
     }
     if ($pline !~ m/"/ && $pline !~ m/\'/) {
+
       # skip ahead 1 line
       $line  = $lines[$linecnt++];
       $pline = $line;
@@ -185,17 +199,18 @@ while ($linecnt <= $#lines) {
     }
     $sargs = 0;
     if ($pline =~ m/"/) {
-      ($foo,$bar) = split('"',$pline);
-    } elsif ( $pline =~ m/\'/) {
-      ($foo,$bar) = split('\'',$pline);
+      ($foo, $bar) = split('"', $pline);
+    } elsif ($pline =~ m/\'/) {
+      ($foo, $bar) = split('\'', $pline);
     }
     if ($bar !~ m/\(\s*\)/) {
       if ($bar =~ m/,/) {
-        $sargs = scalar(split(',',$bar));
+        $sargs = scalar(split(',', $bar));
       } else {
         $sargs = 1;
       }
     }
+
     # if line is continued, look skip ahead 1 line
     if ($pline !~ m/\)\s*$/) {
       $line  = $lines[$linecnt++];
@@ -208,15 +223,18 @@ while ($linecnt <= $#lines) {
     $foo =~ s/^.*\)\s*"\s*\)\s*,//;
     $foo =~ s/^.*\)\s*\'\s*\)\s*,//;
     $eargs = 0;
-    if ($foo !~ m/^\s*\)/ &&
-      $foo !~ m/\(\s*\)\s*"\)\s*\)/ &&
-      $foo !~ m/\(\s*\)\s*\'\)\s*\)/) {
+    if ( $foo !~ m/^\s*\)/
+      && $foo !~ m/\(\s*\)\s*"\)\s*\)/
+      && $foo !~ m/\(\s*\)\s*\'\)\s*\)/)
+    {
       if ($foo =~ m/,/) {
-        $eargs = scalar(split(',',$foo));
+        $eargs = scalar(split(',', $foo));
       } else {
-#        if ($foo !~ m/None/) {
-          $eargs = 1;
-#        }
+
+        #        if ($foo !~ m/None/) {
+        $eargs = 1;
+
+        #        }
       }
     }
     if ($sargs != $eargs) {
@@ -226,34 +244,39 @@ while ($linecnt <= $#lines) {
       } else {
         $nlstr = $nlstr . "," . $linecnt;
       }
-      print "=> SIGNAL number of args ($sargs) mismatch with number emitted ($eargs) $line\n" if (&verboseArg());
+      print "=> SIGNAL number of args ($sargs) mismatch with number emitted ($eargs) $line\n"
+        if (&verboseArg());
     }
   }
 }
 close(F);
 
-my($total_count) = $cnt + $wcnt + $ncnt;
+my ($total_count) = $cnt + $wcnt + $ncnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
-  print "$lstr ($cnt)\n" if (!&quietArg() && $cnt);
+  print "$lstr ($cnt)\n"   if (!&quietArg() && $cnt);
   print "$wlstr ($wcnt)\n" if (!&quietArg() && $wcnt);
   print "$nlstr ($ncnt)\n" if (!&quietArg() && $ncnt);
   Exit $total_count;
 }
 
-sub Help {
+sub Help
+{
   print "Check for problems with Qt emits in Python code\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Older versions of PyQt required all the values emitted to a Qt SIGNAL to be an n-tuple.  New PyQt (starting with PyQt4) require that tuples be emitted as a list of scalars.\n";
+sub Explain
+{
+  print
+"Older versions of PyQt required all the values emitted to a Qt SIGNAL to be an n-tuple.  New PyQt (starting with PyQt4) require that tuples be emitted as a list of scalars.\n";
   Exit 0 if &explainArg();
 }

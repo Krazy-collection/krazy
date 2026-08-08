@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2006 Allen Winter <winter@kde.org>                  #
@@ -29,97 +29,102 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "contractions";
-my($Version) = "1.61";
+my ($Prog)    = "contractions";
+my ($Version) = "1.61";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in
 open(F, "$f") || die "Couldn't open $f";
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove comments from the file input
-my(@lines);
+my (@lines);
 if (&fileType($f) eq "desktop") {
-  @lines = RemoveCommentsFDO( @data_lines );
+  @lines = RemoveCommentsFDO(@data_lines);
 } elsif (&fileType($f) eq "c++") {
+
   # also remove #if 0 blocks from C/C++ source
-  @lines = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+  @lines = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 } else {
   @lines = @data_lines;
 }
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($line);
-my($lstr) = "";
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($line);
+my ($lstr) = "";
 foreach $line (@lines) {
-  if ($line =~ m+[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+[Kk]razy:skip+) {
+  if ( $line =~ m+[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
   $linecnt++;
   next if ($line =~ m+[Kk]razy:exclude=.*$Prog+);
 
-  next if (&fileType($f) eq "c++" &&
-	   (&searchBack('kDebug\(.*\)',$linecnt,3) ||
-	    &searchBack('debug\(.*\)',$linecnt,3) ||
-	    &searchBack('kWarning\(.*\)',$linecnt,3) ||
-	    &searchBack('kError\(.*\)',$linecnt,3) ||
-	    &searchBack('kFatal\(.*\)',$linecnt,3) ||
-	    &searchBack('qDebug\(.*\)',$linecnt,3) ||
-	    &searchBack('qWarning\(.*\)',$linecnt,3) ||
-	    &searchBack('qCritical\(.*\)',$linecnt,3) ||
-	    &searchBack('qFatal\(.*\)',$linecnt,3)) ||
-	   $line =~ m/^\s*#\s*warning/);
+  next
+    if (
+    &fileType($f) eq "c++" && (&searchBack('kDebug\(.*\)', $linecnt, 3)
+      || &searchBack('debug\(.*\)',     $linecnt, 3)
+      || &searchBack('kWarning\(.*\)',  $linecnt, 3)
+      || &searchBack('kError\(.*\)',    $linecnt, 3)
+      || &searchBack('kFatal\(.*\)',    $linecnt, 3)
+      || &searchBack('qDebug\(.*\)',    $linecnt, 3)
+      || &searchBack('qWarning\(.*\)',  $linecnt, 3)
+      || &searchBack('qCritical\(.*\)', $linecnt, 3)
+      || &searchBack('qFatal\(.*\)',    $linecnt, 3))
+    || $line =~ m/^\s*#\s*warning/
+    );
 
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
-  for my $word ( split /[^\w']/,$line ) {  # \W would split on apostrophe
+  for my $word (split /[^\w']/, $line) {    # \W would split on apostrophe
     my $lw = lc($word);
-    if ($lw eq "aren't" ||
-        $lw eq "can't" ||
-        $lw eq "couldn't" ||
-        $lw eq "didn't" ||
-        $lw eq "doesn't" ||
-        $lw eq "don't" ||
-        $lw eq "hadn't" ||
-        $lw eq "hasn't" ||
-        $lw eq "haven't" ||
-        $lw eq "he'd" ||
-        $lw eq "he's" ||
-        $lw eq "i'd" ||
-        $lw eq "i'm" ||
-        $lw eq "it'd" ||
-        $lw eq "it's" ||
-        $lw eq "i've" ||
-        $lw eq "isn't" ||
-        $lw eq "she'd" ||
-        $lw eq "she's" ||
-        $lw eq "shouldn't" ||
-        $lw eq "they'd" ||
-        $lw eq "they're" ||
-        $lw eq "they've" ||
-        $lw eq "wasn't" ||
-        $lw eq "we'd" ||
-        $lw eq "we'll" ||
-        $lw eq "we're" ||
-        $lw eq "weren't" ||
-        $lw eq "we've" ||
-        $lw eq "won't" ||
-        $lw eq "wouldn't" ||
-        $lw eq "you'd" ||
-        $lw eq "you're" ||
-        $lw eq "you've") {
+    if ( $lw eq "aren't"
+      || $lw eq "can't"
+      || $lw eq "couldn't"
+      || $lw eq "didn't"
+      || $lw eq "doesn't"
+      || $lw eq "don't"
+      || $lw eq "hadn't"
+      || $lw eq "hasn't"
+      || $lw eq "haven't"
+      || $lw eq "he'd"
+      || $lw eq "he's"
+      || $lw eq "i'd"
+      || $lw eq "i'm"
+      || $lw eq "it'd"
+      || $lw eq "it's"
+      || $lw eq "i've"
+      || $lw eq "isn't"
+      || $lw eq "she'd"
+      || $lw eq "she's"
+      || $lw eq "shouldn't"
+      || $lw eq "they'd"
+      || $lw eq "they're"
+      || $lw eq "they've"
+      || $lw eq "wasn't"
+      || $lw eq "we'd"
+      || $lw eq "we'll"
+      || $lw eq "we're"
+      || $lw eq "weren't"
+      || $lw eq "we've"
+      || $lw eq "won't"
+      || $lw eq "wouldn't"
+      || $lw eq "you'd"
+      || $lw eq "you're"
+      || $lw eq "you've")
+    {
       $cnt++;
       if ($cnt == 1) {
         $lstr = "line\#" . $linecnt . "[$word]";
@@ -140,29 +145,34 @@ if (!$cnt) {
 }
 
 # search the previous $n lines for a pattern $p
-sub searchBack {
-  my($p,$l,$n) = @_;
-  my($i);
+sub searchBack
+{
+  my ($p, $l, $n) = @_;
+  my ($i);
   $n = $#lines if ($#lines < $n);
-  for($i=1; $i<=$n; $i++) {
-    if ($lines[$l-$i] =~ $p) {
+  for ($i = 1 ; $i <= $n ; $i++) {
+    if ($lines[$l - $i] =~ $p) {
       return 1;
     }
   }
   return 0;
 }
 
-sub Help {
+sub Help
+{
   print "Check for contractions in strings\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "The KDE Style Guide recommends not using contractions in strings. For example: \"don't\" should be changed to \"do not\".  Contractions used in comments are ok.\n";
+sub Explain
+{
+  print
+"The KDE Style Guide recommends not using contractions in strings. For example: \"don't\" should be changed to \"do not\".  Contractions used in comments are ok.\n";
   Exit 0 if &explainArg();
 }

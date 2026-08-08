@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2006 Allen Winter <winter@kde.org>                  #
@@ -37,36 +37,41 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "spelling";
-my($Version) = "1.937";
+my ($Prog)    = "spelling";
+my ($Version) = "1.937";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my $DICTIONARY = build_dictionary_lookup_table();
 Exit &check_file($ARGV[0]);
 
 ##############################################################################
-sub Help {
+sub Help
+{
   print "Check for spelling errors\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Spelling errors in comments and strings should be fixed as they may show up later in API documentation, handbooks, etc.  Misspelled strings make the translator's job harder. Please use US English.\n";
+sub Explain
+{
+  print
+"Spelling errors in comments and strings should be fixed as they may show up later in API documentation, handbooks, etc.  Misspelled strings make the translator's job harder. Please use US English.\n";
   Exit 0 if &explainArg();
 }
 
-sub info{
+sub info
+{
   print @_ if (&verboseArg());
 }
 
@@ -75,64 +80,68 @@ sub check_file
   my $filename = shift;
   my $fh;
 
-  unless ( open $fh, "<", $filename )
-  {
+  unless (open $fh, "<", $filename) {
     warn "Failed to open: '$filename': $!";
     return;
   }
 
-  my @contents      = <$fh>;
+  my @contents = <$fh>;
 
   close $fh or warn "Failed to close: '$filename': $!";
 
-  if ( &fileType($filename) eq "c++") {
-    @contents = &RemoveCondBlockC($Prog,@contents);
+  if (&fileType($filename) eq "c++") {
+    @contents = &RemoveCondBlockC($Prog, @contents);
   }
 
   my $original;
-  my $cnt = 0;
+  my $cnt     = 0;
   my $linecnt = 0;
   my $line;
   my $lstr = "";
-  for ( @contents )
-  {
+  for (@contents) {
     $linecnt++;
     $original = $_;
 
-    if ($original =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-        $original =~ m+//.*[Kk]razy:skip+) {
+    if ( $original =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+      || $original =~ m+//.*[Kk]razy:skip+)
+    {
       $cnt = 0;
       last;
     }
 
-    next if (&fileType($filename) eq "c++" &&
-              ($original =~ m+http://+ ||
-               $original =~ m+https://+ ||
-               $original =~ m+ftp://+)  # skip lines with urls
-            );
+    next
+      if (
+      &fileType($filename) eq "c++"
+      && ( $original =~ m+http://+
+        || $original =~ m+https://+
+        || $original =~ m+ftp://+)    # skip lines with urls
+      );
 
-    next if (&fileType($filename) eq "desktop" &&
-             ($original =~ m+^Comment\[.*\]+ ||
-              $original =~ m+^Keywords\[.*\]+ ||
-              $original =~ m+^X-KDE-Keywords\[.*\]+ ||
-              $original =~ m+^Name\[.*\]+ ||
-              $original =~ m+^Description\[.*\]+ ||
-              $original =~ m+^GenericName\[.*\]+));
+    next
+      if (
+      &fileType($filename) eq "desktop"
+      && ( $original =~ m+^Comment\[.*\]+
+        || $original =~ m+^Keywords\[.*\]+
+        || $original =~ m+^X-KDE-Keywords\[.*\]+
+        || $original =~ m+^Name\[.*\]+
+        || $original =~ m+^Description\[.*\]+
+        || $original =~ m+^GenericName\[.*\]+)
+      );
 
-    next if (&fileType($filename) eq "c++" &&
-             ($original =~ m/^\s*#\s*include/));;
+    next if (&fileType($filename) eq "c++"
+      && ($original =~ m/^\s*#\s*include/));
 
-    next if (&fileType($filename) eq "cmake" &&
-             ($original =~ m+uniq+));
+    next if (&fileType($filename) eq "cmake"
+      && ($original =~ m+uniq+));
 
     next if ($original =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
-    $_=~s/&//g;
+    $_ =~ s/&//g;
     my $correction;
-    for my $word ( split /[^\w']/ )    # \W would split on apostrophe
+    for my $word (split /[^\w']/)    # \W would split on apostrophe
     {
-      $word=lc($word) if ($word =~ /^[A-Z]/);
-      next unless defined ($correction = $DICTIONARY->{$word});
+      $word = lc($word) if ($word =~ /^[A-Z]/);
+      next unless defined($correction = $DICTIONARY->{$word});
       s/\b$word\b/$correction/g;
 
       $cnt++;
@@ -146,12 +155,18 @@ sub check_file
     }
 
     #check for consecutive words
-    my($last) = "";
-    for my $word ( split /[\s]/ ) {
+    my ($last) = "";
+    for my $word (split /[\s]/) {
+
       #words must be at least 2 chars long so that we skip over "ASCII graphics".
       #unfortunately this means we'll miss "a a" and "I I"
-      if ($word =~ m/^[A-Za-z]{2,}$/ && $word && $last && $word eq $last &&
-          $word ne "long" && $word ne "CR") { #allow "long long" and "CR CR"
+      if ( $word =~ m/^[A-Za-z]{2,}$/
+        && $word
+        && $last
+        && $word eq $last
+        && $word ne "long"
+        && $word ne "CR")
+      {    #allow "long long" and "CR CR"
         $cnt++;
         if ($cnt == 1) {
           $lstr = "line\#" . $linecnt . "[$last $word]";
@@ -178,12 +193,13 @@ sub build_dictionary_lookup_table
   my %hash;
 
   while (<DATA>) {
-    next if /^\s*$/ or /^\s*#/;   # Skip blank lines and comments
+    next if /^\s*$/ or /^\s*#/;    # Skip blank lines and comments
 
     next unless /^\s*"([^"]+)"\s+(.*)\s*$/ or /^\s*(\S+)\s+(.*)\s*$/;
 
-    if ( $1 eq $2 ) {
-      warn "WARNING: Ignoring identical misspelling and correction: '$1' in __DATA__ offset line $.\n";
+    if ($1 eq $2) {
+      warn
+        "WARNING: Ignoring identical misspelling and correction: '$1' in __DATA__ offset line $.\n";
       next;
     }
 

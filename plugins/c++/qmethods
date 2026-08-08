@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2008 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "qmethods";
-my($Version) = "1.91";
+my ($Prog)    = "qmethods";
+my ($Version) = "1.91";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++, non-headers only)
 if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
@@ -48,40 +48,44 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
+
 # Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+@lines = RemoveCondBlockC($Prog, @lines);
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($lstr) = "";
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($lstr)    = "";
 
-my($line);
+my ($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
-  &doIt($line,'QWidget::showFullScreen','showFullScreen\s*\(\s*\)','');
-  &doIt($line,'QWidget::showMaximized','showMaximized\s*\(\s*\)','');
-  &doIt($line,'QWidget::showMinimized','showMinimized\s*\(\s*\)','');
-  &doIt($line,'QWidget::showNormal','showNormal\s*\(\s*\)','');
-  #if (&usingCheckSet("kde4")) {
-  #  &doIt1($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','[Ss]tatus_[Bb]ar|[Ss]tatusBar|KGamePopupItem::|game|Kwave::');
-  #}
-  &doIt($line,'QImage::depth','depth\s*\(\s*\)/','[Pp]ix|desktop|screen|pd-');
-#  &doIt2($line,'QTimer::singleShot(0,...)','singleShot\s*\(\s*0\s*,','');
-# when we have a real parser, check for the following as well:
-# QString::isNull (in almost all cases, QString::isEmpty should be used instead)
+  &doIt($line, 'QWidget::showFullScreen', 'showFullScreen\s*\(\s*\)', '');
+  &doIt($line, 'QWidget::showMaximized',  'showMaximized\s*\(\s*\)',  '');
+  &doIt($line, 'QWidget::showMinimized',  'showMinimized\s*\(\s*\)',  '');
+  &doIt($line, 'QWidget::showNormal',     'showNormal\s*\(\s*\)',     '');
+
+#if (&usingCheckSet("kde4")) {
+#  &doIt1($line,'QSystemTrayIcon::showMessage','showMessage\s*\(\s*i18','[Ss]tatus_[Bb]ar|[Ss]tatusBar|KGamePopupItem::|game|Kwave::');
+#}
+  &doIt($line, 'QImage::depth', 'depth\s*\(\s*\)/', '[Pp]ix|desktop|screen|pd-');
+
+  #  &doIt2($line,'QTimer::singleShot(0,...)','singleShot\s*\(\s*0\s*,','');
+  # when we have a real parser, check for the following as well:
+  # QString::isNull (in almost all cases, QString::isEmpty should be used instead)
 }
 
 if (!$cnt) {
@@ -93,9 +97,10 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub doIt() {
-  my($line,$qname,$regexp,$nregexp) = @_;
-  if (&qMethod($line,$regexp,$nregexp)) {
+sub doIt()
+{
+  my ($line, $qname, $regexp, $nregexp) = @_;
+  if (&qMethod($line, $regexp, $nregexp)) {
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
@@ -108,10 +113,11 @@ sub doIt() {
 }
 
 #version of doIt() that also searches forward 1 line for the nregexp
-sub doIt1() {
-  my($line,$qname,$regexp,$nregexp) = @_;
+sub doIt1()
+{
+  my ($line, $qname, $regexp, $nregexp) = @_;
 
-  if (&qMethod($line,$regexp,$nregexp)) {
+  if (&qMethod($line, $regexp, $nregexp)) {
     if ($lines[$linecnt] !~ m/$nregexp/) {
       $cnt++;
       if ($cnt == 1) {
@@ -126,9 +132,10 @@ sub doIt1() {
 }
 
 #version of doIt that calls qMethodNoSigsOrSlots
-sub doIt2() {
-  my($line,$qname,$regexp,$nregexp) = @_;
-  if (&qMethodNoSigsOrSlots($line,$regexp,$nregexp)) {
+sub doIt2()
+{
+  my ($line, $qname, $regexp, $nregexp) = @_;
+  if (&qMethodNoSigsOrSlots($line, $regexp, $nregexp)) {
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
@@ -140,10 +147,14 @@ sub doIt2() {
   }
 }
 
-sub qMethod() {
-  my($l,$regexp,$nregexp) = @_;
-  if ($l =~ m/[:\.>\s]$regexp/ &&
-      $l !~ m/SIGNAL/ && $l !~ m/SLOT/ && $l !~ m/emit\s/) {
+sub qMethod()
+{
+  my ($l, $regexp, $nregexp) = @_;
+  if ( $l =~ m/[:\.>\s]$regexp/
+    && $l !~ m/SIGNAL/
+    && $l !~ m/SLOT/
+    && $l !~ m/emit\s/)
+  {
     if ($nregexp eq "" || $l !~ m/$nregexp/) {
       return 1;
     }
@@ -152,8 +163,9 @@ sub qMethod() {
 }
 
 #version of qMethod that doesn't fail for SIGNALs and SLOTs
-sub qMethodNoSigsOrSlots() {
-  my($l,$regexp,$nregexp) = @_;
+sub qMethodNoSigsOrSlots()
+{
+  my ($l, $regexp, $nregexp) = @_;
   if ($l =~ m/[:\.>\s]$regexp/) {
     if ($nregexp eq "" || $l !~ m/$nregexp/) {
       return 1;
@@ -162,17 +174,21 @@ sub qMethodNoSigsOrSlots() {
   return 0;
 }
 
-sub Help {
+sub Help
+{
   print "Check for Qt methods that should be avoided\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "A few Qt methods should be avoided because they don't work as expected or because you need to really be an expert to use them correctly. <https://community.kde.org/Policies/API_to_Avoid> for more information.\n";
+sub Explain
+{
+  print
+"A few Qt methods should be avoided because they don't work as expected or because you need to really be an expert to use them correctly. <https://community.kde.org/Policies/API_to_Avoid> for more information.\n";
   Exit 0 if &explainArg();
 }

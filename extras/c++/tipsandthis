@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2008 Allen Winter <winter@kde.org>                  #
@@ -30,17 +30,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "tipsandthis";
-my($Version) = "1.86";
+my ($Prog)    = "tipsandthis";
+my ($Version) = "1.86";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++, non-headers only)
 if ((&fileType($f) eq "c++") && !&isCSource($f) && !isCInclude($f)) {
@@ -49,52 +49,62 @@ if ((&fileType($f) eq "c++") && !&isCSource($f) && !isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
+
 # Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+@lines = RemoveCondBlockC($Prog, @lines);
 
-my($tcnt) = 0;
-my($tlstr) = "";
-my($tKcnt) = 0;
-my($tKlstr) = "";
-my($tAcnt) = 0;
-my($tAlstr) = "";
-my($wcnt) = 0;
-my($wlstr) = "";
-my($wKcnt) = 0;
-my($wKlstr) = "";
-my($wAcnt) = 0;
-my($wAlstr) = "";
-my($sAcnt) = 0;
-my($sAlstr) = "";
-my($hAcnt) = 0;
-my($hAlstr) = "";
+my ($tcnt)   = 0;
+my ($tlstr)  = "";
+my ($tKcnt)  = 0;
+my ($tKlstr) = "";
+my ($tAcnt)  = 0;
+my ($tAlstr) = "";
+my ($wcnt)   = 0;
+my ($wlstr)  = "";
+my ($wKcnt)  = 0;
+my ($wKlstr) = "";
+my ($wAcnt)  = 0;
+my ($wAlstr) = "";
+my ($sAcnt)  = 0;
+my ($sAlstr) = "";
+my ($hAcnt)  = 0;
+my ($hAlstr) = "";
 
-my(%Widgets);
+my (%Widgets);
 tie %Widgets, "Tie::IxHash";
-my($line,$lline,$sline);
-my($type,$name,$key);
-my($linecnt) = 0;
-my($slinecnt);
-my($hasToolTip,$hasWhatsThis,$hasStatusTip,$hasHelpText,$isSep);
+my ($line, $lline, $sline);
+my ($type, $name,  $key);
+my ($linecnt) = 0;
+my ($slinecnt);
+my ($hasToolTip, $hasWhatsThis, $hasStatusTip, $hasHelpText, $isSep);
 while ($linecnt < $#lines) {
   $lline = $line;
-  $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  $line  = $lines[$linecnt++];
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     print "okay\n" if (!&quietArg());
     Exit 0;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
-  if ($line =~ m/new\sQ\w+/ || $line =~ m/new\s(KPIM::)*K(UrlRequester|ComboBox|CheckComboBox|LineEdit|TabBar|TextEdit|TimeEdit|DateEdit|Action|IntNumInput)/) {
+  if ( $line =~ m/new\sQ\w+/
+    || $line =~
+m/new\s(KPIM::)*K(UrlRequester|ComboBox|CheckComboBox|LineEdit|TabBar|TextEdit|TimeEdit|DateEdit|Action|IntNumInput)/
+    )
+  {
 
-    next if ($line =~ m/(Application|Buffer|Date|DBus|Hash|Map|Process|Widget|Label|List|ListView|Layout|QFrame|Menu|HBox|VBox|Dir|Url|Action|ActionCollection|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|ButtonGroup|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|Shortcut|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation|QGraphicsSimpleTextItem|SignalMapper|ScrollArea|ItemSelection|StandardItem|MessageBox|Completer|ToolBox|ProgressBar|TableView|TreeView|Temporary|TextStream)/ && $line !~ m/(UrlRequester|LineEdit|ComboBox|TimeEdit|DateEdit|KAction|IntNumInput|MessageWidget)/);
+    next
+      if ($line =~
+m/(Application|Buffer|Date|DBus|Hash|Map|Process|Widget|Label|List|ListView|Layout|QFrame|Menu|HBox|VBox|Dir|Url|Action|ActionCollection|Dialog|Drag|Time|Timer|TimeLine|Editor|Adaptor|Event|Pixmap|Globals|Config|Splitter|FontMetrics|Interface|ButtonGroup|GroupBox|MimeData|ScriptEngine|Painter|GraphicsScene|Shortcut|SpacerItem|QPersistentModelIndex|QGraphicsItemAnimation|QGraphicsSimpleTextItem|SignalMapper|ScrollArea|ItemSelection|StandardItem|MessageBox|Completer|ToolBox|ProgressBar|TableView|TreeView|Temporary|TextStream)/
+      && $line !~
+      m/(UrlRequester|LineEdit|ComboBox|TimeEdit|DateEdit|KAction|IntNumInput|MessageWidget)/);
 
     next if ($line =~ m/Quickview\s*\(/i);
     next if ($line =~ m/QFile\s*\(/);
@@ -103,27 +113,28 @@ while ($linecnt < $#lines) {
     next if ($line =~ m/[KQ]\w+Reader/);
     next if ($line =~ m/\(\s*new\s/ || $line =~ m/^\s*return\snew/);
 
-    $sline = $line;
+    $sline    = $line;
     $slinecnt = $linecnt;
 
     $name = &widgetName($line);
     $name = &widgetName($lline) if ($name eq "");
     next if ($name eq "");
     $type = &widgetType($line);
-    $key = $name . $slinecnt;
-#    print "key=[$key], type=[$type], name=[$name]\n";
-    $Widgets{$key}{'name'} = $name;
-    $Widgets{$key}{'type'} = $type;
+    $key  = $name . $slinecnt;
+
+    #    print "key=[$key], type=[$type], name=[$name]\n";
+    $Widgets{$key}{'name'}    = $name;
+    $Widgets{$key}{'type'}    = $type;
     $Widgets{$key}{'linecnt'} = $slinecnt;
-    $Widgets{$key}{'line'} = $sline;
+    $Widgets{$key}{'line'}    = $sline;
     next;
   }
 }
 
 # for each non-kcfg widget, skip to its starting line and search for stuff.
 foreach my $w (keys %Widgets) {
-  $hasToolTip=0;
-  $hasWhatsThis=0;
+  $hasToolTip   = 0;
+  $hasWhatsThis = 0;
 
   # skip kcfg stuff, as we do the inverse check for them separately
   next if ($Widgets{$w}{'name'} =~ m/^kcfg_/);
@@ -135,14 +146,14 @@ foreach my $w (keys %Widgets) {
   while ($linecnt < $#lines) {
     $line = $lines[$linecnt++];
     next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-    $line =~ s+//.*++;  #skip C++ comments
+    $line =~ s+//.*++;          #skip C++ comments
     $line =~ s/\[\w+]/ARRAY/;
 
-    $hasToolTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
+    $hasToolTip   = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
     $hasWhatsThis = 1 if ($line =~ m/$Widgets{$w}{'name'}->setWhatsThis/);
     last if ($hasToolTip && $hasWhatsThis);
   }
-  if ( !$hasToolTip) {
+  if (!$hasToolTip) {
     $tcnt++;
     if ($tcnt == 1) {
       $tlstr = "toolTip missing line\#" . $Widgets{$w}{'linecnt'};
@@ -152,7 +163,7 @@ foreach my $w (keys %Widgets) {
     $tlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
     print "=> $Widgets{$w}{'line'}" if (&verboseArg());
   }
-  if ( !$hasWhatsThis) {
+  if (!$hasWhatsThis) {
     $wcnt++;
     if ($wcnt == 1) {
       $wlstr = "whatsThis missing line\#" . $Widgets{$w}{'linecnt'};
@@ -166,8 +177,8 @@ foreach my $w (keys %Widgets) {
 
 # for each kcfg widget, skip to its starting line and search for stuff.
 foreach my $w (keys %Widgets) {
-  $hasToolTip=0;
-  $hasWhatsThis=0;
+  $hasToolTip   = 0;
+  $hasWhatsThis = 0;
 
   next if ($Widgets{$w}{'name'} !~ m/^kcfg_/);
 
@@ -177,7 +188,7 @@ foreach my $w (keys %Widgets) {
     $line = $lines[$linecnt++];
     $line =~ s/\[\w+]/ARRAY/;
 
-    $hasToolTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
+    $hasToolTip   = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
     $hasWhatsThis = 1 if ($line =~ m/$Widgets{$w}{'name'}->setWhatsThis/);
     last if ($hasToolTip && $hasWhatsThis);
   }
@@ -212,11 +223,11 @@ foreach my $w (keys %Widgets) {
 #   in one go. ... it doesn't hurt to port setToolTip to setHelpText in all
 #   cases where setStatusTip isn't called explicitly."
 foreach my $w (keys %Widgets) {
-  $hasToolTip=0;
-  $hasWhatsThis=0;
-  $hasStatusTip=0;
-  $hasHelpText=0;
-  $isSep=0;
+  $hasToolTip   = 0;
+  $hasWhatsThis = 0;
+  $hasStatusTip = 0;
+  $hasHelpText  = 0;
+  $isSep        = 0;
 
   next if ($Widgets{$w}{'type'} ne "KAction");
 
@@ -226,14 +237,14 @@ foreach my $w (keys %Widgets) {
     $line = $lines[$linecnt++];
     $line =~ s/\[\w+]/ARRAY/;
 
-    $hasToolTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
+    $hasToolTip   = 1 if ($line =~ m/$Widgets{$w}{'name'}->setToolTip/);
     $hasWhatsThis = 1 if ($line =~ m/$Widgets{$w}{'name'}->setWhatsThis/);
     $hasStatusTip = 1 if ($line =~ m/$Widgets{$w}{'name'}->setStatusTip/);
-    $hasHelpText = 1 if ($line =~ m/$Widgets{$w}{'name'}->setHelpText/);
-    $isSep = 1 if ($line =~ m/$Widgets{$w}{'name'}->setSeparator/);
+    $hasHelpText  = 1 if ($line =~ m/$Widgets{$w}{'name'}->setHelpText/);
+    $isSep        = 1 if ($line =~ m/$Widgets{$w}{'name'}->setSeparator/);
   }
 
-  next if( $isSep );
+  next if ($isSep);
 
   if (!$hasWhatsThis) {
     $wAcnt++;
@@ -250,6 +261,7 @@ foreach my $w (keys %Widgets) {
 
   if ($hasToolTip) {
     if (!$hasStatusTip) {
+
       #port setToolTip to setHelpText
       $sAcnt++;
       if ($sAcnt == 1) {
@@ -260,10 +272,12 @@ foreach my $w (keys %Widgets) {
       $sAlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
       print "=> $Widgets{$w}{'line'}" if (&verboseArg());
     } else {
+
       #aok
     }
   } else {
-    if (!$hasStatusTip){
+    if (!$hasStatusTip) {
+
       #missing setHelpText
       $hAcnt++;
       if ($hAcnt == 1) {
@@ -274,10 +288,12 @@ foreach my $w (keys %Widgets) {
       $hAlstr .= " [$Widgets{$w}{'type'} $Widgets{$w}{'name'}]";
       print "=> $Widgets{$w}{'line'}" if (&verboseArg());
     } else {
+
       #missing setToolTip
       $tAcnt++;
       if ($tAcnt == 1) {
-        $tAlstr = "KAction missing toolTip (or convert statusTip to helpText) line\#" . $Widgets{$w}{'linecnt'};
+        $tAlstr = "KAction missing toolTip (or convert statusTip to helpText) line\#"
+          . $Widgets{$w}{'linecnt'};
       } else {
         $tAlstr = $tAlstr . "," . $Widgets{$w}{'linecnt'};
       }
@@ -287,10 +303,7 @@ foreach my $w (keys %Widgets) {
   }
 }
 
-my ($total_count) =
-  $tcnt + $wcnt +
-  $tKcnt + $wKcnt +
-  $tAcnt + $sAcnt + $hAcnt + $wAcnt;
+my ($total_count) = $tcnt + $wcnt + $tKcnt + $wKcnt + $tAcnt + $sAcnt + $hAcnt + $wAcnt;
 
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
@@ -311,9 +324,10 @@ if (!$total_count) {
   Exit $total_count;
 }
 
-sub widgetName {
-  my($l) = @_;
-  my($name);
+sub widgetName
+{
+  my ($l) = @_;
+  my ($name);
 
   return "" if ($l =~ m/^\s*=/ || $l =~ m/^\s*new/);
   chomp($l);
@@ -323,6 +337,7 @@ sub widgetName {
   $name =~ s/^\s*//;
   $name =~ s/^.*\*\s*//;
   $name =~ s/^\s*\w+\s*\(\s*//;
+
   if ($name eq "") {
     $name = $l;
     $name =~ s/\s*=.*//;
@@ -336,9 +351,10 @@ sub widgetName {
   return $name;
 }
 
-sub widgetType {
-  my($l) = @_;
-  my($type);
+sub widgetType
+{
+  my ($l) = @_;
+  my ($type);
 
   chomp($l);
   $type = $l;
@@ -354,17 +370,21 @@ sub widgetType {
   return $type;
 }
 
-sub Help {
+sub Help
+{
   print "Check for missing tooltips or whatsThis\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Please provide tooltips and whatsThis strings to help the user make informed choices.  KAction's should use setStatusTip instead of setToolTip.\n";
+sub Explain
+{
+  print
+"Please provide tooltips and whatsThis strings to help the user make informed choices.  KAction's should use setStatusTip instead of setToolTip.\n";
   Exit 0 if &explainArg();
 }

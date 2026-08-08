@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2015 Allen Winter <winter@kde.org>                  #
@@ -31,55 +31,63 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "filenames";
-my($Version) = "0.2";
+my ($Prog)    = "filenames";
+my ($Version) = "0.2";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($cnt) = 0;
+my ($cnt) = 0;
+
 #These are reserved filenames under Windows and should not be used:
 #  com[1-9], lpt[1-9], con, nul, and prn
-my($f) = $ARGV[0];
-my($b) = &basename($f);
-if (
-    $b =~ m/^com[[:digit:]]{1}\./i || $b =~ m/^com[[:digit:]]{1}$/i ||
-    $b =~ m/^lpt[[:digit:]]{1}\./i || $b =~ m/^lpt[[:digit:]]{1}$/i ||
-    $b =~ m/^aux\./i || $b =~ m/^aux$/i ||
-    $b =~ m/^nul\./i || $b =~ m/^nul$/i ||
-    $b =~ m/^con\./i || $b =~ m/^con$/i ||
-    $b =~ m/^prn\./i || $b =~ m/^prn$/i
-   ) {
+my ($f) = $ARGV[0];
+my ($b) = &basename($f);
+if ( $b =~ m/^com[[:digit:]]{1}\./i
+  || $b =~ m/^com[[:digit:]]{1}$/i
+  || $b =~ m/^lpt[[:digit:]]{1}\./i
+  || $b =~ m/^lpt[[:digit:]]{1}$/i
+  || $b =~ m/^aux\./i
+  || $b =~ m/^aux$/i
+  || $b =~ m/^nul\./i
+  || $b =~ m/^nul$/i
+  || $b =~ m/^con\./i
+  || $b =~ m/^con$/i
+  || $b =~ m/^prn\./i
+  || $b =~ m/^prn$/i)
+{
 
   print "=> $b is a reserved Windows filename\n" if (&verboseArg());
-  print "Windows reserved name\n" if (!&quietArg());
+  print "Windows reserved name\n"                if (!&quietArg());
   Exit 1;
 }
 
 #Check for control chars in filenames
 if ($b =~ m/[\000-\037]\]/) {
   print "=> $b contains an control character\n" if (&verboseArg());
-  print "contains control character\n" if (!&quietArg());
+  print "contains control character\n"          if (!&quietArg());
   Exit 1;
 }
 
 #Check for illegal chars in filenames
-if ($b =~ m+(\/)+ || #Windows with NTFS
-    $b =~ m+(\?)+ || #Windows with NTFS
-    $b =~ m+(\<)+ || #Windows with NTFS
-    $b =~ m+(\>)+ || #Windows with NTFS
-    $b =~ m+(\\)+ || #Windows with NTFS
-    $b =~ m+(\:)+ || #Windows with NTFS, OSX
-    $b =~ m+(\*)+ || #Windows with NTFS
-    $b =~ m+(\|)+ || #Windows with NTFS
-    $b =~ m+(\^)+    #Windows with FAT
-  ) {
+if (
+  $b =~ m+(\/)+ ||    #Windows with NTFS
+  $b =~ m+(\?)+ ||    #Windows with NTFS
+  $b =~ m+(\<)+ ||    #Windows with NTFS
+  $b =~ m+(\>)+ ||    #Windows with NTFS
+  $b =~ m+(\\)+ ||    #Windows with NTFS
+  $b =~ m+(\:)+ ||    #Windows with NTFS, OSX
+  $b =~ m+(\*)+ ||    #Windows with NTFS
+  $b =~ m+(\|)+ ||    #Windows with NTFS
+  $b =~ m+(\^)+       #Windows with FAT
+  )
+{
   print "=> $b contains an illegal character ($1) on some operating systems\n" if (&verboseArg());
-  print "illegal character [$1]\n" if (!&quietArg());
+  print "illegal character [$1]\n"                                             if (!&quietArg());
   Exit 1;
 }
 
@@ -88,7 +96,7 @@ if ($b =~ m+(\/)+ || #Windows with NTFS
 #OSX also limits filenames to 255 chars in length
 if (length($b) > 255) {
   print "=> $b longer than 255 chars\n" if (&verboseArg());
-  print "filename is too long\n" if (!&quietArg());
+  print "filename is too long\n"        if (!&quietArg());
   Exit 1;
 }
 
@@ -102,19 +110,19 @@ if (length($b) > 255) {
 
 #On Unix, the '-' is used a lot with command line switches, so avoid it
 if ($b =~ m/^-/) {
-  print "=> $b starts with a dash\n" if (&verboseArg());
+  print "=> $b starts with a dash\n"    if (&verboseArg());
   print "filename starts with a dash\n" if (!&quietArg());
   Exit 1;
 }
 
 #On Windows, don't end the name with a '.' or space
 if ($b =~ m/\.$/) {
-  print "=> $b ends with a dot\n" if (&verboseArg());
+  print "=> $b ends with a dot\n"    if (&verboseArg());
   print "filename ends with a dot\n" if (!&quietArg());
   Exit 1;
 }
 if ($b =~ m/\s+$/) {
-  print "=> $b ends with whitespace\n" if (&verboseArg());
+  print "=> $b ends with whitespace\n"    if (&verboseArg());
   print "filename ends with whitespace\n" if (!&quietArg());
   Exit 1;
 }
@@ -122,17 +130,21 @@ if ($b =~ m/\s+$/) {
 print "okay\n" if (!&quietArg());
 Exit 0;
 
-sub Help {
+sub Help
+{
   print "Check for problems with filenames\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Operating systems reserve filenames or prohibit characters that can be used in filenames, or the filename length.  To help with portability, this checker warns about any such know limitation.  See <https://stackoverflow.com/questions/122400/what-are-reserved-filenames-for-various-platforms>\n";
+sub Explain
+{
+  print
+"Operating systems reserve filenames or prohibit characters that can be used in filenames, or the filename length.  To help with portability, this checker warns about any such know limitation.  See <https://stackoverflow.com/questions/122400/what-are-reserved-filenames-for-various-platforms>\n";
   Exit 0 if &explainArg();
 }

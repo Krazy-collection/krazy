@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2009 Allen Winter <winter@kde.org>                  #
@@ -30,17 +30,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "camelcase";
-my($Version) = "1.79";
+my ($Prog)    = "camelcase";
+my ($Version) = "1.79";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++ only)
 if (&fileTypeIs($f, "c++")) {
@@ -49,90 +49,111 @@ if (&fileTypeIs($f, "c++")) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
+
 # Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+@lines = RemoveCondBlockC($Prog, @lines);
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($lstr) = "";
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($lstr)    = "";
 
-my($sep,$incpath);
-my($line);
+my ($sep, $incpath);
+my ($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
   # get the include path, if there is one
   if ($line =~ m+^[[:space:]]*#include[[:space:]]+) {
-    if ($line =~ m+\"+ ) {
-      $sep = "\"";
+    if ($line =~ m+\"+) {
+      $sep     = "\"";
       $incpath = &incPath($line);
     } else {
-      $sep = "<";
+      $sep     = "<";
       $incpath = &incAnglePath($line);
     }
     next if ($sep eq "\"");
-    next if ($incpath =~ m/\.inc$/); #skip foo.inc
-#    next if ($incpath =~ m:^(lib|kd)\w+/:);
+    next if ($incpath =~ m/\.inc$/);    #skip foo.inc
+
+    #    next if ($incpath =~ m:^(lib|kd)\w+/:);
     next if ($incpath =~ m:^(phonon|boost|grantlee|kolab|qgpgme|gpgme\+\+)/:);
     next if (&isCamelCase($incpath));
     next if ($sep eq "<" && $incpath =~ m/^(c|io)/ && $incpath !~ m/\.h$/);
     next if ($sep eq "<" && $incpath =~ m/^config/ && $incpath =~ m/\.h$/);
-    next if ($sep eq "<" && $incpath =~ m+^(k3|q3|ical|libical|libxml||uuid|uni|os|ieee|gmp|graphviz|vtk|qjson|std|if|sys/|net|netinet/|arpa|mach/|phonenumbers/|tr1/|xcb/)+);
-    next if ($sep eq "<" && $incpath =~ m/^(algorithm|functional|iterator|limits|map|memory|set|vector|string|exception|deque)|queue|numeric|unordered_map|fstream|sstream|random|optional|list|numbers|ranges|variant|tuple|atomic|filesystem|array|shared_mutex|span|sstream|strstream|system_error|type_traits|thread|typeinfo|utility/);
-    next if ($sep eq "<" && $incpath =~ m/^(calendarsupport|calendarviews|incidenceeditor|akonadi_next)/);
-    next if ($sep eq "<" && $incpath =~ m/^(messagecomposer|messagecore|messagelist|messageviewer|ontologies)/);
+    next
+      if ($sep eq "<"
+      && $incpath =~
+m+^(k3|q3|ical|libical|libxml||uuid|uni|os|ieee|gmp|graphviz|vtk|qjson|std|if|sys/|net|netinet/|arpa|mach/|phonenumbers/|tr1/|xcb/)+
+      );
+    next
+      if ($sep eq "<"
+      && $incpath =~
+m/^(algorithm|functional|iterator|limits|map|memory|set|vector|string|exception|deque)|queue|numeric|unordered_map|fstream|sstream|random|optional|list|numbers|ranges|variant|tuple|atomic|filesystem|array|shared_mutex|span|sstream|strstream|system_error|type_traits|thread|typeinfo|utility/
+      );
+    next
+      if ($sep eq "<"
+      && $incpath =~ m/^(calendarsupport|calendarviews|incidenceeditor|akonadi_next)/);
+    next
+      if ($sep eq "<"
+      && $incpath =~ m/^(messagecomposer|messagecore|messagelist|messageviewer|ontologies)/);
     next if ($sep eq "<" && $incpath =~ m+^private/q.*_p.h$+);
     next if ($sep eq "<" && $incpath =~ m+keychain/keychain.h$+);
-    next if ($sep eq "<" && $incpath =~ m+screen/screen.h$+); #QNX screen
+    next if ($sep eq "<" && $incpath =~ m+screen/screen.h$+);       #QNX screen
     next if ($incpath =~ m/version/);
-    next if ($incpath eq "kdemacros.h" || $incpath eq "qtest_kde.h" ||
-             $incpath eq "fixx11h.h" || $incpath eq "qx11info_x11.h");
-    next if ($incpath eq "qglobal.h" ||
-             $incpath eq "qwindowdefs.h" ||
-             $incpath eq "qmath.h" ||
-             $incpath eq "qendian.h" ||
-             $incpath eq "qobjectdefs.h" ||
-             $incpath eq "qopengl.h" ||
-             $incpath eq "qqml.h" ||
-             $incpath eq "qqmldebug.h" ||
-             $incpath eq "qdrawutil.h" ||
-             $incpath eq "qcompilerdetection.h" ||
-             $incpath eq "qcontainerfwd.h" ||
-             $incpath eq "qnamespace.h" ||
-             $incpath eq "qcontainerfwd.h");
-    next if ($incpath eq "kvm.h" ||
-             $incpath eq "pwd.h" ||
-             $incpath eq "dlfcn.h" ||
-             $incpath eq "fcntl.h" ||
-             $incpath eq "windows.h" ||
-             $incpath eq "winuser.h" ||
-             $incpath eq "wincrypt.h" ||
-             $incpath eq "winsock2.h" ||
-             $incpath eq "ctype.h" ||
-             $incpath eq "inttypes.h" ||
-             $incpath eq "jni.h" ||
-             $incpath eq "getopt.h" ||
-             $incpath eq "err.h" ||
-             $incpath eq "elf.h" ||
-             $incpath eq "execinfo.h" ||
-             $incpath eq "cxxabi.h" ||
-             $incpath eq "io.h" ||
-             $incpath eq "lzma.h");
-    next if ($incpath eq "malloc.h"); # needed for malloc_trim
-    next if ($incpath =~ m+mach-o/.*.h$+); #Mac specific
+    next
+      if ($incpath eq "kdemacros.h"
+      || $incpath eq "qtest_kde.h"
+      || $incpath eq "fixx11h.h"
+      || $incpath eq "qx11info_x11.h");
+    next
+      if ($incpath eq "qglobal.h"
+      || $incpath eq "qwindowdefs.h"
+      || $incpath eq "qmath.h"
+      || $incpath eq "qendian.h"
+      || $incpath eq "qobjectdefs.h"
+      || $incpath eq "qopengl.h"
+      || $incpath eq "qqml.h"
+      || $incpath eq "qqmldebug.h"
+      || $incpath eq "qdrawutil.h"
+      || $incpath eq "qcompilerdetection.h"
+      || $incpath eq "qcontainerfwd.h"
+      || $incpath eq "qnamespace.h"
+      || $incpath eq "qcontainerfwd.h");
+    next
+      if ($incpath eq "kvm.h"
+      || $incpath eq "pwd.h"
+      || $incpath eq "dlfcn.h"
+      || $incpath eq "fcntl.h"
+      || $incpath eq "windows.h"
+      || $incpath eq "winuser.h"
+      || $incpath eq "wincrypt.h"
+      || $incpath eq "winsock2.h"
+      || $incpath eq "ctype.h"
+      || $incpath eq "inttypes.h"
+      || $incpath eq "jni.h"
+      || $incpath eq "getopt.h"
+      || $incpath eq "err.h"
+      || $incpath eq "elf.h"
+      || $incpath eq "execinfo.h"
+      || $incpath eq "cxxabi.h"
+      || $incpath eq "io.h"
+      || $incpath eq "lzma.h");
+    next if ($incpath eq "malloc.h");         # needed for malloc_trim
+    next if ($incpath =~ m+mach-o/.*.h$+);    #Mac specific
     $cnt++;
+
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
     } else {
@@ -151,42 +172,50 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub incPath {
-  my($in) = @_;
-  my($fred);
+sub incPath
+{
+  my ($in) = @_;
+  my ($fred);
   $in =~ s+^\s*#\s*include[[:space:]]++;
-  ($fred,$in) = split('"',$in);
+  ($fred, $in) = split('"', $in);
   return $in;
 }
 
-sub incAnglePath {
-  my($in) = @_;
+sub incAnglePath
+{
+  my ($in) = @_;
   $in =~ s+^\s*#\s*include[[:space:]]++;
-  $in =~ s+<++; $in =~ s+>\s*++;
+  $in =~ s+<++;
+  $in =~ s+>\s*++;
   return $in;
 }
 
-sub isCamelCase {
-  my($in) = @_;
-  if ($in =~ m:^[A-Z]{1,2}\w+[A-Z]{1}: ||
-      $in =~ m:^[A-Z]{1,2}\w+/*:) {
+sub isCamelCase
+{
+  my ($in) = @_;
+  if ( $in =~ m:^[A-Z]{1,2}\w+[A-Z]{1}:
+    || $in =~ m:^[A-Z]{1,2}\w+/*:)
+  {
     return 1;
   } else {
     return 0;
   }
 }
 
-sub Help {
+sub Help
+{
   print "Check for not using CamelCase headers\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
+sub Explain
+{
   print "Some libraries, like Qt and KDE frameworks provide CamelCase, class-based headers.\n";
   Exit 0 if &explainArg();
 }

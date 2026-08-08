@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2007 Allen Winter <winter@kde.org>                  #
@@ -32,17 +32,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "constref";
-my($Version) = "1.31";
+my ($Prog)    = "constref";
+my ($Version) = "1.31";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (headers only)
 if (&installedArg() && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
@@ -51,53 +51,60 @@ if (&installedArg() && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($lstr) = "";
-my($cname) = "";
-my($cref) = "";
-my($line);
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($lstr)    = "";
+my ($cname)   = "";
+my ($cref)    = "";
+my ($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
 
-  $cname = &Cname($line,$lines[$linecnt-1]);
+  $cname = &Cname($line, $lines[$linecnt - 1]);
   if ($cname ne "") {
+
     #found a public, exported class
     $cref = "";
 
     my $classlinecnt = $linecnt;
 
     while ($linecnt < $#lines) {
+
       # search for a methods returning const references
       $linecnt++;
       $line = $lines[$linecnt];
-      if (&Cname($line,$lines[$linecnt-1])) { $linecnt--; last; }
-      last if (&endClass($line,$linecnt));
+      if (&Cname($line, $lines[$linecnt - 1])) {$linecnt--; last;}
+      last if (&endClass($line, $linecnt));
       next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-      if ($line =~ m/^[[:space:]]*const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/ ||
-          $line =~ m/^[[:space:]]*static[[:space:]]const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/) {
+      if ( $line =~ m/^[[:space:]]*const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/
+        || $line =~
+        m/^[[:space:]]*static[[:space:]]const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/)
+      {
         # we found a possible problem method
         $cref = $line;
 
-        my $publiclinecnt = &searchBack("public:", $linecnt, $linecnt-$classlinecnt);
-        my $protectedlinecnt = &searchBack("protected:", $linecnt, $linecnt-$classlinecnt);
-        my $privatelinecnt = &searchBack("private:", $linecnt, $linecnt-$classlinecnt);
+        my $publiclinecnt    = &searchBack("public:",    $linecnt, $linecnt - $classlinecnt);
+        my $protectedlinecnt = &searchBack("protected:", $linecnt, $linecnt - $classlinecnt);
+        my $privatelinecnt   = &searchBack("private:",   $linecnt, $linecnt - $classlinecnt);
 
         #look for such a method (that isn't private)
-        if (&ConstRef($cref) &&
-            ($publiclinecnt > $privatelinecnt || $protectedlinecnt > $privatelinecnt)) {
+        if (&ConstRef($cref)
+          && ($publiclinecnt > $privatelinecnt || $protectedlinecnt > $privatelinecnt))
+        {
           my $linecntindexedat1 = $linecnt + 1;
+
           # found one
           $cnt++;
           if ($cnt == 1) {
@@ -124,12 +131,17 @@ if (!$cnt) {
 # determine if the current line $l has a class, checking the previous line $l1
 # for classes to ignore (like "template").  Must be a FOO_EXPORTed class.
 # return the class name, or empty if no class is found
-sub Cname {
-  my($l,$l1) = @_;
-  my($cname)="";
-  $l =~ s+//.*++; #strip trailing C++ comment
+sub Cname
+{
+  my ($l, $l1) = @_;
+  my ($cname) = "";
+  $l =~ s+//.*++;    #strip trailing C++ comment
   return 0 if ($l =~ m/_EXPORT_DEPRECATED/);
-  if ($l =~ m+^[[:space:]]*class[[:space:]].*+ && $l =~ m/_EXPORT/ && $l !~ m/;\s*$/ && $l !~ m/\\\s*$/) {
+  if ( $l =~ m+^[[:space:]]*class[[:space:]].*+
+    && $l =~ m/_EXPORT/
+    && $l !~ m/;\s*$/
+    && $l !~ m/\\\s*$/)
+  {
     if ($l1 !~ m/template/ && $l1 !~ m/#define[[:space:]]/) {
       $cname = $l;
       $cname =~ s/:.*$//;
@@ -143,16 +155,19 @@ sub Cname {
 }
 
 # determine if the current line marks the end of a class
-sub endClass {
-  my($l,$lc) = @_;
+sub endClass
+{
+  my ($l, $lc) = @_;
   return 0 if ($l !~ m/^[[:space:]]*}[[:space:]]*;/);
-  return 0 if (&searchBack('enum',$lc,5) != -1);
+  return 0 if (&searchBack('enum', $lc, 5) != -1);
   return 1;
 }
 
 # determine if the current line $l has a method that returns a const reference
-sub ConstRef {
-  my($l) = @_;
+sub ConstRef
+{
+  my ($l) = @_;
+
   #return 0 for conditions where const ref returns are ok
   return 1;
 }
@@ -160,29 +175,34 @@ sub ConstRef {
 # search the previous $n lines for a pattern $p
 # return the number of the line where the pattern was found, or -1 if the
 # pattern was not found
-sub searchBack {
-  my($p,$l,$n) = @_;
-  my($i);
+sub searchBack
+{
+  my ($p, $l, $n) = @_;
+  my ($i);
   $n = $l if ($l < $n);
-  for($i=1; $i<=$n; $i++) {
-    if ($lines[$l-$i] =~ $p) {
-      return $l-$i;
+  for ($i = 1 ; $i <= $n ; $i++) {
+    if ($lines[$l - $i] =~ $p) {
+      return $l - $i;
     }
   }
   return -1;
 }
 
-sub Help {
+sub Help
+{
   print "Check for methods that return 'const' refs in public classes\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "For binary compatibility reasons avoid const references for return types. For example, \"const QList<int> &someProperty() const\" should be rewritten to return a value instead, eg \"QList<int> someProperty() const\". See <https://community.kde.org/Policies/Library_Code_Policy#Const_References> for more details.\n";
+sub Explain
+{
+  print
+"For binary compatibility reasons avoid const references for return types. For example, \"const QList<int> &someProperty() const\" should be rewritten to return a value instead, eg \"QList<int> someProperty() const\". See <https://community.kde.org/Policies/Library_Code_Policy#Const_References> for more details.\n";
   Exit 0 if &explainArg();
 }

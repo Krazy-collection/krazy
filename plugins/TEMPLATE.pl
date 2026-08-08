@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # <SPDX-FileCopyrightText>                                                    #
@@ -30,15 +30,15 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "<plugin>";
-my($Version) = "<version>";
+my ($Prog)    = "<plugin>";
+my ($Version) = "<version>";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
 # Check Condition
 #my($f) = $ARGV[0];
@@ -70,17 +70,20 @@ if ($#ARGV != 0){ &Help(); Exit 0; }
 #  Exit $cnt;
 #}
 
-sub Help {
+sub Help
+{
   print "Check for <condition>\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
+sub Explain
+{
   print "<describe problem with solution.>\n";
   Exit 0 if &explainArg();
 }

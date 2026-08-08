@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2012 Allen Winter <winter@kde.org>                  #
@@ -36,22 +36,21 @@ use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
-my($Prog) = "style";
-my($Version) = "1.05";
+my ($Prog)    = "style";
+my ($Version) = "1.05";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
-
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
 # has of all issues we need to keep track of
-tie my(%Issues), "Tie::IxHash";
+tie my (%Issues), "Tie::IxHash";
 
 # Check Condition
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 if ($f =~ m/CMakeLists\.txt/ || $f =~ m/\.cmake$/) {
   open(F, "$f") || die "Couldn't open $f";
@@ -60,39 +59,40 @@ if ($f =~ m/CMakeLists\.txt/ || $f =~ m/\.cmake$/) {
   Exit 0;
 }
 
-$KRAZY_CMAKESTYLE_LINEMAX = 0 if ( !$KRAZY_CMAKESTYLE_LINEMAX );
-if ( !$KRAZY_CMAKESTYLE_STYLE ) {
+$KRAZY_CMAKESTYLE_LINEMAX = 0 if (!$KRAZY_CMAKESTYLE_LINEMAX);
+if (!$KRAZY_CMAKESTYLE_STYLE) {
   $KRAZY_CMAKESTYLE_STYLE = "kde";
 }
 
-if ( !$KRAZY_CMAKESTYLE_OFFSET ) {
+if (!$KRAZY_CMAKESTYLE_OFFSET) {
   $KRAZY_CMAKESTYLE_OFFSET = 4;
 }
 
 #open file and slurp it in
 open(F, "$f") || die "Couldn't open $f";
-my(@lines) = <F>;
+my (@lines) = <F>;
 close(F);
 
 ###we will remove the comments as we go
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($line) = '';  #current line (non-processed)
-my($tline) = ''; #current line (non-processed) with starting whitespace removed
-my($lline) = ''; #last line (non-processed)
-my($pline) = ''; #processed current line (i.e. comments and strings have been removed)
-my($tpline) =''; #processed current line with starting/trailing whitespace removed
-my($indent) = 0; #indentation level for current line
-my($lindent)= 0; #indentation level for previous line
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($line)    = '';    #current line (non-processed)
+my ($tline)   = '';    #current line (non-processed) with starting whitespace removed
+my ($lline)   = '';    #last line (non-processed)
+my ($pline)   = '';    #processed current line (i.e. comments and strings have been removed)
+my ($tpline)  = '';    #processed current line with starting/trailing whitespace removed
+my ($indent)  = 0;     #indentation level for current line
+my ($lindent) = 0;     #indentation level for previous line
 
 #let's begin
 &initIssues();
 foreach $line (@lines) {
   chomp($line);
 
-  if ($line =~ m+\#.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+\#.*[Kk]razy:skip+) {
+  if ( $line =~ m+\#.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+\#.*[Kk]razy:skip+)
+  {
     print "okay\n" if (!&quietArg());
     Exit 0;
   }
@@ -101,15 +101,15 @@ foreach $line (@lines) {
   $linecnt++;
 
   $tline = $line;
-  $tline =~ s/^\s*//;   #remove starting whitespace
+  $tline =~ s/^\s*//;    #remove starting whitespace
 
   $pline = $line;
-  $pline =~ s/\#.*$//;  #remove comments
-  $pline =~ s/".*"/""/g;#clean-out strings
+  $pline =~ s/\#.*$//;      #remove comments
+  $pline =~ s/".*"/""/g;    #clean-out strings
 
   $tpline = $pline;
-  $tpline =~ s/^\s*//;  #remove starting whitespace
-  $tpline =~ s/\s*$//;  #remove trailing whitespace
+  $tpline =~ s/^\s*//;      #remove starting whitespace
+  $tpline =~ s/\s*$//;      #remove trailing whitespace
 
   $indent = length($line) - length($tline) if (length($tline) > 0);
   if ($indent % $KRAZY_CMAKESTYLE_OFFSET) {
@@ -123,9 +123,10 @@ foreach $line (@lines) {
   }
 
   if ($indent != $lindent) {
+
     #allow to get bigger by $KRAZY_CMAKESTYLE_OFFSET if previous line started a block
     if (&startBlock($lline) || $lline =~ m/\(\s*$/) {
-      if ($lindent != $indent - $KRAZY_CMAKESTYLE_OFFSET ) {
+      if ($lindent != $indent - $KRAZY_CMAKESTYLE_OFFSET) {
         $Issues{'BADINDENT'}{'count'}++;
         if ($Issues{'BADINDENT'}{'count'} == 1) {
           $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
@@ -136,9 +137,10 @@ foreach $line (@lines) {
       }
       goto ncheck;
     }
+
     #allow to get smaller by $KRAZY_CMAKESTYLE_OFFSET if current line ended a block
     if (&endBlock($line) || $line =~ m/^\s*\)\s*$/) {
-      if ($lindent < $indent + $KRAZY_CMAKESTYLE_OFFSET ) {
+      if ($lindent < $indent + $KRAZY_CMAKESTYLE_OFFSET) {
         $Issues{'BADINDENT'}{'count'}++;
         if ($Issues{'BADINDENT'}{'count'} == 1) {
           $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
@@ -161,7 +163,7 @@ foreach $line (@lines) {
     }
   }
 
- ncheck:
+ncheck:
   if (($KRAZY_CMAKESTYLE_LINEMAX > 0) && (length($line) > $KRAZY_CMAKESTYLE_LINEMAX)) {
     if ($line !~ m/^\s*(message|macro_log_feature|option)\s*\(/) {
       $Issues{'LINELEN'}{'count'}++;
@@ -257,7 +259,7 @@ foreach $line (@lines) {
   }
 
   if ($pline =~ m/(\w+)\s*\(/) {
-    my $command = $1;
+    my $command  = $1;
     my $lcommand = lc($1);
     if ($command ne $lcommand) {
       $Issues{'NONLOWER'}{'count'}++;
@@ -280,7 +282,7 @@ foreach $line (@lines) {
     print "$linecnt (only 1 command permitted per line) => $line\n" if (&verboseArg());
   }
 
-  $lline = $line;
+  $lline   = $line;
   $lindent = $indent;
 }
 
@@ -292,23 +294,28 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for adherence to a coding style\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Please follow the CMake coding style guidelines. Find the KDE CMake style guidelines at <https://community.kde.org/Policies/CMake_Coding_Style>\n";
+sub Explain
+{
+  print
+"Please follow the CMake coding style guidelines. Find the KDE CMake style guidelines at <https://community.kde.org/Policies/CMake_Coding_Style>\n";
   Exit 0 if &explainArg();
 }
 
-sub startBlock() {
-  my($l)=@_;
+sub startBlock()
+{
+  my ($l) = @_;
   if ($l =~ m/^\s*(if|foreach|function|macro|while|else|elseif)\s*\(/i) {
     return 1;
   } else {
@@ -316,19 +323,22 @@ sub startBlock() {
   }
 }
 
-sub endBlock() {
-  my($l)=@_;
+sub endBlock()
+{
+  my ($l) = @_;
   if ($l =~ m/^\s*(endif|endforeach|endfunction|endmacro|endwhile|else|elseif)\s*\(/i) {
     return 1;
   } else {
     return 0;
   }
 }
-sub printResults() {
-  my($guy);
-  my($check_num)=0;
-  my($tot)=0;
-  my($cline,$rline);
+
+sub printResults()
+{
+  my ($guy);
+  my ($check_num) = 0;
+  my ($tot)       = 0;
+  my ($cline, $rline);
   foreach $guy (keys %Issues) {
     $cline = "$Issues{$guy}{'issue'}:";
 
@@ -340,7 +350,8 @@ sub printResults() {
   return $tot;
 }
 
-sub initIssues() {
+sub initIssues()
+{
 
   $Issues{'NOSPACEPAREN'}{'issue'} = 'Do not put spaces before a closing paren';
   $Issues{'NOSPACEPAREN'}{'count'} = 0;

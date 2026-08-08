@@ -11,27 +11,28 @@ use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 
 use Exporter;
 $VERSION = 1.00;
-@ISA = qw(Exporter);
+@ISA     = qw(Exporter);
 
-@EXPORT = qw(RemoveCommentsC RemoveIfZeroBlockC RemoveCondBlockC RemoveCommentsFDO);
+@EXPORT    = qw(RemoveCommentsC RemoveIfZeroBlockC RemoveCondBlockC RemoveCommentsFDO);
 @EXPORT_OK = qw();
 
 # Replace C-style comments with whitespace in C/C++ source.
-sub RemoveCommentsC {
+sub RemoveCommentsC
+{
 
-  my(@data_lines) = @_;
+  my (@data_lines) = @_;
 
   #get all the c-style comments from the file
-  my($data)="@data_lines";
-  my(@comments) = ($data =~ /\/\*.*?\*\//gs);
+  my ($data)     = "@data_lines";
+  my (@comments) = ($data =~ /\/\*.*?\*\//gs);
 
   #for each comment, remove everything but the linebreaks, so
   #our line numbering report does not get screwed up.
-  foreach my $comment ( @comments ) {
-    my($fixed_comment) = $comment;
+  foreach my $comment (@comments) {
+    my ($fixed_comment) = $comment;
     $fixed_comment =~ s/[^\n]//gs;
     $fixed_comment =~ s/\n/\n/gs;
-    $data =~ s/\Q$comment/$fixed_comment/s;
+    $data          =~ s/\Q$comment/$fixed_comment/s;
   }
 
   #return array
@@ -39,20 +40,21 @@ sub RemoveCommentsC {
 }
 
 # Replace #if 0 blocks with whitespace in C/C++ source.
-sub RemoveIfZeroBlockC {
+sub RemoveIfZeroBlockC
+{
 
-  my(@data_lines) = @_;
-  my($i) = 0;
-  my($inblock) = 0;
-  while ( $i < $#data_lines ) {
-    if ( $inblock == 1 ) {
-      if ( $data_lines[$i] =~ m/^\s*#\s*endif\b/ ) {
-	$inblock = 0;
+  my (@data_lines) = @_;
+  my ($i)          = 0;
+  my ($inblock)    = 0;
+  while ($i < $#data_lines) {
+    if ($inblock == 1) {
+      if ($data_lines[$i] =~ m/^\s*#\s*endif\b/) {
+        $inblock = 0;
       }
       $data_lines[$i++] = "\n";
       next;
     }
-    if ( $data_lines[$i] =~ m/^\s*#\s*if\s+0\b/ ) {
+    if ($data_lines[$i] =~ m/^\s*#\s*if\s+0\b/) {
       $inblock = 1;
       $data_lines[$i++] = "\n";
       next;
@@ -66,21 +68,22 @@ sub RemoveIfZeroBlockC {
 
 # Replace //krazy:cond=checker blocks with whitespace in C++ source.
 # Very stupid. Doesn't handle nested blocks. Doesn't handle C-style comments.
-sub RemoveCondBlockC {
+sub RemoveCondBlockC
+{
 
-  my($checker,@data_lines) = @_;
+  my ($checker, @data_lines) = @_;
 
-  my($i) = 0;
-  my($inblock) = 0;
-  while ( $i < $#data_lines ) {
-    if ( $inblock == 1 ) {
-      if ( $data_lines[$i] =~ m+//.*[Kk]razy:endcond=.*$checker+ ) {
- 	$inblock = 0;
+  my ($i)       = 0;
+  my ($inblock) = 0;
+  while ($i < $#data_lines) {
+    if ($inblock == 1) {
+      if ($data_lines[$i] =~ m+//.*[Kk]razy:endcond=.*$checker+) {
+        $inblock = 0;
       }
       $data_lines[$i++] = "\n";
       next;
     }
-    if ( $data_lines[$i] =~ m+//.*[Kk]razy:cond=.*$checker+ ) {
+    if ($data_lines[$i] =~ m+//.*[Kk]razy:cond=.*$checker+) {
       $inblock = 1;
       $data_lines[$i++] = "\n";
       next;
@@ -93,12 +96,13 @@ sub RemoveCondBlockC {
 }
 
 # Replace comments with whitespace in .desktop source
-sub RemoveCommentsFDO {
+sub RemoveCommentsFDO
+{
 
-  my(@data_lines) = @_;
+  my (@data_lines) = @_;
 
-  my($data)="@data_lines";
-  my(@comments) = ($data =~ /^#.*$/gs);
+  my ($data)     = "@data_lines";
+  my (@comments) = ($data =~ /^#.*$/gs);
   return @comments;
 }
 

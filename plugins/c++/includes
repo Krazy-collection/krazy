@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2006 Allen Winter <winter@kde.org>                  #
@@ -47,54 +47,57 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "includes";
-my($Version) = "1.9992";
+my ($Prog)    = "includes";
+my ($Version) = "1.9992";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
-my($absf) = basename(abs_path($f));
+my ($f)    = $ARGV[0];
+my ($absf) = basename(abs_path($f));
 
 #open file and slurp it in
 open(F, "$f") || die "Couldn't open $f";
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
+
 # Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+@lines = RemoveCondBlockC($Prog, @lines);
 
-my($linecnt) = 0;
-my($line);
-my($total) = 0;  #total number of issues
+my ($linecnt) = 0;
+my ($line);
+my ($total) = 0;    #total number of issues
+
 # has of all issues we need to keep track of
-tie my(%Issues), "Tie::IxHash";
+tie my (%Issues), "Tie::IxHash";
 
-my($incpath,$qincpath);
-my($inc);
-tie my(%Incs), "Tie::IxHash";
+my ($incpath, $qincpath);
+my ($inc);
+tie my (%Incs), "Tie::IxHash";
 
-my($nth) = 1;    #track the include in the file
-my($sep) = "";   #track the separator (angle bracket vs. double-quote)
-my($guard) = ""; #include guard
-my($sguard) = ""; #raw include guard
+my ($nth)    = 1;     #track the include in the file
+my ($sep)    = "";    #track the separator (angle bracket vs. double-quote)
+my ($guard)  = "";    #include guard
+my ($sguard) = "";    #raw include guard
 
 &initIssues();
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     print "okay\n" if (!&quietArg());
     Exit 0;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
   # allow the once pragma
   if (!$guard && $line =~ m/^.*#\s*pragma\s*once/) {
@@ -102,21 +105,24 @@ while ($linecnt < $#lines) {
   }
 
   # get the include guard, if there is one
-  if (!$guard &&
-      ($line =~ m/^\s*#\s*ifndef\s/ ||
-       $line =~ m/^\s*#\s*if\s*\!\s*defined\s*\(/ ||
-       $line =~ m/^\s*#\s*if\s*\!\s*defined\s/)) {
-    my($pguard) = $line;
+  if (
+    !$guard
+    && ( $line =~ m/^\s*#\s*ifndef\s/
+      || $line =~ m/^\s*#\s*if\s*\!\s*defined\s*\(/
+      || $line =~ m/^\s*#\s*if\s*\!\s*defined\s/)
+    )
+  {
+    my ($pguard) = $line;
     $pguard =~ s/^\s*#\s*ifndef\s//g;
     $pguard =~ s/^\s*#\s*if\s*\!\s*defined\s*\(//g;
     $pguard =~ s/^\s*#\s*if\s*\!\s*defined\s//g;
     $pguard =~ s/\s*\).*$//g;
-    ($pguard) = split(' ',$pguard);
+    ($pguard) = split(' ', $pguard);
     $sguard = $pguard;
     $pguard =~ s/_[Hh]_*$//;
     $pguard =~ s/_//g;
     $pguard =~ s/%include.*//;
-    my($tguard) = $absf;
+    my ($tguard) = $absf;
     $tguard =~ s/\.h.*$//;
     $tguard =~ s/\.hxx.*$//;
     $tguard =~ s/_//g;
@@ -124,6 +130,7 @@ while ($linecnt < $#lines) {
     $tguard =~ s/\.//g;
     $tguard =~ s/^k3//g;
     $tguard =~ s/\+\+/pp/;
+
     if ($tguard =~ m/$pguard/i || $pguard =~ m/$tguard/i) {
       $guard = $pguard;
     }
@@ -132,30 +139,31 @@ while ($linecnt < $#lines) {
 
   # get the include path, if there is one
   if ($line =~ m+^[[:space:]]*#include[[:space:]]+) {
-    if ($line =~ m+\"+ ) {
-      $sep = "\"";
+    if ($line =~ m+\"+) {
+      $sep     = "\"";
       $incpath = &incPath($line);
     } else {
-      $sep = "<";
+      $sep     = "<";
       $incpath = &incAnglePath($line);
     }
-    next if ($incpath =~ m/\.inc$/); #skip foo.inc
+    next if ($incpath =~ m/\.inc$/);    #skip foo.inc
     $qincpath = &qPath($incpath);
-    if(!defined($Incs{$qincpath})) {
-      if(!&configH($qincpath)){
-        $Incs{$qincpath}{'nth'} = $nth++;       #cardinality, first instance
+    if (!defined($Incs{$qincpath})) {
+      if (!&configH($qincpath)) {
+        $Incs{$qincpath}{'nth'} = $nth++;    #cardinality, first instance
       }
-      $Incs{$qincpath}{'sep'} = $sep;         #separator used, first instance
+      $Incs{$qincpath}{'sep'} = $sep;        #separator used, first instance
     }
-    $Incs{$qincpath}{'count'}++;              #how many times we've seen it
-    $Incs{$qincpath}{'lines'} .= "$linecnt,"; #and what linenos in the file
+    $Incs{$qincpath}{'count'}++;                 #how many times we've seen it
+    $Incs{$qincpath}{'lines'} .= "$linecnt,";    #and what linenos in the file
   } else {
     next;
   }
 
   # look for problems in installed headers
-  if (&installedArg() &&
-      ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
+  if (&installedArg()
+    && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/))
+  {
     # this file is an installed header
 
     # every file it includes must be in angle brackets
@@ -166,13 +174,14 @@ while ($linecnt < $#lines) {
     }
     if (&usingKDECheckSet() && &usingCheckSet("kde4")) {
       if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ && $incpath !~ m+^KParts/.*$+) {
-        if ($incpath !~ m+\.h$+ ) {
+        if ($incpath !~ m+\.h$+) {
           $Issues{'KINC'}{'count'}++;
           $Issues{'KINC'}{'lines'} .= "$linecnt,";
           print "=> $line\n" if (&verboseArg());
         }
       }
     }
+
     # do not include config.h or config-foo.h in an installed header
     if (&configH($incpath)) {
       $Issues{'CONFIG'}{'count'}++;
@@ -181,6 +190,7 @@ while ($linecnt < $#lines) {
     }
     next;
   } else {
+
     # look for problems in non-installed files
     ### TODO
   }
@@ -190,7 +200,7 @@ while ($linecnt < $#lines) {
 ### independent of the type of file (installed or not).
 
 foreach $inc (keys %Incs) {
-  $Incs{$inc}{'lines'} =~ s/,$//; # remove trailing comma
+  $Incs{$inc}{'lines'} =~ s/,$//;    # remove trailing comma
 
   # check for multiply included files
   if ($Incs{$inc}{'count'} > 1) {
@@ -239,83 +249,87 @@ foreach $inc (keys %Incs) {
 }
 
 # check for include positions within a .cpp file
-if ($KRAZY_CPP_INCLUDE_ORDER eq "true" ) {
-my($foo,$foop,$fooi);
-if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/ || $f =~ m/\.c/) {
-  $foo = basename(abs_path($f));
-  $foo=~ s/\.cpp$//; $foo =~ s/\.cxx$//; $foo =~ s/\.cc$//; $foo =~ s/\.c$//;
-  $foop = $foo . "_p.h";
-  $fooi = $foo . "impl.h";
-  $foo  = $foo . ".h";
-  if (defined($Incs{$foo})) {
-    if (defined($Incs{$foo}{'nth'}) && $Incs{$foo}{'nth'} != 1) {
-      $Issues{'OWN1'}{'count'}++;
-      $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
-      print "=> $lines[$Incs{$foo}{'lines'}-1]\n" if (&verboseArg());
-    }
-    if (defined($Incs{$foop})) {
-      if (defined($Incs{$foop}{'nth'}) && $Incs{$foop}{'nth'} != 2) {
-        $Issues{'PRIV2'}{'count'}++;
-        $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
-        print "=> $lines[$Incs{$foop}{'lines'}-1]n" if (&verboseArg());
-      }
-    } elsif (defined($Incs{$fooi})) {
-      if (defined($Incs{$fooi}{'nth'}) && $Incs{$fooi}{'nth'} != 2) {
-        $Issues{'PRIV2'}{'count'}++;
-        $Issues{'PRIV2'}{'lines'} .= "$Incs{$fooi}{'lines'};";
-        print "=> $lines[$Incs{$fooi}{'lines'}-1]n" if (&verboseArg());
-      }
-    }
-  } elsif (defined($Incs{$foop})) {
-    if (defined($Incs{$foop}{'nth'}) && $Incs{$foop}{'nth'} != 1) {
-      $Issues{'PRIV1'}{'count'}++;
-      $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
-      print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
-    }
-  } elsif (defined($Incs{$fooi})) {
-    if (defined($Incs{$fooi}{'nth'}) && $Incs{$fooi}{'nth'} != 1) {
-      $Issues{'PRIV1'}{'count'}++;
-      $Issues{'PRIV1'}{'lines'} .= "$Incs{$fooi}{'lines'};";
-      print "=> $lines[$Incs{$fooi}{'lines'}-1]\n" if (&verboseArg());
-    }
-  }
+if ($KRAZY_CPP_INCLUDE_ORDER eq "true") {
+  my ($foo, $foop, $fooi);
+  if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/ || $f =~ m/\.c/) {
+    $foo = basename(abs_path($f));
+    $foo =~ s/\.cpp$//;
+    $foo =~ s/\.cxx$//;
+    $foo =~ s/\.cc$//;
+    $foo =~ s/\.c$//;
+    $foop = $foo . "_p.h";
+    $fooi = $foo . "impl.h";
+    $foo  = $foo . ".h";
 
-  $foo = basename(dirname(abs_path($f))) . "/" . $foo;
-  $foop = basename(dirname(abs_path($f))) . "/" . $foop;
-  $fooi = basename(dirname(abs_path($f))) . "/" . $fooi;
-  if (defined($Incs{$foo})) {
-    if ($Incs{$foo}{'nth'} != 1) {
-      $Issues{'OWN1'}{'count'}++;
-      $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
-      print "=> $lines[$Incs{$foo}{'lines'}-1]\n" if (&verboseArg());
-    }
-    if (defined($Incs{$foop})) {
-      if ($Incs{$foop}{'nth'} != 2) {
-        $Issues{'PRIV2'}{'count'}++;
-        $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
+    if (defined($Incs{$foo})) {
+      if (defined($Incs{$foo}{'nth'}) && $Incs{$foo}{'nth'} != 1) {
+        $Issues{'OWN1'}{'count'}++;
+        $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
+        print "=> $lines[$Incs{$foo}{'lines'}-1]\n" if (&verboseArg());
+      }
+      if (defined($Incs{$foop})) {
+        if (defined($Incs{$foop}{'nth'}) && $Incs{$foop}{'nth'} != 2) {
+          $Issues{'PRIV2'}{'count'}++;
+          $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
+          print "=> $lines[$Incs{$foop}{'lines'}-1]n" if (&verboseArg());
+        }
+      } elsif (defined($Incs{$fooi})) {
+        if (defined($Incs{$fooi}{'nth'}) && $Incs{$fooi}{'nth'} != 2) {
+          $Issues{'PRIV2'}{'count'}++;
+          $Issues{'PRIV2'}{'lines'} .= "$Incs{$fooi}{'lines'};";
+          print "=> $lines[$Incs{$fooi}{'lines'}-1]n" if (&verboseArg());
+        }
+      }
+    } elsif (defined($Incs{$foop})) {
+      if (defined($Incs{$foop}{'nth'}) && $Incs{$foop}{'nth'} != 1) {
+        $Issues{'PRIV1'}{'count'}++;
+        $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
         print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
       }
     } elsif (defined($Incs{$fooi})) {
-      if ($Incs{$fooi}{'nth'} != 2) {
-        $Issues{'PRIV2'}{'count'}++;
-        $Issues{'PRIV2'}{'lines'} .= "$Incs{$fooi}{'lines'};";
+      if (defined($Incs{$fooi}{'nth'}) && $Incs{$fooi}{'nth'} != 1) {
+        $Issues{'PRIV1'}{'count'}++;
+        $Issues{'PRIV1'}{'lines'} .= "$Incs{$fooi}{'lines'};";
         print "=> $lines[$Incs{$fooi}{'lines'}-1]\n" if (&verboseArg());
       }
     }
-  } elsif (defined($Incs{$foop})) {
-    if ($Incs{$foop}{'nth'} != 1) {
-      $Issues{'PRIV1'}{'count'}++;
-      $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
-      print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
-    }
-  } elsif (defined($Incs{$fooi})) {
-    if ($Incs{$fooi}{'nth'} != 1) {
-      $Issues{'PRIV1'}{'count'}++;
-      $Issues{'PRIV1'}{'lines'} .= "$Incs{$fooi}{'lines'};";
-      print "=> $lines[$Incs{$fooi}{'lines'}-1]\n" if (&verboseArg());
+
+    $foo  = basename(dirname(abs_path($f))) . "/" . $foo;
+    $foop = basename(dirname(abs_path($f))) . "/" . $foop;
+    $fooi = basename(dirname(abs_path($f))) . "/" . $fooi;
+    if (defined($Incs{$foo})) {
+      if ($Incs{$foo}{'nth'} != 1) {
+        $Issues{'OWN1'}{'count'}++;
+        $Issues{'OWN1'}{'lines'} .= "$Incs{$foo}{'lines'};";
+        print "=> $lines[$Incs{$foo}{'lines'}-1]\n" if (&verboseArg());
+      }
+      if (defined($Incs{$foop})) {
+        if ($Incs{$foop}{'nth'} != 2) {
+          $Issues{'PRIV2'}{'count'}++;
+          $Issues{'PRIV2'}{'lines'} .= "$Incs{$foop}{'lines'};";
+          print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
+        }
+      } elsif (defined($Incs{$fooi})) {
+        if ($Incs{$fooi}{'nth'} != 2) {
+          $Issues{'PRIV2'}{'count'}++;
+          $Issues{'PRIV2'}{'lines'} .= "$Incs{$fooi}{'lines'};";
+          print "=> $lines[$Incs{$fooi}{'lines'}-1]\n" if (&verboseArg());
+        }
+      }
+    } elsif (defined($Incs{$foop})) {
+      if ($Incs{$foop}{'nth'} != 1) {
+        $Issues{'PRIV1'}{'count'}++;
+        $Issues{'PRIV1'}{'lines'} .= "$Incs{$foop}{'lines'};";
+        print "=> $lines[$Incs{$foop}{'lines'}-1]\n" if (&verboseArg());
+      }
+    } elsif (defined($Incs{$fooi})) {
+      if ($Incs{$fooi}{'nth'} != 1) {
+        $Issues{'PRIV1'}{'count'}++;
+        $Issues{'PRIV1'}{'lines'} .= "$Incs{$fooi}{'lines'};";
+        print "=> $lines[$Incs{$fooi}{'lines'}-1]\n" if (&verboseArg());
+      }
     }
   }
-}
 }
 
 # check for missing include guard (headers only)
@@ -324,13 +338,13 @@ if ($f =~ m/\.h$/ || $f =~ m/\.hxx$/ && $f !~ m+/tests/+) {
     $Issues{'GUARD'}{'count'} = 1;
   }
   if (&strictArg() eq "all") {
-    if ($sguard =~ m/^_/ || $sguard =~ m/_$/){
+    if ($sguard =~ m/^_/ || $sguard =~ m/_$/) {
       $Issues{'UGUARD'}{'count'} = 1;
     }
   }
 }
 
-my($cnt) = &printResults();
+my ($cnt) = &printResults();
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -338,101 +352,115 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for proper include directives\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Use <..> to include installed headers; cpp file should include their own headers first (but below config.h); other rules apply, see <https://community.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriately encoded macro names.";
+sub Explain
+{
+  print
+"Use <..> to include installed headers; cpp file should include their own headers first (but below config.h); other rules apply, see <https://community.kde.org/Policies/Library_Code_Policy#Getting_.23includes_right>. Use include guards in headers with appropriately encoded macro names.";
   Exit 0 if &explainArg();
 }
 
-sub initIssues() {
+sub initIssues()
+{
   $Issues{'GUARD'}{'issue'} = "missing or improper include guard in header";
-  $Issues{'GUARD'}{'explain'} = "Use an include guard in headers to ensure the header is not included more than once";
+  $Issues{'GUARD'}{'explain'} =
+    "Use an include guard in headers to ensure the header is not included more than once";
   $Issues{'GUARD'}{'count'} = 0;
   $Issues{'GUARD'}{'lines'} = '';
 
   $Issues{'UGUARD'}{'issue'} = "using leading or trailing underscores on include guard in header";
-  $Issues{'UGUARD'}{'explain'} = "Do not use leading or trailing underscores on the include guard macro as as they are reserved for compiler/libc use.";
+  $Issues{'UGUARD'}{'explain'} =
+"Do not use leading or trailing underscores on the include guard macro as as they are reserved for compiler/libc use.";
   $Issues{'UGUARD'}{'count'} = 0;
   $Issues{'UGUARD'}{'lines'} = '';
 
   $Issues{'ANGLE'}{'issue'} = "use angle brackets";
-  $Issues{'ANGLE'}{'explain'} = "Use angle brackets to include installed headers or if the file is an installed header";
+  $Issues{'ANGLE'}{'explain'} =
+    "Use angle brackets to include installed headers or if the file is an installed header";
   $Issues{'ANGLE'}{'count'} = 0;
   $Issues{'ANGLE'}{'lines'} = '';
 
   $Issues{'KINC'}{'issue'} = "use KDE/KClass in angle brackets";
-  $Issues{'KINC'}{'explain'} = "Installed headers must include KClass forwarding headers ithe form <KDE/KClass>";
+  $Issues{'KINC'}{'explain'} =
+    "Installed headers must include KClass forwarding headers ithe form <KDE/KClass>";
   $Issues{'KINC'}{'count'} = 0;
   $Issues{'KINC'}{'lines'} = '';
 
-  $Issues{'QINC'}{'issue'} = "do not include QtModule/QtClass";
+  $Issues{'QINC'}{'issue'}   = "do not include QtModule/QtClass";
   $Issues{'QINC'}{'explain'} = "Use include <QtClass> instead of <QtModule/QtClass>";
-  $Issues{'QINC'}{'count'} = 0;
-  $Issues{'QINC'}{'lines'} = '';
+  $Issues{'QINC'}{'count'}   = 0;
+  $Issues{'QINC'}{'lines'}   = '';
 
-  $Issues{'QMOD'}{'issue'} = "do not include QtModules";
+  $Issues{'QMOD'}{'issue'}   = "do not include QtModules";
   $Issues{'QMOD'}{'explain'} = "Do not include QtModules";
-  $Issues{'QMOD'}{'count'} = 0;
-  $Issues{'QMOD'}{'lines'} = '';
+  $Issues{'QMOD'}{'count'}   = 0;
+  $Issues{'QMOD'}{'lines'}   = '';
 
   $Issues{'QMIX'}{'issue'} = "do not include Qt/qfoo.h";
-  $Issues{'QMIX'}{'explain'} = "Do not include Qt/qfoo.h. When compiling Mac OS X with frameworks enabled, there is no include/Qt/ directory. This directory only exists so that the qt3-style #include <qfoo.h> still works, but was never intended to be used as #include <Qt/foo.h>.";
+  $Issues{'QMIX'}{'explain'} =
+"Do not include Qt/qfoo.h. When compiling Mac OS X with frameworks enabled, there is no include/Qt/ directory. This directory only exists so that the qt3-style #include <qfoo.h> still works, but was never intended to be used as #include <Qt/foo.h>.";
   $Issues{'QMIX'}{'count'} = 0;
   $Issues{'QMIX'}{'lines'} = '';
 
-  $Issues{'DUPE'}{'issue'} = "duplicate includes";
+  $Issues{'DUPE'}{'issue'}   = "duplicate includes";
   $Issues{'DUPE'}{'explain'} = "Do not include a header more than once";
-  $Issues{'DUPE'}{'count'} = 0;
-  $Issues{'DUPE'}{'lines'} = '';
+  $Issues{'DUPE'}{'count'}   = 0;
+  $Issues{'DUPE'}{'lines'}   = '';
 
-  $Issues{'DONT'}{'issue'} = "never include";
+  $Issues{'DONT'}{'issue'}   = "never include";
   $Issues{'DONT'}{'explain'} = "We never want to include these headers";
-  $Issues{'DONT'}{'count'} = 0;
-  $Issues{'DONT'}{'lines'} = '';
+  $Issues{'DONT'}{'count'}   = 0;
+  $Issues{'DONT'}{'lines'}   = '';
 
   $Issues{'OWN1'}{'issue'} = "include own header first";
-  $Issues{'OWN1'}{'explain'} = "foo.cpp should always include its own header foo.h first, helping to check that foo.h is usable as standalone";
+  $Issues{'OWN1'}{'explain'} =
+"foo.cpp should always include its own header foo.h first, helping to check that foo.h is usable as standalone";
   $Issues{'OWN1'}{'count'} = 0;
   $Issues{'OWN1'}{'lines'} = '';
 
   $Issues{'PRIV2'}{'issue'} = "include own _p or impl header second";
-  $Issues{'PRIV2'}{'explain'} = "foo.cpp should include its own header foo.h first, followed by its private header foo_p.h or fooimpl.h second";
+  $Issues{'PRIV2'}{'explain'} =
+"foo.cpp should include its own header foo.h first, followed by its private header foo_p.h or fooimpl.h second";
   $Issues{'PRIV2'}{'count'} = 0;
   $Issues{'PRIV2'}{'lines'} = '';
 
   $Issues{'PRIV1'}{'issue'} = "include own _p or impl header first";
-  $Issues{'PRIV1'}{'explain'} = "foo.cpp should include its own private header foo_p.h or fooimplh first if there is no foo.h header";
+  $Issues{'PRIV1'}{'explain'} =
+"foo.cpp should include its own private header foo_p.h or fooimplh first if there is no foo.h header";
   $Issues{'PRIV1'}{'count'} = 0;
   $Issues{'PRIV1'}{'lines'} = '';
 
-  $Issues{'CONFIG'}{'issue'} = "config.h in installed header";
+  $Issues{'CONFIG'}{'issue'}   = "config.h in installed header";
   $Issues{'CONFIG'}{'explain'} = "config.h should not be included in an installed header";
-  $Issues{'CONFIG'}{'count'} = 0;
-  $Issues{'CONFIG'}{'lines'} = '';
+  $Issues{'CONFIG'}{'count'}   = 0;
+  $Issues{'CONFIG'}{'lines'}   = '';
 
-  $Issues{'CONFIGSEP'}{'issue'} = "put config.h in angle brackets";
+  $Issues{'CONFIGSEP'}{'issue'}   = "put config.h in angle brackets";
   $Issues{'CONFIGSEP'}{'explain'} = "Use angle brackets to include generated config.h headers";
-  $Issues{'CONFIGSEP'}{'count'} = 0;
-  $Issues{'CONFIGSEP'}{'lines'} = '';
+  $Issues{'CONFIGSEP'}{'count'}   = 0;
+  $Issues{'CONFIGSEP'}{'lines'}   = '';
 }
 
-sub printResults() {
-  my($guy);
-  my($check_num)=0;
-  my($tot)=0;
-  my($cline,$rline);
-  my($fred);
+sub printResults()
+{
+  my ($guy);
+  my ($check_num) = 0;
+  my ($tot)       = 0;
+  my ($cline, $rline);
+  my ($fred);
   foreach $guy (keys %Issues) {
-next if ($guy eq "ANGLE");  # controversial
+    next if ($guy eq "ANGLE");    # controversial
     $cline = "$Issues{$guy}{'issue'}";
 
     $Issues{$guy}{'lines'} =~ s/,[[:space:]]*$//;
@@ -447,16 +475,18 @@ next if ($guy eq "ANGLE");  # controversial
   return $tot;
 }
 
-sub incPath {
-  my($in) = @_;
-  my($fred);
+sub incPath
+{
+  my ($in) = @_;
+  my ($fred);
   $in =~ s+^\s*#\s*include[[:space:]]++;
-  ($fred,$in) = split('"',$in);
+  ($fred, $in) = split('"', $in);
   return $in;
 }
 
-sub incAnglePath {
-  my($in) = @_;
+sub incAnglePath
+{
+  my ($in) = @_;
   $in =~ s+>.*$++;
   $in =~ s+^\s*#\s*include[[:space:]]++;
   $in =~ s+<++;
@@ -464,11 +494,12 @@ sub incAnglePath {
 }
 
 # turns QtModule/QFoo or QtModule/qfoo.h into qfoo.h
-sub qPath {
-  my($p) = @_;
-  my($t);
+sub qPath
+{
+  my ($p) = @_;
+  my ($t);
   if ($p =~ m+^Qt[[:alpha:]]/[Qq].*$+) {
-    ($t,$p) = split("/",$p);
+    ($t, $p) = split("/", $p);
     $p = lc($p);
     $p .= ".h" if ($p !~ m/\.h$/);
   }
@@ -476,121 +507,129 @@ sub qPath {
 }
 
 # determine if $1 is a QtModule
-sub qModule {
-  my($p) = @_;
-  if($p eq "Enginio" ||
-     $p eq "Qt3DAnimation" ||
-     $p eq "Qt3DCore" ||
-     $p eq "Qt3DExtras" ||
-     $p eq "Qt3DInput" ||
-     $p eq "Qt3DLogic" ||
-     $p eq "Qt3DQuick" ||
-     $p eq "Qt3DQuickAnimation" ||
-     $p eq "Qt3DQuickExtras" ||
-     $p eq "Qt3DQuickInput" ||
-     $p eq "Qt3DQuickRender" ||
-     $p eq "Qt3DQuickScene2D" ||
-     $p eq "Qt3DRender" ||
-     $p eq "QtAccessibilitySupport" ||
-     $p eq "QtBluetooth" ||
-     $p eq "QtCharts" ||
-     $p eq "QtCore" ||
-     $p eq "QtDataVisualization" ||
-     $p eq "QtDBus" ||
-     $p eq "QtDesigner" ||
-     $p eq "QtDesignerComponents" ||
-     $p eq "QtDeviceDiscoverySupport" ||
-     $p eq "QtEdidSupport" ||
-     $p eq "QtEglFSDeviceIntegration" ||
-     $p eq "QtEglSupport" ||
-     $p eq "QtEventDispatcherSupport" ||
-     $p eq "QtFbSupport" ||
-     $p eq "QtFontDatabaseSupport" ||
-     $p eq "QtGamepad" ||
-     $p eq "QtGlxSupport" ||
-     $p eq "QtGui" ||
-     $p eq "QtHelp" ||
-     $p eq "QtInputSupport" ||
-     $p eq "QtKmsSupport" ||
-     $p eq "QtLinuxAccessibilitySupport" ||
-     $p eq "QtLocation" ||
-     $p eq "QtMultimedia" ||
-     $p eq "QtMultimediaGstTools" ||
-     $p eq "QtMultimediaQuick" ||
-     $p eq "QtMultimediaWidgets" ||
-     $p eq "QtNetwork" ||
-     $p eq "QtNetworkAuth" ||
-     $p eq "QtNfc" ||
-     $p eq "QtOpenGL" ||
-     $p eq "QtOpenGLExtensions" ||
-     $p eq "QtPacketProtocol" ||
-     $p eq "QtPlatformCompositorSupport" ||
-     $p eq "QtPlatformHeaders" ||
-     $p eq "QtPositioning" ||
-     $p eq "QtPositioningQuick" ||
-     $p eq "QtPrintSupport" ||
-     $p eq "QtQml" ||
-     $p eq "QtQmlDebug" ||
-     $p eq "QtQmlModels" ||
-     $p eq "QtQmlWorkerScript" ||
-     $p eq "QtQuick" ||
-     $p eq "QtQuickControls2" ||
-     $p eq "QtQuickParticles" ||
-     $p eq "QtQuickShapes" ||
-     $p eq "QtQuickTemplates2" ||
-     #$p eq "QtQuickTest" ||
-     $p eq "QtQuickWidgets" ||
-     $p eq "QtRemoteObjects" ||
-     $p eq "QtRepParser" ||
-     $p eq "QtScript" ||
-     $p eq "QtScriptTools" ||
-     $p eq "QtScxml" ||
-     $p eq "QtSensors" ||
-     $p eq "QtSerialBus" ||
-     $p eq "QtSerialPort" ||
-     $p eq "QtServiceSupport" ||
-     $p eq "QtSql" ||
-     $p eq "QtSvg" ||
-     $p eq "QtTest" ||
-     $p eq "QtTextToSpeech" ||
-     $p eq "QtThemeSupport" ||
-     $p eq "QtUiPlugin" ||
-     $p eq "QtUiTools" ||
-     $p eq "QtWaylandClient" ||
-     $p eq "QtWaylandCompositor" ||
-     $p eq "QtWebChannel" ||
-     $p eq "QtWebEngine" ||
-     $p eq "QtWebEngineCore" ||
-     $p eq "QtWebEngineWidgets" ||
-     $p eq "QtWebKit" ||
-     $p eq "QtWebKitWidgets" ||
-     $p eq "QtWebSockets" ||
-     $p eq "QtWebView" ||
-     $p eq "QtWidgets" ||
-     $p eq "QtX11Extras" ||
-     $p eq "QtXcb" ||
-     $p eq "QtXkbCommonSupport" ||
-     $p eq "QtXml" ||
-     $p eq "QtXmlPatterns" ||
-     #Qt4 starts here
-     $p eq "QtAssistant" ||
-     $p eq "Qt3Support"
-    ) {
+sub qModule
+{
+  my ($p) = @_;
+  if (
+       $p eq "Enginio"
+    || $p eq "Qt3DAnimation"
+    || $p eq "Qt3DCore"
+    || $p eq "Qt3DExtras"
+    || $p eq "Qt3DInput"
+    || $p eq "Qt3DLogic"
+    || $p eq "Qt3DQuick"
+    || $p eq "Qt3DQuickAnimation"
+    || $p eq "Qt3DQuickExtras"
+    || $p eq "Qt3DQuickInput"
+    || $p eq "Qt3DQuickRender"
+    || $p eq "Qt3DQuickScene2D"
+    || $p eq "Qt3DRender"
+    || $p eq "QtAccessibilitySupport"
+    || $p eq "QtBluetooth"
+    || $p eq "QtCharts"
+    || $p eq "QtCore"
+    || $p eq "QtDataVisualization"
+    || $p eq "QtDBus"
+    || $p eq "QtDesigner"
+    || $p eq "QtDesignerComponents"
+    || $p eq "QtDeviceDiscoverySupport"
+    || $p eq "QtEdidSupport"
+    || $p eq "QtEglFSDeviceIntegration"
+    || $p eq "QtEglSupport"
+    || $p eq "QtEventDispatcherSupport"
+    || $p eq "QtFbSupport"
+    || $p eq "QtFontDatabaseSupport"
+    || $p eq "QtGamepad"
+    || $p eq "QtGlxSupport"
+    || $p eq "QtGui"
+    || $p eq "QtHelp"
+    || $p eq "QtInputSupport"
+    || $p eq "QtKmsSupport"
+    || $p eq "QtLinuxAccessibilitySupport"
+    || $p eq "QtLocation"
+    || $p eq "QtMultimedia"
+    || $p eq "QtMultimediaGstTools"
+    || $p eq "QtMultimediaQuick"
+    || $p eq "QtMultimediaWidgets"
+    || $p eq "QtNetwork"
+    || $p eq "QtNetworkAuth"
+    || $p eq "QtNfc"
+    || $p eq "QtOpenGL"
+    || $p eq "QtOpenGLExtensions"
+    || $p eq "QtPacketProtocol"
+    || $p eq "QtPlatformCompositorSupport"
+    || $p eq "QtPlatformHeaders"
+    || $p eq "QtPositioning"
+    || $p eq "QtPositioningQuick"
+    || $p eq "QtPrintSupport"
+    || $p eq "QtQml"
+    || $p eq "QtQmlDebug"
+    || $p eq "QtQmlModels"
+    || $p eq "QtQmlWorkerScript"
+    || $p eq "QtQuick"
+    || $p eq "QtQuickControls2"
+    || $p eq "QtQuickParticles"
+    || $p eq "QtQuickShapes"
+    || $p eq "QtQuickTemplates2"
+    ||
+
+    #$p eq "QtQuickTest" ||
+       $p eq "QtQuickWidgets"
+    || $p eq "QtRemoteObjects"
+    || $p eq "QtRepParser"
+    || $p eq "QtScript"
+    || $p eq "QtScriptTools"
+    || $p eq "QtScxml"
+    || $p eq "QtSensors"
+    || $p eq "QtSerialBus"
+    || $p eq "QtSerialPort"
+    || $p eq "QtServiceSupport"
+    || $p eq "QtSql"
+    || $p eq "QtSvg"
+    || $p eq "QtTest"
+    || $p eq "QtTextToSpeech"
+    || $p eq "QtThemeSupport"
+    || $p eq "QtUiPlugin"
+    || $p eq "QtUiTools"
+    || $p eq "QtWaylandClient"
+    || $p eq "QtWaylandCompositor"
+    || $p eq "QtWebChannel"
+    || $p eq "QtWebEngine"
+    || $p eq "QtWebEngineCore"
+    || $p eq "QtWebEngineWidgets"
+    || $p eq "QtWebKit"
+    || $p eq "QtWebKitWidgets"
+    || $p eq "QtWebSockets"
+    || $p eq "QtWebView"
+    || $p eq "QtWidgets"
+    || $p eq "QtX11Extras"
+    || $p eq "QtXcb"
+    || $p eq "QtXkbCommonSupport"
+    || $p eq "QtXml"
+    || $p eq "QtXmlPatterns"
+    ||
+
+    #Qt4 starts here
+    $p eq "QtAssistant" || $p eq "Qt3Support"
+    )
+  {
     return 1;
   } else {
-    return 0
+    return 0;
   }
 }
 
 # determine if $1 is a config.h type file
-sub configH {
-  my($p) = @_;
-  if($p eq "config.h" ||
-     $p =~ m+config-[[:alpha:]]*\.h+ ||
-     $p =~ m+version-[[:alpha:]]*\.h+ ||
-     $p =~ m+[[:alpha:]]*-config\.h+) {
+sub configH
+{
+  my ($p) = @_;
+  if ( $p eq "config.h"
+    || $p =~ m+config-[[:alpha:]]*\.h+
+    || $p =~ m+version-[[:alpha:]]*\.h+
+    || $p =~ m+[[:alpha:]]*-config\.h+)
+  {
     return 1;
-  } elsif($p =~ m+/qcompilerdetection\.h+) { #typically this needs to first
+  } elsif ($p =~ m+/qcompilerdetection\.h+) {    #typically this needs to first
     return 1;
   } else {
     return 0;
@@ -598,14 +637,16 @@ sub configH {
 }
 
 # determine if $1 is a "blacklisted" include (never use it)
-sub blackList {
-  my($p) = @_;
-#  if ($p =~ m+X11/+) {
-#    return 1;
-#  }
-# apparently malloc.h is required on older systems that we support
-#  if($p eq "malloc.h") {
-#    return 1;
-#  }
+sub blackList
+{
+  my ($p) = @_;
+
+  #  if ($p =~ m+X11/+) {
+  #    return 1;
+  #  }
+  # apparently malloc.h is required on older systems that we support
+  #  if($p eq "malloc.h") {
+  #    return 1;
+  #  }
   return 0;
 }

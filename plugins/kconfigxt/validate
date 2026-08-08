@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2008 Allen Winter <winter@kde.org>                  #
@@ -28,41 +28,41 @@ use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
-my($Prog) = "validate";
-my($Version) = "1.11";
+my ($Prog)    = "validate";
+my ($Version) = "1.11";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
-my($valp) = "$Bin/../../krazy-helpers/xmllint";
-if ( ! -x $valp ) {
+my ($valp) = "$Bin/../../krazy-helpers/xmllint";
+if (!-x $valp) {
   $valp = "/usr/local/bin/xmllint";
-  if ( ! -x $valp ) {
+  if (!-x $valp) {
     $valp = "xmllint";
   }
 }
 
 #look for krazy directives in the file
 open(F, "$f") || die "Couldn't open $f";
-my($line);
+my ($line);
 while ($line = <F>) {
   Exit 0
-    if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
-        $line =~ m+#.*[Kk]razy:skip+);
+    if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+#.*[Kk]razy:skip+);
 }
 close(F);
 
-my($dtd)="$Bin/../../../../share";
+my ($dtd) = "$Bin/../../../../share";
 $dtd .= "/dtd/kcfg.xsd";
 
 #now process the file
-my($cnt) = &processFile($f);
+my ($cnt) = &processFile($f);
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -70,28 +70,34 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Validates KConfigXT files using 'xmllint'\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
+sub Explain
+{
   print "Please make sure your .kcfg files conform to the KConfigXT schema\n";
   Exit 0 if &explainArg();
 }
 
-my($ln,$subprob);
-sub processFile() {
-  my($in) = @_;
-  my($line,$result);
-  my($cnt)=0;
-  open(VAL, "$valp --noout --debugent --schema $dtd $in 2>&1 | ") || print STDERR "Cannot run: xmllint\n";
-  while($line = <VAL>) {
+my ($ln, $subprob);
+
+sub processFile()
+{
+  my ($in) = @_;
+  my ($line, $result);
+  my ($cnt) = 0;
+  open(VAL, "$valp --noout --debugent --schema $dtd $in 2>&1 | ")
+    || print STDERR "Cannot run: xmllint\n";
+  while ($line = <VAL>) {
     chomp($line);
     $result = &analyze($line);
     if ($result && $line) {
@@ -101,8 +107,8 @@ sub processFile() {
       $line =~ s+^$f:\s*++;
       $line =~ s+^warning:\s*++;
       $line =~ s+^error:\s*++;
-      ($ln,$line,$subprob) = split(":",$line);
-      $line =~ s/^\s*//;
+      ($ln, $line, $subprob) = split(":", $line);
+      $line    =~ s/^\s*//;
       $subprob =~ s/^\s*//;
       print "$line, $subprob" . "line\#$ln\n" if (!&quietArg());
     }
@@ -111,8 +117,9 @@ sub processFile() {
   return $cnt;
 }
 
-sub analyze() {
-  my($line) = @_;
+sub analyze()
+{
+  my ($line) = @_;
   if ($line =~ m+error\s*:+) {
     return "ERROR";
   }

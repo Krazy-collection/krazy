@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2019 Allen Winter <winter@kde.org>                  #
@@ -33,44 +33,46 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "insecurenet";
-my($Version) = "0.991";
+my ($Prog)    = "insecurenet";
+my ($Version) = "0.991";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
-my($absf) = abs_path($f);
+my ($f)    = $ARGV[0];
+my ($absf) = abs_path($f);
 
-my($filetype) = &fileType($f);
+my ($filetype) = &fileType($f);
 
 # open file and slurp it in
 open(F, $f) || die "Couldn't open $f";
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
-my(@lines);
+my (@lines);
 if ($filetype eq "c++") {
+
   # Remove Krazy conditional blocks
-  @lines = RemoveCondBlockC( $Prog, @data_lines );
+  @lines = RemoveCondBlockC($Prog, @data_lines);
 } else {
   @lines = @data_lines;
 }
 
-my($linecnt) = 0;
-my($http_cnt) = 0;
-my($http_str) = "";
+my ($linecnt)  = 0;
+my ($http_cnt) = 0;
+my ($http_str) = "";
 
-my($line);
+my ($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
   if ($filetype eq "c++") {
-    if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-        $line =~ m+//.*[Kk]razy:skip+) {
+    if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+      || $line =~ m+//.*[Kk]razy:skip+)
+    {
       $http_cnt = 0;
       last;
     }
@@ -84,11 +86,11 @@ while ($linecnt < $#lines) {
   if ($line =~ m+http:+i && $line !~ m+QLatin1StringView\(\"http:+) {
     $http_cnt++;
     if ($http_cnt == 1) {
-        $http_str = "line\#" . $linecnt;
-      } else {
-        $http_str = $http_str . "," . $linecnt;
-      }
-      print "=> $linecnt: $line\n" if (&verboseArg());
+      $http_str = "line\#" . $linecnt;
+    } else {
+      $http_str = $http_str . "," . $linecnt;
+    }
+    print "=> $linecnt: $line\n" if (&verboseArg());
   }
 }
 
@@ -100,66 +102,77 @@ if (!$http_cnt) {
   Exit $http_cnt;
 }
 
-sub whiteList {
-  my($l) = @_;
-  return 1 if
-    ($l =~ m+http://\"+) ||
-    ($l =~ m+http://\<+) ||
+sub whiteList
+{
+  my ($l) = @_;
+  return 1
+    if ($l =~ m+http://\"+)
+    || ($l =~ m+http://\<+)
+    ||
+
     #time for people to change trolltech to qt-project
     #($l =~ m+//www.trolltech.com/+) || # no longer exists and there is no https
     #https doesn't exist for these
-    ($l =~ m+//xmlsoft.org+) ||
-    ($l =~ m+//www.xmlsoft.org+) ||
-    ($l =~ m+//www.icu-project.org+) ||
-    ($l =~ m+//0pointer.de/+) ||
-    ($l =~ m+//id3.org+) ||
-    ($l =~ m+//docs.oasis-open.org+) ||
-    ($l =~ m+//timestamp.globalsign.com+) ||
-    ($l =~ m+//filmicworlds.com+) ||
-    ($l =~ m+//www.open-std.org+) ||
+       ($l =~ m+//xmlsoft.org+)
+    || ($l =~ m+//www.xmlsoft.org+)
+    || ($l =~ m+//www.icu-project.org+)
+    || ($l =~ m+//0pointer.de/+)
+    || ($l =~ m+//id3.org+)
+    || ($l =~ m+//docs.oasis-open.org+)
+    || ($l =~ m+//timestamp.globalsign.com+)
+    || ($l =~ m+//filmicworlds.com+)
+    || ($l =~ m+//www.open-std.org+)
+    ||
 
-    ($l =~ m+//www.example.com+) ||
-    ($l =~ m+//example.com+) ||
-    ($l =~ m+//127.0.0.1+) ||
-    ($l =~ m+//localhost+) ||
+       ($l =~ m+//www.example.com+)
+    || ($l =~ m+//example.com+)
+    || ($l =~ m+//127.0.0.1+)
+    || ($l =~ m+//localhost+)
+    ||
 
     #Technically issues, but very widely used in license headers
-    ($l =~ m+//www.gnu.org/licenses/+) ||
-    ($l =~ m+//www.gnu.org/copyleft/+) ||
-    ($l =~ m+//www.qt-project.org/legal+) ||
-    ($l =~ m+//www.equi4.com/metakit+) ||
+       ($l =~ m+//www.gnu.org/licenses/+)
+    || ($l =~ m+//www.gnu.org/copyleft/+)
+    || ($l =~ m+//www.qt-project.org/legal+)
+    || ($l =~ m+//www.equi4.com/metakit+)
+    ||
 
     #schemas-n-stuff
-    ($l =~ m+//www.kde.org/standards/kcfg/+) ||
-    ($l =~ m+//www.kde.org/standards/kxmlgui/+) ||
-    ($l =~ m+//www.freedesktop.org/standards/+) ||
-    ($l =~ m+//www.w3.org/+) ||
+       ($l =~ m+//www.kde.org/standards/kcfg/+)
+    || ($l =~ m+//www.kde.org/standards/kxmlgui/+)
+    || ($l =~ m+//www.freedesktop.org/standards/+)
+    || ($l =~ m+//www.w3.org/+)
+    ||
 
-    ($l =~ m+//docbook.sf.net/+) ||
-    ($l =~ m+//schemas.xmlsoap.org/+) ||
-    ($l =~ m+//www.inkscape.org/+) ||
-    ($l =~ m+//purl.org/+) ||
-    ($l =~ m+//schema.org+) ||
-    ($l =~ m+//xml.org/sax/+) ||
-    ($l =~ m+​schemas.google.com+) ||
-    ($l =~ m+schemas.microsoft.com+) ||
-    ($l =~ m+​semanticdesktop.org/onto+) ||
-    ($l =~ m+//nepomuk.kde.org/ontologies/+);
+       ($l =~ m+//docbook.sf.net/+)
+    || ($l =~ m+//schemas.xmlsoap.org/+)
+    || ($l =~ m+//www.inkscape.org/+)
+    || ($l =~ m+//purl.org/+)
+    || ($l =~ m+//schema.org+)
+    || ($l =~ m+//xml.org/sax/+)
+    || ($l =~ m+​schemas.google.com+)
+    || ($l =~ m+schemas.microsoft.com+)
+    || ($l =~ m+​semanticdesktop.org/onto+)
+    || ($l =~ m+//nepomuk.kde.org/ontologies/+);
 
   return 0;
 }
 #
-sub Help {
+sub Help
+{
   print "Check for URLs not using transport encryption\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Prefer URLs using transport encryption.  See <https://www.volkerkrause.eu/2018/12/08/kde-privacy-finding-insecure-network-connections.html> for more information.\n";
+sub Explain
+{
+  print
+"Prefer URLs using transport encryption.  See <https://www.volkerkrause.eu/2018/12/08/kde-privacy-finding-insecure-network-connections.html> for more information.\n";
   Exit 0 if &explainArg();
 }

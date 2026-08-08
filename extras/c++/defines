@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2008 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "defines";
-my($Version) = "1.30";
+my ($Prog)    = "defines";
+my ($Version) = "1.30";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 #open file and slurp it in
 if (&fileType($f) eq "c++") {
@@ -48,40 +48,46 @@ if (&fileType($f) eq "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
-# Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($line,$pline);
-my($lstr) = "";
-my($key,$val);
+# Remove Krazy conditional blocks
+@lines = RemoveCondBlockC($Prog, @lines);
+
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($line, $pline);
+my ($lstr) = "";
+my ($key, $val);
 foreach $line (@lines) {
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
 
   $linecnt++;
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
   if ($line =~ m/^[[:space:]]*#[[:space:]]*define[[:space:]][_[:alnum:]]/) {
     $pline = $line;
     $pline =~ s+^\s*#\s*define\s++;
-    ($key,$val) = split(' ',$pline);
+    ($key, $val) = split(' ', $pline);
     if (defined($key) && defined($val) && $val =~ m/^[[:digit:]]/) {
-      next if ($key =~ m/HAVE_/ || $key =~ m/YY_/ || $key =~ m/GNU_/ ||
-               $key =~ m/DEBUG/ || $key =~ m/DBG/);
-      next if ($key =~ m/\(.*\)/); # skip macros
-      next if ($val =~ m/^0[xX]/); # skip hex
-      next if ($val =~ m/^[0-9]$/); # skip single digit ints
+      next
+        if ($key =~ m/HAVE_/
+        || $key =~ m/YY_/
+        || $key =~ m/GNU_/
+        || $key =~ m/DEBUG/
+        || $key =~ m/DBG/);
+      next if ($key =~ m/\(.*\)/);     # skip macros
+      next if ($val =~ m/^0[xX]/);     # skip hex
+      next if ($val =~ m/^[0-9]$/);    # skip single digit ints
       $cnt++;
       if ($cnt == 1) {
         $lstr = "line\#" . $linecnt;
@@ -101,17 +107,21 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for \'#define\' usage\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Use static const variables instead of defining integers or floats. This provides type-safety.\n";
+sub Explain
+{
+  print
+"Use static const variables instead of defining integers or floats. This provides type-safety.\n";
   Exit 0 if &explainArg();
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2008 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "qbytearray";
-my($Version) = "1.1";
+my ($Prog)    = "qbytearray";
+my ($Version) = "1.1";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++, non-headers only)
 if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/) {
@@ -48,26 +48,27 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
-my($dcnt) = 0; #QString data()/constData() issues
-my($linecnt) = 0;
-my($line);
-my($dlstr) = "";
+my ($dcnt)    = 0;    #QString data()/constData() issues
+my ($linecnt) = 0;
+my ($line);
+my ($dlstr) = "";
 foreach $line (@lines) {
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $dcnt = 0;
     last;
   }
 
   $linecnt++;
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
   #data(), constData() checks
   if ($line =~ m:[\w\s]+=\s*\w+\.(toLatin1|toAscii|toUtf8|toLocal8Bit)\(\)\.(data|constData)\(\):) {
@@ -82,7 +83,7 @@ foreach $line (@lines) {
   }
 }
 
-my($total_count) = $dcnt;
+my ($total_count) = $dcnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -93,17 +94,21 @@ if (!$total_count) {
   Exit $total_count;
 }
 
-sub Help {
+sub Help
+{
   print "Check for dangerous or inefficient QByteArray usage\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Do not assign the result of QString::QByteArray.data() or QString::QByteArray::constData(); instead use temporary storage.  For example, data=str.toAscii().data() is safer as QByteArray b=str.toAscii(); data=b.data()\n";
+sub Explain
+{
+  print
+"Do not assign the result of QString::QByteArray.data() or QString::QByteArray::constData(); instead use temporary storage.  For example, data=str.toAscii().data() is safer as QByteArray b=str.toAscii(); data=b.data()\n";
   Exit 0 if &explainArg();
 }

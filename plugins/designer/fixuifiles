@@ -4,7 +4,7 @@
 #  check for auto-added captions that are equal to classname
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2007 Allen Winter <winter@kde.org>                  #
@@ -31,8 +31,8 @@ use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
-my($Prog) = "fixuifiles";
-my($Version) = "1.1";
+my ($Prog)    = "fixuifiles";
+my ($Version) = "1.1";
 
 # the version number in .ui files cannot be bigger than these values
 my $minversion_maj = 4;
@@ -40,33 +40,34 @@ my $minversion_min = 0;
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 open(F, "$f") || die "Couldn't open $f";
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($line);
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($line);
 
 while ($line = <F>) {
   $linecnt++;
 
   # checks for designer version
-  if ( $line =~ m/version=\"([0-9]+)\.([0-9]+)(\.[0-9]+)?\"/ ) {
+  if ($line =~ m/version=\"([0-9]+)\.([0-9]+)(\.[0-9]+)?\"/) {
     my $version_maj = $1;
     my $version_min = $2;
-    if ( $version_maj > $minversion_maj ||
-	 ( $version_maj == $minversion_maj && $version_min > $minversion_min ) ) {
+    if ($version_maj > $minversion_maj
+      || ($version_maj == $minversion_maj && $version_min > $minversion_min))
+    {
       $cnt++;
     }
   }
 
   # checks for auto-added Alt+letter accelerators - these are untranslatable
-  if ( $line =~ m/<string>Alt\+[A-Z]<\/string>/ ) {
+  if ($line =~ m/<string>Alt\+[A-Z]<\/string>/) {
     $cnt++;
   }
 
@@ -83,17 +84,21 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for files that need to be fixed by 'fixuifiles'\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Please run the kde-dev-scripts/fixuifiles on all your .ui files as there are some artifacts created by Qt designer that are undesirable for KDE.\n";
+sub Explain
+{
+  print
+"Please run the kde-dev-scripts/fixuifiles on all your .ui files as there are some artifacts created by Qt designer that are undesirable for KDE.\n";
   Exit 0 if &explainArg();
 }

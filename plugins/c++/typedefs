@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2008 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "typedefs";
-my($Version) = "1.11";
+my ($Prog)    = "typedefs";
+my ($Version) = "1.11";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++ only)
 if ((&fileType($f) eq "c++") && !isCSource($f)) {
@@ -48,50 +48,52 @@ if ((&fileType($f) eq "c++") && !isCSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
+
 # Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+@lines = RemoveCondBlockC($Prog, @lines);
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($lstr) = "";
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($lstr)    = "";
 
-my($line);
+my ($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
-  &doIt($line,  'int8_t','qint8');
-  &doIt($line,'u_int8_t','quint8');
+  &doIt($line, 'int8_t',   'qint8');
+  &doIt($line, 'u_int8_t', 'quint8');
 
-  &doIt($line,  'int16_t','qint16');
-  &doIt($line,'u_int16_t','quint16');
+  &doIt($line, 'int16_t',   'qint16');
+  &doIt($line, 'u_int16_t', 'quint16');
 
-  &doIt($line,  'int32_t','qint32');
-  &doIt($line,'u_int32_t','quint32');
+  &doIt($line, 'int32_t',   'qint32');
+  &doIt($line, 'u_int32_t', 'quint32');
 
-  &doIt($line,  'int64_t','qint64');
-  &doIt($line,'u_int64_t','quint64');
+  &doIt($line, 'int64_t',   'qint64');
+  &doIt($line, 'u_int64_t', 'quint64');
 
-  &doIt($line,'u_char', 'uchar');
-  &doIt($line,'u_short','ushort');
-  &doIt($line,'u_int',  'uint');
-  &doIt($line,'u_long', 'ulong');
+  &doIt($line, 'u_char',  'uchar');
+  &doIt($line, 'u_short', 'ushort');
+  &doIt($line, 'u_int',   'uint');
+  &doIt($line, 'u_long',  'ulong');
 
-#other Qt typedefs in qglobal.h:
-#qlonglong, qulonglong
-#qptrdiff, quintptr
-#qreal
+  #other Qt typedefs in qglobal.h:
+  #qlonglong, qulonglong
+  #qptrdiff, quintptr
+  #qreal
 }
 
 if (!$cnt) {
@@ -103,9 +105,10 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub doIt() {
-  my($line,$tdef,$qtype) = @_;
-  if (&bTypedef($line,$tdef)) {
+sub doIt()
+{
+  my ($line, $tdef, $qtype) = @_;
+  if (&bTypedef($line, $tdef)) {
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
@@ -117,8 +120,9 @@ sub doIt() {
   }
 }
 
-sub bTypedef() {
-  my($l,$tdef) = @_;
+sub bTypedef()
+{
+  my ($l, $tdef) = @_;
   if ($l =~ m/[\s\(;,<]$tdef[\s\*\&>]/) {
     return 1;
   } else {
@@ -126,17 +130,21 @@ sub bTypedef() {
   }
 }
 
-sub Help {
+sub Help
+{
   print "Check for typedefs that should be replaced by Qt typedefs\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Please use Qt typedefs (like qint32 and qreal) as defined in QGlobals. These typedefs are guaranteed to have the size in bits that the name states on all platforms. \n";
+sub Explain
+{
+  print
+"Please use Qt typedefs (like qint32 and qreal) as defined in QGlobals. These typedefs are guaranteed to have the size in bits that the name states on all platforms. \n";
   Exit 0 if &explainArg();
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2014 Allen Winter <winter@kde.org>                  #
@@ -34,19 +34,19 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "crud";
-my($Version) = "0.15";
+my ($Prog)    = "crud";
+my ($Version) = "0.15";
 
-my($MAX) = 50; #some crud we look for only at the top of the file
+my ($MAX) = 50;    #some crud we look for only at the top of the file
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 if (&fileType($f) eq "c++" || &fileType($f) eq "perl" || &fileType($f) eq "python") {
   open(F, "$f") || die "Couldn't open $f";
@@ -57,21 +57,22 @@ if (&fileType($f) eq "c++" || &fileType($f) eq "perl" || &fileType($f) eq "pytho
 
 #open file and slurp it in
 open(F, "$f") || die "Couldn't open $f";
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove Krazy conditional blocks
-my(@lines);
-@lines = RemoveCondBlockC( $Prog, @data_lines );
+my (@lines);
+@lines = RemoveCondBlockC($Prog, @data_lines);
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($lstr) = "";
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($lstr)    = "";
 
-my($line);
+my ($line);
 foreach $line (@lines) {
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
@@ -81,18 +82,24 @@ foreach $line (@lines) {
   #For the types of crud we currently check, only consider the first MAX lines
   last if ($linecnt == $MAX);
 
-  if (#RCS
-      ($line =~ m/\$(Author|Date|Header|Id|Locker|Log|Name|RCSfile|Revision|Source|State).*\$/) ||
-      ($line =~ m/\srcsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*rcsid\s*=/) ||
-      #SCCS
-      ($line =~ m/\ssccsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*sccsid\s*=/) ||
-      #Emacs
-      (&fileType($f) eq "c++" && $linecnt==1 && $line =~ m/-\*-\s[Mm]ode:\s/) ||
-      (&fileType($f) eq "perl" && $linecnt==2 && $line =~ m/-\*-\s[Mm]ode:\s/) ||
-      (&fileType($f) eq "python" && $linecnt==2 && $line =~ m/-\*-\s[Mm]ode:\s/) ||
-      #Vi
-      ($linecnt<5 && $line =~ m/vi\s*:\s*set.*:/)
-     ) {
+  if (    #RCS
+    ($line =~ m/\$(Author|Date|Header|Id|Locker|Log|Name|RCSfile|Revision|Source|State).*\$/)
+    || ($line =~ m/\srcsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*rcsid\s*=/)
+    ||
+
+    #SCCS
+    ($line =~ m/\ssccsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*sccsid\s*=/) ||
+
+    #Emacs
+       (&fileType($f) eq "c++" && $linecnt == 1 && $line =~ m/-\*-\s[Mm]ode:\s/)
+    || (&fileType($f) eq "perl"   && $linecnt == 2 && $line =~ m/-\*-\s[Mm]ode:\s/)
+    || (&fileType($f) eq "python" && $linecnt == 2 && $line =~ m/-\*-\s[Mm]ode:\s/)
+    ||
+
+    #Vi
+    ($linecnt < 5 && $line =~ m/vi\s*:\s*set.*:/)
+    )
+  {
     $cnt++;
     if ($cnt == 1) {
       $lstr = "line\#" . $linecnt;
@@ -113,17 +120,20 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for crud in source files\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
+sub Explain
+{
   print "Remove unneeded crud in source files, like obsolete RCS and SCCS lines.\n";
   Exit 0 if &explainArg();
 }

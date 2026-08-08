@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2013 Allen Winter <winter@kde.org>                  #
@@ -40,22 +40,21 @@ use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
-my($Prog) = "style";
-my($Version) = "1.20";
+my ($Prog)    = "style";
+my ($Version) = "1.20";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
-
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
 # has of all issues we need to keep track of
-tie my(%Issues), "Tie::IxHash";
+tie my (%Issues), "Tie::IxHash";
 
 # Check Condition
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 if ($f =~ m/\.py$/) {
   open(F, "$f") || die "Couldn't open $f";
@@ -64,39 +63,40 @@ if ($f =~ m/\.py$/) {
   Exit 0;
 }
 
-$KRAZY_PYTHONSTYLE_LINEMAX = 0 if ( !$KRAZY_PYTHONSTYLE_LINEMAX );
-if ( !$KRAZY_PYTHONSTYLE_STYLE ) {
+$KRAZY_PYTHONSTYLE_LINEMAX = 0 if (!$KRAZY_PYTHONSTYLE_LINEMAX);
+if (!$KRAZY_PYTHONSTYLE_STYLE) {
   $KRAZY_PYTHONSTYLE_STYLE = "kde";
 }
 
-if ( !$KRAZY_PYTHONSTYLE_OFFSET ) {
+if (!$KRAZY_PYTHONSTYLE_OFFSET) {
   $KRAZY_PYTHONSTYLE_OFFSET = 2;
 }
 
 #open file and slurp it in
 open(F, "$f") || die "Couldn't open $f";
-my(@lines) = <F>;
+my (@lines) = <F>;
 close(F);
 
 ###we will remove the comments as we go
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($line) = '';  #current line (non-processed)
-my($tline) = ''; #current line (non-processed) with starting whitespace removed
-my($lline) = ''; #last line (non-processed)
-my($pline) = ''; #processed current line (i.e. comments and strings have been removed)
-my($tpline) =''; #processed current line with starting/trailing whitespace removed
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($line)    = '';    #current line (non-processed)
+my ($tline)   = '';    #current line (non-processed) with starting whitespace removed
+my ($lline)   = '';    #last line (non-processed)
+my ($pline)   = '';    #processed current line (i.e. comments and strings have been removed)
+my ($tpline)  = '';    #processed current line with starting/trailing whitespace removed
 
-my($indox) = 0;  # set when currently in a docstring
+my ($indox) = 0;       # set when currently in a docstring
 
 #let's begin
 &initIssues();
 foreach $line (@lines) {
   chomp($line);
 
-  if ($line =~ m+\#.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+\#.*[Kk]razy:skip+) {
+  if ( $line =~ m+\#.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+\#.*[Kk]razy:skip+)
+  {
     print "okay\n" if (!&quietArg());
     Exit 0;
   }
@@ -105,19 +105,19 @@ foreach $line (@lines) {
   $linecnt++;
 
   $tline = $line;
-  $tline =~ s/^\s*//;   #remove starting whitespace
+  $tline =~ s/^\s*//;    #remove starting whitespace
 
   $pline = $line;
-  $pline =~ s/\#.*$//;  #remove comments
-  $pline =~ s/".*"/""/g;#clean-out strings
+  $pline =~ s/\#.*$//;      #remove comments
+  $pline =~ s/".*"/""/g;    #clean-out strings
   $pline =~ s/'.*'/''/g;
 
   $tpline = $pline;
-  $tpline =~ s/^\s*//;  #remove starting whitespace
-  $tpline =~ s/\s*$//;  #remove trailing whitespace
+  $tpline =~ s/^\s*//;      #remove starting whitespace
+  $tpline =~ s/\s*$//;      #remove trailing whitespace
 
   if ($line =~ m/^\s*"""/) {
-    if($indox) {
+    if ($indox) {
       $indox = 0;
     } else {
       $indox = 1;
@@ -170,10 +170,12 @@ foreach $line (@lines) {
     print "$linecnt (tab encountered) => $line\n" if (&verboseArg());
   }
 
-  if ($pline =~ m/==/ && $line =~ m/==/ &&
-      $line !~ m/[[:space:]]{1}==[[:space:]]{1}/ &&
-      $line !~ m/==[[:space:]]*\(/ &&
-      $line !~ m/[[:space:]]{1}==$/) {
+  if ( $pline =~ m/==/
+    && $line =~ m/==/
+    && $line !~ m/[[:space:]]{1}==[[:space:]]{1}/
+    && $line !~ m/==[[:space:]]*\(/
+    && $line !~ m/[[:space:]]{1}==$/)
+  {
     $Issues{'EQUALSPACE'}{'count'}++;
     if ($Issues{'EQUALSPACE'}{'count'} == 1) {
       $Issues{'EQUALSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -183,10 +185,12 @@ foreach $line (@lines) {
     print "$linecnt (spaces around '==') => $line\n" if (&verboseArg());
   }
 
-  if ($pline =~ m/!=/ && $line =~ m/!=/ &&
-      $line !~ m/[[:space:]]{1}!=[[:space:]]{1}/ &&
-      $line !~ m/!=[[:space:]]*\(/ &&
-      $line !~ m/[[:space:]]{1}!=$/) {
+  if ( $pline =~ m/!=/
+    && $line =~ m/!=/
+    && $line !~ m/[[:space:]]{1}!=[[:space:]]{1}/
+    && $line !~ m/!=[[:space:]]*\(/
+    && $line !~ m/[[:space:]]{1}!=$/)
+  {
     $Issues{'EQUALSPACE'}{'count'}++;
     if ($Issues{'EQUALSPACE'}{'count'} == 1) {
       $Issues{'EQUALSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -219,7 +223,11 @@ foreach $line (@lines) {
   }
 
   if ($pline =~ m/\(/ && $line =~ m/\w+\s\(/) {
-    if ($line !~ m/\sif\s\(/ && $line !~ m/\selif\s\(/ && $line !~ m/\swhile\s\(/ && $line !~ m/\sreturn\s\(/) {
+    if ( $line !~ m/\sif\s\(/
+      && $line !~ m/\selif\s\(/
+      && $line !~ m/\swhile\s\(/
+      && $line !~ m/\sreturn\s\(/)
+    {
       $Issues{'SPACEOPAREN'}{'count'}++;
       if ($Issues{'SPACEOPAREN'}{'count'} == 1) {
         $Issues{'SPACEOPAREN'}{'lines'} = "line\#" . $linecnt;
@@ -252,7 +260,7 @@ foreach $line (@lines) {
     print "$linecnt (no space before ',') => $line\n" if (&verboseArg());
   }
 
-  if ($line =~ m/\sif\(/ || $line =~ m/\selif\(/ ||  $line =~ m/\swhile\(/) {
+  if ($line =~ m/\sif\(/ || $line =~ m/\selif\(/ || $line =~ m/\swhile\(/) {
     $Issues{'IFSPACEPAREN'}{'count'}++;
     if ($Issues{'IFSPACEPAREN'}{'count'} == 1) {
       $Issues{'IFSPACEPAREN'}{'lines'} = "line\#" . $linecnt;
@@ -262,7 +270,18 @@ foreach $line (@lines) {
     print "$linecnt (Missing space before opening paren) => $line\n" if (&verboseArg());
   }
 
-  if ($pline =~ m/\+/ && $line =~ m/\+/ && $line !~ m/[[:space:]]{1}\+[[:space:]]{1}/ && $line !~ m/\+=/ && $line !~ m/\+\+/ && $line !~ m/\+[[:digit:]]/ && $line !~ m/^[[:space:]]*\+/ && $line !~ m/\([[:space:]]*\+/ && $line !~ m/\+$/ && $line !~ m/operator\+/ && $line !~ m/,\s\+/) {
+  if ( $pline =~ m/\+/
+    && $line =~ m/\+/
+    && $line !~ m/[[:space:]]{1}\+[[:space:]]{1}/
+    && $line !~ m/\+=/
+    && $line !~ m/\+\+/
+    && $line !~ m/\+[[:digit:]]/
+    && $line !~ m/^[[:space:]]*\+/
+    && $line !~ m/\([[:space:]]*\+/
+    && $line !~ m/\+$/
+    && $line !~ m/operator\+/
+    && $line !~ m/,\s\+/)
+  {
     $Issues{'OPERSPACE'}{'count'}++;
     if ($Issues{'OPERSPACE'}{'count'} == 1) {
       $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -272,7 +291,21 @@ foreach $line (@lines) {
     print "$linecnt (spaces around '+') => $line\n" if (&verboseArg());
   }
 
-  if ($pline =~ m/-/ && $line =~ m/-/ && $line !~ m/[[:space:]]{1}-[[:space:]]{1}/ && $line !~ m/-=/ && $line !~ m/\->/ && $line !~ m/--/ && $line !~ m/-[[:digit:]]/ && $line !~ m/=[[:space:]]{1}-/ && $line !~ m/^[[:space:]]*-/ && $line !~ m/\([[:space:]]*-/ && $line !~ m/-$/ && $line !~ m/operator-/ && $line !~ m/,\s-/ && $line !~ m/return\s-/) {
+  if ( $pline =~ m/-/
+    && $line =~ m/-/
+    && $line !~ m/[[:space:]]{1}-[[:space:]]{1}/
+    && $line !~ m/-=/
+    && $line !~ m/\->/
+    && $line !~ m/--/
+    && $line !~ m/-[[:digit:]]/
+    && $line !~ m/=[[:space:]]{1}-/
+    && $line !~ m/^[[:space:]]*-/
+    && $line !~ m/\([[:space:]]*-/
+    && $line !~ m/-$/
+    && $line !~ m/operator-/
+    && $line !~ m/,\s-/
+    && $line !~ m/return\s-/)
+  {
     $Issues{'OPERSPACE'}{'count'}++;
     if ($Issues{'OPERSPACE'}{'count'} == 1) {
       $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -282,7 +315,14 @@ foreach $line (@lines) {
     print "$linecnt (spaces around '-') => $line\n" if (&verboseArg());
   }
 
-  if ($pline =~ m+/+ && $line =~ m+/+ && $line !~ m+[[:space:]]{1}/[[:space:]]{1}+ && $line !~ m+/=+ && $line !~ m+/$+ && $line !~ m/include/ && $line !~ m+operator/+) {
+  if ( $pline =~ m+/+
+    && $line =~ m+/+
+    && $line !~ m+[[:space:]]{1}/[[:space:]]{1}+
+    && $line !~ m+/=+
+    && $line !~ m+/$+
+    && $line !~ m/include/
+    && $line !~ m+operator/+)
+  {
     $Issues{'OPERSPACE'}{'count'}++;
     if ($Issues{'OPERSPACE'}{'count'} == 1) {
       $Issues{'OPERSPACE'}{'lines'} = "line\#" . $linecnt;
@@ -313,7 +353,7 @@ foreach $line (@lines) {
   }
 
   #allow returning tuplets
-  if ($pline =~ m/return\s+\(.*\)$/ && $line !~m/return\s+\(\s*\S+\s*,/) {
+  if ($pline =~ m/return\s+\(.*\)$/ && $line !~ m/return\s+\(\s*\S+\s*,/) {
     $Issues{'RETURNPAREN'}{'count'}++;
     if ($Issues{'RETURNPAREN'}{'count'} == 1) {
       $Issues{'RETURNPAREN'}{'lines'} = "line\#" . $linecnt;
@@ -334,23 +374,27 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for adherence to a coding style\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
+sub Explain
+{
   print "Some checks for Python coding style.\n";
   Exit 0 if &explainArg();
 }
 
-sub startBlock() {
-  my($l)=@_;
+sub startBlock()
+{
+  my ($l) = @_;
   if ($l =~ m/^\s*(if|foreach|function|macro|while|else|elseif)\s*\(/i) {
     return 1;
   } else {
@@ -358,19 +402,22 @@ sub startBlock() {
   }
 }
 
-sub endBlock() {
-  my($l)=@_;
+sub endBlock()
+{
+  my ($l) = @_;
   if ($l =~ m/^\s*(endif|endforeach|endfunction|endmacro|endwhile|else|elseif)\s*\(/i) {
     return 1;
   } else {
     return 0;
   }
 }
-sub printResults() {
-  my($guy);
-  my($check_num)=0;
-  my($tot)=0;
-  my($cline,$rline);
+
+sub printResults()
+{
+  my ($guy);
+  my ($check_num) = 0;
+  my ($tot)       = 0;
+  my ($cline, $rline);
   foreach $guy (keys %Issues) {
     $cline = "$Issues{$guy}{'issue'}:";
 
@@ -382,7 +429,8 @@ sub printResults() {
   return $tot;
 }
 
-sub initIssues() {
+sub initIssues()
+{
 
   $Issues{'TAB'}{'issue'} = 'Do not use tabs';
   $Issues{'TAB'}{'count'} = 0;
@@ -403,7 +451,7 @@ sub initIssues() {
   $Issues{'EQUALSPACE'}{'issue'} = 'Put spaces around \'==\' and \'!=\'';
   $Issues{'EQUALSPACE'}{'count'} = 0;
   $Issues{'EQUALSPACE'}{'lines'} = '';
-  $Issues{'OPERSPACE'}{'issue'} = 'Put spaces around \'+\', \'-\', \'*\', \'/\'';
+  $Issues{'OPERSPACE'}{'issue'}  = 'Put spaces around \'+\', \'-\', \'*\', \'/\'';
 
   $Issues{'OPERSPACE'}{'count'} = 0;
   $Issues{'OPERSPACE'}{'lines'} = '';

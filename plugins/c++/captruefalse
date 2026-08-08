@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2006 Allen Winter <winter@kde.org>                  #
@@ -31,17 +31,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "captruefalse";
-my($Version) = "1.6";
+my ($Prog)    = "captruefalse";
+my ($Version) = "1.6";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (skip C source files)
 if ($f =~ m/\.c$/) {
@@ -49,24 +49,26 @@ if ($f =~ m/\.c$/) {
   Exit 0;
 }
 open(F, "$f") || die "Couldn't open $f";
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
+
 # Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+@lines = RemoveCondBlockC($Prog, @lines);
 
-my($true_cnt) = 0;
-my($false_cnt) = 0;
-my($line_cnt) = 0;
-my($true_str) = "";
-my($false_str) = "";
+my ($true_cnt)  = 0;
+my ($false_cnt) = 0;
+my ($line_cnt)  = 0;
+my ($true_str)  = "";
+my ($false_str) = "";
 
-my($line);
+my ($line);
 foreach my $line (@lines) {
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $true_cnt = $false_cnt = 0;
     last;
   }
@@ -110,22 +112,26 @@ if (!$true_cnt && !$false_cnt) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
-  print "$true_str ($true_cnt)\n" if (!&quietArg() && $true_cnt);
+  print "$true_str ($true_cnt)\n"   if (!&quietArg() && $true_cnt);
   print "$false_str ($false_cnt)\n" if (!&quietArg() && $false_cnt);
   Exit $true_cnt + $false_cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for TRUE and FALSE macros\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "The TRUE and FALSE macros are obsolete and should be replaced with true and false (all lower case) respectively.\n";
+sub Explain
+{
+  print
+"The TRUE and FALSE macros are obsolete and should be replaced with true and false (all lower case) respectively.\n";
   Exit 0 if &explainArg();
 }

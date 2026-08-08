@@ -14,9 +14,8 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Krazy::Utils;
 
-my ($Prog) = 'krazy2all';
-my
- $VERSION = '2.9991';    #split line so MakeMaker can find the version here
+my ($Prog)    = 'krazy2all';
+my ($VERSION) = '2.9991';
 
 my ($help)      = '';
 my ($version)   = '';
@@ -49,40 +48,41 @@ my ($topdir)    = '';
 my ($outfile)   = '';
 
 exit 1
-  if ( !GetOptions(
-       'help'           => \$help,
-       'version'        => \$version,
-       'list'           => \$list,
-       'list-runtime'   => \$listrunt,
-       'list-types'     => \$listtypes,
-       'list-type=s'    => \$listtype,
-       'list-sets'      => \$listsets,
-       'list-set=s'     => \$listset,
-       'dry-run'        => \$dryrun,
-       'ignorerc'       => \$ignorerc,
-       'config=s'       => \$configf,
-       'verbose'        => \$verbose,
-       'brief'          => \$brief,
-       'no-brief'       => \$nobrief,
-       'quiet'          => \$quiet,
-       'priority=s'     => \$priority,
-       'strict=s'       => \$strict,
-       'check=s'        => \$check,
-       'check-sets=s'   => \$checksets,
-       'exclude=s'      => \$exclude,
-       'extra=s'        => \$extra,
-       'types=s'        => \$inctypes,
-       'exclude-types=s'=> \$exctypes,
-       'skip=s'         => \$skip,
-       'export=s'       => \$export,
-       'title=s'        => \$title,
-       'cms=s'          => \$cms,
-       'topdir=s'       => \$topdir,
-       'outfile=s'      => \$outfile
-      )
-     );
+  if (
+  !GetOptions(
+    'help'            => \$help,
+    'version'         => \$version,
+    'list'            => \$list,
+    'list-runtime'    => \$listrunt,
+    'list-types'      => \$listtypes,
+    'list-type=s'     => \$listtype,
+    'list-sets'       => \$listsets,
+    'list-set=s'      => \$listset,
+    'dry-run'         => \$dryrun,
+    'ignorerc'        => \$ignorerc,
+    'config=s'        => \$configf,
+    'verbose'         => \$verbose,
+    'brief'           => \$brief,
+    'no-brief'        => \$nobrief,
+    'quiet'           => \$quiet,
+    'priority=s'      => \$priority,
+    'strict=s'        => \$strict,
+    'check=s'         => \$check,
+    'check-sets=s'    => \$checksets,
+    'exclude=s'       => \$exclude,
+    'extra=s'         => \$extra,
+    'types=s'         => \$inctypes,
+    'exclude-types=s' => \$exctypes,
+    'skip=s'          => \$skip,
+    'export=s'        => \$export,
+    'title=s'         => \$title,
+    'cms=s'           => \$cms,
+    'topdir=s'        => \$topdir,
+    'outfile=s'       => \$outfile
+  )
+  );
 
-&Help(0)   if ($#ARGV >= 0); # no positional args allowed
+&Help(0)   if ($#ARGV >= 0);    # no positional args allowed
 &Help(0)   if ($help);
 &Version() if ($version);
 
@@ -139,26 +139,26 @@ $opts .= "--priority=$priority "      if ($priority);
 $opts .= "--strict=$strict "          if ($strict);
 $opts .= "--explain "                 if ($export ne "textlist" && $export ne "textedit");
 
-my($cwd) = abs_path();
+my ($cwd) = abs_path();
 
 # Set the top-level directory for finding files to process
-my($top) = $cwd;
+my ($top) = $cwd;
 if ($topdir) {
-  $top = glob($topdir); # expand ~
+  $top = glob($topdir);    # expand ~
   $top = abs_path($top);
 }
-if (!defined($top) || ! -e $top) {
+if (!defined($top) || !-e $top) {
   &userError("The specified topdir directory \"$topdir\" does not exist.");
 }
-if (! -r $top) {
+if (!-r $top) {
   &userError("You do not have read access to topdir \"$top\".");
 }
-$top =~ s:\+:\\\+:g;  #escape '+'
+$top =~ s:\+:\\\+:g;    #escape '+'
 
 # Set the default config file name, which might be found under the topdir
 if ($top ne $cwd) {
-  if (! $configf) {
-    my($projConfig) = $top . "/.krazy";
+  if (!$configf) {
+    my ($projConfig) = $top . "/.krazy";
     if (-e $projConfig) {
       $opts .= "--config=$projConfig ";
     }
@@ -166,20 +166,20 @@ if ($top ne $cwd) {
 }
 
 # Set the output file, stdout by default
-my($outf) = '';
+my ($outf) = '';
 if ($outfile) {
-  $outfile = glob($outfile); # expand ~
-  $outf = abs_path($outfile);
+  $outfile = glob($outfile);       # expand ~
+  $outf    = abs_path($outfile);
   if (!defined($outf)) {
     $outf = $outfile;
   }
 }
-if ($outf && ! -w dirname($outf)) {
+if ($outf && !-w dirname($outf)) {
   &userError("You do not have access to write output file \"$outfile\".");
 }
 
 # Find the files to process
-my($files) = &findFiles($top);
+my ($files) = &findFiles($top);
 if ($top eq $cwd) {
   $files =~ s+^$top+\.+gm;
 }
@@ -202,7 +202,8 @@ if (($? >> 8) > 0) {
 }
 
 # Help function: print help message and exit.
-sub Help {
+sub Help
+{
   my ($keepgoing) = @_;
   &Version();
   print "Run krazy2 on all the source in the current working directory\n\n";
@@ -271,7 +272,8 @@ sub Help {
 }
 
 # Version function: print the version number and exit.
-sub Version {
+sub Version
+{
   print "$Prog, version $VERSION\n";
   exit 0 if $version;
 }

@@ -17,9 +17,9 @@ use Env qw (KRAZY_STYLE_CPPSTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
 
 use Exporter;
 $VERSION = 1.60;
-@ISA = qw(Exporter);
+@ISA     = qw(Exporter);
 
-@EXPORT = qw(ParseKrazyRC);
+@EXPORT    = qw(ParseKrazyRC);
 @EXPORT_OK = qw();
 
 #==============================================================================
@@ -54,89 +54,95 @@ $VERSION = 1.60;
 # The directive is case-insensitive.
 #==============================================================================
 
-my($rcExclude,$rcOnly,$rcCheckSets,$rcExtra,$rcIncTypes,$rcExcTypes,
-   $rcSkipRegex,$rcPriority,$rcStrict,$rcOutput,$rcExport);
-my(@rcIgSubsList,@rcExSubsList,@rcIgModsList);
-my($CWD);
+my (
+  $rcExclude,   $rcOnly,     $rcCheckSets, $rcExtra,  $rcIncTypes, $rcExcTypes,
+  $rcSkipRegex, $rcPriority, $rcStrict,    $rcOutput, $rcExport
+);
+my (@rcIgSubsList, @rcExSubsList, @rcIgModsList);
+my ($CWD);
 
-sub ParseKrazyRC {
+sub ParseKrazyRC
+{
   my ($rcfile) = @_;
 
-  my(%directives);
-  open( F, "$rcfile" ) || return %directives;
+  my (%directives);
+  open(F, "$rcfile") || return %directives;
 
-  my ( $line, $linecnt, $directive, $arg );
+  my ($line, $linecnt, $directive, $arg);
   $CWD = getcwd;
 
-  $rcExclude    = "";
-  $rcOnly       = "";
-  $rcCheckSets  = "";
-  $rcExtra      = "";
-  $rcIncTypes   = "";
-  $rcExcTypes   = "";
-  $rcSkipRegex  = "";
-  $rcPriority   = "";
-  $rcStrict     = "";
-  $rcOutput     = "";
-  $rcExport     = "";
-  @rcIgSubsList = ();
-  @rcExSubsList = ();
-  @rcIgModsList = ();
+  $rcExclude                    = "";
+  $rcOnly                       = "";
+  $rcCheckSets                  = "";
+  $rcExtra                      = "";
+  $rcIncTypes                   = "";
+  $rcExcTypes                   = "";
+  $rcSkipRegex                  = "";
+  $rcPriority                   = "";
+  $rcStrict                     = "";
+  $rcOutput                     = "";
+  $rcExport                     = "";
+  @rcIgSubsList                 = ();
+  @rcExSubsList                 = ();
+  @rcIgModsList                 = ();
   $ENV{KRAZY_CPP_INCLUDE_ORDER} = "false";
 
-  while ( $line = <F> ) {
+  while ($line = <F>) {
     $linecnt++;
-    $line =~ s/#.*//;       #strip comment
-    $line =~ s/^\s+//;      #strip leading whitespace
-    $line =~ s/\s+$//;      #strip trailing whitespace
-    $line =~ s/\s*,\s*/,/g; #remove whitespace around commas
-    next if ( !$line );
+    $line =~ s/#.*//;          #strip comment
+    $line =~ s/^\s+//;         #strip leading whitespace
+    $line =~ s/\s+$//;         #strip trailing whitespace
+    $line =~ s/\s*,\s*/,/g;    #remove whitespace around commas
+    next if (!$line);
 
-    ( $directive, $arg ) = split( " ", $line );
+    ($directive, $arg) = split(" ", $line);
     my $saveDirective = $directive;
     $directive = uc($directive);
-    if ( $directive eq "EXTRA" ) {
+    if ($directive eq "EXTRA") {
       &extras($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "CHECK" ) {
+    } elsif ($directive eq "CHECK") {
       &checks($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "CHECKSETS" ) {
+    } elsif ($directive eq "CHECKSETS") {
       &checkSets($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "EXCLUDE" ) {
+    } elsif ($directive eq "EXCLUDE") {
       &excludes($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "IGNORESUBS" ) {
+    } elsif ($directive eq "IGNORESUBS") {
       &ignoreSubs($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "EXTRASUBS" ) {
+    } elsif ($directive eq "EXTRASUBS") {
       &extraSubs($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "IGNOREMODS" ) {
+    } elsif ($directive eq "IGNOREMODS") {
       &ignoreMods($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "SKIP" ) {
+    } elsif ($directive eq "SKIP") {
       &skips($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "PRIORITY" ) {
+    } elsif ($directive eq "PRIORITY") {
       &priority($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "STRICT" ) {
+    } elsif ($directive eq "STRICT") {
       &strict($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "OUTPUT" ) {
+    } elsif ($directive eq "OUTPUT") {
       &output($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "EXPORT" ) {
+    } elsif ($directive eq "EXPORT") {
       &export($arg, $linecnt, $rcfile);
-    } elsif ( $directive eq "TYPES" ) {
-      &types($arg, $linecnt, $rcfile );
-    } elsif ( $directive eq "EXCLUDETYPES" ) {
-      &excludeTypes($arg, $linecnt, $rcfile );
-    } elsif ( $directive eq "STYLE_CPPSTYLE" ||
-              $directive eq "STYLE_OFFSET" ||
-              $directive eq "STYLE_LINEMAX") {
-      &styleSettings( $directive, $arg, $linecnt, $rcfile );
-    } elsif ( $directive eq "STYLE_CMAKESTYLE_STYLE" ||
-              $directive eq "STYLE_CMAKESTYLE_OFFSET" ||
-              $directive eq "STYLE_CMAKESTYLE_LINEMAX") {
-      &cmakeStyleSettings( $directive, $arg, $linecnt, $rcfile );
-    } elsif ( $directive eq "STYLE_PYTHONSTYLE_STYLE" ||
-              $directive eq "STYLE_PYTHONSTYLE_OFFSET" ||
-              $directive eq "STYLE_PYTHONSTYLE_LINEMAX") {
-      &pythonStyleSettings( $directive, $arg, $linecnt, $rcfile );
-    } elsif ( $directive eq "CPP_INCLUDE_ORDER") {
-      &cppIncludeSettings( $directive, $arg, $linecnt, $rcfile );
+    } elsif ($directive eq "TYPES") {
+      &types($arg, $linecnt, $rcfile);
+    } elsif ($directive eq "EXCLUDETYPES") {
+      &excludeTypes($arg, $linecnt, $rcfile);
+    } elsif ($directive eq "STYLE_CPPSTYLE"
+      || $directive eq "STYLE_OFFSET"
+      || $directive eq "STYLE_LINEMAX")
+    {
+      &styleSettings($directive, $arg, $linecnt, $rcfile);
+    } elsif ($directive eq "STYLE_CMAKESTYLE_STYLE"
+      || $directive eq "STYLE_CMAKESTYLE_OFFSET"
+      || $directive eq "STYLE_CMAKESTYLE_LINEMAX")
+    {
+      &cmakeStyleSettings($directive, $arg, $linecnt, $rcfile);
+    } elsif ($directive eq "STYLE_PYTHONSTYLE_STYLE"
+      || $directive eq "STYLE_PYTHONSTYLE_OFFSET"
+      || $directive eq "STYLE_PYTHONSTYLE_LINEMAX")
+    {
+      &pythonStyleSettings($directive, $arg, $linecnt, $rcfile);
+    } elsif ($directive eq "CPP_INCLUDE_ORDER") {
+      &cppIncludeSettings($directive, $arg, $linecnt, $rcfile);
     } else {
       print "$rcfile: Invalid directive \"$saveDirective\" (line $linecnt)\n";
       close(F);
@@ -157,100 +163,107 @@ sub ParseKrazyRC {
   $directives{'STRICT'}       = $rcStrict;
   $directives{'OUTPUT'}       = $rcOutput;
   $directives{'EXPORT'}       = $rcExport;
-  @{$directives{'IGSUBSLIST'}} = deDupe(@rcIgSubsList);
+  @{$directives{'IGSUBSLIST'}}   = deDupe(@rcIgSubsList);
   @{$directives{'IGEXTRASLIST'}} = deDupe(@rcExSubsList);
-  @{$directives{'IGMODSLIST'}} = deDupe(@rcIgModsList);
+  @{$directives{'IGMODSLIST'}}   = deDupe(@rcIgModsList);
   return %directives;
 }
 
-sub extras {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub extras
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing EXTRA arguments, line $l, $f\n";
     exit 1;
   }
-  if ( !$rcExtra ) {
+  if (!$rcExtra) {
     $rcExtra = $args;
   } else {
     $rcExtra .= "," . $args;
   }
 }
 
-sub checks {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub checks
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing CHECK arguments, line $l, $f\n";
     exit 1;
   }
-  if ( !$rcOnly ) {
+  if (!$rcOnly) {
     $rcOnly = $args;
   } else {
     $rcOnly .= "," . $args;
   }
 }
 
-sub checkSets {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub checkSets
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing CHECKSETS arguments, line $l, $f\n";
     exit 1;
   }
-  if ( !$rcCheckSets ) {
+  if (!$rcCheckSets) {
     $rcCheckSets = $args;
   } else {
     $rcCheckSets .= "," . $args;
   }
 }
 
-sub excludes {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub excludes
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing EXCLUDE arguments, line $l, $f\n";
     exit 1;
   }
-  if ( !$rcExclude ) {
+  if (!$rcExclude) {
     $rcExclude = $args;
   } else {
     $rcExclude .= "," . $args;
   }
 }
 
-sub types {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub types
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing TYPES arguments, line $l, $f\n";
     exit 1;
   }
-  if ( !$rcIncTypes ) {
+  if (!$rcIncTypes) {
     $rcIncTypes = $args;
   } else {
     $rcIncTypes .= "," . $args;
   }
 }
 
-sub excludeTypes {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub excludeTypes
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing EXCLUDETYPES arguments, line $l, $f\n";
     exit 1;
   }
-  if ( !$rcExcTypes ) {
+  if (!$rcExcTypes) {
     $rcExcTypes = $args;
   } else {
     $rcExcTypes .= "," . $args;
   }
 }
 
-sub styleSettings {
+sub styleSettings
+{
   my ($s, $args, $l, $f) = @_;
-  if ( !defined($args) ) {
+  if (!defined($args)) {
     print "missing $s arguments, line $l, $f\n";
     exit 1;
   }
 
   if ($s eq "STYLE_CPPSTYLE") {
-    if ( !&validateStyleType($args) ) {
-      my($lst) = &styleTypeStr();
+    if (!&validateStyleType($args)) {
+      my ($lst) = &styleTypeStr();
       print "invalid STYLE_CPPSTYLE argument \"$args\", line $l, $f\nChoices are: $lst\n";
       exit 1;
     } else {
@@ -265,7 +278,7 @@ sub styleSettings {
       $ENV{KRAZY_STYLE_OFFSET} = $offset;
     }
   } elsif ($s eq "STYLE_LINEMAX") {
-    my ($max) = sprintf("%d",$args);
+    my ($max) = sprintf("%d", $args);
     if ($max < 0) {
       print "setting $s value less than 0, line $l, $f\n";
       exit 1;
@@ -278,16 +291,17 @@ sub styleSettings {
   }
 }
 
-sub cmakeStyleSettings {
+sub cmakeStyleSettings
+{
   my ($s, $args, $l, $f) = @_;
-  if ( !defined($args) ) {
+  if (!defined($args)) {
     print "missing $s arguments, line $l, $f\n";
     exit 1;
   }
 
   if ($s eq "STYLE_CMAKESTYLE_STYLE") {
-    if ( !&validateCMakeStyleType($args) ) {
-      my($lst) = &cmakeStyleTypeStr();
+    if (!&validateCMakeStyleType($args)) {
+      my ($lst) = &cmakeStyleTypeStr();
       print "invalid STYLE_CMAKESTYLE_STYLE argument \"$args\", line $l, $f\nChoices are: $lst\n";
       exit 1;
     } else {
@@ -302,7 +316,7 @@ sub cmakeStyleSettings {
       $ENV{KRAZY_CMAKESTYLE_OFFSET} = $offset;
     }
   } elsif ($s eq "STYLE_CMAKESTYLE_LINEMAX") {
-    my ($max) = sprintf("%d",$args);
+    my ($max) = sprintf("%d", $args);
     if ($max < 0) {
       print "setting $s value less than 0, line $l, $f\n";
       exit 1;
@@ -315,16 +329,17 @@ sub cmakeStyleSettings {
   }
 }
 
-sub pythonStyleSettings {
+sub pythonStyleSettings
+{
   my ($s, $args, $l, $f) = @_;
-  if ( !defined($args) ) {
+  if (!defined($args)) {
     print "missing $s arguments, line $l, $f\n";
     exit 1;
   }
 
   if ($s eq "STYLE_PYTHONSTYLE_STYLE") {
-    if ( !&validatePythonStyleType($args) ) {
-      my($lst) = &pythonStyleTypeStr();
+    if (!&validatePythonStyleType($args)) {
+      my ($lst) = &pythonStyleTypeStr();
       print "invalid STYLE_PYTHONSTYLE_STYLE argument \"$args\", line $l, $f\nChoices are: $lst\n";
       exit 1;
     } else {
@@ -339,7 +354,7 @@ sub pythonStyleSettings {
       $ENV{KRAZY_PYTHONSTYLE_OFFSET} = $offset;
     }
   } elsif ($s eq "STYLE_PYTHONSTYLE_LINEMAX") {
-    my ($max) = sprintf("%d",$args);
+    my ($max) = sprintf("%d", $args);
     if ($max < 0) {
       print "setting $s value less than 0, line $l, $f\n";
       exit 1;
@@ -352,21 +367,22 @@ sub pythonStyleSettings {
   }
 }
 
-sub cppIncludeSettings {
+sub cppIncludeSettings
+{
   my ($s, $args, $l, $f) = @_;
-  if ( !defined($args) ) {
+  if (!defined($args)) {
     print "missing $s arguments, line $l, $f\n";
     exit 1;
   }
 
   if ($s eq "CPP_INCLUDE_ORDER") {
-    if ( !&validateCppIncludeOrderType($args) ) {
-      my($lst) = &cppIncludeOrderTypeStr();
+    if (!&validateCppIncludeOrderType($args)) {
+      my ($lst) = &cppIncludeOrderTypeStr();
       print "invalid CPP_INCLUDE_ORDER argument \"$args\", line $l, $f\nChoices are: $lst\n";
       exit 1;
     } else {
       $args = lc($args);
-      if ($args eq "yes" || $args eq "on" || $args eq "true" ) {
+      if ($args eq "yes" || $args eq "on" || $args eq "true") {
         $ENV{KRAZY_CPP_INCLUDE_ORDER} = "true";
       } else {
         $ENV{KRAZY_CPP_INCLUDE_ORDER} = "false";
@@ -375,96 +391,104 @@ sub cppIncludeSettings {
   }
 }
 
-sub ignoreSubs {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub ignoreSubs
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing IGNORESUBS arguments, line $l, $f\n";
     exit 1;
   }
-  push( @rcIgSubsList, split( ",", $args ) );
+  push(@rcIgSubsList, split(",", $args));
 }
 
-sub extraSubs {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub extraSubs
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing EXTRASUBS arguments, line $l, $f\n";
     exit 1;
   }
-  push( @rcExSubsList, split( ",", $args ) );
+  push(@rcExSubsList, split(",", $args));
 }
 
-sub ignoreMods {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub ignoreMods
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing IGNOREMODS arguments, line $l, $f\n";
     exit 1;
   }
-  push( @rcIgModsList, split( ",", $args ) );
+  push(@rcIgModsList, split(",", $args));
 }
 
-sub skips {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub skips
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing SKIP arguments, line $l, $f\n";
     exit 1;
   }
-  $rcSkipRegex = &addRegEx($rcSkipRegex,$args);
+  $rcSkipRegex = &addRegEx($rcSkipRegex, $args);
 }
 
-sub priority {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub priority
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing PRIORITY argument, line $l, $f\n";
     exit 1;
   }
-  $args=lc($args);
-  if ( !&validatePriorityType($args) ) {
-    my($lst) = &priorityTypeStr();
+  $args = lc($args);
+  if (!&validatePriorityType($args)) {
+    my ($lst) = &priorityTypeStr();
     print "invalid PRIORITY argument \"$args\", line $l, $f\nChoices for PRIORITY are: $lst\n";
     exit 1;
   }
   $rcPriority = $args;
 }
 
-sub strict {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub strict
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing STRICT argument, line $l, $f\n";
     exit 1;
   }
-  $args=lc($args);
-  if ( !&validateStrictType($args) ) {
-    my($lst) = &strictTypeStr();
+  $args = lc($args);
+  if (!&validateStrictType($args)) {
+    my ($lst) = &strictTypeStr();
     print "invalid STRICT argument \"$args\", line $l, $f\nChoices for STRICT are: $lst\n";
     exit 1;
   }
   $rcStrict = $args;
 }
 
-sub output {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
-    my($lst) = &outputTypeStr();
+sub output
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
+    my ($lst) = &outputTypeStr();
     print "missing OUTPUT argument, line $l, $f\nChoices for OUTPUT are: $lst\n";
     exit 1;
   }
-  $args=lc($args);
-  if ( !&validateOutputType($args) ) {
+  $args = lc($args);
+  if (!&validateOutputType($args)) {
     print "invalid OUTPUT argument \"$args\", line $l, $f\n";
     exit 1;
   }
   $rcOutput = $args;
 }
 
-sub export {
-  my ($args,$l,$f) = @_;
-  if ( !defined($args) ) {
+sub export
+{
+  my ($args, $l, $f) = @_;
+  if (!defined($args)) {
     print "missing EXPORT argument, line $l, $f\n";
     exit 1;
   }
-  $args=lc($args);
-  if ( !&validateExportType($args) ) {
-    my($lst) = &exportTypeStr();
+  $args = lc($args);
+  if (!&validateExportType($args)) {
+    my ($lst) = &exportTypeStr();
     print "invalid EXPORT argument \"$args\", line $l, $f\nChoices for EXPORT are: $lst\n";
     exit 1;
   }

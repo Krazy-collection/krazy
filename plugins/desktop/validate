@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2007 Allen Winter <winter@kde.org>                  #
@@ -28,39 +28,40 @@ use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
-my($Prog) = "validate";
-my($Version) = "1.43";
+my ($Prog)    = "validate";
+my ($Version) = "1.43";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
-my($valp) = "desktop-file-validate";
+my ($valp) = "desktop-file-validate";
 
 #look for krazy directives in the file
 open(F, "$f") || die "Couldn't open $f";
-my($line);
-my($isa)=0;
+my ($line);
+my ($isa) = 0;
 while ($line = <F>) {
   Exit 0
-    if ($line =~ m+^\s*Type=Service+ ||          # ignore Service files
-	$line =~ m+^\s*Type=AkonadiAgent+ ||     # ignore AkonadiAgent files
-	$line =~ m+^\s*Type=AkonadiResource+ ||  # ignore AkonadiResource files
-	$line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ ||
-        $line =~ m+#.*[Kk]razy:skip+);
+    if (
+    $line =~ m+^\s*Type=Service+               ||    # ignore Service files
+    $line =~ m+^\s*Type=AkonadiAgent+          ||    # ignore AkonadiAgent files
+    $line =~ m+^\s*Type=AkonadiResource+       ||    # ignore AkonadiResource files
+    $line =~ m+#.*[Kk]razy:excludeall=.*$Prog+ || $line =~ m+#.*[Kk]razy:skip+
+    );
 
-  $isa=1 if ($line =~ m+^\[Desktop Entry\]+);
+  $isa = 1 if ($line =~ m+^\[Desktop Entry\]+);
 }
 close(F);
-Exit 0 if (!$isa); #exit if not a true desktop file
+Exit 0 if (!$isa);    #exit if not a true desktop file
 
 #now process the file
-my($cnt) = &processFile($f);
+my ($cnt) = &processFile($f);
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -68,30 +69,36 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Validates desktop files using '$valp'\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Please make sure your .desktop files conform to the freedesktop.org standard. See the spec at <https://standards.freedesktop.org/desktop-entry-spec/latest>\n";
+sub Explain
+{
+  print
+"Please make sure your .desktop files conform to the freedesktop.org standard. See the spec at <https://standards.freedesktop.org/desktop-entry-spec/latest>\n";
   Exit 0 if &explainArg();
 }
 
-sub processFile() {
-  my($in) = @_;
-  my($line,$result);
-  my($cnt)=0;
+sub processFile()
+{
+  my ($in) = @_;
+  my ($line, $result);
+  my ($cnt) = 0;
   open(VAL, "$valp --warn-kde $in | ") || print STDERR "Cannot run: $valp\n";
-  while($line = <VAL>) {
+  while ($line = <VAL>) {
     chomp($line);
     $result = &analyze($line);
     if ($result && $line) {
+
       #warnings we allow
       next if ($line =~ m/value \"Service\" for key \"Type\"/);
       next if ($line =~ m/value \"ServiceType\" for key \"Type\"/);
@@ -113,8 +120,9 @@ sub processFile() {
   return $cnt;
 }
 
-sub analyze() {
-  my($line) = @_;
+sub analyze()
+{
+  my ($line) = @_;
 
   if ($line =~ m+: error:+) {
     return "ERROR";

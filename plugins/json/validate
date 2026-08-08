@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2017 Allen Winter <winter@kde.org>                  #
@@ -24,26 +24,26 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # else exits with the number of failures encountered.
 
 use strict;
-use JSON qw(decode_json);
+use JSON    qw(decode_json);
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
-my($Prog) = "validate";
-my($Version) = "0.1";
+my ($Prog)    = "validate";
+my ($Version) = "0.1";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 #now process the file
-my($lstr) = "";
-my($cnt) = &processFile($f);
+my ($lstr) = "";
+my ($cnt)  = &processFile($f);
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -52,31 +52,36 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Validate JSON files using 'Perl::JSON'\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Please make sure your .json files are properly formatted and decodeable, see the RFC at <https://www.ietf.org/rfc/rfc4627.txt>\n";
+sub Explain
+{
+  print
+"Please make sure your .json files are properly formatted and decodeable, see the RFC at <https://www.ietf.org/rfc/rfc4627.txt>\n";
   Exit 0 if &explainArg();
 }
 
-sub processFile() {
-  my ($filename) = @_;
+sub processFile()
+{
+  my ($filename)  = @_;
   my ($json_text) = do {
     open(my $json_fh, "<:encoding(iso-8859-1)", $filename)
-        or die("Can't open \"$filename\": $!\n");
+      or die("Can't open \"$filename\": $!\n");
     local $/;
-    <$json_fh>
+    <$json_fh>;
   };
 
-  my ($data) = eval { decode_json($json_text) };
+  my ($data) = eval {decode_json($json_text)};
 
   if ($@) {
     $lstr = "decode failure";

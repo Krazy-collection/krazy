@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2009 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "crashy";
-my($Version) = "1.83";
+my ($Prog)    = "crashy";
+my ($Version) = "1.83";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++, non-headers only)
 if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
@@ -48,27 +48,28 @@ if ($f =~ m/\.cpp$/ || $f =~ m/\.cxx$/ || $f =~ m/\.cc$/) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
-my($linecnt) = 0;
-my($cnt) = 0;
-my($lstr) = "";
+my ($linecnt) = 0;
+my ($cnt)     = 0;
+my ($lstr)    = "";
 
-my($var,$pat,$expat1,$expat2,$expatp);
-my($line);
+my ($var, $pat, $expat1, $expat2, $expatp);
+my ($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
   # Check Condition
   if ($line =~ m/exec\(\s*\)/) {
@@ -89,16 +90,21 @@ while ($linecnt < $#lines) {
     next if ($var =~ m/^set/);
 
     $pat = "\\*\\s*" . $var . "\\s*=\\s*(new)?\\s*\\w+\\(";
-    if ($line =~ m/$var\.exec/ || &searchBack($pat,$linecnt,500)) {
+    if ($line =~ m/$var\.exec/ || &searchBack($pat, $linecnt, 500)) {
+
       # don't complain if the exec is the last statement in a method
       #WARNING: due to the way we remove comments, each line has a leading space
-      next if ($lines[$linecnt] =~ m/^\s{1}\}/); #ugly HACK to detect end-of-method
-      $expat1 = "(Akonadi::AgentTypeDialog|ItemRetriever|SearchRequest|CollectionPathResolver|KService|XSqlQuery|QSqlQuery|QueryBuilder|SelectQueryBuilder<.*>|KApplication|.*Job|.*App)\\s&?" . $var;
-      $expat2 = $var . "\\s*=\\s*(new)?\\s(Akonadi::AgentTypeDialog|ItemRetriever|SearchRequest|CollectionPathResolver|KService|XSqlQuery|QSqlQuery|QueryBuilder|SelectQueryBuilder<.*>|KApplication|.*Job|.*App)";
-      $expatp = "\\w\+\\s" . $var . "\\s*;";  #parentless, on the stack
-      if (!&searchBack($expat1,$linecnt,500) &&
-          !&searchBack($expat2,$linecnt,500) &&
-          !&searchBack($expatp,$linecnt,500)) {
+      next if ($lines[$linecnt] =~ m/^\s{1}\}/);    #ugly HACK to detect end-of-method
+      $expat1 =
+"(Akonadi::AgentTypeDialog|ItemRetriever|SearchRequest|CollectionPathResolver|KService|XSqlQuery|QSqlQuery|QueryBuilder|SelectQueryBuilder<.*>|KApplication|.*Job|.*App)\\s&?"
+        . $var;
+      $expat2 = $var
+        . "\\s*=\\s*(new)?\\s(Akonadi::AgentTypeDialog|ItemRetriever|SearchRequest|CollectionPathResolver|KService|XSqlQuery|QSqlQuery|QueryBuilder|SelectQueryBuilder<.*>|KApplication|.*Job|.*App)";
+      $expatp = "\\w\+\\s" . $var . "\\s*;";        #parentless, on the stack
+      if ( !&searchBack($expat1, $linecnt, 500)
+        && !&searchBack($expat2, $linecnt, 500)
+        && !&searchBack($expatp, $linecnt, 500))
+      {
         $cnt++;
         if ($cnt == 1) {
           $lstr = "line\#" . $linecnt;
@@ -119,34 +125,40 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for code that should be considered crashy.\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Looks for not using QPointers when showing modal dialogs via exec(), as discussed in <https://blogs.kde.org/2009/03/26/how-crash-almost-every-qtkde-application-and-how-fix-it-0>\n";
+sub Explain
+{
+  print
+"Looks for not using QPointers when showing modal dialogs via exec(), as discussed in <https://blogs.kde.org/2009/03/26/how-crash-almost-every-qtkde-application-and-how-fix-it-0>\n";
   Exit 0 if &explainArg();
 }
 
 # search the previous $n lines for a pattern $p
-sub searchBack {
-  my($p,$l,$n) = @_;
-  my($i,$ll);
+sub searchBack
+{
+  my ($p, $l, $n) = @_;
+  my ($i, $ll);
 
   $n = $#lines if ($#lines < $n);
-  for($i=1; $i<=$n; $i++) {
+  for ($i = 1 ; $i <= $n ; $i++) {
     $ll = $l - $i;
     if ($lines[$ll] =~ m/$p/) {
       return 1;
     }
+
     #WARNING: due to the way we remove comments, each line has a leading space
-    last if ( $lines[$ll] =~ m/^\s{1}\}/);
+    last if ($lines[$ll] =~ m/^\s{1}\}/);
   }
   return 0;
 }

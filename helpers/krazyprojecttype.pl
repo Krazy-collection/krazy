@@ -18,9 +18,9 @@ use FindBin qw($Bin);
 use lib "$Bin/../../../lib";
 use Krazy::Utils;
 
-my($dir) = $ARGV[0];
+my ($dir) = $ARGV[0];
 
-if (! -d $dir) {
+if (!-d $dir) {
   print "sorry, no such dir $dir. Exiting...\n";
   exit 1;
 }

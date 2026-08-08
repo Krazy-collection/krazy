@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2010 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "staticobjects";
-my($Version) = "0.33";
+my ($Prog)    = "staticobjects";
+my ($Version) = "0.33";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++ only corresponding to installed headers)
 if (&installedArg() && (&fileType($f) eq "c++") && !&isCSource($f) && !isCInclude($f)) {
@@ -48,15 +48,15 @@ if (&installedArg() && (&fileType($f) eq "c++") && !&isCSource($f) && !isCInclud
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
 #remove cpp directives
-my($i)=0;
-while($i <= $#lines) {
+my ($i) = 0;
+while ($i <= $#lines) {
   $lines[$i] = "\n" if ($lines[$i] =~ m/^[[:space:]]*#/);
   $i++;
 }
@@ -66,33 +66,36 @@ while($i <= $#lines) {
 #static char** s_qt_argv;
 
 # we don't know enums so that's a false positive we can't do anything about except to hardcode
-my($enum)="KdeLibraryPathsAdded|Qt::WindowFlags|QStyle::StyleHint|KFileShare::Authorization|KFileShare::ShareMode";
-my($bpod)="bool|Bool";
-my($cpod)="unsigned char|char|QChar|wchar_t|xmlChar|TCHAR";
-my($ipod)="int|uint|uint32_t|qint8|quint8|qint16|quint16|qint32|quint32|quint64|qint64|unsigned|unsigned int|unsigned long|unsigned short|GLint|GLuint|ulong|long|pid_t|WORD|rlim_t";
-my($fpod)="float|double|qreal";
-my($pods)="$bpod" . "|" . "$enum" . "|" . "$cpod" . "|" . "$ipod" . "|" . "$fpod";
-my($containers)="QHash|QMap|QThreadStorage";
+my ($enum) =
+"KdeLibraryPathsAdded|Qt::WindowFlags|QStyle::StyleHint|KFileShare::Authorization|KFileShare::ShareMode";
+my ($bpod) = "bool|Bool";
+my ($cpod) = "unsigned char|char|QChar|wchar_t|xmlChar|TCHAR";
+my ($ipod) =
+"int|uint|uint32_t|qint8|quint8|qint16|quint16|qint32|quint32|quint64|qint64|unsigned|unsigned int|unsigned long|unsigned short|GLint|GLuint|ulong|long|pid_t|WORD|rlim_t";
+my ($fpod)       = "float|double|qreal";
+my ($pods)       = "$bpod" . "|" . "$enum" . "|" . "$cpod" . "|" . "$ipod" . "|" . "$fpod";
+my ($containers) = "QHash|QMap|QThreadStorage";
 
 #my($intre) = "[-+]?[/\*0-9\s]+";  #notice will allow chars for some basic arithmetic
-my($floatre) = "[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?";
+my ($floatre) = "[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?";
 
 # Check Condition
-my($cnt) = 0;
-my($linecnt) = 0;
-my($line);
-my($lstr) = "";
-my($bc) = 0; #brace count
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($line);
+my ($lstr) = "";
+my ($bc)   = 0;    #brace count
 
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
   $bc += ($line =~ tr/{//);
   $bc -= ($line =~ tr/}//);
@@ -101,12 +104,12 @@ while ($linecnt < $#lines) {
     next unless ($line =~ m/;\s*$/);
 
     #skip if in a method
-    next if (&searchBack('^\s*[\w:]+\s\w+::\w+\s*\(',$linecnt,200));
+    next if (&searchBack('^\s*[\w:]+\s\w+::\w+\s*\(', $linecnt, 200));
 
     #skip function declarations
     next if ($line =~ m/static\sinline/);
 
-    my($pline) = $line;
+    my ($pline) = $line;
     $pline =~ s/".*"/\"\"/g;
     if ($pline =~ m/(\(.*\))/) {
       next if ($1 =~ m/\&/ || $1 =~ m/\*/ || $1 =~ m/\s/);
@@ -117,7 +120,7 @@ while ($linecnt < $#lines) {
 
     next if ($line =~ m/=\s*(0|0L|NULL)\s*;\s*$/);
 
-    next if ($line =~ m/\s($enum)\s[:\w]+\s*=/); #enum assignment
+    next if ($line =~ m/\s($enum)\s[:\w]+\s*=/);    #enum assignment
 
     next if ($line =~ m/(const|\s)($bpod)\s+\w+\s*=\s*(true|True|TRUE|false|False|FALSE)/);
 
@@ -146,6 +149,7 @@ while ($linecnt < $#lines) {
     # anything pointers
     next if ($line =~ m/(const|\s)[:\w]+\s*\*\s*[:\w]+\s*;\s*/);
     next if ($line =~ m/(const|\s)[:\w]+\s*\*\*\s*[:\w]+\s*;\s*/);
+
     # assigning QT_TR_NOOP(..) to a char*
     next if ($line =~ m/(const|\s)[:\w]+\s*\*\s*[:\w]+\s*=\s*.*NOOP.*/);
 
@@ -175,28 +179,33 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for improperly initialized global static objects\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Global static objects in libraries should be avoided. You never know when the constructor will be run or if it will be run at all. See <https://community.kde.org/Policies/Library_Code_Policy#Static_Objects> for more info.";
+sub Explain
+{
+  print
+"Global static objects in libraries should be avoided. You never know when the constructor will be run or if it will be run at all. See <https://community.kde.org/Policies/Library_Code_Policy#Static_Objects> for more info.";
   Exit 0 if &explainArg();
 }
 
 # search the previous $n lines for a pattern $p
-sub searchBack {
-  my($p,$l,$n) = @_;
-  my($i);
-  $n = $l-1 if ($l < $n);
-  for($i=1; $i<=$n; $i++) {
-    if ($lines[$l-$i] =~ $p) {
+sub searchBack
+{
+  my ($p, $l, $n) = @_;
+  my ($i);
+  $n = $l - 1 if ($l < $n);
+  for ($i = 1 ; $i <= $n ; $i++) {
+    if ($lines[$l - $i] =~ $p) {
       return 1;
     }
   }

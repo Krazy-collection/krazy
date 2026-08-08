@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2008 Allen Winter <winter@kde.org>                  #
@@ -28,17 +28,17 @@ use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
 
-my($Prog) = "tipsandthis";
-my($Version) = "1.1";
+my ($Prog)    = "tipsandthis";
+my ($Version) = "1.1";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (KConfigXT only)
 if (&fileType($f) eq "kconfigxt") {
@@ -47,41 +47,42 @@ if (&fileType($f) eq "kconfigxt") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@lines) = <F>;
+my (@lines) = <F>;
 close(F);
 
-my($tcnt) = 0;
-my($tlstr) = "";
-my($wcnt) = 0;
-my($wlstr) = "";
+my ($tcnt)  = 0;
+my ($tlstr) = "";
+my ($wcnt)  = 0;
+my ($wlstr) = "";
 
-my($line,$sline);
-my($type,$name);
-my($linecnt) = 0;
-my($slinecnt);
-my($hasToolTip,$hasWhatsThis);
+my ($line, $sline);
+my ($type, $name);
+my ($linecnt) = 0;
+my ($slinecnt);
+my ($hasToolTip, $hasWhatsThis);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+[Kk]razy:skip+) {
+  if ( $line =~ m+[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+[Kk]razy:skip+)
+  {
     $tcnt = $wcnt = 0;
     last;
   }
   next if ($line =~ m+[Kk]razy:exclude=.*$Prog+);
 
   if ($line =~ m/<\s*entry\s/) {
-    next if ($line =~m/hidden\s*=\s*\"true\"/i);
-    $hasToolTip=0;
-    $hasWhatsThis=0;
+    next if ($line =~ m/hidden\s*=\s*\"true\"/i);
+    $hasToolTip   = 0;
+    $hasWhatsThis = 0;
 
-    $sline = $line;
+    $sline    = $line;
     $slinecnt = $linecnt;
 
     $name = $line;
     chomp($name);
     $name =~ s/^.*name=\"//;
     $name =~ s/\".*$//;
-    if ( $name =~ m/key\s*=/ || $name =~ m/type\s*=/) {
+    if ($name =~ m/key\s*=/ || $name =~ m/type\s*=/) {
       $name = $line;
       chomp($name);
       $name =~ s/^.*key=\"//;
@@ -94,27 +95,27 @@ while ($linecnt < $#lines) {
     $type =~ s/\".*$//;
 
     while ($linecnt < $#lines) {
-      $line = $lines[$linecnt++];
-      $hasToolTip = 1 if ($line =~ m/<\s*tooltip\s*>\s*\w+/);
+      $line         = $lines[$linecnt++];
+      $hasToolTip   = 1 if ($line =~ m/<\s*tooltip\s*>\s*\w+/);
       $hasWhatsThis = 1 if ($line =~ m/<\s*whatsthis\s*>\s*\w+/);
       last if ($line =~ m+</entry>+);
     }
-    if ( !$hasToolTip) {
+    if (!$hasToolTip) {
       $tcnt++;
       if ($tcnt == 1) {
-	$tlstr = "toolTip missing line\#" . $slinecnt;
+        $tlstr = "toolTip missing line\#" . $slinecnt;
       } else {
-	$tlstr = $tlstr . "," . $slinecnt;
+        $tlstr = $tlstr . "," . $slinecnt;
       }
       $tlstr .= " [$type $name]";
       print "=> $sline" if (&verboseArg());
     }
-    if ( !$hasWhatsThis) {
+    if (!$hasWhatsThis) {
       $wcnt++;
       if ($wcnt == 1) {
-	$wlstr = "whatsThis missing line\#" . $slinecnt;
+        $wlstr = "whatsThis missing line\#" . $slinecnt;
       } else {
-	$wlstr = $wlstr . "," . $slinecnt;
+        $wlstr = $wlstr . "," . $slinecnt;
       }
       $wlstr .= " [$type $name]";
       print "=> $sline" if (&verboseArg());
@@ -134,17 +135,20 @@ if (!$total_count) {
   Exit $total_count;
 }
 
-sub Help {
+sub Help
+{
   print "Check for missing tooltips or whatsThis\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
+sub Explain
+{
   print "Please provide tooltips and whatsThis strings to help the user make informed choices.\n";
   Exit 0 if &explainArg();
 }

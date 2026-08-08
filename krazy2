@@ -108,9 +108,8 @@ use Krazy::Config;
 use Krazy::Utils;
 use Krazy::Project;
 
-my ($Prog) = 'krazy2';
-my
- $VERSION = '2.9993';    #split line so MakeMaker can find the version here
+my ($Prog)    = 'krazy2';
+my ($VERSION) = '2.9993';
 
 my ($DEFAULT_CHECKSETS) = "kde6";
 
@@ -146,42 +145,44 @@ my ($cms)       = "KDE";
 my ($rev)       = '';
 
 exit 1
-  if ( !GetOptions(
-       'help'           => \$help,
-       'version'        => \$version,
-       'explain'        => \$explain,
-       'list'           => \$list,
-       'list-runtime'   => \$listrunt,
-       'list-types'     => \$listtypes,
-       'list-type=s'    => \$listtype,
-       'list-sets'      => \$listsets,
-       'list-set=s'     => \$listset,
-       'dry-run'        => \$dryrun,
-       'ignorerc'       => \$ignorerc,
-       'config=s'       => \$configf,
-       'verbose'        => \$verbose,
-       'brief'          => \$brief,
-       'no-brief'       => \$nobrief,
-       'quiet'          => \$quiet,
-       'check=s'        => \$only,
-       'check-sets=s'   => \$checksets,
-       'exclude=s'      => \$exclude,
-       'types=s'        => \$inctypes,
-       'exclude-types=s'=> \$exctypes,
-       'extra=s'        => \$extra,
-       'priority=s'     => \$priority,
-       'strict=s'       => \$strict,
-       'skip=s'         => \$skip,
-       'export=s'       => \$export,
-       'title=s'        => \$title,
-       'cms=s'          => \$cms,
-       'rev=s'          => \$rev
-      )
-     );
+  if (
+  !GetOptions(
+    'help'            => \$help,
+    'version'         => \$version,
+    'explain'         => \$explain,
+    'list'            => \$list,
+    'list-runtime'    => \$listrunt,
+    'list-types'      => \$listtypes,
+    'list-type=s'     => \$listtype,
+    'list-sets'       => \$listsets,
+    'list-set=s'      => \$listset,
+    'dry-run'         => \$dryrun,
+    'ignorerc'        => \$ignorerc,
+    'config=s'        => \$configf,
+    'verbose'         => \$verbose,
+    'brief'           => \$brief,
+    'no-brief'        => \$nobrief,
+    'quiet'           => \$quiet,
+    'check=s'         => \$only,
+    'check-sets=s'    => \$checksets,
+    'exclude=s'       => \$exclude,
+    'types=s'         => \$inctypes,
+    'exclude-types=s' => \$exctypes,
+    'extra=s'         => \$extra,
+    'priority=s'      => \$priority,
+    'strict=s'        => \$strict,
+    'skip=s'          => \$skip,
+    'export=s'        => \$export,
+    'title=s'         => \$title,
+    'cms=s'           => \$cms,
+    'rev=s'           => \$rev
+  )
+  );
 
 &Help() if ($help);
-if ( !$list && !$listtypes && !$listtype && !$listset && !$listsets &&!$listrunt && $#ARGV < 0 ) {
-  &Help(); exit 0;
+if (!$list && !$listtypes && !$listtype && !$listset && !$listsets && !$listrunt && $#ARGV < 0) {
+  &Help();
+  exit 0;
 }
 &Version() if ($version);
 
@@ -190,23 +191,25 @@ if ( !$list && !$listtypes && !$listtype && !$listset && !$listsets &&!$listrunt
 #}
 
 if ($priority && !&validatePriorityType($priority)) {
-  my($lst) = &priorityTypeStr();
-  &userError("Bad priority level \"$priority\" specified... exiting\nChoices for priority are: $lst");
+  my ($lst) = &priorityTypeStr();
+  &userError(
+    "Bad priority level \"$priority\" specified... exiting\nChoices for priority are: $lst");
 }
 
 if ($strict && !&validateStrictType($strict)) {
-  my($lst) = &strictTypeStr();
+  my ($lst) = &strictTypeStr();
   &userError("Bad strictness level \"$strict\" specified... exiting\nChoices for strict are: $lst");
 }
 
 if ($export && !&validateExportType($export)) {
-  my($lst) = &exportTypeStr();
+  my ($lst) = &exportTypeStr();
   &userError("Unsupported export type \"$export\"... exiting\nChoices for export are: $lst");
 }
 
-my ($KRAZYBINPATH) = dirname( abs_path($0) );
+my ($KRAZYBINPATH) = dirname(abs_path($0));
 my ($KRAZYPATH)    = dirname($KRAZYBINPATH);
 my ($CWD)          = getcwd;
+
 # the following, just in case kdebase-foo are symlinks
 $CWD =~ s+/kdebase/apps/+/kdebase-apps/+;
 $CWD =~ s+/kdebase/runtime/+/kdebase-runtime/+;
@@ -226,8 +229,8 @@ tie my (%Sets), "Tie::IxHash";
 &initSets();
 
 #Compute the Project Path and guess the Project Checksets
-my($ProjPath) = &topOfProject($CWD);
-my($GuessCheckSets) = '';
+my ($ProjPath)       = &topOfProject($CWD);
+my ($GuessCheckSets) = '';
 if ($ProjPath) {
   $GuessCheckSets = &guessCheckSet($ProjPath);
 }
@@ -237,101 +240,102 @@ $GuessCheckSets = $DEFAULT_CHECKSETS if (!$GuessCheckSets);
 # This section builds the list of checker programs and check-sets. #
 ####################################################################
 $KRAZY_PLUGIN_PATH =
-  "$KRAZYPATH/lib64/krazy2/krazy-plugins:" .
-  "$KRAZYPATH/lib/krazy2/krazy-plugins:"
-  if ( !$KRAZY_PLUGIN_PATH );
-$KRAZY_EXTRA_PATH =
-  "$KRAZYPATH/lib64/krazy2/krazy-extras:" .
-  "$KRAZYPATH/lib/krazy2/krazy-extras:"
-  if ( !$KRAZY_EXTRA_PATH );
-$KRAZY_SET_PATH =
-  "$KRAZYPATH/lib64/krazy2/krazy-sets:" .
-  "$KRAZYPATH/lib/krazy2/krazy-sets:"
-  if ( !$KRAZY_SET_PATH );
+  "$KRAZYPATH/lib64/krazy2/krazy-plugins:" . "$KRAZYPATH/lib/krazy2/krazy-plugins:"
+  if (!$KRAZY_PLUGIN_PATH);
+$KRAZY_EXTRA_PATH = "$KRAZYPATH/lib64/krazy2/krazy-extras:" . "$KRAZYPATH/lib/krazy2/krazy-extras:"
+  if (!$KRAZY_EXTRA_PATH);
+$KRAZY_SET_PATH = "$KRAZYPATH/lib64/krazy2/krazy-sets:" . "$KRAZYPATH/lib/krazy2/krazy-sets:"
+  if (!$KRAZY_SET_PATH);
 
-my (@sanity_paths,@set_paths);
+my (@sanity_paths, @set_paths);
 
 # Generate an array of paths to search for plugins
 my ($sp);
-for $sp ( split( /:/, $KRAZY_PLUGIN_PATH ) ) {
-  push( @sanity_paths, abs_path $sp ) if ( -d $sp );
+for $sp (split(/:/, $KRAZY_PLUGIN_PATH)) {
+  push(@sanity_paths, abs_path $sp) if (-d $sp);
 }
 @sanity_paths = deDupe(@sanity_paths);
-if ( $#sanity_paths < 0 ) {
-  &userError("No plugin paths found.\nPlease check your KRAZY_PLUGIN_PATH environment variable... exiting");
+if ($#sanity_paths < 0) {
+  &userError(
+    "No plugin paths found.\nPlease check your KRAZY_PLUGIN_PATH environment variable... exiting");
 }
 
 # Generate a hash of arrays containing the plugin names for each supported type
-my ( $type, @tpaths, @tmp );
-foreach $type ( keys %Checkers ) {
+my ($type, @tpaths, @tmp);
+foreach $type (keys %Checkers) {
   splice @tpaths;
   for $sp (@sanity_paths) {
-    if ( -d "$sp/$type" ) {
-      push( @tpaths, "$sp/$type" );
+    if (-d "$sp/$type") {
+      push(@tpaths, "$sp/$type");
     }
   }
-  if ( $#tpaths >= 0 ) {
+  if ($#tpaths >= 0) {
     @tmp = ();
-    find( \&buildPluginList, @tpaths );
+    find(\&buildPluginList, @tpaths);
 
-    sub buildPluginList {
-      -x && !-d && push( @tmp, $File::Find::name );
+    sub buildPluginList
+    {
+      -x && !-d && push(@tmp, $File::Find::name);
     }
-    push @{ $Checkers{$type} }, @tmp;
+    push @{$Checkers{$type}}, @tmp;
   }
 }
 
 # Generate an array of paths to search for check-sets
 my ($setp);
-for $setp ( split( /:/, $KRAZY_SET_PATH ) ) {
-  push( @set_paths, abs_path $setp ) if ( -d $setp );
+for $setp (split(/:/, $KRAZY_SET_PATH)) {
+  push(@set_paths, abs_path $setp) if (-d $setp);
 }
 @set_paths = deDupe(@set_paths);
-if ( $#set_paths < 0 ) {
-  &userError("No checker set paths found.\nPlease check your KRAZY_SET_PATH environment variable... exiting");
+if ($#set_paths < 0) {
+  &userError(
+    "No checker set paths found.\nPlease check your KRAZY_SET_PATH environment variable... exiting"
+  );
 }
 
 # Generate a hash of arrays for the check-sets
-my($set);
-foreach $set ( keys %Sets ) {
+my ($set);
+foreach $set (keys %Sets) {
   splice @tpaths;
   for $setp (@set_paths) {
-    if ( -d "$setp/$set" ) {
-      push( @tpaths, "$setp/$set" );
+    if (-d "$setp/$set") {
+      push(@tpaths, "$setp/$set");
     }
   }
-  if ( $#tpaths >= 0 ) {
+  if ($#tpaths >= 0) {
     @tmp = ();
-    find( \&buildSetList, @tpaths );
+    find(\&buildSetList, @tpaths);
 
-    sub buildSetList {
-      -x && !-d && push( @tmp, $File::Find::name );
+    sub buildSetList
+    {
+      -x && !-d && push(@tmp, $File::Find::name);
     }
-    push @{ $Sets{$set} }, @tmp;
+    push @{$Sets{$set}}, @tmp;
   }
 }
 
 # Generate a hash of arrays containing the extra plugins for each supported type
-my ( $xp, @extra_paths );
-for $xp ( split( /:/, $KRAZY_EXTRA_PATH ) ) {
-  push( @extra_paths, abs_path $xp ) if ( -d $xp );
+my ($xp, @extra_paths);
+for $xp (split(/:/, $KRAZY_EXTRA_PATH)) {
+  push(@extra_paths, abs_path $xp) if (-d $xp);
 }
 @extra_paths = deDupe(@extra_paths);
-foreach $type ( keys %xCheckers ) {
+foreach $type (keys %xCheckers) {
   splice @tpaths;
   for $xp (@extra_paths) {
-    if ( -d "$xp/$type" ) {
-      push( @tpaths, "$xp/$type" );
+    if (-d "$xp/$type") {
+      push(@tpaths, "$xp/$type");
     }
   }
-  if ( $#tpaths >= 0 ) {
+  if ($#tpaths >= 0) {
     @tmp = ();
-    find( \&buildExtraList, @tpaths );
+    find(\&buildExtraList, @tpaths);
 
-    sub buildExtraList {
-      -x && !-d && push( @tmp, $File::Find::name );
+    sub buildExtraList
+    {
+      -x && !-d && push(@tmp, $File::Find::name);
     }
-    push @{ $xCheckers{$type} }, @tmp;
+    push @{$xCheckers{$type}}, @tmp;
   }
 }
 ###############################################################
@@ -356,34 +360,36 @@ foreach $type ( keys %xCheckers ) {
 # This section parses the krazy config files. #
 ###############################################
 # Parse .krazy file(s)
-my(%ds,%pds);
-$ds{'EXTRA'}        = $pds{'EXTRA'} = "";
-$ds{'CHECK'}        = $pds{'CHECK'} = "";
-$ds{'CHECKSETS'}    = $pds{'CHECKSETS'} = "";
-$ds{'EXCLUDE'}      = $pds{'EXCLUDE'} = "";
-$ds{'TYPES'}        = $pds{'TYPES'} = "";
+my (%ds, %pds);
+$ds{'EXTRA'}        = $pds{'EXTRA'}        = "";
+$ds{'CHECK'}        = $pds{'CHECK'}        = "";
+$ds{'CHECKSETS'}    = $pds{'CHECKSETS'}    = "";
+$ds{'EXCLUDE'}      = $pds{'EXCLUDE'}      = "";
+$ds{'TYPES'}        = $pds{'TYPES'}        = "";
 $ds{'EXCLUDETYPES'} = $pds{'EXCLUDETYPES'} = "";
-$ds{'SKIPREGEX'}    = $pds{'SKIPREGEX'} = "";
-$ds{'PRIORITY'}     = $pds{'PRIORITY'} = "";
-$ds{'STRICT'}       = $pds{'STRICT'} = "";
-$ds{'OUTPUT'}       = $pds{'OUTPUT'} = "";
-$ds{'EXPORT'}       = $pds{'EXPORT'} = "";
+$ds{'SKIPREGEX'}    = $pds{'SKIPREGEX'}    = "";
+$ds{'PRIORITY'}     = $pds{'PRIORITY'}     = "";
+$ds{'STRICT'}       = $pds{'STRICT'}       = "";
+$ds{'OUTPUT'}       = $pds{'OUTPUT'}       = "";
+$ds{'EXPORT'}       = $pds{'EXPORT'}       = "";
 
-if ( !$ignorerc ) {
+if (!$ignorerc) {
   my ($rcfile);
 
   if ($configf) {
     $configf = glob($configf);
+
     # read directives from the specified config file
-    if (! -f $configf) {
+    if (!-f $configf) {
       &userError("Specified config file \"$configf\" does not exist or is not readable.");
     } else {
       %ds = &ParseKrazyRC($configf);
     }
   } else {
+
     # read directives from the user' .krazy in their home dir.
     $rcfile = "";
-    if ( defined($HOME) && $HOME ) { # just in case $HOME isn't set
+    if (defined($HOME) && $HOME) {    # just in case $HOME isn't set
       $rcfile = $HOME . "/.krazy";
     }
     if ($rcfile && -f $rcfile) {
@@ -396,6 +402,7 @@ if ( !$ignorerc ) {
       $rcfile = $ProjPath . "/.krazy";
     } else {
       if (!&topModule($CWD)) {
+
         #not in a project dir, so use the one in cwd
         $rcfile = $CWD . "/.krazy";
       }
@@ -406,12 +413,12 @@ if ( !$ignorerc ) {
   }
 
   #Merge the directives from the possible 2 .krazy files
-  $ds{'EXCLUDE'}      = &addCommaSeparated( $ds{'EXCLUDE'},     $pds{'EXCLUDE'});
-  $ds{'CHECK'}        = &addCommaSeparated( $ds{'CHECK'},       $pds{'CHECK'});
-  $ds{'EXTRA'}        = &addCommaSeparated( $ds{'EXTRA'},       $pds{'EXTRA'});
-  $ds{'TYPES'}        = &addCommaSeparated( $ds{'TYPES'},       $pds{'TYPES'});
-  $ds{'EXCLUDETYPES'} = &addCommaSeparated( $ds{'EXCLUDETYPES'},$pds{'EXCLUDETYPES'});
-  $ds{'SKIPREGEX'}    = &addRegEx(          $ds{'SKIPREGEX'},   $pds{'SKIPREGEX'});
+  $ds{'EXCLUDE'}      = &addCommaSeparated($ds{'EXCLUDE'},      $pds{'EXCLUDE'});
+  $ds{'CHECK'}        = &addCommaSeparated($ds{'CHECK'},        $pds{'CHECK'});
+  $ds{'EXTRA'}        = &addCommaSeparated($ds{'EXTRA'},        $pds{'EXTRA'});
+  $ds{'TYPES'}        = &addCommaSeparated($ds{'TYPES'},        $pds{'TYPES'});
+  $ds{'EXCLUDETYPES'} = &addCommaSeparated($ds{'EXCLUDETYPES'}, $pds{'EXCLUDETYPES'});
+  $ds{'SKIPREGEX'}    = &addRegEx($ds{'SKIPREGEX'}, $pds{'SKIPREGEX'});
 
   #override directives from the possible 2 .krazy files
   $ds{'CHECKSETS'} = $pds{'CHECKSETS'} if ($pds{'CHECKSETS'});
@@ -430,18 +437,18 @@ $inctypes  = $ds{'TYPES'}        if (!$inctypes  && $ds{'TYPES'});
 $exctypes  = $ds{'EXCLUDETYPES'} if (!$exctypes  && $ds{'EXCLUDETYPES'});
 $priority  = $ds{'PRIORITY'}     if (!$priority  && $ds{'PRIORITY'});
 $strict    = $ds{'STRICT'}       if (!$strict    && $ds{'STRICT'});
-$output    = $ds{'OUTPUT'}       if (               $ds{'OUTPUT'});
-$export    = $ds{'EXPORT'}       if (!$export    && $ds{'EXPORT'});
+$output    = $ds{'OUTPUT'}       if ($ds{'OUTPUT'});
+$export    = $ds{'EXPORT'}       if (!$export && $ds{'EXPORT'});
 
 # merge .krazy file settings with command line settings
 $skip = &addRegEx($skip, $ds{'SKIPREGEX'});
 
 # fallback defaults
 $checksets = $GuessCheckSets if (!$checksets);
-$export = "text" if (!$export);
-$quiet = 1 if ( !$quiet && $output eq "quiet" );
-$brief = 1 if ( !$brief && $output eq "brief" );
-$brief = 0 if ( $nobrief );
+$export    = "text"          if (!$export);
+$quiet     = 1               if (!$quiet && $output eq "quiet");
+$brief     = 1               if (!$brief && $output eq "brief");
+$brief     = 0               if ($nobrief);
 
 # if ($verbose) {
 #    print "\nDirectives:\n";
@@ -464,13 +471,15 @@ $brief = 0 if ( $nobrief );
 ###########################################################################
 
 # Generate a list of all the checker programs in the specified sets.
-my($prog,@set_progs);
-my($qtsets) = '';
-my($kdesets) = '';
+my ($prog, @set_progs);
+my ($qtsets)  = '';
+my ($kdesets) = '';
 if ($checksets) {
-  foreach $set ( split( ",", $checksets ) ) {
+  foreach $set (split(",", $checksets)) {
     if (!validateCheckSet($set)) {
-      &userError("No such check-set \"$set\".\nRun $Prog --list-sets to see the list of available check-sets.");
+      &userError(
+"No such check-set \"$set\".\nRun $Prog --list-sets to see the list of available check-sets."
+      );
     }
     if ($set =~ m/^qt/i) {
       if ($qtsets) {
@@ -483,11 +492,11 @@ if ($checksets) {
       if ($kdesets) {
         &userError("Specifying multiple KDE version checksets is not allowed ($set and $kdesets).");
       } else {
-        $kdesets = $set
+        $kdesets = $set;
       }
     }
-    foreach $prog ( @{ $Sets{lc($set)} } ) {
-      push( @set_progs, &basename($prog));
+    foreach $prog (@{$Sets{lc($set)}}) {
+      push(@set_progs, &basename($prog));
     }
   }
   @set_progs = deDupe(@set_progs);
@@ -496,164 +505,174 @@ if ($checksets) {
 
 # Now subtract away the checkers that aren't found in the check-sets.
 if ($checksets) {
-  my ($tprog,$sprog);
-  foreach $type ( keys %Checkers ) {
+  my ($tprog, $sprog);
+  foreach $type (keys %Checkers) {
     splice @tmp;
-    foreach $tprog ( @{ $Checkers{$type} } ) {
-      foreach $sprog ( @set_progs) {
-        my($st,$sp) = split("-",$sprog);
+    foreach $tprog (@{$Checkers{$type}}) {
+      foreach $sprog (@set_progs) {
+        my ($st, $sp) = split("-", $sprog);
         next unless ($st eq $type);
-        if ( &basename($tprog) eq $sp ) {
-          push( @tmp, $tprog);
+        if (&basename($tprog) eq $sp) {
+          push(@tmp, $tprog);
           last;
         }
       }
     }
-    @{ $Checkers{$type} } = @tmp;
+    @{$Checkers{$type}} = @tmp;
   }
 }
 
 my ($p);
 ## process extras
 if ($extra) {
-  my (@extra_progs) = split( ",", $extra );
+  my (@extra_progs) = split(",", $extra);
   @extra_progs = deDupe(@extra_progs);
-  my ( $i, $x );
+  my ($i, $x);
   for $x (@extra_progs) {
 
     # Make sure specified extra program is in the list
     my ($found) = 0;
-    foreach $type ( keys %xCheckers ) {
-      for $p ( sort @{ $xCheckers{$type} } ) {
-        if ( &basename($p) eq $x ) {
+    foreach $type (keys %xCheckers) {
+      for $p (sort @{$xCheckers{$type}}) {
+        if (&basename($p) eq $x) {
           $found = 1;
-          push( @{ $Checkers{$type} }, $p );
+          push(@{$Checkers{$type}}, $p);
           last;
         }
       }
     }
-    if ( !$found ) {
-      &userError("Extra checker \"$x\" not found.\nRun $Prog --list to see the list of available checker programs.");
+    if (!$found) {
+      &userError(
+"Extra checker \"$x\" not found.\nRun $Prog --list to see the list of available checker programs."
+      );
     }
   }
 }
 
 # Remove file types from the Checkers hash, according to the types command line arg
 if ($inctypes) {
-  my (@only_types) = split( ",", $inctypes );
+  my (@only_types) = split(",", $inctypes);
   @only_types = deDupe(@only_types);
   my ($t, $o);
   for $t (@only_types) {
     if (!defined($Checkers{$t})) {
-      &userError("The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types.");
+      &userError(
+"The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types."
+      );
     }
   }
-  foreach $type ( keys %Checkers ) {
+  foreach $type (keys %Checkers) {
     my ($found) = 0;
     foreach $o (@only_types) {
-      if ( $type eq $o ) {
+      if ($type eq $o) {
         $found = 1;
         last;
       }
     }
     if (!$found) {
-      @{ $Checkers{$type} } = ();
-      @{ $xCheckers{$type} } = ();
+      @{$Checkers{$type}}  = ();
+      @{$xCheckers{$type}} = ();
     }
   }
 }
 
 # Remove file types from the Checkers hash, according to the exclude-types command line arg
 if ($exctypes) {
-  my (@exclude_types) = split( ",", $exctypes );
+  my (@exclude_types) = split(",", $exctypes);
   @exclude_types = deDupe(@exclude_types);
   my ($t, $o);
   for $t (@exclude_types) {
     if (!defined($Checkers{$t})) {
-      &userError("The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types.");
+      &userError(
+"The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types."
+      );
     }
   }
-  foreach $type ( keys %Checkers ) {
+  foreach $type (keys %Checkers) {
     my ($found) = 0;
     foreach $o (@exclude_types) {
-      if ( $type eq $o ) {
+      if ($type eq $o) {
         $found = 1;
         last;
       }
     }
     if ($found) {
-      @{ $Checkers{$type} } = ();
-      @{ $xCheckers{$type} } = ();
+      @{$Checkers{$type}}  = ();
+      @{$xCheckers{$type}} = ();
     }
   }
 }
 
 # If only, then run the specified check program only
 if ($only) {
-  my (@only_progs) = split( ",", $only );
+  my (@only_progs) = split(",", $only);
   @only_progs = deDupe(@only_progs);
-  my ( $i, $o );
+  my ($i, $o);
   for $o (@only_progs) {
 
     # Make sure specified only program is in the list
     my ($found) = 0;
-    foreach $type ( keys %Checkers ) {
-      for $p ( sort @{ $Checkers{$type} } ) {
-        if ( &basename($p) eq $o ) {
+    foreach $type (keys %Checkers) {
+      for $p (sort @{$Checkers{$type}}) {
+        if (&basename($p) eq $o) {
           $found = 1;
-          push( @{ $oCheckers{$type} }, $p );
+          push(@{$oCheckers{$type}}, $p);
           last;
         }
       }
     }
     if (!$found) {
+
       # ok, maybe an extra checker was specified
-      foreach $type ( keys %xCheckers ) {
-        for $p ( sort @{ $xCheckers{$type} } ) {
-          if ( &basename($p) eq $o ) {
+      foreach $type (keys %xCheckers) {
+        for $p (sort @{$xCheckers{$type}}) {
+          if (&basename($p) eq $o) {
             $found = 1;
-            push( @{ $oCheckers{$type} }, $p );
+            push(@{$oCheckers{$type}}, $p);
             last;
           }
         }
       }
     }
-    if ( !$found ) {
-      my($emess);
-      if ( !$checksets) {
-        $emess = "No such checker \"$o\".\nRun $Prog --list to see the list of available checker programs.";
+    if (!$found) {
+      my ($emess);
+      if (!$checksets) {
+        $emess =
+"No such checker \"$o\".\nRun $Prog --list to see the list of available checker programs.";
       } else {
-        $emess = "No such checker \"$o\" in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check-sets and programs.";
+        $emess =
+"No such checker \"$o\" in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check-sets and programs.";
       }
       &userError($emess);
     }
   }
 } else {
-  foreach $type ( keys %Checkers ) {
-    for $p ( sort @{ $Checkers{$type} } ) {
-      push( @{ $oCheckers{$type} }, $p );
+  foreach $type (keys %Checkers) {
+    for $p (sort @{$Checkers{$type}}) {
+      push(@{$oCheckers{$type}}, $p);
     }
   }
 }
 
 ## process program exclusions
 if ($exclude) {
-  my (@exclude_progs) = split( ",", $exclude );
+  my (@exclude_progs) = split(",", $exclude);
   @exclude_progs = deDupe(@exclude_progs);
-  my ( $i, $e );
+  my ($i, $e);
   foreach $e (@exclude_progs) {
 
     # Make sure specified exclude program is in the list
     my ($found) = 0;
-    foreach $type ( keys %Checkers ) {
-      for $p ( sort @{ $Checkers{$type} } ) {
-        if ( &basename($p) eq $e ) {
+    foreach $type (keys %Checkers) {
+      for $p (sort @{$Checkers{$type}}) {
+        if (&basename($p) eq $e) {
           $found = 1;
-          push( @{ $eCheckers{$type} }, $p );
+          push(@{$eCheckers{$type}}, $p);
           last;
         }
       }
     }
+
 #    if ( !$found ) {
 #      my($emess);
 #      if ( !$checksets) {
@@ -668,24 +687,24 @@ if ($exclude) {
 
 # finally, remove the "excluded" checkers from the "only" checkers
 my ($nprogs) = 0;
-foreach $type ( keys %Checkers ) {
-  for $p ( sort @{ $oCheckers{$type} } ) {
+foreach $type (keys %Checkers) {
+  for $p (sort @{$oCheckers{$type}}) {
     my ($q);
     my ($found) = 0;
-    for $q ( sort @{ $eCheckers{$type} } ) {
-      if ( &basename($p) eq &basename($q) ) {
+    for $q (sort @{$eCheckers{$type}}) {
+      if (&basename($p) eq &basename($q)) {
         $found = 1;
         last;
       }
     }
-    if ( !$found ) {
-      push( @{ $pCheckers{$type} }, $p );
+    if (!$found) {
+      push(@{$pCheckers{$type}}, $p);
       $nprogs++;    #count the total number of checkers, over all filetypes
     }
   }
 }
 
-if ( $nprogs == 0 ) {
+if ($nprogs == 0) {
   &userError("No checker programs to run... exiting");
 }
 
@@ -698,58 +717,60 @@ if ( $nprogs == 0 ) {
 #####################################################################
 
 # Options to pass to the checker programs
-my ($opts) = "--krazy "; #always passed
-$priority = "all" if ( !$priority );
+my ($opts) = "--krazy ";    #always passed
+$priority = "all" if (!$priority);
 $opts .= "--priority $priority " if ($priority);
-$strict = "all" if ( !$strict );
-$opts .= "--strict $strict " if ($strict);
-$opts .= "--check-sets $checksets " if ($checksets);
-$opts .= "--check-sets $DEFAULT_CHECKSETS " if (! $checksets);
-$opts .= "--quiet " if ($quiet);
-$opts .= "--verbose " if ($verbose);
+$strict = "all"                  if (!$strict);
+$opts .= "--strict $strict "                if ($strict);
+$opts .= "--check-sets $checksets "         if ($checksets);
+$opts .= "--check-sets $DEFAULT_CHECKSETS " if (!$checksets);
+$opts .= "--quiet "                         if ($quiet);
+$opts .= "--verbose "                       if ($verbose);
 
 # create the list of files to process
 my (@allfiles) = ();
-if ( $ARGV[0] eq "-" ) {
+if ($ARGV[0] eq "-") {
+
   # read the file list from stdin
-  while ( defined( $_ = <STDIN> ) ) {
+  while (defined($_ = <STDIN>)) {
     chomp($_);
-    push( @allfiles, $_ ) if ( $_ && $_ !~ m/^#/ );
+    push(@allfiles, $_) if ($_ && $_ !~ m/^#/);
   }
 } else {
+
   # files were provided on the command line
   @allfiles = @ARGV;
 }
 
 # quick run through all the files, eliminating types we don't need
-my ( $f, $absf, $absfh, $ftype );
+my ($f, $absf, $absfh, $ftype);
 my (@types) = ();
 for $f (@allfiles) {
   $absf = abs_path($f);
-  if ( !-f $absf ) {
+  if (!-f $absf) {
     print STDERR "Cannot access file $f\n";
     next;
   }
-  if ( $absf =~ m+$skip+ ) {
+  if ($absf =~ m+$skip+) {
     print STDERR "skipping $f\n" if ($verbose);
     next;
   }
   $ftype = &fileType($f);
-  if ( $ftype eq "" ) {
+  if ($ftype eq "") {
     print STDERR "Unsupported file type for $f... skipping\n";
     next;
   }
   my ($t);
   my ($found) = 0;
-  if ( $#types >= 0 ) {
+  if ($#types >= 0) {
     for $t (@types) {
-      if ( $t eq $ftype ) {
+      if ($t eq $ftype) {
         $found = 1;
         last;
       }
     }
   }
-  push( @types, $ftype ) if ( !$found );
+  push(@types, $ftype) if (!$found);
 }
 
 my ($insopt);
@@ -757,16 +778,17 @@ my ($overall_status) = 0;
 my ($num_checkers)   = 0;
 my ($use, %result, $pid, %status);
 my ($insp) = $KRAZYPATH . "/lib64/krazy2/krazy-helpers/getInstalledHeaders.pl";
-  $insp = $KRAZYPATH . "/lib/krazy2/krazy-helpers/getInstalledHeaders.pl" if (! -f $insp);
+$insp = $KRAZYPATH . "/lib/krazy2/krazy-helpers/getInstalledHeaders.pl" if (!-f $insp);
 my ($dirf);
 my ($nf) = 0;
 my (@processedFiles);
+
 for $ftype (@types) {
-  if ( defined( $pCheckers{$ftype} ) ) {
-    for $p ( sort @{ $pCheckers{$ftype} } ) {
+  if (defined($pCheckers{$ftype})) {
+    for $p (sort @{$pCheckers{$ftype}}) {
       my ($bp) = &basename($p);
-      if(!$quiet) {
-        if(!$brief) {
+      if (!$quiet) {
+        if (!$brief) {
           print STDERR "=>$ftype/$bp test in-progress.";
         } else {
           print STDERR "." unless ($export =~ m/text[a-z]+/);
@@ -776,38 +798,39 @@ for $ftype (@types) {
       $num_checkers++;
       for $f (@allfiles) {
         $absf = abs_path($f);
-        next if ( $absf =~ m+$skip+ );
-        next unless ( &fileType($f) eq $ftype );
+        next if ($absf =~ m+$skip+);
+        next unless (&fileType($f) eq $ftype);
 
         # skip the following files because they are auto-generated but do not
         # contain text that can be tested to determine that situation.
-        next if ( $f =~ m/la\.all_cpp\.cpp$/ );
+        next if ($f =~ m/la\.all_cpp\.cpp$/);
 
         # skip auto-generated files: test the first 8 lines for known signatures
-        open( F, "<$f" ) || die "Couldn't open $f";
-        my (@c) = <F>;
-        my ($tt) = join '', @c[ 0 .. ( $#c > 8 ? 8 : $#c ) ];
+        open(F, "<$f") || die "Couldn't open $f";
+        my (@c)  = <F>;
+        my ($tt) = join '', @c[0 .. ($#c > 8 ? 8 : $#c)];
         close(F);
         next
-          if ( $tt =~
-     /(All changes made in this file will be lost|All changes made to it will be lost|DO NOT EDIT|DO NOT MODIFY|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
-             );
+          if ($tt =~
+/(All changes made in this file will be lost|All changes made to it will be lost|DO NOT EDIT|DO NOT MODIFY|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
+          );
 
         $nf++;
 
         # use the helper program to determine if this file is to be installed
         $insopt = "";
         $absfh  = $absf;
-        $absfh  =~ s/\.cpp$/\.h/;  #one day deal with .hpp
-        $absfh  =~ s/\.cc$/\.h/;
-        $absfh  =~ s/\.cxx$/\.hxx/;
-        $absfh  =~ s/\.C$/\.H/;
-        $dirf   = dirname($absf);
-        $dirf   =~ s/ /\\ /g;
-        open( INS, "$insp $dirf |" ) or print STDERR "Cannot run: $insp\n";
+        $absfh =~ s/\.cpp$/\.h/;     #one day deal with .hpp
+        $absfh =~ s/\.cc$/\.h/;
+        $absfh =~ s/\.cxx$/\.hxx/;
+        $absfh =~ s/\.C$/\.H/;
+        $dirf = dirname($absf);
+        $dirf =~ s/ /\\ /g;
+        open(INS, "$insp $dirf |") or print STDERR "Cannot run: $insp\n";
+
         while (<INS>) {
           chomp($_);
-          if ( $absf eq $_ || $absfh eq $_ ) {
+          if ($absf eq $_ || $absfh eq $_) {
             $insopt = "--installed";
             last;
           }
@@ -815,22 +838,23 @@ for $ftype (@types) {
         close(INS);
 
         # run the checker, concatenating the output
-        if ( !$dryrun ) {
-          $pid = open( SANE, "$p $opts $insopt \'$f\' 2>/dev/null |" )
+        if (!$dryrun) {
+          $pid = open(SANE, "$p $opts $insopt \'$f\' 2>/dev/null |")
             or print STDERR "Cannot run: &basename($p)\n";
-          my($issues) = -1;
+          my ($issues) = -1;
           while (<SANE>) {
             chomp($_);
-            if($_ =~ m/^ISSUES=(\d+)/) {
+            if ($_ =~ m/^ISSUES=(\d+)/) {
               $issues = $1;
               last;
             } else {
               $result{$p} .= "\t" . $f . ": " . $_ . "\n"
-                unless ( $_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+ );
+                unless ($_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+);
             }
           }
           close(SANE);
           if ($issues < 0) {
+
             #maybe the checker didn't print the ISSUES=N line, so use the old exit status
             $issues = $? >> 8;
           }
@@ -839,73 +863,74 @@ for $ftype (@types) {
           print "$p $opts $insopt $f\n";
         }
         push(@processedFiles, $absf);
-        print STDERR "." unless ( $nf % 10 || $quiet || $export =~ m/text[a-z]+/);
-      } # foreach file to process
+        print STDERR "." unless ($nf % 10 || $quiet || $export =~ m/text[a-z]+/);
+      }    # foreach file to process
       if ($nf > 0) {
         if (defined($status{$p})) {
           if ($status{$p}) {
             print STDERR "fail (" . $status{$p} . ")\n" unless ($quiet || $brief);
           } else {
-            print STDERR "pass\n"unless ($quiet || $brief);
+            print STDERR "pass\n" unless ($quiet || $brief);
           }
           $overall_status += $status{$p};
         } else {
           print STDERR "unknown\n" unless ($quiet || $brief);
         }
       }
-    } # foreach Checker of this type
-  } # if any Checker is defined for file of this type
-} # foreach type of file
+    }    # foreach Checker of this type
+  }    # if any Checker is defined for file of this type
+}    # foreach type of file
 
 ###############################
 # This section prints results #
 ###############################
-if ( !$quiet ) {
+if (!$quiet) {
 
-  @processedFiles= deDupe(@processedFiles);
+  @processedFiles = deDupe(@processedFiles);
   &printHeader($overall_status, $num_checkers, scalar(@processedFiles));
 
-  my ($st,$bp);
+  my ($st,    $bp);
   my ($cline, $rline);
   for $ftype (@types) {
-    next unless ( $#{ $pCheckers{$ftype} } >= 0 );
+    next unless ($#{$pCheckers{$ftype}} >= 0);
     $st = 0;
-    my ($pth) = ${ $pCheckers{$ftype} }[0];
-    &printFType( $pth, $ftype ) if (!$brief || $export eq "xml");
-    for $p ( sort @{ $pCheckers{$ftype} } ) {
+    my ($pth) = ${$pCheckers{$ftype}}[0];
+    &printFType($pth, $ftype) if (!$brief || $export eq "xml");
+    for $p (sort @{$pCheckers{$ftype}}) {
       $st++;
       $use = `$p --help 2>/dev/null`;
       chomp($use);
-      $use = "no description available" if ( length($use) < 4 );
+      $use   = "no description available" if (length($use) < 4);
       $cline = '';
-      $cline .= "$st. " if ( $export eq "text" );
+      $cline .= "$st. " if ($export eq "text");
       $bp = &basename($p);
       $cline .= "$use [$bp]...";
-      if ( defined( $status{$p} ) && $status{$p} > 0 ) {
-        my ($si) = ( $status{$p} > 1 ? "issues" : "issue" );
+
+      if (defined($status{$p}) && $status{$p} > 0) {
+        my ($si) = ($status{$p} > 1 ? "issues" : "issue");
         $rline = "$status{$p} $si found";
       } else {
         $rline = "Ok!";
-        $cline = "" if ($brief); #so printCheck() will print nothing
+        $cline = "" if ($brief);    #so printCheck() will print nothing
       }
-      &printCheck( $cline, $rline );
+      &printCheck($cline, $rline);
       if (defined($status{$p}) && $status{$p} > 0 && length($result{$p}) > 0) {
-        printOOPS( $result{$p}, $cline );
+        printOOPS($result{$p}, $cline);
         if ($explain) {
-          my($eopts) = "--explain ";
-          $eopts .= "--check-sets $checksets " if ($checksets);
-          $eopts .= "--check-sets $DEFAULT_CHECKSETS " if (! $checksets);
+          my ($eopts) = "--explain ";
+          $eopts .= "--check-sets $checksets "         if ($checksets);
+          $eopts .= "--check-sets $DEFAULT_CHECKSETS " if (!$checksets);
           my ($use) = `$p $eopts 2>/dev/null`;
           chomp($use);
-          $use = "(no explanation available)" if ( length($use) < 4 );
-          &printExplain( $use, 0, 0 );
+          $use = "(no explanation available)" if (length($use) < 4);
+          &printExplain($use, 0, 0);
         }
       }
       print "\n" if ($cline ne "" && $export ne "textlist" && $export ne "textedit");
-      print "      </check>\n" if ( $cline ne "" && $export eq "xml" );
+      print "      </check>\n" if ($cline ne "" && $export eq "xml");
     }
 
-    print "    </file-type>\n" if ( $export eq "xml" );
+    print "    </file-type>\n" if ($export eq "xml");
   }
   &printFooter();
 }
@@ -915,7 +940,8 @@ exit $overall_status;
 
 #==============================================================================
 # Help function: print help message and exit.
-sub Help {
+sub Help
+{
   &Version();
   print "A source code sanitizer.\n\n";
   print "Usage: $Prog [OPTION] [FILES]\n\n";
@@ -981,122 +1007,127 @@ sub Help {
 }
 
 # Version function: print the version number and exit.
-sub Version {
+sub Version
+{
   print "$Prog, version $VERSION\n";
   exit 0 if $version;
 }
 
 # Initialize the Checkers hash
-sub initCheckers {
+sub initCheckers
+{
   my ($type);
   foreach $type (&fileTypesList()) {
     $Checkers{$type} = [];
   }
 
-  foreach $type ( keys %Checkers ) {
+  foreach $type (keys %Checkers) {
 
     # add in these extra checkers
-    @{ $xCheckers{$type} } = ();
+    @{$xCheckers{$type}} = ();
 
     # then, check these only from the list of all available
-    @{ $oCheckers{$type} } = ();
+    @{$oCheckers{$type}} = ();
 
     # except, exclude these
-    @{ $eCheckers{$type} } = ();
+    @{$eCheckers{$type}} = ();
 
     # and here is the final list of checkers
-    @{ $pCheckers{$type} } = ();
+    @{$pCheckers{$type}} = ();
   }
 }
 
 # Initialize the Sets hash
-sub initSets {
+sub initSets
+{
   my ($set);
   foreach $set (&checkSetsList()) {
     $Sets{$set} = [];
   }
-  foreach $set (keys %Sets ) {
-    @{ $Sets{$set} } = ();
+  foreach $set (keys %Sets) {
+    @{$Sets{$set}} = ();
   }
 }
 
 # printList function: print a formatted list of the checker programs provided.
-sub printList {
-  my ( $isextra, @list ) = @_;
+sub printList
+{
+  my ($isextra, @list) = @_;
 
   my ($prog);
   my ($np) = 0;
-  for $prog ( sort @list ) {
+  for $prog (sort @list) {
     $np++;
     $use = "";
     $use = "[EXTRA] " if ($isextra && $export ne "xml");
     $use .= `$prog --help 2>/dev/null`;
     chomp($use);
-    $use = "(no description available)" if ( length($use) < 4 );
+    $use = "(no description available)" if (length($use) < 4);
 
-    if ( $export eq "xml" ) {
+    if ($export eq "xml") {
       $version = `$prog --version 2>/dev/null`;
       chomp($version);
       if ($version =~ m/.*(\d\.\d(\.\d)?).*/) {
         $version = $1;
       }
 
-      print "  " if ( $isextra );
+      print "  " if ($isextra);
       print "      <plugin name=\"" . &basename($prog) . "\"";
       print " short-desc=\"" . encode_entities($use) . "\"";
       print " version=\"" . $version . "\"";
-      if ( $explain ) {
+      if ($explain) {
         print ">\n";
       } else {
         print "/>\n";
       }
     } else {
       if (!$explain) {
-        printf( "%18.18s: %s\n", &basename($prog), $use );
+        printf("%18.18s: %s\n", &basename($prog), $use);
       } else {
-        printf( "%s: %s\n", &basename($prog), $use );
+        printf("%s: %s\n", &basename($prog), $use);
       }
     }
 
     if ($explain) {
       $use = `$prog --explain 2>/dev/null`;
-      chomp( $use );
-      $use = "(no explanation available)" if ( length($use) < 4 );
-      printExplain( $use, $isextra, 1 );
+      chomp($use);
+      $use = "(no explanation available)" if (length($use) < 4);
+      printExplain($use, $isextra, 1);
     }
 
-   print "  " if ( $isextra && $export eq "xml");
-   print "      </plugin>\n" if ( $export eq "xml" && $explain );
+    print "  "                if ($isextra         && $export eq "xml");
+    print "      </plugin>\n" if ($export eq "xml" && $explain);
   }
   return $np;
 }
 
 # List function: print a list of all checker programs available to run.
-sub List {
-  my ( $prog, $use, $type );
+sub List
+{
+  my ($prog, $use, $type);
 
-  if ( $export =~ "xml" ) {
+  if ($export =~ "xml") {
     &printXmlHeader();
     print "  <file-types>\n";
   } else {
     print "Available source code sanitizer checks:\n";
   }
 
-  foreach $type ( keys %Checkers ) {
-    my ($pth) = ${ $Checkers{$type} }[0];
-    &printFType( dirname($pth), $type );
-    if ( $#{ $Checkers{$type} } >= 0 ) {
-      &printList( 0, @{ $Checkers{$type} } );
+  foreach $type (keys %Checkers) {
+    my ($pth) = ${$Checkers{$type}}[0];
+    &printFType(dirname($pth), $type);
+    if ($#{$Checkers{$type}} >= 0) {
+      &printList(0, @{$Checkers{$type}});
     } else {
-      printf( "%18.18s\n", "(none)" );
+      printf("%18.18s\n", "(none)");
     }
-    if ( $#{ $xCheckers{$type} } >= 0 ) {
-      print "      <extra>\n" if ( $export eq "xml" );
-      &printList( 1, @{ $xCheckers{$type} } );
-      print "      </extra>\n" if ( $export eq "xml" );
+    if ($#{$xCheckers{$type}} >= 0) {
+      print "      <extra>\n" if ($export eq "xml");
+      &printList(1, @{$xCheckers{$type}});
+      print "      </extra>\n" if ($export eq "xml");
     }
 
-    print "    </file-type>" if ( $export eq "xml" );
+    print "    </file-type>" if ($export eq "xml");
     print "\n";
   }
 
@@ -1105,21 +1136,22 @@ sub List {
 }
 
 # List function: print a list of all checker programs that would be run.
-sub ListRuntime {
-  my ( $prog, $use, $type );
+sub ListRuntime
+{
+  my ($prog, $use, $type);
 
-  if ( $export =~ "xml" ) {
+  if ($export =~ "xml") {
     &printXmlHeader();
     print "  <file-types>\n";
   }
 
-  my($np) = 0;
-  foreach $type ( keys %pCheckers ) {
-    my ($pth) = ${ $pCheckers{$type} }[0];
-    if ( $#{ $pCheckers{$type} } >= 0 ) {
-      &printFType( dirname($pth), $type, "Runtime checks for " );
-      $np = $np + &printList( 0, @{ $pCheckers{$type} } );
-      print "    </file-type>" if ( $export eq "xml" );
+  my ($np) = 0;
+  foreach $type (keys %pCheckers) {
+    my ($pth) = ${$pCheckers{$type}}[0];
+    if ($#{$pCheckers{$type}} >= 0) {
+      &printFType(dirname($pth), $type, "Runtime checks for ");
+      $np = $np + &printList(0, @{$pCheckers{$type}});
+      print "    </file-type>" if ($export eq "xml");
       print "\n";
     }
   }
@@ -1130,10 +1162,11 @@ sub ListRuntime {
 }
 
 # ListTypes function: print a list of supported file types.
-sub ListTypes {
-  my ( $prog, $use, $type );
+sub ListTypes
+{
+  my ($prog, $use, $type);
 
-  &printXmlHeader() if ( $export =~ "xml" );
+  &printXmlHeader() if ($export =~ "xml");
 
   print "List of supported file types:\n";
   &prettyPrintTypesList();
@@ -1143,27 +1176,28 @@ sub ListTypes {
 }
 
 # ListType function: list all the checkers for a specific file type.
-sub ListType {
-  my($type) = @_;
-  my($prog, $prprog, $use);
+sub ListType
+{
+  my ($type) = @_;
+  my ($prog, $prprog, $use);
 
   if (!&validateFileType($type)) {
     print "No such file type: $type\n\n";
-    $listtypes='yes';
+    $listtypes = 'yes';
     &ListTypes();
   }
 
-  &printXmlHeader() if ( $export =~ "xml" );
+  &printXmlHeader() if ($export =~ "xml");
 
   print "List of available checkers for file type $type:\n";
 
-  if ( $#{ $Checkers{$type} } >= 0 ) {
-    &printList( 0, @{ $Checkers{$type} } );
+  if ($#{$Checkers{$type}} >= 0) {
+    &printList(0, @{$Checkers{$type}});
   } else {
-    printf( "%18.18s\n", "(none)" );
+    printf("%18.18s\n", "(none)");
   }
-  if ( $#{ $xCheckers{$type} } >= 0 ) {
-    &printList( 1, @{ $xCheckers{$type} } );
+  if ($#{$xCheckers{$type}} >= 0) {
+    &printList(1, @{$xCheckers{$type}});
   }
 
   &printFooter();
@@ -1171,8 +1205,9 @@ sub ListType {
 }
 
 # ListSets function: print a list of check-sets.
-sub ListSets {
-  &printXmlHeader() if ( $export =~ "xml" );
+sub ListSets
+{
+  &printXmlHeader() if ($export =~ "xml");
 
   print "List of available check-sets:\n";
   &prettyPrintCheckSetsList();
@@ -1182,28 +1217,29 @@ sub ListSets {
 }
 
 # ListSet function: list all the checkers for a specific check-set.
-sub ListSet {
-  my($set) = @_;
-  my($prog, $prprog, $use, $type);
+sub ListSet
+{
+  my ($set) = @_;
+  my ($prog, $prprog, $use, $type);
 
   if (!&validateCheckSet($set)) {
     print "No such check-set: $set\n\n";
-    $listsets='yes';
+    $listsets = 'yes';
     &ListSets();
   }
 
-  &printXmlHeader() if ( $export =~ "xml" );
+  &printXmlHeader() if ($export =~ "xml");
 
   print "List of available checkers for check-set $set:\n";
 
-  foreach $prog (sort @{ $Sets{$set} }) {
+  foreach $prog (sort @{$Sets{$set}}) {
     $use = "";
     $use .= `$prog --help 2>/dev/null`;
     chomp($use);
-    $use = "(no description available)" if ( length($use) < 4 );
+    $use = "(no description available)" if (length($use) < 4);
 
     $prprog = &basename($prog);
-    printf( "%20.20s: %s\n", $prprog, $use );
+    printf("%20.20s: %s\n", $prprog, $use);
   }
 
   &printFooter();
@@ -1211,7 +1247,8 @@ sub ListSet {
 }
 
 # printXmlHeader function: print the header string for the XML export type.
-sub printXmlHeader {
+sub printXmlHeader
+{
   print "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
   if ($list) {
     print "<tool name=\"krazy2\" version=\"$VERSION\">\n";
@@ -1221,12 +1258,13 @@ sub printXmlHeader {
 }
 
 # printHeader function: print the header string, according to export type.
-sub printHeader {
+sub printHeader
+{
   my ($num_issues, $num_checks, $num_files) = @_;
-  my ($component, $module, $subdir) = split("/", $cms);
+  my ($component,  $module,     $subdir)    = split("/", $cms);
 
-  my($cs) = $checksets;
-  $cs = $DEFAULT_CHECKSETS if (! $cs);
+  my ($cs) = $checksets;
+  $cs = $DEFAULT_CHECKSETS if (!$cs);
 
   if ($export =~ "xml") {
     &printXmlHeader();
@@ -1255,7 +1293,7 @@ sub printHeader {
     }
     print " ...as of ";
     print asOf();
-    if ( $rev ) {
+    if ($rev) {
       print " (repo revision $rev)";
     }
     print "\n\n";
@@ -1263,9 +1301,10 @@ sub printHeader {
 }
 
 # printFooter function: print the footer string, according to export type.
-sub printFooter {
+sub printFooter
+{
 
-  if ( $export eq "xml" ) {
+  if ($export eq "xml") {
     print "  </file-types>\n";
     if ($list) {
       print "</tool>\n";
@@ -1277,27 +1316,30 @@ sub printFooter {
 
 # printCheck function: print the "check" and "result" strings, according
 # to export type.
-sub printCheck() {
+sub printCheck()
+{
   my ($check, $result) = @_;
   return if ($check eq "");
-  if ( $export eq "text" ) {
+  if ($export eq "text") {
     print "$check $result\n";
-  } elsif ( $export eq "xml" ) {
+  } elsif ($export eq "xml") {
+
     # Would be nice maybe to have the checker name in here.
     # something like:
     # <check name="foo" desc="checks for foo">
-    print "      <check desc=\"", &xmlify( $check ), "\">\n";
+    print "      <check desc=\"", &xmlify($check), "\">\n";
   }
 }
 
 # textDescription function: return the description.txt found in $1
-sub textDescription {
+sub textDescription
+{
   my ($pth) = @_;
-  return "" if ( !$pth );
+  return "" if (!$pth);
   my ($f) = "$pth" . "/description.txt";
-  open( F, "$f" ) || return "";
+  open(F, "$f") || return "";
   my ($line) = "";
-  while ( $line = <F> ) {
+  while ($line = <F>) {
     last;
   }
   close(F);
@@ -1306,10 +1348,11 @@ sub textDescription {
 }
 
 # printFType function: print the File Type line, according to export type.
-sub printFType {
-  my ( $pth, $ftype, $title ) = @_;
+sub printFType
+{
+  my ($pth, $ftype, $title) = @_;
 
-  return if ( $export eq "textlist" || $export eq "textedit" );
+  return if ($export eq "textlist" || $export eq "textedit");
 
   my ($desc) = &fileTypeDesc($ftype);
   if (!defined($title) || ($title eq "")) {
@@ -1321,52 +1364,55 @@ sub printFType {
   } else {
     $desc = $title . $desc;
   }
-  if ( $export eq "xml" ) {
+  if ($export eq "xml") {
     print "    <file-type value=\"$ftype\">\n";
   } else {
     print "== $ftype: $desc ==\n";
   }
 }
 
-sub fileLength {
-  my ( $pth ) = @_;
-  my ( $flines ) = 0;
-  open( F, "<$pth" ) || die "Couldn't open $pth";
+sub fileLength
+{
+  my ($pth)    = @_;
+  my ($flines) = 0;
+  open(F, "<$pth") || die "Couldn't open $pth";
   $flines++ while (<F>);
   close F;
   return $flines;
 }
 
 # printOOPS function: print the OOPS lines, according to export type.
-sub printOOPS {
-  my ( $component, $module, $subdir ) = split( "/", $cms );
-  $component = "" if ( !defined($component) );
-  $module    = "" if ( !defined($module) );
-  $subdir    = "" if ( !defined($subdir) );
+sub printOOPS
+{
+  my ($component, $module, $subdir) = split("/", $cms);
+  $component = "" if (!defined($component));
+  $module    = "" if (!defined($module));
+  $subdir    = "" if (!defined($subdir));
 
   my ($o);
 
-  for $o ( split( "\n", $_[0] ) ) {
+  for $o (split("\n", $_[0])) {
     chomp($o);
 
-    if ( $export eq "textlist" ) {
-      my ($t) = split( ":", $o );
+    if ($export eq "textlist") {
+      my ($t) = split(":", $o);
       $t =~ s+^\s++;
       $t =~ s+%COLON%+:+g;
       print "$t\n";
-    } elsif ( $export eq "textedit" ) {
+    } elsif ($export eq "textedit") {
 
       #file:line:issue
       my ($f);
-      my ( $ls1, $ls2, $ls3 ) = ( "", "", "" );
-      ( $f, $ls1, $ls2, $ls3 ) = split( ":", $o );
+      my ($ls1, $ls2, $ls3) = ("", "", "");
+      ($f, $ls1, $ls2, $ls3) = split(":", $o);
       $f =~ s+^[[:space:]]*\./++;
       my (@ls) = ();
-      push( @ls, &arrayLineify($ls1) ) if ( defined($ls1) );
-      push( @ls, &arrayLineify($ls2) ) if ( defined($ls2) );
-      push( @ls, &arrayLineify($ls3) ) if ( defined($ls3) );
-      if ( $#ls < 0 ) {
-        push( @ls, "0" );
+      push(@ls, &arrayLineify($ls1)) if (defined($ls1));
+      push(@ls, &arrayLineify($ls2)) if (defined($ls2));
+      push(@ls, &arrayLineify($ls3)) if (defined($ls3));
+
+      if ($#ls < 0) {
+        push(@ls, "0");
       }
 
       my ($subissue) = $o;
@@ -1377,7 +1423,7 @@ sub printOOPS {
       $subissue =~ s/\(\d+\)//g;
       $subissue =~ s/^\s*$//;
       $subissue =~ s/\s*$//;
-      $subissue .= ", " if ( $subissue ne "" );
+      $subissue .= ", " if ($subissue ne "");
       $subissue =~ s+^[[:space:]]*++;
       my ($issue) = $_[1];
       $issue =~ s+^[Cc]hecks[[:space:]]*++;
@@ -1387,59 +1433,61 @@ sub printOOPS {
       $issue =~ s+\.*[[:space:]]*$++g;
       $f     =~ s+^[[:space:]]*++;
 
-      my ($l,$hint);
+      my ($l, $hint);
       for $l (@ls) {
         $l =~ s/[[:alpha:]]*$//g;
         $l =~ s/^[[:alpha:]]*//g;
         $hint = $l;
         $hint =~ s/\d+\s*://;
-        $l =~ s/:\[.*\]//g;
-        $l =~ s/\s*$//;
+        $l    =~ s/:\[.*\]//g;
+        $l    =~ s/\s*$//;
         $hint = "" if ($hint eq $l);
         if ($hint) {
+
           #prepend 1 leading space
           $hint =~ s/^\s*//;
           $hint = " " . $hint;
         }
-        my($message) = "$f:$l:$subissue$issue$hint";
+        my ($message) = "$f:$l:$subissue$issue$hint";
         $message =~ s+%COLON%+:+g;
         print "$message\n";
       }
-    } elsif ( $export eq "xml" ) {
+    } elsif ($export eq "xml") {
+
       # We need to think about this. The output of the checkers should be made
       # consistent.
-      my ( $ls1, $ls2, $ls3 ) = ( "", "", "" );
-      my ( $file );
-      ( $file, $ls1, $ls2, $ls3 ) = split( ":", $o );
+      my ($ls1, $ls2, $ls3) = ("", "", "");
+      my ($file);
+      ($file, $ls1, $ls2, $ls3) = split(":", $o);
 
       # Remove leading whitespace and ./
       $file =~ s/^\s*(\.\/)?//;
-      $ls1 =~ s/^\s*//;
+      $ls1  =~ s/^\s*//;
 
       # Ugly due to inconsistent output of checkers and my total lack of perl and
       # re skills.
-      my( $lines );
-      my( $message );
-      if ( $ls1 =~ m/line#/ ) {
-        $lines = $ls1;
+      my ($lines);
+      my ($message);
+      if ($ls1 =~ m/line#/) {
+        $lines   = $ls1;
         $message = $ls1;
-      } elsif ( defined($ls2) && $ls2 =~ m/line#/ ) {
-        $lines = $ls2;
+      } elsif (defined($ls2) && $ls2 =~ m/line#/) {
+        $lines   = $ls2;
         $message = $ls1;
-      } elsif ( defined($ls3) && $ls3 =~ m/line#/ ) {
-        $lines = $ls3;
+      } elsif (defined($ls3) && $ls3 =~ m/line#/) {
+        $lines   = $ls3;
         $message = $ls1;
       } else {
-        $lines = "";
-        $message = $ls1; # No line# part, so only set the message.
+        $lines   = "";
+        $message = $ls1;    # No line# part, so only set the message.
       }
 
-      $message =~ s/\s*line\#.*$//;    # remove the lines#123,345 part
-      $message =~ s/^[[:space:]]*//;   # remove leading spaces.
-      $message =~ s/\(\d+\)//;         # remove the number of issues if it's there.
+      $message =~ s/\s*line\#.*$//;     # remove the lines#123,345 part
+      $message =~ s/^[[:space:]]*//;    # remove leading spaces.
+      $message =~ s/\(\d+\)//;          # remove the number of issues if it's there.
 
-      $lines =~ s/^.*line#//;          # only keep the numbers
-      $lines =~ s/\(\d+\)//;           # remove the number of issues if it's there.
+      $lines =~ s/^.*line#//;           # only keep the numbers
+      $lines =~ s/\(\d+\)//;            # remove the number of issues if it's there.
 
       # Sometimes a check returns per line the issue like:
       # utils/input.cpp: line#155[Couldn't],184[Couldn't],200[Couldn't],258[Couldn't] (4)
@@ -1449,21 +1497,21 @@ sub printOOPS {
       if ($lines =~ m/(\d+)\s*(\w*\[\w*\]),?#?/) {
         $lines =~ s/(\d+)\s*(\w*\[\w*\]),?#?/            <line issue="$2">$1<\/line>\n/g;
       } elsif ($lines =~ m/(\d+)\s*(\[[\s\w]+\]),*/) {
-          $lines =~ s/(\d+)\s*\[([\s\w]+)\],*/            <line issue="$2">$1<\/line>\n/g;
+        $lines =~ s/(\d+)\s*\[([\s\w]+)\],*/            <line issue="$2">$1<\/line>\n/g;
       } elsif ($lines =~ /(\d+),?/) {
-          $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
+        $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
       }
 
-      my($filelen) = &fileLength($file);
+      my ($filelen) = &fileLength($file);
       print "        <file name=\"$file\" lines=\"$filelen\">\n";
       if ($message) {
         $message =~ s+%COLON%+:+g;
-        print "          <message>", encode_entities( $message ), "</message>\n";
+        print "          <message>", encode_entities($message), "</message>\n";
       }
       print "          <issues>\n";
-      if ( $lines ) {
+      if ($lines) {
         print $lines;
-      } else { # There is only a message, probably something that is not bound to a specific line.
+      } else {   # There is only a message, probably something that is not bound to a specific line.
         print "            <line>-1</line>\n";
       }
       print "          </issues>\n";
@@ -1476,27 +1524,31 @@ sub printOOPS {
 }
 
 # printExplain function: print the explanation lines, according to export type.
-sub printExplain {
-  my ( $explanation, #the explanation string
-       $isextra,     #if this is an explanation for an "extra" checker
-       $islisting    #if this is an explanation printed as part of the list function
-     ) = @_;
+sub printExplain
+{
+  my (
+    $explanation,    #the explanation string
+    $isextra,        #if this is an explanation for an "extra" checker
+    $islisting       #if this is an explanation printed as part of the list function
+  ) = @_;
 
-  if ( $export eq "xml" ) {
+  if ($export eq "xml") {
     $explanation =~ s/^\s*//;
-    print "  " if ( $isextra );
-    print "         <explanation>" . xmlify( $explanation ) . "\n";
-    print "  " if ( $isextra );
+    print "  " if ($isextra);
+    print "         <explanation>" . xmlify($explanation) . "\n";
+    print "  " if ($isextra);
     print "         </explanation>\n";
   } else {
+
     # text export
-    print wrap( "        ", "        ", $explanation ) . "\n";
+    print wrap("        ", "        ", $explanation) . "\n";
     print "\n" if ($islisting);
   }
 }
 
 # xmlify function: turn plain text into html
-sub xmlify {
+sub xmlify
+{
   my ($s) = @_;
   $s = encode_entities($s);
   $s =~ s+&lt;http:(.*?)&gt;+&lt;a href="http:$1"&gt;http:$1&lt;/a&gt;+gs;
@@ -1507,24 +1559,27 @@ sub xmlify {
 }
 
 # turn a comma-separated line list into an array
-sub arrayLineify {
+sub arrayLineify
+{
   my ($s) = @_;
 
-  return () if ( $s !~ m/line#/ );
+  return () if ($s !~ m/line#/);
 
   $s =~ s/^.*line#//;
   $s =~ s/\s*\(\d*\)\s*//g;
-#  $s =~ s/\s*\[\w+\]\s*//g;
+
+  #  $s =~ s/\s*\[\w+\]\s*//g;
   $s =~ s/\[/:\[/g;
-  return split( ",", $s );
+  return split(",", $s);
 }
 
 # xmlify the line number string for lxr
-sub lxrLineify {
-  my ( $s, $url ) = @_;
+sub lxrLineify
+{
+  my ($s, $url) = @_;
 
   $s = &xmlify($s);
-  return $s if ( $s !~ m/line#/ );
+  return $s if ($s !~ m/line#/);
 
   $s =~ s+line#(\d*)+line#<a href=\"$url#$1\">$1</a>+g;
   $s =~ s+,(\d*)+,<a href=\"$url#$1\">$1</a>+g;

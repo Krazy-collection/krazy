@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2007 Thorsten Roeder <thorsten.roeder@weihenstephan.org> #
@@ -32,17 +32,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "qobject";
-my($Version) = "1.22";
+my ($Prog)    = "qobject";
+my ($Version) = "1.22";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (headers only)
 if ($f =~ m/\.h$/ || $f =~ m/\.hxx$/) {
@@ -51,51 +51,56 @@ if ($f =~ m/\.h$/ || $f =~ m/\.hxx$/) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
-my($cnt) = 0;
-my($classcnt) = 0;
-my(%classline);
-my($linecnt) = 0;
-my($line);
-my($lstr) = "";
+my ($cnt)      = 0;
+my ($classcnt) = 0;
+my (%classline);
+my ($linecnt) = 0;
+my ($line);
+my ($lstr) = "";
 
 # TODO: line numbering maybe incorrect if a macro is missing inside nested classes (rare case)
-my($lastl)=""; #lastline
+my ($lastl) = "";    #lastline
 while ($linecnt < $#lines) {
-    $lastl = $line;
-    $line = $lines[$linecnt++];
-    if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-	$line =~ m+//.*[Kk]razy:skip+) {
-         $cnt = 0;
-         last;
-    }
+  $lastl = $line;
+  $line  = $lines[$linecnt++];
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
+    $cnt = 0;
+    last;
+  }
 
-    if ($line =~ m/[[:space:]]*class[[:space:]]+[[:alnum:]]+[[:space:]]*:[[:space:]]*[[:alnum:]]+[[:space:]]+QObject/) {
-        next if ($lastl =~ m/template/ || $lastl =~ m/#define[[:space:]]/ || $lastl =~ m/#if/);
-        next if ($line =~ m/QObjectPrivate/ || $line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  if ($line =~
+m/[[:space:]]*class[[:space:]]+[[:alnum:]]+[[:space:]]*:[[:space:]]*[[:alnum:]]+[[:space:]]+QObject/
+    )
+  {
+    next if ($lastl =~ m/template/ || $lastl =~ m/#define[[:space:]]/ || $lastl =~ m/#if/);
+    next if ($line =~ m/QObjectPrivate/ || $line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
-        $classcnt++;
-        $classline{$classcnt}= $linecnt;
-    } elsif ($line =~ m/Q_OBJECT/) {
-        delete $classline{$classcnt} if exists $classline{$classcnt};
-        $classcnt--;
-    }
+    $classcnt++;
+    $classline{$classcnt} = $linecnt;
+  } elsif ($line =~ m/Q_OBJECT/) {
+    delete $classline{$classcnt} if exists $classline{$classcnt};
+    $classcnt--;
+  }
 }
 
 my (@classlinekeys) = sort keys(%classline);
-foreach(@classlinekeys) {
-    $cnt++;
-    if ($cnt == 1) {
-      $lstr = "line\#" . $classline{$_};
-    } else {
-      $lstr = $lstr . "," . $classline{$_};
-    }
-#    print "=> $lines[$classline{$_}]" if (&verboseArg());
+foreach (@classlinekeys) {
+  $cnt++;
+  if ($cnt == 1) {
+    $lstr = "line\#" . $classline{$_};
+  } else {
+    $lstr = $lstr . "," . $classline{$_};
+  }
+
+  #    print "=> $lines[$classline{$_}]" if (&verboseArg());
 }
 
 if (!$cnt) {
@@ -106,17 +111,21 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for classes that should use the \'Q_OBJECT\' macro\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "QObject derived classes should use the Q_OBJECT macro.\nclass A : public QObject {...} becomes class A : public QObject { Q_OBJECT ... }\n";
+sub Explain
+{
+  print
+"QObject derived classes should use the Q_OBJECT macro.\nclass A : public QObject {...} becomes class A : public QObject { Q_OBJECT ... }\n";
   Exit 0 if &explainArg();
 }

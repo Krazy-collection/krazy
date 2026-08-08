@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2012 Allen Winter <winter@kde.org>                  #
@@ -30,18 +30,18 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "qmacros";
-my($Version) = "0.92";
+my ($Prog)    = "qmacros";
+my ($Version) = "0.92";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
-my($absf) = abs_path($f);
+my ($f)    = $ARGV[0];
+my ($absf) = abs_path($f);
 
 # open file and slurp it in
 if (&fileType($f) eq "c++") {
@@ -50,46 +50,48 @@ if (&fileType($f) eq "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
+
 # Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+@lines = RemoveCondBlockC($Prog, @lines);
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($lstr) = "";
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($lstr)    = "";
 
-my(%G);
-my($line);
+my (%G);
+my ($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
-  $cnt += &doIt($line,'^\s*foreach\s*\(',"foreach");
-  $cnt += &doIt($line,'[;,]\s*assert\s*\(',"assert");
-  $cnt += &doIt($line,'^\s*assert\s*\(',"assert");
-  $cnt += &doIt($line,'[;,]\s*emit\s',"emit");
-  $cnt += &doIt($line,'^\s*emit\s',"emit");
+  $cnt += &doIt($line, '^\s*foreach\s*\(',   "foreach");
+  $cnt += &doIt($line, '[;,]\s*assert\s*\(', "assert");
+  $cnt += &doIt($line, '^\s*assert\s*\(',    "assert");
+  $cnt += &doIt($line, '[;,]\s*emit\s',      "emit");
+  $cnt += &doIt($line, '^\s*emit\s',         "emit");
 }
 
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
-  my($g);
-  foreach $g ( keys %G ) {
-    my($tcnt) = $G{$g}{'cnt'};
-    my($tlstr) = '';
-    if ( $tcnt > 0 ) {
+  my ($g);
+  foreach $g (keys %G) {
+    my ($tcnt)  = $G{$g}{'cnt'};
+    my ($tlstr) = '';
+    if ($tcnt > 0) {
       $tlstr = $G{$g}{'lstr'};
       $tlstr =~ s/,$//;
       print "$tlstr [$g] ($tcnt)\n" if (!&quietArg());
@@ -98,15 +100,16 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub doIt() {
-  my($line,$funre,$n) = @_;
-  if (!defined($G{$n})){
-    $G{$n}{'cnt'} = 0;
+sub doIt()
+{
+  my ($line, $funre, $n) = @_;
+  if (!defined($G{$n})) {
+    $G{$n}{'cnt'}  = 0;
     $G{$n}{'lstr'} = '';
   }
-  if (&func($line,$funre)) {
+  if (&func($line, $funre)) {
     $G{$n}{'cnt'}++;
-    if ($G{$n}{'cnt'} == 1 ) {
+    if ($G{$n}{'cnt'} == 1) {
       $G{$n}{'lstr'} = "line\#" . $linecnt;
     } else {
       $G{$n}{'lstr'} = $G{$n}{'lstr'} . "," . $linecnt;
@@ -117,8 +120,9 @@ sub doIt() {
   return 0;
 }
 
-sub func() {
-  my($l,$fun) = @_;
+sub func()
+{
+  my ($l, $fun) = @_;
   if ($l =~ m/$fun/) {
     return 1;
   } else {
@@ -126,17 +130,21 @@ sub func() {
   }
 }
 
-sub Help {
+sub Help
+{
   print "Check for Qt macros that should be used\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "For Qt based C++ code use macros like Q_FOREACH, Q_ASSERT, Q_ASSERT_X, Q_EMIT instead of their non-Qt counterparts (foreach, assert, emit,...).\n";
+sub Explain
+{
+  print
+"For Qt based C++ code use macros like Q_FOREACH, Q_ASSERT, Q_ASSERT_X, Q_EMIT instead of their non-Qt counterparts (foreach, assert, emit,...).\n";
   Exit 0 if &explainArg();
 }

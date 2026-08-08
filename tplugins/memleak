@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2011 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "memleak";
-my($Version) = "0.01";
+my ($Prog)    = "memleak";
+my ($Version) = "0.01";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++ only)
 if (&fileType($f) eq "c++") {
@@ -48,34 +48,35 @@ if (&fileType($f) eq "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
 # Check Condition
-my($linecnt) = 0;
-my($line);
-my($cnt) = 0;
-my($lstr) = "";
+my ($linecnt) = 0;
+my ($line);
+my ($cnt)  = 0;
+my ($lstr) = "";
 
-my(%New);
-my(%Del);
-my(%qDel);
+my (%New);
+my (%Del);
+my (%qDel);
 
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
 
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
-  my($var);
+  my ($var);
   if ($line =~ m/=\s*new\s/) {
     $var = $line;
     $var =~ s/\s*=.*$//;
@@ -83,15 +84,15 @@ while ($linecnt < $#lines) {
     $var =~ s/^\s*//;
     $var =~ s/[\w:<>]+\s//;
 
-    next if ($var =~ m/[sS]elf$/); # skip singletons
-    next if ($line =~ m/new\s[KQ]TemporaryFile/); # since freed on close
-    next if ($line =~ m/new KNotification/); #freed on event close
-    next if ($line =~ m/new\s[KQ]Menu\s*\(\s*[\w:]+\s*\)/); #parented menus are freed
-    next if ($line =~ m/Job[s]*\s*\(/ || $line =~ m/Job[s]*\s*\;/); #KJobs deletelater()
+    next if ($var  =~ m/[sS]elf$/);                                    # skip singletons
+    next if ($line =~ m/new\s[KQ]TemporaryFile/);                      # since freed on close
+    next if ($line =~ m/new KNotification/);                           #freed on event close
+    next if ($line =~ m/new\s[KQ]Menu\s*\(\s*[\w:]+\s*\)/);            #parented menus are freed
+    next if ($line =~ m/Job[s]*\s*\(/ || $line =~ m/Job[s]*\s*\;/);    #KJobs deletelater()
     next if ($line =~ m/Command\s*\(/ || $line =~ m/Command\s*\;/);
 
     if (!defined($New{$var})) {
-      $New{$var}{'name'} = $var;
+      $New{$var}{'name'}  = $var;
       $New{$var}{'count'} = 0;
       $New{$var}{'first'} = $linecnt;
       $New{$var}{'lines'} = $linecnt;
@@ -99,6 +100,7 @@ while ($linecnt < $#lines) {
       $New{$var}{'count'}++;
       $New{$var}{'lines'} = $New{$var}{'lines'} . "," . $linecnt;
     }
+
     #print "adding new for [$var]\n";
   }
   if ($line =~ m/[\s;]delete\s/ || $line =~ m/[\s;]delete\s*\[\s*\]/) {
@@ -108,9 +110,10 @@ while ($linecnt < $#lines) {
     $var =~ s/^\s//g;
     $var =~ s/\s*;\s*$//;
     if (!defined($Del{$var}{'name'})) {
-      $Del{$var}{'name'} = $var;
+      $Del{$var}{'name'}  = $var;
       $Del{$var}{'count'} = 0;
     }
+
     #print "adding delete for [$var]\n";
     $Del{$var}{'count'}++;
   }
@@ -119,28 +122,30 @@ while ($linecnt < $#lines) {
     $var =~ s/^.*qDeleteAll\s*\(\s*//;
     $var =~ s/\s*\).*$//;
     if (!defined($qDel{$var}{'name'})) {
-      $Del{$var}{'name'} = $var;
+      $Del{$var}{'name'}  = $var;
       $Del{$var}{'count'} = 0;
     }
+
     #print "adding qDelete for [$var]\n";
     $Del{$var}{'count'}++;
   }
 }
 
-my($guy,$var,$dvar);
-my($linecnts);
+my ($guy, $var, $dvar);
+my ($linecnts);
 foreach $guy (keys %New) {
-  if (!defined($Del{$guy}) ||
-      $New{$guy}{'count'} > $Del{$guy}{'count'}) {
+  if (!defined($Del{$guy})
+    || $New{$guy}{'count'} > $Del{$guy}{'count'})
+  {
 
     $var = $New{$guy}{'name'};
     next if (&searchqDelAppend($var));
-    next if (&searchReturnForward($var,$New{$var}{'first'}));
+    next if (&searchReturnForward($var, $New{$var}{'first'}));
     next if (&searchBackQObject($New{$var}{'first'}));
 
     $dvar = "d->" . $var;
-    next if (defined($Del{$dvar}) &&
-             $Del{$dvar}{'count'} >=  $New{$dvar}{'count'});
+    next if (defined($Del{$dvar})
+      && $Del{$dvar}{'count'} >= $New{$dvar}{'count'});
 
     $cnt++;
     $linecnts = $New{$guy}{'lines'};
@@ -153,15 +158,16 @@ foreach $guy (keys %New) {
   }
 }
 
-sub searchqDelAppend {
-  my($var) = @_;
-  my($guy,$ls);
+sub searchqDelAppend
+{
+  my ($var) = @_;
+  my ($guy, $ls);
 
   for $guy (keys %qDel) {
-    my($l) = 0;
+    my ($l) = 0;
     while ($l < $#lines) {
       $ls = $lines[$l++];
-      my($m) = $guy . "\\.append\\s*\\(\\s*" . $var;
+      my ($m) = $guy . "\\.append\\s*\\(\\s*" . $var;
       if ($ls =~ m/$m/) {
         return 1;
       }
@@ -170,15 +176,16 @@ sub searchqDelAppend {
   return 0;
 }
 
-sub searchReturnForward {
-  my($var,$l) = @_;
+sub searchReturnForward
+{
+  my ($var, $l) = @_;
 
-  my($fl) = 0;
-  my($ls);
+  my ($fl) = 0;
+  my ($ls);
   while ($l < $#lines && $fl < 25) {
     $ls = $lines[$l++];
-    my($m) = "return.*" . $var;
-    my($p) = "push_back\\s*\\(\\s*" . $var;
+    my ($m) = "return.*" . $var;
+    my ($p) = "push_back\\s*\\(\\s*" . $var;
     if ($ls =~ m/$m/ || $ls =~ m/$p/) {
       return 1;
     }
@@ -187,31 +194,32 @@ sub searchReturnForward {
   return 0;
 }
 
-
-sub searchBackQObject {
-  my($l) = @_;
-  my($fl) = 0;
-  while($l >= 0 && $fl < 100) {
-    my($lstr) = $lines[$l--];
+sub searchBackQObject
+{
+  my ($l)  = @_;
+  my ($fl) = 0;
+  while ($l >= 0 && $fl < 100) {
+    my ($lstr) = $lines[$l--];
     if ($lstr =~ m/^\w::\w/) {
+
       # assume top of method reached first
       return 0;
     }
-    if ($lstr =~ m/^[\s;]*setObjectName\s*\(/ ||
-        $lstr =~ m/[\s:]QObject\s*\(/ ||
-        $lstr =~ m/[\s:]QWidget\s*\(/ ||
-        $lstr =~ m/[\s:]QFrame\s*\(/ ||
-        $lstr =~ m/[\s:]KCModule\s*\(/ ||
-        $lstr =~ m/[\s:][KQ]\w+View\s*\(/ ||
-        $lstr =~ m/^[\s;]*setXMLFile\s*\(/ ||
-        $lstr =~ m/\.setupUi\s*\(/) {
+    if ( $lstr =~ m/^[\s;]*setObjectName\s*\(/
+      || $lstr =~ m/[\s:]QObject\s*\(/
+      || $lstr =~ m/[\s:]QWidget\s*\(/
+      || $lstr =~ m/[\s:]QFrame\s*\(/
+      || $lstr =~ m/[\s:]KCModule\s*\(/
+      || $lstr =~ m/[\s:][KQ]\w+View\s*\(/
+      || $lstr =~ m/^[\s;]*setXMLFile\s*\(/
+      || $lstr =~ m/\.setupUi\s*\(/)
+    {
       return 1;
     }
     $fl++;
   }
   return 0;
 }
-
 
 if (!$cnt) {
   print "okay\n" if (!&quietArg());
@@ -221,17 +229,20 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Help {
+sub Help
+{
   print "Check for possible memory leaks\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
+sub Explain
+{
   print "Make sure to delete memory you have allocated on the heap to avoid memory leaks.\n";
   Exit 0 if &explainArg();
 }

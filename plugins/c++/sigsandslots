@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2007 Allen Winter <winter@kde.org>                  #
@@ -29,17 +29,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "sigandslots";
-my($Version) = "1.31";
+my ($Prog)    = "sigandslots";
+my ($Version) = "1.31";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (skip non-headers)
 if (&installedArg() && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
@@ -48,30 +48,31 @@ if (&installedArg() && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
 # Check Condition
-my($linecnt) = 0;
-my($line);
-my($sig_cnt) = 0;
-my($slot_cnt) = 0;
-my($sig_str) = "";
-my($slot_str) = "";
+my ($linecnt) = 0;
+my ($line);
+my ($sig_cnt)  = 0;
+my ($slot_cnt) = 0;
+my ($sig_str)  = "";
+my ($slot_str) = "";
 
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $sig_cnt = $slot_cnt = 0;
     last;
   }
 
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  $line =~ s+//.*++;  #skip C++ comments
+  $line =~ s+//.*++;    #skip C++ comments
 
   if ($line =~ m+[[:space:]]*signals[[:space:]]*:+) {
     next if ($line =~ m+[[:space:]]*k_dcop_signals[[:space:]]*:+);
@@ -94,31 +95,35 @@ while ($linecnt < $#lines) {
   }
 }
 
-my($total_count) = $sig_cnt + $slot_cnt;
+my ($total_count) = $sig_cnt + $slot_cnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
   if (!&quietArg()) {
     print "signals: $sig_str ($sig_cnt)" if ($sig_cnt);
-    print ", " if ($sig_cnt && $slot_cnt);
+    print ", "                           if ($sig_cnt && $slot_cnt);
     print "slots: $slot_str ($slot_cnt)" if ($slot_cnt);
     print "\n";
   }
   Exit $total_count;
 }
 
-sub Help {
+sub Help
+{
   print "Check for signals: and slots:\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "In the libraries, use Q_SIGNALS: and Q_SLOTS: instead of signals: and slots: They are syntactically equivalent and should be used to avoid conflicts with boost signals, and with python's use of \"slots\" in its headers.\n";
+sub Explain
+{
+  print
+"In the libraries, use Q_SIGNALS: and Q_SLOTS: instead of signals: and slots: They are syntactically equivalent and should be used to avoid conflicts with boost signals, and with python's use of \"slots\" in its headers.\n";
   Exit 0 if &explainArg();
 }

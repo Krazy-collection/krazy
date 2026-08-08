@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2011 Allen Winter <winter@kde.org>                  #
@@ -31,17 +31,17 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "normalize";
-my($Version) = "1.30";
+my ($Prog)    = "normalize";
+my ($Version) = "1.30";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (C++, non-headers only)
 if ((&fileType($f) eq "c++") && !&isCSource($f) && !isCInclude($f)) {
@@ -50,46 +50,51 @@ if ((&fileType($f) eq "c++") && !&isCSource($f) && !isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
+
 # Remove Krazy conditional blocks
-@lines = RemoveCondBlockC( $Prog, @lines );
+@lines = RemoveCondBlockC($Prog, @lines);
 
 # Check Condition
-my($linecnt) = 0;
-my($line);
-my($sig_cnt) = 0;
-my($slot_cnt) = 0;
-my($sig_str) = "";
-my($slot_str) = "";
+my ($linecnt) = 0;
+my ($line);
+my ($sig_cnt)  = 0;
+my ($slot_cnt) = 0;
+my ($sig_str)  = "";
+my ($slot_str) = "";
 
 while ($linecnt <= $#lines) {
   $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $sig_cnt = $slot_cnt = 0;
     last;
   }
 
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
-  my($pline) = $line;
-  $pline =~ s+//.*++;  #skip C++ comments
+  my ($pline) = $line;
+  $pline =~ s+//.*++;                             #skip C++ comments
   $pline =~ s/const [\w:]+\s*\*//g;
   $pline =~ s/long\slong/longlong/g;
   $pline =~ s/longlong\sint/longlongint/g;
   $pline =~ s/std::shared_ptr<.*>/shared_ptr/g;
 
-  if ($pline =~ m/SIGNAL\s*\(\s/ ||
-      $pline =~ m/SIGNAL\s*\([\w:]+\s/ ||
-      $pline =~ m/SIGNAL\s*\([\w:]+\(\s/ ||
-      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&\>\<]+\s/ ||
-      $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&\>\<]*\)\s/ ||
-      ($pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&\>\<]*\s*,\s*$/ &&
-       $pline !~ m/\)\s*[,;]\s*$/)) {
+  if (
+       $pline =~ m/SIGNAL\s*\(\s/
+    || $pline =~ m/SIGNAL\s*\([\w:]+\s/
+    || $pline =~ m/SIGNAL\s*\([\w:]+\(\s/
+    || $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&\>\<]+\s/
+    || $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&\>\<]*\)\s/
+    || ( $pline =~ m/SIGNAL\s*\([\w:]+\([\w:,\*\&\>\<]*\s*,\s*$/
+      && $pline !~ m/\)\s*[,;]\s*$/)
+    )
+  {
     $sig_cnt++;
     if ($sig_cnt == 1) {
       $sig_str = "line\#" . $linecnt;
@@ -98,13 +103,16 @@ while ($linecnt <= $#lines) {
     }
     print "=> $linecnt: $line\n" if (&verboseArg());
   }
-  if ($pline =~ m/SLOT\s*\(\s/ ||
-      $pline =~ m/SLOT\s*\([\w:]+\s/ ||
-      $pline =~ m/SLOT\s*\([\w:]+\(\s/ ||
-      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&\>\<]+\s/ ||
-      $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&\>\<]*\)\s/ ||
-      ($pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&\>\<]*\s*,\s*$/ &&
-       $pline !~ m/\)\s*[,;]\s*$/)) {
+  if (
+       $pline =~ m/SLOT\s*\(\s/
+    || $pline =~ m/SLOT\s*\([\w:]+\s/
+    || $pline =~ m/SLOT\s*\([\w:]+\(\s/
+    || $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&\>\<]+\s/
+    || $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&\>\<]*\)\s/
+    || ( $pline =~ m/SLOT\s*\([\w:]+\([\w:,\*\&\>\<]*\s*,\s*$/
+      && $pline !~ m/\)\s*[,;]\s*$/)
+    )
+  {
     $slot_cnt++;
     if ($slot_cnt == 1) {
       $slot_str = "line\#" . $linecnt;
@@ -115,7 +123,7 @@ while ($linecnt <= $#lines) {
   }
 }
 
-my($total_count) = $sig_cnt + $slot_cnt;
+my ($total_count) = $sig_cnt + $slot_cnt;
 if (!$total_count) {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -127,17 +135,21 @@ if (!$total_count) {
   Exit $total_count;
 }
 
-sub Help {
+sub Help
+{
   print "Check for normalized SIGNAL and SLOT signatures\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Prefer to use normalised signal/slot signatures. That is, remove all dispensable whitespace, const-&, and top-level const. For more info, see <https://marcmutz.wordpress.com/effective-qt/prefer-to-use-normalised-signalslot-signatures>\n";
+sub Explain
+{
+  print
+"Prefer to use normalised signal/slot signatures. That is, remove all dispensable whitespace, const-&, and top-level const. For more info, see <https://marcmutz.wordpress.com/effective-qt/prefer-to-use-normalised-signalslot-signatures>\n";
   Exit 0 if &explainArg();
 }

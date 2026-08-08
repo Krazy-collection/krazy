@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2006 Allen Winter <winter@kde.org>                  #
@@ -29,18 +29,18 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($debug) = 0;  #set to go into debug mode
-my($Prog) = "inline";
-my($Version) = "1.15";
+my ($debug)   = 0;          #set to go into debug mode
+my ($Prog)    = "inline";
+my ($Version) = "1.15";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
+my ($f) = $ARGV[0];
 
 # open file and slurp it in (headers only)
 if (&installedArg() && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
@@ -49,55 +49,61 @@ if (&installedArg() && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines) = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
-my($CNAME) = ""; #current class name
-my(@classes) = ();
-my(%stuff);
-my($cnt) = 0;
-my($linecnt) = 0;
-my($lstr) = "";
-my($inlm) = "";
-my($line);
-my($lastl)=""; #last line
+my ($CNAME)   = "";    #current class name
+my (@classes) = ();
+my (%stuff);
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($lstr)    = "";
+my ($inlm)    = "";
+my ($line);
+my ($lastl) = "";      #last line
+
 while ($linecnt < $#lines) {
   $lastl = $line;
-  $line = $lines[$linecnt++];
-  if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-      $line =~ m+//.*[Kk]razy:skip+) {
+  $line  = $lines[$linecnt++];
+  if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+    || $line =~ m+//.*[Kk]razy:skip+)
+  {
     $cnt = 0;
     last;
   }
 
-  $CNAME = &Cname($line,$lastl);
+  $CNAME = &Cname($line, $lastl);
   if ($CNAME ne "") {
+
     #found a public, exported class
 
-    $stuff{$CNAME}{'dpointer'} = 0;
-    $stuff{$CNAME}{'excluded'} = 0;       #is this class krazy excluded?
-    $stuff{$CNAME}{'section'} = "private";#default visibility in classes
-    $stuff{$CNAME}{'inlines'} = 0;        #count inlines
-    $stuff{$CNAME}{'inlineList'} = "";    #list of lines with inlines
+    $stuff{$CNAME}{'dpointer'}   = 0;
+    $stuff{$CNAME}{'excluded'}   = 0;            #is this class krazy excluded?
+    $stuff{$CNAME}{'section'}    = "private";    #default visibility in classes
+    $stuff{$CNAME}{'inlines'}    = 0;            #count inlines
+    $stuff{$CNAME}{'inlineList'} = "";           #list of lines with inlines
 
     print "CLASS: $CNAME\n" if ($debug);
     while ($linecnt < $#lines) {
+
       # search for a inline methods
       &Section($line);
       $lastl = $line;
-      $line = $lines[$linecnt++];
-      if (&Cname($line,$lastl)) { $linecnt--; last; }
-      next if (&endClass($line,$linecnt));
+      $line  = $lines[$linecnt++];
+      if (&Cname($line, $lastl)) {$linecnt--; last;}
+      next if (&endClass($line, $linecnt));
 
       if ($line =~ m/^[[:space:]]*inline[[:space:]]/ || $line =~ m/{/) {
+
         # we found a possible problem inline method
         $inlm = $line;
 
         #look for an inline method (that isn't private)
-        if (&Inline($inlm,$linecnt) && ($stuff{$CNAME}{'section'} ne "private")) {
+        if (&Inline($inlm, $linecnt) && ($stuff{$CNAME}{'section'} ne "private")) {
+
           # found an inline method
           $stuff{$CNAME}{'inlines'}++;
           if ($stuff{$CNAME}{'inlines'} == 1) {
@@ -110,8 +116,9 @@ while ($linecnt < $#lines) {
       }
     }
   } else {
+
     #might find inlines outside of a class definition too
-    if ($line =~ m/^[[:space:]]*inline[[:space:]]/ && &Inline($line,$linecnt)) {
+    if ($line =~ m/^[[:space:]]*inline[[:space:]]/ && &Inline($line, $linecnt)) {
       $cnt++;
       if ($cnt == 1) {
         $lstr = "line\#" . $linecnt;
@@ -131,10 +138,11 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub Cname {
-  my($l,$l1) = @_;
-  my($cname)="";
-  $l =~ s+//.*++; #strip trailing C++ comment
+sub Cname
+{
+  my ($l, $l1) = @_;
+  my ($cname) = "";
+  $l =~ s+//.*++;    #strip trailing C++ comment
   return 0 if ($l =~ m/_EXPORT_DEPRECATED/);
   return 0 if ($l =~ m/_TEST_EXPORT/);
   if ($l =~ m+^[[:space:]]*class[[:space:]].*+ && $l !~ m/;\s*$/ && $l !~ m/\\\s*$/) {
@@ -151,7 +159,7 @@ sub Cname {
         $stuff{$cname}{'exported'} = 0;
       }
       if ($#classes < 0 || $cname ne $classes[$#classes]) {
-        push(@classes,$cname);
+        push(@classes, $cname);
         print "push $cname, $#classes in stack\n" if ($debug);
       }
     }
@@ -160,24 +168,39 @@ sub Cname {
 }
 
 # determine if the current line marks the end of a class
-sub endClass {
-  my($l,$lc) = @_;
+sub endClass
+{
+  my ($l, $lc) = @_;
   return 0 if ($l !~ m/^[[:space:]]*}[[:space:]]*;/);
+
   # This is getting ridiculous
   # TODO: do it the other way around: when we get to an opening enum or struct
   #       declaration in a private: section, skip forward to the end
   #       but be wary of things like enum { foo, bar, foobar };
   #       (and nested structs?)
-  return 0 if (&searchBackWithStop('^[[:space:]]*struct[[:space:]]',$lc-1,75,
-                  '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'));
+  return 0
+    if (
+    &searchBackWithStop(
+      '^[[:space:]]*struct[[:space:]]',
+      $lc - 1,
+      75,
+'^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'
+    )
+    );
+
   # enums don't have semicolons in them;
   # unless, of course, someone puts one at
   # the end of a doxygen line (why would they?)
-  return 0 if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]',$lc-1,75,
-                  ';[[:space:]]*$|^[[:space:]]*private:'));
+  return 0
+    if (
+    &searchBackWithStop(
+      '^[[:space:]]*enum[[:space:]]',
+      $lc - 1, 75, ';[[:space:]]*$|^[[:space:]]*private:'
+    )
+    );
 
   #at end of class
-  my($cclass) = $classes[$#classes];
+  my ($cclass) = $classes[$#classes];
   if ($#classes >= 0) {
     &chkInlines($cclass);
   }
@@ -186,15 +209,17 @@ sub endClass {
 
   if ($#classes >= 0) {
     $CNAME = $classes[$#classes];
-    print "pop to class $CNAME, section $stuff{$CNAME}{'section'}, $#classes in stack\n" if ($debug);
+    print "pop to class $CNAME, section $stuff{$CNAME}{'section'}, $#classes in stack\n"
+      if ($debug);
   }
   return 1;
 }
 
-sub chkInlines {
-  my($c) = @_;
+sub chkInlines
+{
+  my ($c) = @_;
 
-  if ($c ne "" && !$stuff{$c}{'excluded'} ) {
+  if ($c ne "" && !$stuff{$c}{'excluded'}) {
     if ($cnt == 0) {
       $lstr = "line\#" . $stuff{$c}{'inlineList'};
     } else {
@@ -204,8 +229,9 @@ sub chkInlines {
   }
 }
 
-sub Section {
-  my($l) = @_;
+sub Section
+{
+  my ($l) = @_;
   if ($l =~ m/slots/i) {
     $stuff{$CNAME}{'section'} = "slot";
   } elsif ($l =~ m/signals/i) {
@@ -221,41 +247,43 @@ sub Section {
 }
 
 # determine if the current line $l has an inline method
-sub Inline {
-  my($l,$lc) = @_;
+sub Inline
+{
+  my ($l, $lc) = @_;
 
   #check the line $l for conditions where inline is ok within a class
   return 0 if ($l =~ m+[[:space:]]*operator+);
   return 0 if ($l =~ m+[[:space:]]*KDE_DEPRECATED[[:space:]]*+);
-  return 0 if ($l =~ m+^\s*//+); # only a comment here
+  return 0 if ($l =~ m+^\s*//+);                                # only a comment here
   return 0 if ($l =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  return 0 if ($l =~ m+//.*inline+); #if inline in a comment on the line
-  return 0 if ($l =~ m+//.*in-line+);#if in-line in a comment on the line
+  return 0 if ($l =~ m+//.*inline+);                            #if inline in a comment on the line
+  return 0 if ($l =~ m+//.*in-line+);                           #if in-line in a comment on the line
 
-  return 0 if ($l =~ m+virtual\s~+); #allow inline virtual destructors
+  return 0 if ($l =~ m+virtual\s~+);                            #allow inline virtual destructors
 
-  return 0 if ($l =~ m/=\s*{.*}/); #allow initializers
+  return 0 if ($l =~ m/=\s*{.*}/);                              #allow initializers
 
-#  return 0 if ($l =~ m+{\s*}+);
-  return 0 if ($l =~ m+^\s*:+);
-  return 0 if (&searchBack('[[:space:]]operator+',$lc,2));
-  return 0 if (&searchBack('^\s*enum',$lc,2));
-  return 0 if (&searchBack('^\s*class',$lc,3));
-  return 0 if (&searchBack('^\s*struct',$lc,2));
-  return 0 if (&searchBack('^\s*typedef',$lc,2));
-  return 0 if (&searchBack('^\s*#define',$lc,5));
-  return 0 if (&searchBack('^\s*template',$lc,25));
+  #  return 0 if ($l =~ m+{\s*}+);
+  return 0                   if ($l =~ m+^\s*:+);
+  return 0                   if (&searchBack('[[:space:]]operator+', $lc, 2));
+  return 0                   if (&searchBack('^\s*enum',             $lc, 2));
+  return 0                   if (&searchBack('^\s*class',            $lc, 3));
+  return 0                   if (&searchBack('^\s*struct',           $lc, 2));
+  return 0                   if (&searchBack('^\s*typedef',          $lc, 2));
+  return 0                   if (&searchBack('^\s*#define',          $lc, 5));
+  return 0                   if (&searchBack('^\s*template',         $lc, 25));
   print "FOUND inline: $l\n" if ($debug);
   return 1;
 }
 
 # search the previous $n lines for a pattern $p
-sub searchBack {
-  my($p,$l,$n) = @_;
-  my($i);
+sub searchBack
+{
+  my ($p, $l, $n) = @_;
+  my ($i);
   $n = $#lines if ($#lines < $n);
-  for($i=1; $i<=$n; $i++) {
-    if ($lines[$l-$i] =~ $p) {
+  for ($i = 1 ; $i <= $n ; $i++) {
+    if ($lines[$l - $i] =~ $p) {
       return 1;
     }
   }
@@ -264,16 +292,19 @@ sub searchBack {
 
 # search the previous $n lines for a pattern $p
 # but stop if we encounter $s
-sub searchBackWithStop {
-  my($p,$l,$n,$s) = @_;
-  my($i);
+sub searchBackWithStop
+{
+  my ($p, $l, $n, $s) = @_;
+  my ($i);
   $n = $#lines if ($#lines < $n);
-  for($i=1; $i<=$n; $i++) {
-    if ($lines[$l-$i] =~ $s) {
+  for ($i = 1 ; $i <= $n ; $i++) {
+    if ($lines[$l - $i] =~ $s) {
+
       # stop searching
       return 0;
     }
-    if ($lines[$l-$i] =~ $p) {
+    if ($lines[$l - $i] =~ $p) {
+
       # got a match
       return 1;
     }
@@ -281,17 +312,21 @@ sub searchBackWithStop {
   return 0;
 }
 
-sub Help {
+sub Help
+{
   print "Check for inline methods in public classes\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "For binary compatibility reasons avoid inline methods in public, visible classes. No inline constructors or destructors. Simple getter/setter methods should be re-implemented using d-pointer techniques. See <https://community.kde.org/Policies/Library_Code_Policy#Inline_Code> for more details.\n";
+sub Explain
+{
+  print
+"For binary compatibility reasons avoid inline methods in public, visible classes. No inline constructors or destructors. Simple getter/setter methods should be re-implemented using d-pointer techniques. See <https://community.kde.org/Policies/Library_Code_Policy#Inline_Code> for more details.\n";
   Exit 0 if &explainArg();
 }

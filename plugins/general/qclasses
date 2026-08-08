@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
-    if 0; # not running under some shell
+  if 0;    # not running under some shell
 ###############################################################################
 # Sanity check plugin for the Krazy project.                                  #
 # SPDX-FileCopyrightText: 2007 Allen Winter <winter@kde.org>                  #
@@ -31,88 +31,90 @@ use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
 use Krazy::Utils;
 
-my($Prog) = "qclasses";
-my($Version) = "1.42";
+my ($Prog)    = "qclasses";
+my ($Version) = "1.42";
 
 &parseArgs();
 
-&Help() if &helpArg();
+&Help()    if &helpArg();
 &Version() if &versionArg();
 &Explain() if &explainArg();
-if ($#ARGV != 0){ &Help(); Exit 0; }
+if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my($f) = $ARGV[0];
-my($absf) = abs_path($f);
+my ($f)    = $ARGV[0];
+my ($absf) = abs_path($f);
 
-my($filetype) = &fileType($f);
+my ($filetype) = &fileType($f);
 
 # open file and slurp it in (C++, non-headers only)
-if (($absf !~ m+/kdesupport/+ && $absf !~ m+/kdelibs/+) &&
-    ($filetype eq "c++" || $filetype eq "designer")) {
+if ( ($absf !~ m+/kdesupport/+ && $absf !~ m+/kdelibs/+)
+  && ($filetype eq "c++" || $filetype eq "designer"))
+{
   open(F, "$f") || die "Couldn't open $f";
 } else {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my(@data_lines) = <F>;
+my (@data_lines) = <F>;
 close(F);
 
 # Remove C-style comments and #if 0 blocks from the file input
-my(@lines);
+my (@lines);
 if ($filetype eq "c++") {
-  @lines = RemoveIfZeroBlockC( RemoveCommentsC( @data_lines ) );
+  @lines = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 } else {
   @lines = @data_lines;
 }
 
-my($cnt) = 0;
-my($linecnt) = 0;
-my($lstr) = "";
+my ($cnt)     = 0;
+my ($linecnt) = 0;
+my ($lstr)    = "";
 
-my($line);
+my ($line);
 while ($linecnt < $#lines) {
   $line = $lines[$linecnt++];
   if ($filetype eq "c++") {
-    if ($line =~ m+//.*[Kk]razy:excludeall=.*$Prog+ ||
-        $line =~ m+//.*[Kk]razy:skip+) {
+    if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
+      || $line =~ m+//.*[Kk]razy:skip+)
+    {
       $cnt = 0;
       last;
     }
     next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-    $line =~ s+//.*++;  #skip C++ comments
+    $line =~ s+//.*++;    #skip C++ comments
   }
 
   # Don't use these deprecated Qt4 classes.
-  &doIt($line,"QHttp","KIO%COLON%%COLON%AccessManager",'');
-  &doIt($line,"QWorkspace","QMdiArea",'');
+  &doIt($line, "QHttp",      "KIO%COLON%%COLON%AccessManager", '');
+  &doIt($line, "QWorkspace", "QMdiArea",                       '');
 
   # These Qt5 classes are blessed for KDE5
   if (&usingCheckSet("kde4")) {
-    &doIt($line,"QColorDialog","KColorDialog",'');
-    &doIt($line,"QInputDialog","KInputDialog",'');
-    &doIt($line,"QFileDialog","KFileDialog",'');
-    &doIt($line,"QProgressDialog","KProgressDialog",'');
-    &doIt($line,"QSplashScreen","KSplashScreen",'');
-    &doIt($line,"QDialog","KDialog",'');
-    &doIt($line,"QTabBar","KTabBar",'');
-    &doIt($line,"QTabWidget","KTabWidget",'');
-    &doIt($line,"QTextBrowser","KTextBrowser",'');
-    &doIt($line,"QUrl","KUrl",'');
-    &doIt($line,"QLineEdit","KLineEdit",'');
-    &doIt($line,"QNetworkAccessManager","KIO%COLON%%COLON%AccessManager",'');
+    &doIt($line, "QColorDialog",          "KColorDialog",                   '');
+    &doIt($line, "QInputDialog",          "KInputDialog",                   '');
+    &doIt($line, "QFileDialog",           "KFileDialog",                    '');
+    &doIt($line, "QProgressDialog",       "KProgressDialog",                '');
+    &doIt($line, "QSplashScreen",         "KSplashScreen",                  '');
+    &doIt($line, "QDialog",               "KDialog",                        '');
+    &doIt($line, "QTabBar",               "KTabBar",                        '');
+    &doIt($line, "QTabWidget",            "KTabWidget",                     '');
+    &doIt($line, "QTextBrowser",          "KTextBrowser",                   '');
+    &doIt($line, "QUrl",                  "KUrl",                           '');
+    &doIt($line, "QLineEdit",             "KLineEdit",                      '');
+    &doIt($line, "QNetworkAccessManager", "KIO%COLON%%COLON%AccessManager", '');
   }
 
   # These Qt4/5 classes should be avoided in KDE4 and KDE5
-  &doIt($line,"QErrorMessage","KMessageBox",'');
+  &doIt($line, "QErrorMessage", "KMessageBox", '');
 
   # These KDE classes provide additional features over their Qt4/5 counterparts
   if (&strictArg() eq "super") {
-    &doIt($line,"QComboBox","KComboBox",'');
+    &doIt($line, "QComboBox", "KComboBox", '');
   }
   if (&usingCheckSet("kde4") || &usingCheckSet("kde5")) {
-    &doIt($line,"QMessageBox","KMessageBox",'');
+    &doIt($line, "QMessageBox", "KMessageBox", '');
   }
-  &doIt($line,"QTextEdit","KTextEdit",'');
+  &doIt($line, "QTextEdit", "KTextEdit", '');
 }
 
 if (!$cnt) {
@@ -123,26 +125,32 @@ if (!$cnt) {
   Exit $cnt;
 }
 
-sub doIt() {
-  my($line,$qname,$kname,$nregexp) = @_;
-  if ($f !~ m/$kname\.c/i && &qClass($line,$qname,$nregexp)) {
+sub doIt()
+{
+  my ($line, $qname, $kname, $nregexp) = @_;
+  if ($f !~ m/$kname\.c/i && &qClass($line, $qname, $nregexp)) {
     $cnt++;
     $lstr .= "Use $kname instead of $qname line\#" . $linecnt . "\n";
     print "=> $line\n" if (&verboseArg());
   }
 }
 
-sub qClass() {
-  my($l,$qname,$nregexp) = @_;
+sub qClass()
+{
+  my ($l, $qname, $nregexp) = @_;
 
   if ($filetype eq "c++") {
-    if ($l =~ m/new\s+$qname\s*\(/ ||
-        $l =~ m/[\s=,]+$qname\::[[:alnum:]]+[[:space:]]*[\w\(\)\;]/ ||
-        $l =~ m/$qname[[:space:]]*\*[[:space:]]*[[:alnum:]]+/ ||
-        $l =~ m/[:,]\s*public\s+$qname/ ||
-        (($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/) && ($l !~ m/==/ && $l !~ m/\!=/))) {
+    if (
+         $l =~ m/new\s+$qname\s*\(/
+      || $l =~ m/[\s=,]+$qname\::[[:alnum:]]+[[:space:]]*[\w\(\)\;]/
+      || $l =~ m/$qname[[:space:]]*\*[[:space:]]*[[:alnum:]]+/
+      || $l =~ m/[:,]\s*public\s+$qname/
+      || ( ($l =~ m/=[[:space:]]*$qname\::/ || $l =~ m/=[[:space:]]*$qname[[:space:]]*\(/)
+        && ($l !~ m/==/ && $l !~ m/\!=/))
+      )
+    {
       return 0 if ($nregexp ne "" && $l =~ m/$nregexp/);
-      return 0 if ($l =~ m/(foreach|Q_FOREACH)\s*\(\s*$qname/);
+      return 0 if ($l                   =~ m/(foreach|Q_FOREACH)\s*\(\s*$qname/);
       return 1 if (!&whiteList($l));
     }
   }
@@ -157,44 +165,50 @@ sub qClass() {
   return 0;
 }
 
-sub whiteList {
-  my($l) = @_;
-  if ($l =~ m/QUrl::toPercentEncoding/ ||
-      $l =~ m/QUrl::fromPercentEncoding/ ||
-      $l =~ m/QUrl::toAce/ ||
-      $l =~ m/QUrl::fromAce/ ||
-      $l =~ m/QLineEdit::dropEvent/ ||
-      $l =~ m/QDialog::DialogCode/ ||
-      $l =~ m/QDialog::accept/ ||
-      $l =~ m/QDialog::Accepted/ ||
-      $l =~ m/QDialog::reject/ ||
-      $l =~ m/QDialog::Rejected/ ||
-      $l =~ m/QMessageBox::AcceptRole/ ||
-      $l =~ m/QMessageBox::RejectRole/ ||
-      $l =~ m/QMessageBox::Question/ ||
-      $l =~ m/QMessageBox::Warning/ ||
-      $l =~ m/QTabWidget::North/ ||
-      $l =~ m/QTabWidget::South/ ||
-      $l =~ m/[:,]\s*public\s+QDialog/ ||
-      $l =~ m/class=\"QDialog\"/ ||
-      $l =~ m/KServiceTypeTrader::createInstanceFromQuery<.*>/) {
+sub whiteList
+{
+  my ($l) = @_;
+  if ( $l =~ m/QUrl::toPercentEncoding/
+    || $l =~ m/QUrl::fromPercentEncoding/
+    || $l =~ m/QUrl::toAce/
+    || $l =~ m/QUrl::fromAce/
+    || $l =~ m/QLineEdit::dropEvent/
+    || $l =~ m/QDialog::DialogCode/
+    || $l =~ m/QDialog::accept/
+    || $l =~ m/QDialog::Accepted/
+    || $l =~ m/QDialog::reject/
+    || $l =~ m/QDialog::Rejected/
+    || $l =~ m/QMessageBox::AcceptRole/
+    || $l =~ m/QMessageBox::RejectRole/
+    || $l =~ m/QMessageBox::Question/
+    || $l =~ m/QMessageBox::Warning/
+    || $l =~ m/QTabWidget::North/
+    || $l =~ m/QTabWidget::South/
+    || $l =~ m/[:,]\s*public\s+QDialog/
+    || $l =~ m/class=\"QDialog\"/
+    || $l =~ m/KServiceTypeTrader::createInstanceFromQuery<.*>/)
+  {
     return 1;
   } else {
     return 0;
   }
 }
 
-sub Help {
+sub Help
+{
   print "Check for Qt classes that should not be used\n";
   Exit 0 if &helpArg();
 }
 
-sub Version {
+sub Version
+{
   print "$Prog, version $Version\n";
   Exit 0 if &versionArg();
 }
 
-sub Explain {
-  print "Don't use deprecated Qt classes. Additionally make sure to use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. Also see <https://community.kde.org/Policies/API_to_Avoid>. Please refer to the API documentation for details before porting to the Kfoo classes.\n";
+sub Explain
+{
+  print
+"Don't use deprecated Qt classes. Additionally make sure to use the KDE version of some Qt GUI elements to provide a consistent look and feel for the KDE desktop. The KDE classes are not just adding functionalities to the Qt base class and are mostly not even based on the Qt class. Also see <https://community.kde.org/Policies/API_to_Avoid>. Please refer to the API documentation for details before porting to the Kfoo classes.\n";
   Exit 0 if &explainArg();
 }

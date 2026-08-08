@@ -19,6 +19,10 @@ repos:
   rev: v22.1.8
   hooks:
   - id: clang-format
+- repo: https://github.com/perltidy/perltidy
+  rev: "20260705.01"
+  hooks:
+  - id: perltidy
 - repo: https://github.com/PyCQA/pylint
   rev: v4.0.6
   hooks:

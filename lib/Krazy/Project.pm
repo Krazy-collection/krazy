@@ -14,16 +14,20 @@ use File::Basename;
 
 use Exporter;
 $VERSION = 0.96;
-@ISA = qw(Exporter);
+@ISA     = qw(Exporter);
 
-@EXPORT = qw(topOfProject projectType);
+@EXPORT    = qw(topOfProject projectType);
 @EXPORT_OK = qw();
 
-my($PROJECT_TYPE) = "";
-sub setProjectType {
+my ($PROJECT_TYPE) = "";
+
+sub setProjectType
+{
   ($PROJECT_TYPE) = @_;
 }
-sub projectType {
+
+sub projectType
+{
   return $PROJECT_TYPE;
 }
 
@@ -33,10 +37,11 @@ sub projectType {
 # the line number (>0) of the first match
 # 0 if there is no match
 # -1 if the file cannot be opened for reading
-sub linesCaseSearchInFile {
-  my($f, @lines) = @_;
+sub linesCaseSearchInFile
+{
+  my ($f, @lines) = @_;
 
-  my($cnt) = -1;
+  my ($cnt) = -1;
   if (!open(F, "$f")) {
     return $cnt;
   }
@@ -44,7 +49,7 @@ sub linesCaseSearchInFile {
   while (<F>) {
     $cnt++;
     chomp($_);
-    my($l);
+    my ($l);
     for $l (@lines) {
       if ($_ =~ m/$l/i) {
         close(F);
@@ -57,14 +62,15 @@ sub linesCaseSearchInFile {
 }
 
 # findUp: from $1, searches up no farther than the dir named in $2
-sub findUp {
-  my($td, $d) = @_;
+sub findUp
+{
+  my ($td, $d) = @_;
   chdir($td) || return "";
-  while (! -e $d) {
+  while (!-e $d) {
     if (!chdir("..")) {
       return "";
     }
-    my($pwd) = getcwd();
+    my ($pwd) = getcwd();
     if ($pwd eq "/") {
       return "";
     }
@@ -73,99 +79,104 @@ sub findUp {
 }
 
 # findUpCMakeProject: from $1, searches up no farther than the dir named in $2 for a CMakeLists.txt file with a project line
-sub findUpCMakeProject {
-  my($td, $d) = @_;
-  my($f) = "CMakeLists.txt";
+sub findUpCMakeProject
+{
+  my ($td, $d) = @_;
+  my ($f) = "CMakeLists.txt";
   chdir($td) || return "";
-  while (! -e $d) {
+  while (!-e $d) {
     last if (-e $f && (&linesCaseSearchInFile($f, ("project\\s*\\(\\s*")) > 0));
     if (!chdir("..")) {
       return "";
     }
-    my($pwd) = getcwd();
+    my ($pwd) = getcwd();
     if ($pwd eq "/") {
       return "";
     }
   }
-  return "" if (! -e $f);
+  return "" if (!-e $f);
   return getcwd() . "/" . $f;
 }
 
 # findUpProProject: from $1, searches up no farther than the dir named in $2 for a foo.pro file in dir foo
-sub findUpProProject {
-  my($td, $d) = @_;
+sub findUpProProject
+{
+  my ($td, $d) = @_;
   chdir($td) || return "";
-  while (! -e $d) {
+  while (!-e $d) {
     if (!chdir("..")) {
       return "";
     }
-    my($pwd) = getcwd();
+    my ($pwd) = getcwd();
     if ($pwd eq "/") {
       return "";
     }
   }
 
-  my($f);
+  my ($f);
   $f = basename(getcwd()) . ".pro";
-  return "" if (! -e $f);
+  return "" if (!-e $f);
   return getcwd() . "/" . $f;
 }
 
 # findUp: from $1, searches up for the dir named in $2 and see if a .pro file lives in there
-sub findUpPro {
-  my($td, $d) = @_;
+sub findUpPro
+{
+  my ($td, $d) = @_;
   chdir($td) || return "";
-  while (! -e $d) {
+  while (!-e $d) {
     if (!chdir("..")) {
       return "";
     }
-    my($pwd) = getcwd();
+    my ($pwd) = getcwd();
     if ($pwd eq "/") {
       return "";
     }
   }
-  my(@matches) = glob("*.pro");
+  my (@matches) = glob("*.pro");
   return getcwd() . "/.pro" if ($#matches >= 0);
   return "";
 }
 
 # findUpConfigure: from $1, searches up no farther than the dir named in $2 for a configure file
-sub findUpConfigure {
-  my($td, $d) = @_;
-  my($f1) = "configure";
-  my($f2) = "configure.sh";
+sub findUpConfigure
+{
+  my ($td, $d) = @_;
+  my ($f1) = "configure";
+  my ($f2) = "configure.sh";
   chdir($td) || return "";
-  while (! -e $d) {
+  while (!-e $d) {
     last if (-x $f1 || -x $f2);
     if (!chdir("..")) {
       return "";
     }
-    my($pwd) = getcwd();
+    my ($pwd) = getcwd();
     if ($pwd eq "/") {
       return "";
     }
   }
-  return "" if (! -x $f1 && ! -x $f2);
+  return "" if (!-x $f1 && !-x $f2);
   return getcwd() . "/" . $f1;
 }
 
 # topOfProject: use various heuristics to find the top-level path of the project from $CWD
-sub topOfProject {
-  my($td) = @_;
+sub topOfProject
+{
+  my ($td) = @_;
   return "" if (!defined($td));
-  return "" if (! -e "$td");
+  return "" if (!-e "$td");
 
-  my(@scms) = (".git", ".hg", ".svn");
-  my($s);
+  my (@scms) = (".git", ".hg", ".svn");
+  my ($s);
 
-  my($t) = "";
+  my ($t) = "";
 
-  my($SAVEPATH) = getcwd;
+  my ($SAVEPATH) = getcwd;
   setProjectType("");
 
   #look up for a CMakeLists.txt with a project line (stopping at SCM level)
   for $s (@scms) {
-    if (! $t) {
+    if (!$t) {
       $t = findUpCMakeProject($td, $s);
       if ($t) {
         &setProjectType("CMake");
@@ -176,7 +187,7 @@ sub topOfProject {
 
   # look up for a project.pro file in a dir called project (stopping at SCM level)
   for $s (@scms) {
-    if (! $t) {
+    if (!$t) {
       $t = findUpProProject($td, $s);
       if ($t) {
         &setProjectType("QMake");
@@ -187,7 +198,7 @@ sub topOfProject {
 
   # look up for any .pro file in the specified dir (stopping at SCM level)
   for $s (@scms) {
-    if (! $t) {
+    if (!$t) {
       $t = findUpPro($td, $s);
       if ($t) {
         &setProjectType("QMake unnamed .pro");
@@ -198,7 +209,7 @@ sub topOfProject {
 
   # look up for a configure file (stopping at SCM level)
   for $s (@scms) {
-    if (! $t) {
+    if (!$t) {
       $t = findUpConfigure($td, $s);
       if ($t) {
         &setProjectType("autoconf");
@@ -209,17 +220,17 @@ sub topOfProject {
 
   # look up for an SCM
   for $s (@scms) {
-    if (! $t) {
+    if (!$t) {
       $t = findUp($td, $s);
       if ($t) {
-        $t = $t . "/foo"; #append foo file due to running dirname before returning
+        $t = $t . "/foo";    #append foo file due to running dirname before returning
         &setProjectType("top of SCM");
         goto Done;
       }
     }
   }
 
- Done:
+Done:
   chdir($SAVEPATH);
   return dirname($t) if ($t);
   return "";
