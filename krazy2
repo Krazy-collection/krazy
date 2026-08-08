@@ -848,7 +848,7 @@ for $ftype (@types) {
               $issues = $1;
               last;
             } else {
-              $result{$p} .= "\t" . $f . ": " . $_ . "\n"
+              $result{$p} .= "    " . $f . ": " . $_ . "\n"
                 unless ($_ =~ m+[Oo][Kk][Aa][Yy]$+ || $_ =~ m+[Nn]/[Aa]+);
             }
           }
@@ -1541,7 +1541,8 @@ sub printExplain
   } else {
 
     # text export
-    print wrap("        ", "        ", $explanation) . "\n";
+    print "\n" if ($islisting);
+    print wrap("    ", "    ", $explanation) . "\n";
     print "\n" if ($islisting);
   }
 }
