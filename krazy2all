@@ -15,7 +15,7 @@ use lib "$Bin/../lib";
 use Krazy::Utils;
 
 my ($Prog)    = 'krazy2all';
-my ($VERSION) = '2.9991';
+my ($VERSION) = '2.9992';
 
 my ($help)      = '';
 my ($version)   = '';
@@ -33,6 +33,7 @@ my ($brief)     = '';
 my ($nobrief)   = '';
 my ($quiet)     = '';
 my ($priority)  = '';
+my ($explain)   = '';
 my ($strict)    = '';
 my ($check)     = '';
 my ($checksets) = '';
@@ -66,6 +67,7 @@ exit 1
     'no-brief'        => \$nobrief,
     'quiet'           => \$quiet,
     'priority=s'      => \$priority,
+    'explain'         => \$explain,
     'strict=s'        => \$strict,
     'check=s'         => \$check,
     'check-sets=s'    => \$checksets,
@@ -232,6 +234,7 @@ sub Help
   print "                   super -> print super strict issues only\n";
   print "                   all -> print all issues (default)\n";
   print "                 use strictness to help filter out issues of less importance\n";
+  print "  --explain      print explanations with solving instructions\n";
   print "  --check <prog[,prog1,prog2,...,progN]>\n";
   print "                 run the specified sanity checker program(s) only\n";
   print "  --check-sets <set[,set1,set2,...,setN]>\n";
@@ -353,6 +356,13 @@ Support strictness levels are:
      normal -> print non-super strict issues only
      super -> print super strict issues only
      all -> print all issues (default)
+
+=item B<--explain>
+
+For each checker program, if any issues are found, print an explanation
+of the problem along with solving instructions.  May be used in conjunction
+with the B<--list> option to provide a more detailed description of the
+checker programs.
 
 =item B<--ignorerc>
 
