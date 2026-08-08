@@ -107,6 +107,8 @@ C++-style must be one of the following:
 
 "kde" (default), see https://community.kde.org/Policies/Kdelibs_Coding_Style
 
+"qt", see https://wiki.qt.io/Qt_Coding_Style
+
 =back
 
 Note: Krazy uses a heuristic to decide what type of C++-style to check against.

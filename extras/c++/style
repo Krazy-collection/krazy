@@ -11,7 +11,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Tests KDE source for adherence to a coding style
 
 # Supports these environment variables:
-#  KRAZY_STYLE_CPPSTYLE: a predefined style, currently available styles are "qt", "kde" and "pim"
+#  KRAZY_STYLE_CPPSTYLE: a predefined style, currently available styles are "qt" and "kde"
 #  KRAZY_STYLE_OFFSET: basic indentation level, usually a small integer like 2 or 4
 #  KRAZY_STYLE_LINEMAX: max number of chars per line allowed (defaults to unlimited)
 
@@ -68,18 +68,13 @@ $KRAZY_STYLE_LINEMAX = 0 if (!$KRAZY_STYLE_LINEMAX);
 if (!$KRAZY_STYLE_CPPSTYLE) {
   $KRAZY_STYLE_CPPSTYLE = "kde";
 }
-if ( $KRAZY_STYLE_CPPSTYLE ne "pim"
-  && $KRAZY_STYLE_CPPSTYLE ne "kde"
+if ( $KRAZY_STYLE_CPPSTYLE ne "kde"
   && $KRAZY_STYLE_CPPSTYLE ne "qt")
 {
   $KRAZY_STYLE_CPPSTYLE = "kde";
 }
 if (!$KRAZY_STYLE_OFFSET) {
-  if ($KRAZY_STYLE_CPPSTYLE eq "pim") {
-    $KRAZY_STYLE_OFFSET = 2;
-  } else {
-    $KRAZY_STYLE_OFFSET = 4;
-  }
+  $KRAZY_STYLE_OFFSET = 4;
 }
 
 #open file and slurp it in
@@ -175,18 +170,6 @@ foreach $line (@lines) {
   $pline =~ s/\(BerValue \*\*\)//g;
   $pline =~ s/\(sasl_conn_t \*\)//g;
 
-  if ($KRAZY_STYLE_CPPSTYLE eq "pim"
-    && ($pline =~ m/\(/ && $pline =~ m/\([[:alnum:]"'\(]/ || $line =~ m/\( {2,}/))
-  {
-    $Issues{'PARENSPACE'}{'count'}++;
-    if ($Issues{'PARENSPACE'}{'count'} == 1) {
-      $Issues{'PARENSPACE'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'PARENSPACE'}{'lines'} .= "," . $linecnt;
-    }
-    print "$linecnt (missing 1 space after '\(') => $line\n" if (&verboseArg());
-  }
-
   if ($KRAZY_STYLE_CPPSTYLE eq "kde"
     && ($pline =~ m/\(/ && $line =~ m/\(\s/))
   {
@@ -197,18 +180,6 @@ foreach $line (@lines) {
       $Issues{'PARENNOSPACE'}{'lines'} .= "," . $linecnt;
     }
     print "$linecnt (no space after '\(') => $line\n" if (&verboseArg());
-  }
-
-  if ($KRAZY_STYLE_CPPSTYLE eq "pim"
-    && ($pline =~ m/\)/ && $pline =~ m/[[:alnum:]"'\)]\)/ || $line =~ m/ {2,}\)/))
-  {
-    $Issues{'SPACEPAREN'}{'count'}++;
-    if ($Issues{'SPACEPAREN'}{'count'} == 1) {
-      $Issues{'SPACEPAREN'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'SPACEPAREN'}{'lines'} .= "," . $linecnt;
-    }
-    print "$linecnt (put 1 space before '\)') => $line\n" if (&verboseArg());
   }
 
   if ($KRAZY_STYLE_CPPSTYLE eq "kde"
@@ -417,17 +388,6 @@ foreach $line (@lines) {
     }
   }
 
-  if ($KRAZY_STYLE_CPPSTYLE eq "pim"
-    && ($line =~ m/^[[:space:]]*namespace[[:space:]]/ && $line !~ m/\{$/))
-  {
-    $Issues{'NAMESPACEBRACE'}{'count'}++;
-    if ($Issues{'NAMESPACEBRACE'}{'count'} == 1) {
-      $Issues{'NAMESPACEBRACE'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'NAMESPACEBRACE'}{'lines'} .= "," . $linecnt;
-    }
-    print "$linecnt (missing namespace '{')=> $line\n" if (&verboseArg());
-  }
   if ($KRAZY_STYLE_CPPSTYLE eq "kde"
     && ($line =~ m/^[[:space:]]*namespace[[:space:]]/ && $line =~ m/\{$/))
   {
@@ -438,30 +398,6 @@ foreach $line (@lines) {
       $Issues{'NAMESPACEBRACE'}{'lines'} .= "," . $linecnt;
     }
     print "$linecnt (namespace '{')=> $line\n" if (&verboseArg());
-  }
-
-  if ($KRAZY_STYLE_CPPSTYLE eq "pim"
-    && ($line =~ m/[[:space:]]*case[[:space:]].*:/ && $line =~ m/\{$/))
-  {
-    $Issues{'CASEBRACE'}{'count'}++;
-    if ($Issues{'CASEBRACE'}{'count'} == 1) {
-      $Issues{'CASEBRACE'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'CASEBRACE'}{'lines'} .= "," . $linecnt;
-    }
-    print "$linecnt (put {' on line after case:)=> $line\n" if (&verboseArg());
-  }
-
-  if ($KRAZY_STYLE_CPPSTYLE eq "pim"
-    && ($line =~ m/[[:space:]]*default[[:space:]].*:/ && $line =~ m/\{$/))
-  {
-    $Issues{'CASEBRACE'}{'count'}++;
-    if ($Issues{'CASEBRACE'}{'count'} == 1) {
-      $Issues{'CASEBRACE'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'CASEBRACE'}{'lines'} .= "," . $linecnt;
-    }
-    print "$linecnt (put {' on line after default:)=> $line\n" if (&verboseArg());
   }
 
   if ($pline =~ m/^\s*\w+::\w+.*\(.*{/) {
@@ -944,31 +880,6 @@ foreach $line (@lines) {
       print "$linecnt (bad indent after a macro definition) => $tline\n" if (&verboseArg());
     }
   }
-  if (
-    $KRAZY_STYLE_CPPSTYLE eq "pim"
-    && ( ($line =~ m/^\s*public\s*:/ && $line !~ m/\s{2}public/)
-      || ($line =~ m/^\s*private\s*:/            && $line !~ m/\s{2}private/)
-      || ($line =~ m/^\s*protected\s*:/          && $line !~ m/\s{2}protected/)
-      || ($line =~ m/^\s*public\sslots\s*:/      && $line !~ m/\s{2}public/)
-      || ($line =~ m/^\s*public\sQ_SLOTS\s*:/    && $line !~ m/\s{2}public/)
-      || ($line =~ m/^\s*private\sslots\s*:/     && $line !~ m/\s{2}private/)
-      || ($line =~ m/^\s*private\sQ_SLOTS\s*:/   && $line !~ m/\s{2}private/)
-      || ($line =~ m/^\s*protected\sslots\s*:/   && $line !~ m/\s{2}protected/)
-      || ($line =~ m/^\s*protected\sQ_SLOTS\s*:/ && $line !~ m/\s{2}protected/)
-      || ($line =~ m/^\s*signals\s*:/            && $line !~ m/\s{2}signals/)
-      || ($line =~ m/^\s*Q_OBJECT\s*:/           && $line !~ m/\s{2}Q_OBJECT/)
-      || ($line =~ m/^\s*k_dcop_signals\s*:/     && $line !~ m/\s{2}k_dcop_signals/)
-      || ($line =~ m/^\s*Q_SIGNALS\s*:/          && $line !~ m/\s{2}Q_SIGNALS/))
-    )
-  {
-    $Issues{'BADINDENT'}{'count'}++;
-    if ($Issues{'BADINDENT'}{'count'} == 1) {
-      $Issues{'BADINDENT'}{'lines'} = "line\#" . $linecnt;
-    } else {
-      $Issues{'BADINDENT'}{'lines'} .= "," . $linecnt;
-    }
-    print "$linecnt (bad indent for class protection) => $tline\n" if (&verboseArg());
-  }
   if (length($line)) {
     if ($lline !~ m/,$/ && $lline !~ m/&&$/ && $lline !~ m/\|\|$/) {
 
@@ -1149,7 +1060,7 @@ sub initIssues()
   $Issues{'ENUMBRACE'}{'count'} = 0;
   $Issues{'ENUMBRACE'}{'lines'} = '';
 
-  if ($KRAZY_STYLE_CPPSTYLE eq "pim" || $KRAZY_STYLE_CPPSTYLE eq "qt") {
+  if ($KRAZY_STYLE_CPPSTYLE eq "qt") {
     $Issues{'NAMESPACEBRACE'}{'issue'} = 'Put a brace on the line with the \'namespace\'';
   } else {
     $Issues{'NAMESPACEBRACE'}{'issue'} = 'No brace on the line with the \'namespace\'';

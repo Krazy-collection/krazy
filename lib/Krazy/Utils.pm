@@ -28,7 +28,7 @@ $VERSION = 2.99999;        # this is the module version
   explainArg quietArg verboseArg installedArg
   priorityTypeStr strictTypeStr exportTypeStr
   outputTypeStr checksetTypeStr
-  styleTypeStrsub cmakeStyleTypeStr pythonStyleTypeStr cppIncludeOrderTypeStr
+  styleTypeStr cmakeStyleTypeStr pythonStyleTypeStr cppIncludeOrderTypeStr
   validateExportType validatePriorityType validateStrictType
   validateOutputType validateCheckSet
   validateStyleType validateCMakeStyleType validatePythonStyleType validateCppIncludeOrderType
@@ -76,7 +76,6 @@ my (@Outputs) = (
 my (@Styles) = (
   "qt",           # Qt style
   "kde",          # KDE style (default)
-  "pim"           # KDEPIM style
 );
 
 my (@CMakeStyles) = (

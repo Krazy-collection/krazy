@@ -2003,6 +2003,8 @@ C++-style must be one of the following:
 
 "kde" (default), see https://community.kde.org/Policies/Kdelibs_Coding_Style
 
+"qt", see https://wiki.qt.io/Qt_Coding_Style
+
 =back
 
 B<KRAZY_STYLE_OFFSET> - tells the "style" checker to check for a basic
