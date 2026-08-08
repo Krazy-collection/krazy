@@ -11,7 +11,7 @@ SPDX-License-Identifier = "BSD-3-Clause"
 
 #documentation
 [[annotations]]
-path = ["ReadMe.txt", "Install.txt", "doc/krazyrc.pod", "**/description.txt", "**/README.txt"]
+path = ["ReadMe.txt", "Install.txt", "docs/krazyrc.pod", "**/description.txt", "**/README.txt"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "Allen Winter <winter@kde.org>"
 SPDX-License-Identifier = "MIT"
