@@ -3,7 +3,6 @@
 TESTSTMP=`mktemp`
 PLUGINSTMP=`mktemp`
 EXTRASTMP=`mktemp`
-SRCTMP=`mktemp`
 CHECKSTMP=`mktemp`
 NODATA=`mktemp`
 NOTEST=`mktemp`
@@ -13,10 +12,9 @@ find . -mindepth 3 -type d | sort > $TESTSTMP
 cd ..
 find ./plugins/ -mindepth 2 -type f ! -name Makefile ! -name description.txt > $PLUGINSTMP
 find ./extras/ -mindepth 2 -type f ! -name Makefile ! -name description.txt > $EXTRASTMP
-find ./src/ -mindepth 1 -maxdepth 1 -type d > $SRCTMP
 cd - > /dev/null
 
-cat $PLUGINSTMP $EXTRASTMP $SRCTMP | sort > $CHECKSTMP
+cat $PLUGINSTMP $EXTRASTMP | sort > $CHECKSTMP
 
 diff -u $CHECKSTMP $TESTSTMP > /dev/null
 
@@ -38,4 +36,4 @@ if [ $DIFFRET != 0 ]; then
   cat $NOTEST
 fi
 
-trap "rm -rf $TESTSTMP $PLUGINSTMP $EXTRASTMP $SRCTMP $CHECKSTMP $NODATA $NOTEST" EXIT
+trap "rm -rf $TESTSTMP $PLUGINSTMP $EXTRASTMP $CHECKSTMP $NODATA $NOTEST" EXIT
