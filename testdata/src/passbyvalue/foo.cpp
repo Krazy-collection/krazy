@@ -1,4 +1,0 @@
-int func( QDateTime dt )
-{
-
-}
