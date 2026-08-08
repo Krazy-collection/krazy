@@ -4,14 +4,14 @@ SPDX-PackageSupplier = "Allen Winter <winter@kde.org>"
 
 #developer tool configuration files
 [[annotations]]
-path = [".codespellrc", ".krazy", ".pre-commit-config.yaml", ".editorconfig", ".shellcheckrc", "REUSE.toml"]
+path = [".codespellrc", ".krazy", ".pre-commit-config.yaml", ".editorconfig", ".shellcheckrc", "REUSE.toml", ".markdownlint.json"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "Allen Winter <winter@kde.org>"
 SPDX-License-Identifier = "BSD-3-Clause"
 
 #documentation
 [[annotations]]
-path = ["ReadMe.txt", "Install.txt", "docs/krazyrc.pod", "**/description.txt", "**/README.txt"]
+path = ["README.md", "INSTALL.md", "docs/krazyrc.pod", "**/description.txt", "**/README.txt"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "Allen Winter <winter@kde.org>"
 SPDX-License-Identifier = "MIT"
