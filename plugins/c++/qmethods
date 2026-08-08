@@ -173,6 +173,6 @@ sub Version {
 }
 
 sub Explain {
-  print "A few Qt methods should be avoided because they don't work as expected or because you need to really be an expert to use them correctly. <http://community.kde.org/Policies/API_to_Avoid> for more information.\n";
+  print "A few Qt methods should be avoided because they don't work as expected or because you need to really be an expert to use them correctly. <https://community.kde.org/Policies/API_to_Avoid> for more information.\n";
   Exit 0 if &explainArg();
 }

@@ -303,7 +303,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Please follow the CMake coding style guidelines. Find the KDE CMake style guidelines at <http://community.kde.org/Policies/CMake_Coding_Style>\n";
+  print "Please follow the CMake coding style guidelines. Find the KDE CMake style guidelines at <https://community.kde.org/Policies/CMake_Coding_Style>\n";
   Exit 0 if &explainArg();
 }
 

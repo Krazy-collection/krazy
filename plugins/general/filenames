@@ -133,6 +133,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Operating systems reserve filenames or prohibit characters that can be used in filenames, or the filename length.  To help with portability, this checker warns about any such know limitation.  See <http://stackoverflow.com/questions/122400/what-are-reserved-filenames-for-various-platforms>\n";
+  print "Operating systems reserve filenames or prohibit characters that can be used in filenames, or the filename length.  To help with portability, this checker warns about any such know limitation.  See <https://stackoverflow.com/questions/122400/what-are-reserved-filenames-for-various-platforms>\n";
   Exit 0 if &explainArg();
 }

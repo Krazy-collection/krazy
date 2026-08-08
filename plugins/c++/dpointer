@@ -460,6 +460,6 @@ sub Version {
 }
 
 sub Explain {
-  print "In order to more easily maintain binary compatibility, a public class in an installed header should not contain private members -- use d-pointers instead. Application headers should not mix d-pointers and private members. Also ensure  that the d-pointer is \'const\' to avoid modifying it by mistake. Please follow the guidelines in the d-pointers section of <http://community.kde.org/Policies/Library_Code_Policy#D-Pointers>.\n";
+  print "In order to more easily maintain binary compatibility, a public class in an installed header should not contain private members -- use d-pointers instead. Application headers should not mix d-pointers and private members. Also ensure  that the d-pointer is \'const\' to avoid modifying it by mistake. Please follow the guidelines in the d-pointers section of <https://community.kde.org/Policies/Library_Code_Policy#D-Pointers>.\n";
   Exit 0 if &explainArg();
 }

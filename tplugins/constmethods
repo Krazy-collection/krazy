@@ -251,6 +251,6 @@ sub Version {
 }
 
 sub Explain {
-  print "As a general rule methods should be const except when it's not possible to make them such. See <http://developer.kde.org/~wheeler/cpp-pitfalls.html>.\n";
+  print "As a general rule methods should be const except when it's not possible to make them such. See <https://developer.kde.org/~wheeler/cpp-pitfalls.html>.\n";
   Exit 0 if $explain;
 }

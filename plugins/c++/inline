@@ -292,6 +292,6 @@ sub Version {
 }
 
 sub Explain {
-  print "For binary compatibility reasons avoid inline methods in public, visible classes. No inline constructors or destructors. Simple getter/setter methods should be re-implemented using d-pointer techniques. See <http://community.kde.org/Policies/Library_Code_Policy#Inline_Code> for more details.\n";
+  print "For binary compatibility reasons avoid inline methods in public, visible classes. No inline constructors or destructors. Simple getter/setter methods should be re-implemented using d-pointer techniques. See <https://community.kde.org/Policies/Library_Code_Policy#Inline_Code> for more details.\n";
   Exit 0 if &explainArg();
 }

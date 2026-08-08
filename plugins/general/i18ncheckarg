@@ -1449,7 +1449,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Make the translators' job easier and detect problems in the usage of the i18n() calls. When the fix is not clear, check the Techbase articles at <http://techbase.kde.org/Development/Tutorials/Localization/i18n_Krazy> and https://techbase.kde.org/Development/Tutorials/Localization/i18n_Semantics>.\n";
+  print "Make the translators' job easier and detect problems in the usage of the i18n() calls. When the fix is not clear, check the Techbase articles at <https://techbase.kde.org/Development/Tutorials/Localization/i18n_Krazy> and https://techbase.kde.org/Development/Tutorials/Localization/i18n_Semantics>.\n";
   Exit 0 if $explain;
 }
 

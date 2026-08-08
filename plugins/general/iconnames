@@ -1166,6 +1166,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Browse available icons with 'kdialog --geticon actions'. Request new icons at <http://techbase.kde.org/Projects/Oxygen/Missing_Icons>.\n";
+  print "Browse available icons with 'kdialog --geticon actions'. Request new icons at <https://techbase.kde.org/Projects/Oxygen/Missing_Icons>.\n";
   Exit 0 if &explainArg();
 }

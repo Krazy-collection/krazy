@@ -68,7 +68,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Please make sure your .svg files conform to the SVG schema, see <http://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course>\n";
+  print "Please make sure your .svg files conform to the SVG schema, see <https://developer.mozilla.org/en-US/docs/Web/SVG/Namespaces_Crash_Course>\n";
   Exit 0 if &explainArg();
 }
 

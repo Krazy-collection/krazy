@@ -187,7 +187,7 @@ sub checkLicense()
    # Check for an old FSF address
    # MIT licenses will trigger the check too, as "675 Mass Ave" is MIT's address
    $wrong = " (wrong address)" if ($text =~ /(?:675 Mass Ave|59 Temple Place|Suite 330|51 Franklin Steet|02139|02111-1307)/i); # "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301" is the right FSF address
-   $wrongurl = " (wrong license URL)" if ($text =~ m+www\.fsf\.org.*copyleft+); # http://www.gnu.org/licenses is the correct url
+   $wrongurl = " (wrong license URL)" if ($text =~ m+www\.fsf\.org.*copyleft+); # https://www.gnu.org/licenses is the correct url
 
    # LGPL or GPL
    $license = "LGPL$gl$wrong$wrongurl $license" if ($text =~ /under (the (terms|conditions) of )?the GNU (Library|Lesser) General Public License/i);
@@ -272,7 +272,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed.  For details regarding KDE's licensing policy please visit <http://community.kde.org/Policies/Licensing_Policy>.\n";
+  print "Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed.  For details regarding KDE's licensing policy please visit <https://community.kde.org/Policies/Licensing_Policy>.\n";
   exit 0 if &explainArg();
 }
 

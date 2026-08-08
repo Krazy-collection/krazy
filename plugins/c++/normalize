@@ -138,6 +138,6 @@ sub Version {
 }
 
 sub Explain {
-  print "Prefer to use normalised signal/slot signatures. That is, remove all dispensable whitespace, const-&, and top-level const. For more info, see <http://marcmutz.wordpress.com/effective-qt/prefer-to-use-normalised-signalslot-signatures>\n";
+  print "Prefer to use normalised signal/slot signatures. That is, remove all dispensable whitespace, const-&, and top-level const. For more info, see <https://marcmutz.wordpress.com/effective-qt/prefer-to-use-normalised-signalslot-signatures>\n";
   Exit 0 if &explainArg();
 }

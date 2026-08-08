@@ -957,12 +957,8 @@ sub Version {
 }
 
 sub Explain {
-  print "Please follow the coding style guidelines at ";
-  if ($KRAZY_STYLE_CPPSTYLE eq "pim" ) {
-    print "<http://community.kde.org/Policies/Kdepim_Coding_Style>\n";
-  } else {
-    print "<http://community.kde.org/Policies/Kdelibs_Coding_Style>\n";
-  }
+  print "For example, see the KDE coding style guidelines at ";
+  print "<https://community.kde.org/Policies/Kdelibs_Coding_Style>\n";
   Exit 0 if &explainArg();
 }
 

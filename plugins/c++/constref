@@ -183,6 +183,6 @@ sub Version {
 }
 
 sub Explain {
-  print "For binary compatibility reasons avoid const references for return types. For example, \"const QList<int> &someProperty() const\" should be rewritten to return a value instead, eg \"QList<int> someProperty() const\". See <http://community.kde.org/Policies/Library_Code_Policy#Const_References> for more details.\n";
+  print "For binary compatibility reasons avoid const references for return types. For example, \"const QList<int> &someProperty() const\" should be rewritten to return a value instead, eg \"QList<int> someProperty() const\". See <https://community.kde.org/Policies/Library_Code_Policy#Const_References> for more details.\n";
   Exit 0 if &explainArg();
 }

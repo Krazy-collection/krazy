@@ -186,7 +186,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Global static objects in libraries should be avoided. You never know when the constructor will be run or if it will be run at all. See <http://community.kde.org/Policies/Library_Code_Policy#Static_Objects> for more info.";
+  print "Global static objects in libraries should be avoided. You never know when the constructor will be run or if it will be run at all. See <https://community.kde.org/Policies/Library_Code_Policy#Static_Objects> for more info.";
   Exit 0 if &explainArg();
 }
 

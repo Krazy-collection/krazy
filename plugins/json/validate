@@ -63,7 +63,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Please make sure your .json files are properly formatted and decodeable, see the RFC at <http://www.ietf.org/rfc/rfc4627.txt>\n";
+  print "Please make sure your .json files are properly formatted and decodeable, see the RFC at <https://www.ietf.org/rfc/rfc4627.txt>\n";
   Exit 0 if &explainArg();
 }
 

@@ -79,7 +79,7 @@ sub Version {
 }
 
 sub Explain {
-  print "Please make sure your .desktop files conform to the freedesktop.org standard. See the spec at <http://standards.freedesktop.org/desktop-entry-spec/latest>\n";
+  print "Please make sure your .desktop files conform to the freedesktop.org standard. See the spec at <https://standards.freedesktop.org/desktop-entry-spec/latest>\n";
   Exit 0 if &explainArg();
 }
 

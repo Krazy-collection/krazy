@@ -73,7 +73,7 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;  #skip C++ comments
 
-  #see http://doc.qt.nokia.com/latest/qcolor.html#predefined-colors for colors
+  #see https://doc.qt.io/qt-6/qcolor.html for colors
   &doIt($line,"Qt::red");
   &doIt($line,"Qt::darkRed");
   &doIt($line,"Qt::green");

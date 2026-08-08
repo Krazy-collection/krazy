@@ -1945,9 +1945,7 @@ C++-style must be one of the following:
 
 =over 2
 
-"kde" (default), see http://community.kde.org/Policies/Kdelibs_Coding_Style
-
-"pim" kdepim style, see http://community.kde.org/Policies/Kdepim_Coding_Style
+"kde" (default), see https://community.kde.org/Policies/Kdelibs_Coding_Style
 
 =back
 
@@ -2027,10 +2025,10 @@ within the KDE directory structure but above a project subdir
 krazyrc(3), krazy2all(1)
 
 Ben Meyer's kdetestscripts - Automated scripts are to catch problems in KDE,
-L<http://websvn.kde.org/trunk/playground/base/kdetestscripts>.
+L<https://websvn.kde.org/trunk/playground/base/kdetestscripts>.
 
 flawfinder - Examines source code looking for security weaknesses,
-L<http://www.dwheeler.com/flawfinder>.
+L<https://www.dwheeler.com/flawfinder>.
 
 =head1 AUTHORS
 
