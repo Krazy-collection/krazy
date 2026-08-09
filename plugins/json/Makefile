@@ -12,6 +12,7 @@ validate \
 PLUGINLNS = \
 endswithnewline \
 filenames \
+insecurenet \
 spelling \
 
 #default installation location

@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+SET=foss
+
 # links to c++ plugins
 CPP_PLUGINS = \
 copyright \
@@ -47,12 +49,10 @@ validate \
 # links to SVG plugins
 SVG_PLUGINS = \
 filenames \
-insecurenet \
-spelling \
 validate \
 
 #default installation location
-INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/foss"
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}"
 
 all:
 
@@ -64,32 +64,32 @@ install::
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
 	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set c++ plugin link $$plugin"; \
+		echo "Installing ${SET} set c++ plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
 	done
 
 	list="$(QML_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set qml plugin link $$plugin"; \
+		echo "Installing ${SET} set qml plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
 	done
 
 	list="$(PERL_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set perl plugin link $$plugin"; \
+		echo "Installing ${SET} set perl plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/perl/$$plugin $(DESTDIR)$(INSTDIR)/perl-$$plugin; \
 	done
 
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set python plugin link $$plugin"; \
+		echo "Installing ${SET} set python plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/python/$$plugin $(DESTDIR)$(INSTDIR)/python-$$plugin; \
 	done
 
 	list="$(JSON_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set json plugin link $$plugin"; \
+		echo "Installing ${SET} set json plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/json/$$plugin $(DESTDIR)$(INSTDIR)/json-$$plugin; \
 	done
 
 	list="$(SVG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing foss set SVG plugin link $$plugin"; \
+		echo "Installing ${SET} set SVG plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/svg/$$plugin $(DESTDIR)$(INSTDIR)/svg-$$plugin; \
 	done
 

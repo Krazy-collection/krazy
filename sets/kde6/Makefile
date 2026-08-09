@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+SET=kde6
+
 # links to c++ plugins
 CPP_PLUGINS = \
 copyright \
@@ -105,7 +107,7 @@ license \
 insecurenet \
 
 #default installation location
-INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/kde6"
+INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}"
 
 all:
 
@@ -117,51 +119,51 @@ install::
 	cp -f description.txt $(DESTDIR)$(INSTDIR)
 
 	list="$(CPP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set c++ plugin link $$plugin"; \
+		echo "Installing ${SET} set c++ plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/c++/$$plugin $(DESTDIR)$(INSTDIR)/c++-$$plugin; \
 	done
 	list="$(UI_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set designer plugin link $$plugin"; \
+		echo "Installing ${SET} set designer plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/designer/$$plugin $(DESTDIR)$(INSTDIR)/designer-$$plugin; \
 	done
 	list="$(DESKTOP_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set desktop plugin link $$plugin"; \
+		echo "Installing ${SET} set desktop plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/desktop/$$plugin $(DESTDIR)$(INSTDIR)/desktop-$$plugin; \
 	done
 	list="$(KCFG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set kconfigxt plugin link $$plugin"; \
+		echo "Installing ${SET} set kconfigxt plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/kconfigxt/$$plugin $(DESTDIR)$(INSTDIR)/kconfigxt-$$plugin; \
 	done
 	list="$(RC_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set kpartgui plugin link $$plugin"; \
+		echo "Installing ${SET} set kpartgui plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/kpartgui/$$plugin $(DESTDIR)$(INSTDIR)/kpartgui-$$plugin; \
 	done
 	list="$(MSG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set messages plugin link $$plugin"; \
+		echo "Installing ${SET} set messages plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/messages/$$plugin $(DESTDIR)$(INSTDIR)/messages-$$plugin; \
 	done
 	list="$(QML_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set qml plugin link $$plugin"; \
+		echo "Installing ${SET} set qml plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/qml/$$plugin $(DESTDIR)$(INSTDIR)/qml-$$plugin; \
 	done
 	list="$(PERL_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set perl plugin link $$plugin"; \
+		echo "Installing ${SET} set perl plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/perl/$$plugin $(DESTDIR)$(INSTDIR)/perl-$$plugin; \
 	done
 	list="$(PYTHON_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set python plugin link $$plugin"; \
+		echo "Installing ${SET} set python plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/python/$$plugin $(DESTDIR)$(INSTDIR)/python-$$plugin; \
 	done
 	list="$(JSON_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set json plugin link $$plugin"; \
+		echo "Installing ${SET} set json plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/json/$$plugin $(DESTDIR)$(INSTDIR)/json-$$plugin; \
 	done
 	list="$(SVG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set SVG plugin link $$plugin"; \
+		echo "Installing ${SET} set SVG plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/svg/$$plugin $(DESTDIR)$(INSTDIR)/svg-$$plugin; \
 	done
 	list="$(CMAKE_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde6 set cmake plugin link $$plugin"; \
+		echo "Installing ${SET} set cmake plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/cmake/$$plugin $(DESTDIR)$(INSTDIR)/cmake-$$plugin; \
 	done
 
