@@ -11,7 +11,6 @@ CPP_PLUGINS = \
 copyright \
 cpp \
 crashy \
-doxytags \
 endswithnewline \
 filenames \
 i18ncheckarg \
