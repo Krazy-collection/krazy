@@ -148,8 +148,8 @@ rm -f "$TOP"/lib/krazy2/krazy-plugins/*/contractions #moved to extras
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qconnect
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/foreach "$TOP"/lib/krazy2/krazy-sets/*/*-foreach
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/iconnames "$TOP"/lib/krazy2/krazy-sets/*/*-iconnames
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/passbyvalue
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax
+rm -f "$TOP"/lib/krazy2/krazy-plugins/*/passbyvalue "$TOP"/lib/krazy2/krazy-sets/*/*-passbyvalue
+rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax "$TOP"/lib/krazy2/krazy-sets/*/*-qmlsyntax
 #remove filetypes no longer supported
 rm -rf "$TOP"/lib/krazy2/krazy-*/tips
 rm -rf "$TOP"/lib/krazy2/krazy-sets/*/tips-*
