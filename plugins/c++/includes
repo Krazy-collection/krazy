@@ -229,7 +229,7 @@ foreach $inc (keys %Incs) {
     print "=> $line\n" if (&verboseArg());
   }
 
-  #Discourage <QtModule/QtClass> in all KDE code
+  # disallow <QtModule/QtClass> in all KDE code
   if (&usingKDECheckSet()) {
     if ($inc =~ m:^Qt[a-zA-Z0-9]+/:) {
       $Issues{'QINC'}{'count'}++;
@@ -381,12 +381,6 @@ sub initIssues()
     "Use angle brackets to include installed headers or if the file is an installed header";
   $Issues{'ANGLE'}{'count'} = 0;
   $Issues{'ANGLE'}{'lines'} = '';
-
-  $Issues{'KINC'}{'issue'} = "use KDE/KClass in angle brackets";
-  $Issues{'KINC'}{'explain'} =
-    "Installed headers must include KClass forwarding headers ithe form <KDE/KClass>";
-  $Issues{'KINC'}{'count'} = 0;
-  $Issues{'KINC'}{'lines'} = '';
 
   $Issues{'QINC'}{'issue'}   = "do not include QtModule/QtClass";
   $Issues{'QINC'}{'explain'} = "Use include <QtClass> instead of <QtModule/QtClass>";
