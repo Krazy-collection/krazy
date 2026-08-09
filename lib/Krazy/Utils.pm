@@ -734,6 +734,8 @@ sub checkSetDesc()
     return "KDE5 source (C++, Qt Designer, FDO desktop files, etc.)";
   } elsif ($s eq "kde6") {
     return "KDE6 source (C++, Qt Designer, FDO desktop files, etc.)";
+  } elsif ($s eq "kde6-ci") {
+    return "KDE6 source - CI specific";
   } elsif ($s eq "foss") {
     return "Free and open source software (FOSS)";
   }
