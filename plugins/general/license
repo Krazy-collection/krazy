@@ -99,7 +99,8 @@ sub checkOneFile($)
 
   if (
     $LibPath
-    && ( $license !~ m/^LGPL/
+    && ( $license !~ m/UNKNOWN/
+      && $license !~ m/^LGPL/
       && $license !~ m/^X11/
       && $license !~ m/^BSD/
       && $license !~ m/^Public/
