@@ -147,6 +147,7 @@ fi
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/contractions #moved to extras
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qconnect
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/foreach "$TOP"/lib/krazy2/krazy-sets/*/*-foreach
+rm -f "$TOP"/lib/krazy2/krazy-plugins/*/iconnames "$TOP"/lib/krazy2/krazy-sets/*/*-iconnames
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/passbyvalue
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax
 

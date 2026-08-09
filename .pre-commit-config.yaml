@@ -23,7 +23,7 @@ repos:
   rev: v2.4.3
   hooks:
   - id: codespell
-    exclude: (plugins/general/spelling|plugins/general/iconnames|share/kpartgui.dtd)
+    exclude: (oplugins/|plugins/general/spelling|share/kpartgui.dtd)
 - repo: https://github.com/scop/pre-commit-shfmt
   rev: v3.13.1-1
   hooks:

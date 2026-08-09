@@ -9,7 +9,6 @@ PLUGINS = \
 copyright \
 endswithnewline \
 filenames \
-iconnames \
 i18ncheckarg \
 license \
 insecurenet \

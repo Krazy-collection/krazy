@@ -38,7 +38,6 @@ copyright \
 endswithnewline \
 filenames \
 i18ncheckarg \
-iconnames \
 license \
 insecurenet \
 qclasses \

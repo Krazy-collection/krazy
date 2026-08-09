@@ -9,7 +9,6 @@ PLUGINS = validate \
 
 # links to general purpose plugins
 PLUGINLNS = \
-iconnames \
 endswithnewline \
 filenames \
 insecurenet \

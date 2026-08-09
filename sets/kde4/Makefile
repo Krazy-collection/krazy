@@ -19,7 +19,6 @@ endswithnewline \
 explicit \
 filenames \
 i18ncheckarg \
-iconnames \
 includes \
 inline \
 insecurenet \
@@ -55,7 +54,6 @@ spelling \
 DESKTOP_PLUGINS = \
 endswithnewline \
 filenames \
-iconnames \
 insecurenet \
 spelling \
 validate \
@@ -94,7 +92,6 @@ QML_PLUGINS = \
 copyright \
 endswithnewline \
 filenames \
-iconnames \
 insecurenet \
 license \
 spelling \

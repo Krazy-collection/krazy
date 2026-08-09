@@ -36,7 +36,6 @@ qclasses \
 DESKTOP_PLUGINS = \
 endswithnewline \
 filenames \
-iconnames \
 insecurenet \
 validate \
 
@@ -71,7 +70,6 @@ QML_PLUGINS = \
 copyright \
 endswithnewline \
 filenames \
-iconnames \
 insecurenet \
 license \
 

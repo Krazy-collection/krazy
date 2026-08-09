@@ -10,7 +10,6 @@ PLUGINS = \
 # links to general purpose plugins
 PLUGINLNS = \
 copyright \
-iconnames \
 endswithnewline \
 filenames \
 license \
