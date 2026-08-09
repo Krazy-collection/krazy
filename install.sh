@@ -150,6 +150,8 @@ rm -f "$TOP"/lib/krazy2/krazy-plugins/*/foreach "$TOP"/lib/krazy2/krazy-sets/*/*
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/iconnames "$TOP"/lib/krazy2/krazy-sets/*/*-iconnames
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/passbyvalue
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax
+#remove old sets no longer in use
+rm -rf "$TOP"/lib/krazy2/krazy-sets/kde4
 
 #final cleaning
 cd "$savedir"

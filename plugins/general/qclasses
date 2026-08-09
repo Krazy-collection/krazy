@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for prohibited Qt Classes
+# Tests KDE source for Qt Classes to be avoided or replaced with a KDE class
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -88,30 +88,14 @@ while ($linecnt < $#lines) {
   &doIt($line, "QHttp",      "KIO%COLON%%COLON%AccessManager", '');
   &doIt($line, "QWorkspace", "QMdiArea",                       '');
 
-  # These Qt5 classes are blessed for KDE5
-  if (&usingCheckSet("kde4")) {
-    &doIt($line, "QColorDialog",          "KColorDialog",                   '');
-    &doIt($line, "QInputDialog",          "KInputDialog",                   '');
-    &doIt($line, "QFileDialog",           "KFileDialog",                    '');
-    &doIt($line, "QProgressDialog",       "KProgressDialog",                '');
-    &doIt($line, "QSplashScreen",         "KSplashScreen",                  '');
-    &doIt($line, "QDialog",               "KDialog",                        '');
-    &doIt($line, "QTabBar",               "KTabBar",                        '');
-    &doIt($line, "QTabWidget",            "KTabWidget",                     '');
-    &doIt($line, "QTextBrowser",          "KTextBrowser",                   '');
-    &doIt($line, "QUrl",                  "KUrl",                           '');
-    &doIt($line, "QLineEdit",             "KLineEdit",                      '');
-    &doIt($line, "QNetworkAccessManager", "KIO%COLON%%COLON%AccessManager", '');
-  }
-
-  # These Qt4/5 classes should be avoided in KDE4 and KDE5
+  # These Qt classes should be avoided in KDE
   &doIt($line, "QErrorMessage", "KMessageBox", '');
 
-  # These KDE classes provide additional features over their Qt4/5 counterparts
+  # These KDE classes provide additional features over their Qt counterparts
   if (&strictArg() eq "super") {
     &doIt($line, "QComboBox", "KComboBox", '');
   }
-  if (&usingCheckSet("kde4") || &usingCheckSet("kde5")) {
+  if (&usingCheckSet("kde5")) {
     &doIt($line, "QMessageBox", "KMessageBox", '');
   }
   &doIt($line, "QTextEdit", "KTextEdit", '');
@@ -196,7 +180,7 @@ sub whiteList
 
 sub Help
 {
-  print "Check for Qt classes that should not be used\n";
+  print "Check for Qt classes that should not be used or have KDE improvements\n";
   Exit 0 if &helpArg();
 }
 

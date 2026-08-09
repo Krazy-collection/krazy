@@ -99,7 +99,6 @@ my (@Sets) = (
   "qt4",          # Qt4 source (C++, QML, Qt Designer, Qt Doc)
   "qt5",          # Qt5 source (C++, QML, Qt Designer, Qt Doc)
   "qt6",          # Qt6 source (C++, QML, Qt Designer, Qt Doc)
-  "kde4",         # KDE4 source (C++, Qt4, FDO desktop files, etc.)
   "kde5",         # KDE5 source (C++, Qt5, FDO desktop files, etc.)
   "kde6",         # KDE6 source (C++, Qt6, FDO desktop files, etc.)
   "kde6-ci",      # KDE6 source specific to the KDE CI (C++, Qt Designer, FDO desktop files, etc.)
@@ -739,8 +738,6 @@ sub checkSetDesc()
     return "Qt6 source (C++, QML, Qt Designer, Qt Doc)";
   } elsif ($s eq "qt5") {
     return "Qt5 source (C++, QML, Qt Designer, Qt Doc)";
-  } elsif ($s eq "kde4") {
-    return "KDE4 source (C++, Qt Designer, FDO desktop files, etc.)";
   } elsif ($s eq "kde5") {
     return "KDE5 source (C++, Qt Designer, FDO desktop files, etc.)";
   } elsif ($s eq "kde6") {
@@ -959,12 +956,6 @@ sub guessCheckSet
       )
     {
       $checkset = "kde5";
-    } elsif (
-      &allLinesCaseSearchInFile($cmakepath,
-        ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KDE4")) > 0
-      )
-    {
-      $checkset = "kde4";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*Qt6")) > 0) {
       $checkset = "qt6";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*Qt5")) > 0) {

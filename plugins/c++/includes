@@ -172,15 +172,6 @@ while ($linecnt < $#lines) {
       $Issues{'ANGLE'}{'lines'} .= "$linecnt,";
       print "=> $line\n" if (&verboseArg());
     }
-    if (&usingKDECheckSet() && &usingCheckSet("kde4")) {
-      if ($incpath =~ m+^K.*$+ && $incpath !~ m+^KDE/K.*$+ && $incpath !~ m+^KParts/.*$+) {
-        if ($incpath !~ m+\.h$+) {
-          $Issues{'KINC'}{'count'}++;
-          $Issues{'KINC'}{'lines'} .= "$linecnt,";
-          print "=> $line\n" if (&verboseArg());
-        }
-      }
-    }
 
     # do not include config.h or config-foo.h in an installed header
     if (&configH($incpath)) {
@@ -238,8 +229,8 @@ foreach $inc (keys %Incs) {
     print "=> $line\n" if (&verboseArg());
   }
 
-  #after KDE4 it was decided to discourage <QtModule/QtClass> in all files
-  if (&usingKDECheckSet() && !&usingCheckSet("kde4")) {
+  #Discourage <QtModule/QtClass> in all KDE code
+  if (&usingKDECheckSet()) {
     if ($inc =~ m:^Qt[a-zA-Z0-9]+/:) {
       $Issues{'QINC'}{'count'}++;
       $Issues{'QINC'}{'lines'} .= "$Incs{$inc}{'lines'}($inc);";
