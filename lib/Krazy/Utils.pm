@@ -90,8 +90,8 @@ my (@CppIncludeOrderTypes) = ("true", "false", "yes", "no", "on", "off");
 
 my (@FileTypes) = (
   'c++',      'cmake', 'desktop', 'designer', 'kconfigxt', 'messages',
-  'kpartgui', 'tips',  'qml',     'qdoc',     'perl',      'python',
-  'json',     'svg'
+  'kpartgui', 'qml',   'qdoc',    'perl',     'python',    'json',
+  'svg'
 );
 
 my (@Sets) = (
@@ -313,8 +313,6 @@ sub fileType
     return "messages";
   } elsif ($f =~ m/\.rc$/) {
     return "kpartgui";
-  } elsif ($f =~ m/tips$/) {
-    return "tips";
   } elsif ($f =~ m/\.qml$/) {
     return "qml";
   } elsif ($f =~ m/\.qdoc$/) {
@@ -364,8 +362,6 @@ sub fileTypeDesc
     return "KDE Messages.sh files";
   } elsif ($t eq "kpartgui") {
     return "KPartGUI files";
-  } elsif ($t eq "tips") {
-    return "KDE tip-of-the-day files";
   } elsif ($t eq "qml") {
     return "Qt Declarative UI files";
   } elsif ($t eq "qdoc") {
@@ -456,7 +452,6 @@ sub fileTypeIs
   return 1 if (($t eq "po")        && ($f =~ m/\.po$/));
   return 1 if (($t eq "messages")  && ($f =~ m/Messages\.sh$/));
   return 1 if (($t eq "kpartgui")  && ($f =~ m/\.rc$/));
-  return 1 if (($t eq "tips")      && ($f =~ m/tips$/));
   return 1 if (($t eq "qml")       && ($f =~ m/\.qml$/));
   return 1 if (($t eq "qdoc")      && ($f =~ m/\.qdoc$/));
   return 1

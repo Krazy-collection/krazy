@@ -15,7 +15,6 @@ kpartgui \
 perl \
 python \
 json \
-tips \
 
 #default installation location
 PREFIX=/usr/local

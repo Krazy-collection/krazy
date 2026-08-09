@@ -14,7 +14,6 @@ desktop \
 kconfigxt \
 messages \
 kpartgui \
-tips \
 qml \
 qdoc \
 perl \

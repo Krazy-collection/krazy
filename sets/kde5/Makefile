@@ -74,13 +74,6 @@ insecurenet \
 spelling \
 validate \
 
-# links to tips plugins
-TIPS_PLUGINS = \
-endswithnewline \
-filenames \
-insecurenet \
-spelling \
-
 # links to Messages.sh plugins
 MSG_PLUGINS = \
 rcappend \
@@ -164,10 +157,6 @@ install::
 	list="$(RC_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing kde5 set kpartgui plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/kpartgui/$$plugin $(DESTDIR)$(INSTDIR)/kpartgui-$$plugin; \
-	done
-	list="$(TIPS_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing kde5 set tips plugin link $$plugin"; \
-		ln -sf ../../krazy-plugins/tips/$$plugin $(DESTDIR)$(INSTDIR)/tips-$$plugin; \
 	done
 	list="$(MSG_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing kde5 set messages plugin link $$plugin"; \

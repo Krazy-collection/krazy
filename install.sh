@@ -150,6 +150,9 @@ rm -f "$TOP"/lib/krazy2/krazy-plugins/*/foreach "$TOP"/lib/krazy2/krazy-sets/*/*
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/iconnames "$TOP"/lib/krazy2/krazy-sets/*/*-iconnames
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/passbyvalue
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax
+#remove filetypes no longer supported
+rm -rf "$TOP"/lib/krazy2/krazy-*/tips
+rm -rf "$TOP"/lib/krazy2/krazy-sets/*/tips-*
 #remove old sets no longer in use
 rm -rf "$TOP"/lib/krazy2/krazy-sets/kde4
 rm -rf "$TOP"/lib/krazy2/krazy-sets/qt4
