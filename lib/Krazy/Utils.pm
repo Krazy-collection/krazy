@@ -96,7 +96,6 @@ my (@FileTypes) = (
 
 my (@Sets) = (
   "c++",          # Pure C/C++ source
-  "qt4",          # Qt4 source (C++, QML, Qt Designer, Qt Doc)
   "qt5",          # Qt5 source (C++, QML, Qt Designer, Qt Doc)
   "qt6",          # Qt6 source (C++, QML, Qt Designer, Qt Doc)
   "kde5",         # KDE5 source (C++, Qt5, FDO desktop files, etc.)
@@ -732,8 +731,6 @@ sub checkSetDesc()
 
   if ($s eq "c++") {
     return "Pure C/C++ source";
-  } elsif ($s eq "qt4") {
-    return "Qt4 source (C++, QML, Qt Designer, Qt Doc)";
   } elsif ($s eq "qt6") {
     return "Qt6 source (C++, QML, Qt Designer, Qt Doc)";
   } elsif ($s eq "qt5") {
@@ -960,8 +957,6 @@ sub guessCheckSet
       $checkset = "qt6";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*Qt5")) > 0) {
       $checkset = "qt5";
-    } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*Qt4")) > 0) {
-      $checkset = "qt4";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("project\\s*\\(.*CXX")) > 0) {
       $checkset = "c++";
     }

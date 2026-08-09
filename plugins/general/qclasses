@@ -84,7 +84,7 @@ while ($linecnt < $#lines) {
     $line =~ s+//.*++;    #skip C++ comments
   }
 
-  # Don't use these deprecated Qt4 classes.
+  # Don't use these deprecated Qt classes.
   &doIt($line, "QHttp",      "KIO%COLON%%COLON%AccessManager", '');
   &doIt($line, "QWorkspace", "QMdiArea",                       '');
 

@@ -152,6 +152,7 @@ rm -f "$TOP"/lib/krazy2/krazy-plugins/*/passbyvalue
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax
 #remove old sets no longer in use
 rm -rf "$TOP"/lib/krazy2/krazy-sets/kde4
+rm -rf "$TOP"/lib/krazy2/krazy-sets/qt4
 
 #final cleaning
 cd "$savedir"

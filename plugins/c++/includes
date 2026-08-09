@@ -592,10 +592,6 @@ sub qModule
     || $p eq "QtXkbCommonSupport"
     || $p eq "QtXml"
     || $p eq "QtXmlPatterns"
-    ||
-
-    #Qt4 starts here
-    $p eq "QtAssistant" || $p eq "Qt3Support"
     )
   {
     return 1;
