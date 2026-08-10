@@ -1,10 +1,10 @@
-# krazy kde6-ci sets Makefile
+# krazy kde-ci sets Makefile
 #
 # SPDX-FileCopyrightText: 2026 Allen Winter <winter@kde.org>
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-SET="kde6-ci"
+SET="kde-ci"
 
 # links to c++ checker plugins
 CPP_PLUGINS = \

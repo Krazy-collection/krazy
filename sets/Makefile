@@ -11,7 +11,7 @@ qt5 \
 qt6 \
 kde5 \
 kde6 \
-kde6-ci \
+kde-ci \
 foss \
 
 #default installation location

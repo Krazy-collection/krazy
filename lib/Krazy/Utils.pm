@@ -100,7 +100,7 @@ my (@Sets) = (
   "qt6",          # Qt6 source (C++, QML, Qt Designer, Qt Doc)
   "kde5",         # KDE5 source (C++, Qt5, FDO desktop files, etc.)
   "kde6",         # KDE6 source (C++, Qt6, FDO desktop files, etc.)
-  "kde6-ci",      # KDE6 source specific to the KDE CI (C++, Qt Designer, FDO desktop files, etc.)
+  "kde-ci",       # KDE specific to the KDE CI (C++, Qt Designer, FDO desktop files, etc.)
   "foss"          # Free and open source software (FOSS)
 );
 
@@ -734,8 +734,8 @@ sub checkSetDesc()
     return "KDE5 source (C++, Qt Designer, FDO desktop files, etc.)";
   } elsif ($s eq "kde6") {
     return "KDE6 source (C++, Qt Designer, FDO desktop files, etc.)";
-  } elsif ($s eq "kde6-ci") {
-    return "KDE6 source - CI specific";
+  } elsif ($s eq "kde-ci") {
+    return "KDE source - CI specific";
   } elsif ($s eq "foss") {
     return "Free and open source software (FOSS)";
   }
