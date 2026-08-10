@@ -35,6 +35,6 @@ has an OSS-approved license!
 
 ## License
 
-Copyright (C) 2005  by Allen Winter <winter@kde.org>
+Copyright (C) 2005 by Allen Winter <winter@kde.org>
 
-See the included License.txt file.
+See the included LICENSE.txt file.

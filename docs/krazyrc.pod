@@ -131,8 +131,6 @@ The default is unlimited line length.
 
 Overrides the KRAZY_STYLE_LINEMAX environment variable, see krazy2(1).
 
-=back
-
 =item STYLE_CMAKESTYLE_STYLE CMake-style
 
 Tell the "style" checker to follow the guidelines of the specified CMake-style.
@@ -161,8 +159,6 @@ Tell the "style" checker to check for lines longer than this number of character
 The default is unlimited line length.
 
 Overrides the KRAZY_CMAKESTYLE_LINEMAX environment variable, see krazy2(1).
-
-=back
 
 =item STYLE_PYTHONSTYLE_STYLE Python-style
 
@@ -201,16 +197,16 @@ The boolean value can be any of "yes", "no", "true", "false", "on", "off" (case-
 
 =back
 
-=head1 COPYRIGHT
-
-Copyright 2005-2021 by Allen Winter <winter@kde.org>
-
 =head1 SEE ALSO
 
 krazy2(1), krazy2all(1)
 
+=head1 LICENSE
+
+The Krazy Software is available under the terms of the GPL-2.0-or-later license.
+
 =head1 AUTHORS
 
-Allen Winter, <winter@kde.org>
+Copyright (c) 2005 by Allen Winter <winter@kde.org>
 
 =cut
