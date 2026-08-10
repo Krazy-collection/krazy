@@ -51,6 +51,7 @@ The modules are:
 * XML::LibXML
 * YAML
 * JSON
+* Digest::MD5
 * (possibly more.  see the top-level Makefile.PL)
 
 Also install the desktop-file-utils package or build it from source

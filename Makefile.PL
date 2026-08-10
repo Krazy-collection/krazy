@@ -25,6 +25,7 @@ WriteMakefile(
     "JSON"         => 2.90,
     "JSON::XS"     => 2.90,
     "Env"          => 1.00,
+    "Digest::MD5"  => 2.50,
   },
   'dist' => {
     COMPRESS => 'gzip',

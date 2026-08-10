@@ -75,12 +75,13 @@
 #   --skip <regular-expression>
 #                   skip files matching the regular-expression. Note: the command line skip
 #                   is merged with any SKIP directives found in the .krazy configuration files
-#   --export <text|textlist|textedit|xml>
+#   --export <text|textlist|textedit|xml|gitlab>
 #                   output in one of the following formats:
 #                     text (default)
 #                     textlist -> plain old text, 1 offending file-per-line
 #                     textedit -> text formatted for IDEs, 1 issue-per-line
 #                     xml -> XML formatted
+#                     gitlab -> JSON formatted for GitLab reporting
 #   --title:        give the output a project title.
 #   --rev:          print this revision number on the output
 #   --ignorerc:     ignore .krazy files
@@ -98,7 +99,7 @@ use File::Basename;
 use File::Find;
 use Text::Wrap;
 use HTML::Entities;
-use File::Basename;
+use Digest::MD5 qw(md5_base64);
 use Cwd;
 use Cwd 'abs_path';
 use Tie::IxHash;
@@ -791,7 +792,7 @@ for $ftype (@types) {
         if (!$brief) {
           print STDERR "=>$ftype/$bp test in-progress.";
         } else {
-          print STDERR "." unless ($export =~ m/text[a-z]+/);
+          print STDERR "." unless ($export =~ m/text[a-z]+/ || $export eq "gitlab");
         }
       }
       $result{$p} = "";
@@ -891,6 +892,7 @@ if (!$quiet) {
 
   my ($st,    $bp);
   my ($cline, $rline);
+  my ($item) = 0;
   for $ftype (@types) {
     next unless ($#{$pCheckers{$ftype}} >= 0);
     $st = 0;
@@ -915,7 +917,8 @@ if (!$quiet) {
       }
       &printCheck($cline, $rline);
       if (defined($status{$p}) && $status{$p} > 0 && length($result{$p}) > 0) {
-        printOOPS($result{$p}, $cline);
+        printOOPS($item, $bp, $result{$p}, $cline);
+        $item++;
         if ($explain) {
           my ($eopts) = "--explain ";
           $eopts .= "--check-sets $checksets "         if ($checksets);
@@ -926,7 +929,11 @@ if (!$quiet) {
           &printExplain($use, 0, 0);
         }
       }
-      print "\n" if ($cline ne "" && $export ne "textlist" && $export ne "textedit");
+      print "\n"
+        if ($cline ne ""
+        && $export ne "textlist"
+        && $export ne "textedit"
+        && $export ne "gitlab");
       print "      </check>\n" if ($cline ne "" && $export eq "xml");
     }
 
@@ -986,12 +993,13 @@ sub Help
   print "                 do NOT check the specified file type(s)\n";
   print "  --skip <regular-expression>\n";
   print "                 skip files matching the regular-expression\n";
-  print "  --export <text|textlist|textedit|xml>\n";
+  print "  --export <text|textlist|textedit|xml|gitlab>\n";
   print "                 output in one of the following formats:\n";
   print "                   text (default)\n";
   print "                   textlist -> plain old text, 1 offending file-per-line\n";
   print "                   textedit -> text formatted for IDEs, 1 issue-per-line\n";
   print "                   xml -> XML formatted\n";
+  print "                   gitlab -> JSON formatted for GitLab reporting\n";
   print "  --title        give the output a project title\n";
   print "  --rev:         print this revision number on the output\n";
   print "  --ignorerc:    ignore .krazy files\n";
@@ -1131,8 +1139,8 @@ sub List
     print "\n";
   }
 
-  &printFooter();
-  exit 0 if $list;
+  &printFooter() if ($export =~ "xml");
+  exit 0         if $list;
 }
 
 # List function: print a list of all checker programs that would be run.
@@ -1157,8 +1165,8 @@ sub ListRuntime
   }
   print "Total number of runtime checkers = " . $np . "\n";
 
-  &printFooter();
-  exit 0 if $listrunt;
+  &printFooter() if ($export =~ "xml");
+  exit 0         if $listrunt;
 }
 
 # ListTypes function: print a list of supported file types.
@@ -1171,8 +1179,8 @@ sub ListTypes
   print "List of supported file types:\n";
   &prettyPrintTypesList();
 
-  &printFooter();
-  exit 0 if $listtypes;
+  &printFooter() if ($export =~ "xml");
+  exit 0         if $listtypes;
 }
 
 # ListType function: list all the checkers for a specific file type.
@@ -1200,8 +1208,8 @@ sub ListType
     &printList(1, @{$xCheckers{$type}});
   }
 
-  &printFooter();
-  exit 0 if $listtype;
+  &printFooter() if ($export =~ "xml");
+  exit 0         if $listtype;
 }
 
 # ListSets function: print a list of check-sets.
@@ -1212,8 +1220,8 @@ sub ListSets
   print "List of available check-sets:\n";
   &prettyPrintCheckSetsList();
 
-  &printFooter();
-  exit 0 if $listsets;
+  &printFooter() if ($export =~ "xml");
+  exit 0         if $listsets;
 }
 
 # ListSet function: list all the checkers for a specific check-set.
@@ -1242,8 +1250,21 @@ sub ListSet
     printf("%20.20s: %s\n", $prprog, $use);
   }
 
-  &printFooter();
-  exit 0 if $listset;
+  &printFooter() if ($export =~ "xml");
+  exit 0         if $listset;
+}
+
+# printGitlabHeader function: print the header string for the gitlab export type.
+sub printGitlabHeader
+{
+  print "[\n";
+}
+
+# printGitlabFooter function: rint the footer string for the gitlab export type.
+sub printGitlabFooter
+{
+  print "  }\n";
+  print "]\n";
 }
 
 # printXmlHeader function: print the header string for the XML export type.
@@ -1297,6 +1318,8 @@ sub printHeader
       print " (repo revision $rev)";
     }
     print "\n\n";
+  } elsif ($export eq "gitlab") {
+    &printGitlabHeader();
   }
 }
 
@@ -1311,6 +1334,8 @@ sub printFooter
     } else {
       print "</tool-result>\n";
     }
+  } elsif ($export eq "gitlab") {
+    &printGitlabFooter();
   }
 }
 
@@ -1352,7 +1377,7 @@ sub printFType
 {
   my ($pth, $ftype, $title) = @_;
 
-  return if ($export eq "textlist" || $export eq "textedit");
+  return if ($export eq "textlist" || $export eq "textedit" || $export eq "gitlab");
 
   my ($desc) = &fileTypeDesc($ftype);
   if (!defined($title) || ($title eq "")) {
@@ -1389,9 +1414,12 @@ sub printOOPS
   $module    = "" if (!defined($module));
   $subdir    = "" if (!defined($subdir));
 
-  my ($o);
+  my ($item) = @_;
+  shift;
+  my ($checker) = @_;
+  shift;
 
-  for $o (split("\n", $_[0])) {
+  for my ($o) (split("\n", $_[0])) {
     chomp($o);
 
     if ($export eq "textlist") {
@@ -1399,9 +1427,9 @@ sub printOOPS
       $t =~ s+^\s++;
       $t =~ s+%COLON%+:+g;
       print "$t\n";
-    } elsif ($export eq "textedit") {
+    } elsif ($export eq "textedit" || $export eq "gitlab") {
 
-      #file:line:issue
+      #file:line:checker:issue
       my ($f);
       my ($ls1, $ls2, $ls3) = ("", "", "");
       ($f, $ls1, $ls2, $ls3) = split(":", $o);
@@ -1423,7 +1451,6 @@ sub printOOPS
       $subissue =~ s/\(\d+\)//g;
       $subissue =~ s/^\s*$//;
       $subissue =~ s/\s*$//;
-      $subissue .= ", " if ($subissue ne "");
       $subissue =~ s+^[[:space:]]*++;
       my ($issue) = $_[1];
       $issue =~ s+^[Cc]hecks[[:space:]]*++;
@@ -1448,9 +1475,29 @@ sub printOOPS
           $hint =~ s/^\s*//;
           $hint = " " . $hint;
         }
-        my ($message) = "$f:$l:$subissue$issue$hint";
+        $subissue = $issue if ($subissue =~ /^ *$/);
+        my ($message) = "$f:$l:$checker:$subissue";
         $message =~ s+%COLON%+:+g;
-        print "$message\n";
+        if ($export eq "textedit") {
+          print "$message\n";
+        } else {    #gitlab
+          my ($fingerprint) = md5_base64($message);
+          print "  },\n" if ($item > 0);
+          print "  {\n";
+          print "    \"description\": \"$subissue\",\n";
+          print "    \"checkname\": \"$checker\",\n";
+          print "    \"fingerprint\": \"$fingerprint\",\n";
+          print "    \"severity\": \"info\"\,\n"
+            ;    # can be one of info, minor, major, critical, or blocker
+          print "    \"location\": {\n";
+          print "      \"path\": \"$f\",\n";
+          print "      \"lines\": {\n";
+          print "        \"begin\": \"$l\"\n";
+          print "       }\n";
+          print "     }\n";
+
+          #print "  },\n";
+        }
       }
     } elsif ($export eq "xml") {
 
@@ -1739,7 +1786,7 @@ processing for all files in the build-* or po directories.
 
 Note: the command line skip is merged with any SKIP directives found in the .krazy configuration files.
 
-=item B<--export> <text|textlist|textedit|xml>
+=item B<--export> <text|textlist|textedit|xml|gitlab>
 
 Output in one of the following formats:
      text (default)
@@ -1747,6 +1794,7 @@ Output in one of the following formats:
      textedit -> text formatted for IDEs, 1 issue-per-line
                  the format is:  file:line-number:issue
      xml -> XML formatted
+     gitlab -> JSON formatted for GitLab reporting
 
 =item B<--title>
 

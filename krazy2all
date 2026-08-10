@@ -139,7 +139,8 @@ $opts .= "--title=\"$title\" "        if ($title);
 $opts .= "--cms=$cms "                if ($cms);
 $opts .= "--priority=$priority "      if ($priority);
 $opts .= "--strict=$strict "          if ($strict);
-$opts .= "--explain "                 if ($export ne "textlist" && $export ne "textedit");
+$opts .= "--explain "
+  if ($export ne "textlist" && $export ne "textedit" && $export ne "gitlab");
 
 my ($cwd) = abs_path();
 
@@ -249,12 +250,13 @@ sub Help
   print "                 do NOT check the specified file type(s)\n";
   print "  --skip <regular-expression>\n";
   print "                 skip files matching the regular-expression\n";
-  print "  --export <text|textlist|textedit|xml>\n";
+  print "  --export <text|textlist|textedit|xml|gitlab>\n";
   print "                 output in one of the following formats:\n";
   print "                   text (default)\n";
   print "                   textlist -> plain old text, 1 offending file-per-line\n";
   print "                   textedit -> text formatted for IDEs, 1 issue-per-line\n";
   print "                   xml -> XML formatted\n";
+  print "                   gitlab -> JSON formatted for GitLab reporting\n";
   print "  --title:       give the output a project title\n";
   print "  --cms          component/module/subdir triple for XML\n";
   print "  --topdir <dir>\n";
@@ -418,13 +420,14 @@ processing for all files in the build-* or po directories.
 
 Note: the command line skip is merged with any SKIP directives found in the .krazy configuration files.
 
-=item B<--export> <text|textlist|textedit|xml>
+=item B<--export> <text|textlist|textedit|xml|gitlab>
 
 Output in one of the following formats:
      text (default)
      textlist -> plain old text, 1 offending file-per-line
      textedit -> text formatted for IDEs, 1 issue-per-line (file:line:issue)
      xml -> XML formatted
+     gitlab -> JSON formatted for GitLab reporting
 
 =item B<--title>
 

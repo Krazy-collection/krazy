@@ -50,7 +50,8 @@ my (@Exports) = (
   "text",        # text report, issues grouped by file
   "textlist",    # plain old text, 1 offending file-per-line
   "textedit",    # text formatted for IDEs, 1 issue-per-line
-  "xml"          # XML formatted
+  "xml",         # XML formatted
+  "gitlab",      # JSON formatted for GitLab reporting
 );
 
 my (@Priorities) = (

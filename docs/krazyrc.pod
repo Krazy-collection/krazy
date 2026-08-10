@@ -95,6 +95,8 @@ Set the default export-type value. Must be one of the following:
 
 "xml" prints XML formatted intended for follow-on processing
 
+"gitlab" prints json suitable for gitlab reporting <https://docs.gitlab.com/ci/testing/code_quality/#code-quality-report-format>.
+
 =back
 
 =item STYLE_CPPSTYLE C++-style
