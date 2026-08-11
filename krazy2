@@ -75,14 +75,13 @@
 #   --skip <regular-expression>
 #                   skip files matching the regular-expression. Note: the command line skip
 #                   is merged with any SKIP directives found in the .krazy configuration files
-#   --export <text|textlist|textedit|xml|gitlab>
+#   --export <text|textlist|textedit|gitlab>
 #                   output in one of the following formats:
 #                     text (default)
 #                     textlist -> plain old text, 1 offending file-per-line
 #                     textedit -> text formatted for IDEs, 1 issue-per-line
-#                     xml -> XML formatted
 #                     gitlab -> JSON formatted for GitLab reporting
-#   --title:        give the output a project title.
+#   --title:        give the text output a project title.
 #   --rev:          print this revision number on the output
 #   --ignorerc:     ignore .krazy files
 #   --config <krazyrc> read settings from the specified config file
@@ -142,7 +141,6 @@ my ($output)    = '';
 my ($skip)      = "/////";            # hopefully a regex that matches nothing
 my ($export)    = '';
 my ($title)     = "$Prog Analysis";
-my ($cms)       = "KDE";
 my ($rev)       = '';
 
 exit 1
@@ -175,7 +173,6 @@ exit 1
     'skip=s'          => \$skip,
     'export=s'        => \$export,
     'title=s'         => \$title,
-    'cms=s'           => \$cms,
     'rev=s'           => \$rev
   )
   );
@@ -897,7 +894,7 @@ if (!$quiet) {
     next unless ($#{$pCheckers{$ftype}} >= 0);
     $st = 0;
     my ($pth) = ${$pCheckers{$ftype}}[0];
-    &printFType($pth, $ftype) if (!$brief || $export eq "xml");
+    &printFType($pth, $ftype) if (!$brief);
     for $p (sort @{$pCheckers{$ftype}}) {
       $st++;
       $use = `$p --help 2>/dev/null`;
@@ -934,10 +931,7 @@ if (!$quiet) {
         && $export ne "textlist"
         && $export ne "textedit"
         && $export ne "gitlab");
-      print "      </check>\n" if ($cline ne "" && $export eq "xml");
     }
-
-    print "    </file-type>\n" if ($export eq "xml");
   }
   &printFooter();
 }
@@ -993,14 +987,13 @@ sub Help
   print "                 do NOT check the specified file type(s)\n";
   print "  --skip <regular-expression>\n";
   print "                 skip files matching the regular-expression\n";
-  print "  --export <text|textlist|textedit|xml|gitlab>\n";
+  print "  --export <text|textlist|textedit|gitlab>\n";
   print "                 output in one of the following formats:\n";
   print "                   text (default)\n";
   print "                   textlist -> plain old text, 1 offending file-per-line\n";
   print "                   textedit -> text formatted for IDEs, 1 issue-per-line\n";
-  print "                   xml -> XML formatted\n";
   print "                   gitlab -> JSON formatted for GitLab reporting\n";
-  print "  --title        give the output a project title\n";
+  print "  --title        give the text output a project title\n";
   print "  --rev:         print this revision number on the output\n";
   print "  --ignorerc:    ignore .krazy files\n";
   print "  --config <krazyrc>\n";
@@ -1067,44 +1060,20 @@ sub printList
   for $prog (sort @list) {
     $np++;
     $use = "";
-    $use = "[EXTRA] " if ($isextra && $export ne "xml");
+    $use = "[EXTRA] " if ($isextra);
     $use .= `$prog --help 2>/dev/null`;
     chomp($use);
     $use = "(no description available)" if (length($use) < 4);
 
-    if ($export eq "xml") {
-      $version = `$prog --version 2>/dev/null`;
-      chomp($version);
-      if ($version =~ m/.*(\d\.\d(\.\d)?).*/) {
-        $version = $1;
-      }
-
-      print "  " if ($isextra);
-      print "      <plugin name=\"" . &basename($prog) . "\"";
-      print " short-desc=\"" . encode_entities($use) . "\"";
-      print " version=\"" . $version . "\"";
-      if ($explain) {
-        print ">\n";
-      } else {
-        print "/>\n";
-      }
+    if (!$explain) {
+      printf("%18.18s: %s\n", &basename($prog), $use);
     } else {
-      if (!$explain) {
-        printf("%18.18s: %s\n", &basename($prog), $use);
-      } else {
-        printf("%s: %s\n", &basename($prog), $use);
-      }
+      printf("%s: %s\n", &basename($prog), $use);
+      my ($explain) = `$prog --explain 2>/dev/null`;
+      chomp($explain);
+      $explain = "(no explanation available)" if (length($explain) < 4);
+      printExplain($explain, $isextra, 1);
     }
-
-    if ($explain) {
-      $use = `$prog --explain 2>/dev/null`;
-      chomp($use);
-      $use = "(no explanation available)" if (length($use) < 4);
-      printExplain($use, $isextra, 1);
-    }
-
-    print "  "                if ($isextra         && $export eq "xml");
-    print "      </plugin>\n" if ($export eq "xml" && $explain);
   }
   return $np;
 }
@@ -1114,12 +1083,7 @@ sub List
 {
   my ($prog, $use, $type);
 
-  if ($export =~ "xml") {
-    &printXmlHeader();
-    print "  <file-types>\n";
-  } else {
-    print "Available source code sanitizer checks:\n";
-  }
+  print "Available source code sanitizer checks:\n";
 
   foreach $type (keys %Checkers) {
     my ($pth) = ${$Checkers{$type}}[0];
@@ -1130,17 +1094,12 @@ sub List
       printf("%18.18s\n", "(none)");
     }
     if ($#{$xCheckers{$type}} >= 0) {
-      print "      <extra>\n" if ($export eq "xml");
       &printList(1, @{$xCheckers{$type}});
-      print "      </extra>\n" if ($export eq "xml");
     }
-
-    print "    </file-type>" if ($export eq "xml");
     print "\n";
   }
 
-  &printFooter() if ($export =~ "xml");
-  exit 0         if $list;
+  exit 0 if $list;
 }
 
 # List function: print a list of all checker programs that would be run.
@@ -1148,25 +1107,16 @@ sub ListRuntime
 {
   my ($prog, $use, $type);
 
-  if ($export =~ "xml") {
-    &printXmlHeader();
-    print "  <file-types>\n";
-  }
-
-  my ($np) = 0;
   foreach $type (keys %pCheckers) {
     my ($pth) = ${$pCheckers{$type}}[0];
     if ($#{$pCheckers{$type}} >= 0) {
       &printFType(dirname($pth), $type, "Runtime checks for ");
-      $np = $np + &printList(0, @{$pCheckers{$type}});
-      print "    </file-type>" if ($export eq "xml");
+      &printList(0, @{$pCheckers{$type}});
       print "\n";
     }
   }
-  print "Total number of runtime checkers = " . $np . "\n";
 
-  &printFooter() if ($export =~ "xml");
-  exit 0         if $listrunt;
+  exit 0 if $listrunt;
 }
 
 # ListTypes function: print a list of supported file types.
@@ -1174,13 +1124,10 @@ sub ListTypes
 {
   my ($prog, $use, $type);
 
-  &printXmlHeader() if ($export =~ "xml");
-
   print "List of supported file types:\n";
   &prettyPrintTypesList();
 
-  &printFooter() if ($export =~ "xml");
-  exit 0         if $listtypes;
+  exit 0 if $listtypes;
 }
 
 # ListType function: list all the checkers for a specific file type.
@@ -1195,8 +1142,6 @@ sub ListType
     &ListTypes();
   }
 
-  &printXmlHeader() if ($export =~ "xml");
-
   print "List of available checkers for file type $type:\n";
 
   if ($#{$Checkers{$type}} >= 0) {
@@ -1208,20 +1153,16 @@ sub ListType
     &printList(1, @{$xCheckers{$type}});
   }
 
-  &printFooter() if ($export =~ "xml");
-  exit 0         if $listtype;
+  exit 0 if $listtype;
 }
 
 # ListSets function: print a list of check-sets.
 sub ListSets
 {
-  &printXmlHeader() if ($export =~ "xml");
-
   print "List of available check-sets:\n";
   &prettyPrintCheckSetsList();
 
-  &printFooter() if ($export =~ "xml");
-  exit 0         if $listsets;
+  exit 0 if $listsets;
 }
 
 # ListSet function: list all the checkers for a specific check-set.
@@ -1236,8 +1177,6 @@ sub ListSet
     &ListSets();
   }
 
-  &printXmlHeader() if ($export =~ "xml");
-
   print "List of available checkers for check-set $set:\n";
 
   foreach $prog (sort @{$Sets{$set}}) {
@@ -1250,8 +1189,7 @@ sub ListSet
     printf("%20.20s: %s\n", $prprog, $use);
   }
 
-  &printFooter() if ($export =~ "xml");
-  exit 0         if $listset;
+  exit 0 if $listset;
 }
 
 # printGitlabHeader function: print the header string for the gitlab export type.
@@ -1267,41 +1205,15 @@ sub printGitlabFooter
   print "]\n";
 }
 
-# printXmlHeader function: print the header string for the XML export type.
-sub printXmlHeader
-{
-  print "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-  if ($list) {
-    print "<tool name=\"krazy2\" version=\"$VERSION\">\n";
-  } else {
-    print "<tool-result tool=\"krazy2\" version=\"$VERSION\">\n";
-  }
-}
-
 # printHeader function: print the header string, according to export type.
 sub printHeader
 {
   my ($num_issues, $num_checks, $num_files) = @_;
-  my ($component,  $module,     $subdir)    = split("/", $cms);
 
   my ($cs) = $checksets;
   $cs = $DEFAULT_CHECKSETS if (!$cs);
 
-  if ($export =~ "xml") {
-    &printXmlHeader();
-
-    print "  <global>\n";
-    print "    <date value=\"", asOf(), "\" />\n";
-    print "    <check-sets value=\"$cs\" />\n";
-    print "    <processed-files value=\"$num_files\" />\n";
-    if ($rev) {
-      print "    <repo-rev value=\"$rev\" />\n";
-    } else {
-      print "    <repo-rev value=\"unknown\" />\n";
-    }
-    print "  </global>\n";
-    print "  <file-types>\n";
-  } elsif ($export eq "text") {
+  if ($export eq "text") {
     print "\n";
     print "$title\n\n" if ($title);
     print "Check-Sets = $cs\n";
@@ -1326,33 +1238,18 @@ sub printHeader
 # printFooter function: print the footer string, according to export type.
 sub printFooter
 {
-
-  if ($export eq "xml") {
-    print "  </file-types>\n";
-    if ($list) {
-      print "</tool>\n";
-    } else {
-      print "</tool-result>\n";
-    }
-  } elsif ($export eq "gitlab") {
+  if ($export eq "gitlab") {
     &printGitlabFooter();
   }
 }
 
-# printCheck function: print the "check" and "result" strings, according
-# to export type.
+# printCheck function: print the "check" and "result" strings, according to export type.
 sub printCheck()
 {
   my ($check, $result) = @_;
   return if ($check eq "");
   if ($export eq "text") {
     print "$check $result\n";
-  } elsif ($export eq "xml") {
-
-    # Would be nice maybe to have the checker name in here.
-    # something like:
-    # <check name="foo" desc="checks for foo">
-    print "      <check desc=\"", &xmlify($check), "\">\n";
   }
 }
 
@@ -1375,9 +1272,9 @@ sub textDescription
 # printFType function: print the File Type line, according to export type.
 sub printFType
 {
-  my ($pth, $ftype, $title) = @_;
+  return unless ($export eq "" || $export eq "text");
 
-  return if ($export eq "textlist" || $export eq "textedit" || $export eq "gitlab");
+  my ($pth, $ftype, $title) = @_;
 
   my ($desc) = &fileTypeDesc($ftype);
   if (!defined($title) || ($title eq "")) {
@@ -1389,31 +1286,12 @@ sub printFType
   } else {
     $desc = $title . $desc;
   }
-  if ($export eq "xml") {
-    print "    <file-type value=\"$ftype\">\n";
-  } else {
-    print "== $ftype: $desc ==\n";
-  }
-}
-
-sub fileLength
-{
-  my ($pth)    = @_;
-  my ($flines) = 0;
-  open(F, "<$pth") || die "Couldn't open $pth";
-  $flines++ while (<F>);
-  close F;
-  return $flines;
+  print "== $ftype: $desc ==\n";
 }
 
 # printOOPS function: print the OOPS lines, according to export type.
 sub printOOPS
 {
-  my ($component, $module, $subdir) = split("/", $cms);
-  $component = "" if (!defined($component));
-  $module    = "" if (!defined($module));
-  $subdir    = "" if (!defined($subdir));
-
   my ($item) = @_;
   shift;
   my ($checker) = @_;
@@ -1499,70 +1377,6 @@ sub printOOPS
           #print "  },\n";
         }
       }
-    } elsif ($export eq "xml") {
-
-      # We need to think about this. The output of the checkers should be made
-      # consistent.
-      my ($ls1, $ls2, $ls3) = ("", "", "");
-      my ($file);
-      ($file, $ls1, $ls2, $ls3) = split(":", $o);
-
-      # Remove leading whitespace and ./
-      $file =~ s/^\s*(\.\/)?//;
-      $ls1  =~ s/^\s*//;
-
-      # Ugly due to inconsistent output of checkers and my total lack of perl and
-      # re skills.
-      my ($lines);
-      my ($message);
-      if ($ls1 =~ m/line#/) {
-        $lines   = $ls1;
-        $message = $ls1;
-      } elsif (defined($ls2) && $ls2 =~ m/line#/) {
-        $lines   = $ls2;
-        $message = $ls1;
-      } elsif (defined($ls3) && $ls3 =~ m/line#/) {
-        $lines   = $ls3;
-        $message = $ls1;
-      } else {
-        $lines   = "";
-        $message = $ls1;    # No line# part, so only set the message.
-      }
-
-      $message =~ s/\s*line\#.*$//;     # remove the lines#123,345 part
-      $message =~ s/^[[:space:]]*//;    # remove leading spaces.
-      $message =~ s/\(\d+\)//;          # remove the number of issues if it's there.
-
-      $lines =~ s/^.*line#//;           # only keep the numbers
-      $lines =~ s/\(\d+\)//;            # remove the number of issues if it's there.
-
-      # Sometimes a check returns per line the issue like:
-      # utils/input.cpp: line#155[Couldn't],184[Couldn't],200[Couldn't],258[Couldn't] (4)
-      #
-      # Another format is: value[expected value]
-      # tokenizer.cpp: line#54 int8_t[qint8],#56 int16_t[qint16],#58 int32_t[qint32] (3)
-      if ($lines =~ m/(\d+)\s*(\w*\[\w*\]),?#?/) {
-        $lines =~ s/(\d+)\s*(\w*\[\w*\]),?#?/            <line issue="$2">$1<\/line>\n/g;
-      } elsif ($lines =~ m/(\d+)\s*(\[[\s\w]+\]),*/) {
-        $lines =~ s/(\d+)\s*\[([\s\w]+)\],*/            <line issue="$2">$1<\/line>\n/g;
-      } elsif ($lines =~ /(\d+),?/) {
-        $lines =~ s/(\d+),?/            <line>$1<\/line>\n/g;
-      }
-
-      my ($filelen) = &fileLength($file);
-      print "        <file name=\"$file\" lines=\"$filelen\">\n";
-      if ($message) {
-        $message =~ s+%COLON%+:+g;
-        print "          <message>", encode_entities($message), "</message>\n";
-      }
-      print "          <issues>\n";
-      if ($lines) {
-        print $lines;
-      } else {   # There is only a message, probably something that is not bound to a specific line.
-        print "            <line>-1</line>\n";
-      }
-      print "          </issues>\n";
-      print "        </file>\n";
     } else {
       $o =~ s+%COLON%+:+g;
       print "$o\n";
@@ -1573,29 +1387,21 @@ sub printOOPS
 # printExplain function: print the explanation lines, according to export type.
 sub printExplain
 {
+  return unless ($export eq "" || $export eq "text");
+
   my (
     $explanation,    #the explanation string
     $isextra,        #if this is an explanation for an "extra" checker
     $islisting       #if this is an explanation printed as part of the list function
   ) = @_;
 
-  if ($export eq "xml") {
-    $explanation =~ s/^\s*//;
-    print "  " if ($isextra);
-    print "         <explanation>" . xmlify($explanation) . "\n";
-    print "  " if ($isextra);
-    print "         </explanation>\n";
-  } else {
-
-    # text export
-    print "\n" if ($islisting);
-    print wrap("    ", "    ", $explanation) . "\n";
-    print "\n" if ($islisting);
-  }
+  print "\n" if ($islisting);
+  print wrap("    ", "    ", $explanation) . "\n";
+  print "\n" if ($islisting);
 }
 
-# xmlify function: turn plain text into html
-sub xmlify
+# htmlify function: turn plain text into html
+sub htmlify
 {
   my ($s) = @_;
   $s = encode_entities($s);
@@ -1603,6 +1409,19 @@ sub xmlify
   $s =~ s+&lt;https:(.*?)&gt;+&lt;a href="https:$1"&gt;https:$1&lt;/a&gt;+gs;
   $s =~ s=\*(\S+)\*=&lt;strong&gt;$1&lt;/strong&gt;=g;    # *word* becomes boldified
   $s =~ s=\b\_(\S+)\_\b=&lt;em&gt;$1&lt;/em&gt;=g;        # _word_ becomes italicized
+  return $s;
+}
+
+# htmlify the line number string for lxr
+sub lxrLineify
+{
+  my ($s, $url) = @_;
+
+  $s = &htmlify($s);
+  return $s if ($s !~ m/line#/);
+
+  $s =~ s+line#(\d*)+line#<a href=\"$url#$1\">$1</a>+g;
+  $s =~ s+,(\d*)+,<a href=\"$url#$1\">$1</a>+g;
   return $s;
 }
 
@@ -1619,19 +1438,6 @@ sub arrayLineify
   #  $s =~ s/\s*\[\w+\]\s*//g;
   $s =~ s/\[/:\[/g;
   return split(",", $s);
-}
-
-# xmlify the line number string for lxr
-sub lxrLineify
-{
-  my ($s, $url) = @_;
-
-  $s = &xmlify($s);
-  return $s if ($s !~ m/line#/);
-
-  $s =~ s+line#(\d*)+line#<a href=\"$url#$1\">$1</a>+g;
-  $s =~ s+,(\d*)+,<a href=\"$url#$1\">$1</a>+g;
-  return $s;
 }
 
 __END__
@@ -1786,25 +1592,18 @@ processing for all files in the build-* or po directories.
 
 Note: the command line skip is merged with any SKIP directives found in the .krazy configuration files.
 
-=item B<--export> <text|textlist|textedit|xml|gitlab>
+=item B<--export> <text|textlist|textedit|gitlab>
 
 Output in one of the following formats:
      text (default)
      textlist -> plain old text, 1 offending file-per-line
      textedit -> text formatted for IDEs, 1 issue-per-line
                  the format is:  file:line-number:issue
-     xml -> XML formatted
      gitlab -> JSON formatted for GitLab reporting
 
 =item B<--title>
 
-Give the output report a project title.
-
-=item B<--cms>
-
-An acronym for "component/module/subdir".  Used to write the breadcrumbs
-line in the xml export.  Must be a slash-delimited triple containing the
-component, module, and subdir which is being scanned.
+Give the text output report a project title.
 
 =item B<--rev>
 

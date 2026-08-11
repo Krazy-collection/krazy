@@ -39,7 +39,7 @@ $VERSION = 1.60;
 # PRIORITY <low|normal|high|important|all>
 # STRICT <normal|super|all>
 # OUTPUT <quiet|brief|normal>
-# EXPORT <text|textlist|textedit|xml|gitlab>
+# EXPORT <text|textlist|textedit|gitlab>
 # IGNORESUBS subdir1[,subdir2,...]
 # EXTRASUBS subdir1[,subdir2,...]
 # IGNOREMODS module1[,module2,...]

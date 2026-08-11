@@ -44,7 +44,6 @@ my ($exctypes)  = '';
 my ($skip)      = '';
 my ($export)    = '';
 my ($title)     = '';
-my ($cms)       = '';
 my ($topdir)    = '';
 my ($outfile)   = '';
 
@@ -78,7 +77,6 @@ exit 1
     'skip=s'          => \$skip,
     'export=s'        => \$export,
     'title=s'         => \$title,
-    'cms=s'           => \$cms,
     'topdir=s'        => \$topdir,
     'outfile=s'       => \$outfile
   )
@@ -136,7 +134,6 @@ $opts .= "--exclude-types=$exctypes " if ($exctypes);
 $opts .= "--skip=$skip "              if ($skip);
 $opts .= "--export=$export "          if ($export);
 $opts .= "--title=\"$title\" "        if ($title);
-$opts .= "--cms=$cms "                if ($cms);
 $opts .= "--priority=$priority "      if ($priority);
 $opts .= "--strict=$strict "          if ($strict);
 $opts .= "--explain "
@@ -250,15 +247,13 @@ sub Help
   print "                 do NOT check the specified file type(s)\n";
   print "  --skip <regular-expression>\n";
   print "                 skip files matching the regular-expression\n";
-  print "  --export <text|textlist|textedit|xml|gitlab>\n";
+  print "  --export <text|textlist|textedit|gitlab>\n";
   print "                 output in one of the following formats:\n";
   print "                   text (default)\n";
   print "                   textlist -> plain old text, 1 offending file-per-line\n";
   print "                   textedit -> text formatted for IDEs, 1 issue-per-line\n";
-  print "                   xml -> XML formatted\n";
   print "                   gitlab -> JSON formatted for GitLab reporting\n";
-  print "  --title:       give the output a project title\n";
-  print "  --cms          component/module/subdir triple for XML\n";
+  print "  --title:       give the text output a project title\n";
   print "  --topdir <dir>\n";
   print "                 find files to process recursively in the specified dir\n";
   print "                 rather than the current working directory.\n";
@@ -420,24 +415,17 @@ processing for all files in the build-* or po directories.
 
 Note: the command line skip is merged with any SKIP directives found in the .krazy configuration files.
 
-=item B<--export> <text|textlist|textedit|xml|gitlab>
+=item B<--export> <text|textlist|textedit|gitlab>
 
 Output in one of the following formats:
      text (default)
      textlist -> plain old text, 1 offending file-per-line
      textedit -> text formatted for IDEs, 1 issue-per-line (file:line:issue)
-     xml -> XML formatted
      gitlab -> JSON formatted for GitLab reporting
 
 =item B<--title>
 
-Give the output report a project title.
-
-=item B<--cms>
-
-An acronym for "component/module/subdir".  Used to write the breadcrumbs line
-in the XML output.  Must be a slash-delimited triple containing the component,
-module, and subdir which is being scanned.
+Give the text output report a project title.
 
 =item B<--topdir> <dir>
 

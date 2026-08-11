@@ -50,7 +50,6 @@ my (@Exports) = (
   "text",        # text report, issues grouped by file
   "textlist",    # plain old text, 1 offending file-per-line
   "textedit",    # text formatted for IDEs, 1 issue-per-line
-  "xml",         # XML formatted
   "gitlab",      # JSON formatted for GitLab reporting
 );
 
@@ -1002,8 +1001,6 @@ sub printIssue()
     &printIssueTextList($fullpath, $line, $desc, $checker, $hint, $offendingcode);
   } elsif ($export eq "textedit") {
     &printIssueTextEdit($fullpath, $line, $desc, $checker, $hint, $offendingcode);
-  } elsif ($export eq "xml") {
-    &printIssueXML($fullpath, $line, $desc, $checker, $hint, $offendingcode);
   } else {
     &userMessage("BAD EXPORT PASSED TO printIssue()");
   }
