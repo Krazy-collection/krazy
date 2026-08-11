@@ -9,6 +9,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later
 ###############################################################################
 
+use warnings;
 use strict;
 use File::Basename;
 use Cwd 'abs_path';
@@ -32,10 +33,10 @@ sub getVariableValues
   my $inVariableSet;
   my @values;
 
-  open(FH, "< $fileToParse") or return;
-  foreach (<FH>) {
+  open my $fh, '<:encoding(UTF-8)', $fileToParse or return;    ## no critic
+  while (<$fh>) {
     chomp;
-    s/#.*$//;    #remove comments
+    s/#.*$//;                                                  #remove comments
 
     # Matches "set(VARIABLE_NAME"
     # Matches "set(VARIABLE_NAME value1 value2 value3..."
@@ -65,6 +66,7 @@ sub getVariableValues
       }
     }
   }
+  close($fh);
 
   return @values;
 }
@@ -97,8 +99,9 @@ sub parseFile
   my $file = shift;
   my $inInstallFiles;
   my @files;
-  open(FH, "< $file") or return;
-  foreach (<FH>) {
+
+  open my $fh, '<:encoding(UTF-8)', $file or return;    ## no critic
+  while (<$fh>) {
     chomp;
     s/#.*$//;    #remove comments
                  # Matches "install("
@@ -161,7 +164,7 @@ sub parseFile
       print "$file$_\n";
     }
   }
-  close(FH);
+  close($fh);
 }
 
 if ($#ARGV != 0) {

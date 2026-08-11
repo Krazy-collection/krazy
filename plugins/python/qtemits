@@ -23,6 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -41,15 +42,10 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-# open file and slurp it in (Python only)
-if (&fileType($f) eq "python") {
-  open(F, "$f") || die "Couldn't open $f";
-} else {
-  print "okay\n" if (!&quietArg());
-  Exit 0;
-}
-my (@lines) = <F>;
-close(F);
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@lines) = <$fh>;
+close($fh);
 
 # Check Condition
 my ($cnt)     = 0;
@@ -249,7 +245,6 @@ nextCheck:
     }
   }
 }
-close(F);
 
 my ($total_count) = $cnt + $wcnt + $ncnt;
 if (!$total_count) {

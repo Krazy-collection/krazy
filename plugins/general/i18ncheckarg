@@ -91,21 +91,37 @@ if ($#ARGV != 0 and not $allsources) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
+# KDE only
+sub _usingKDECheckSet    # borrowed from lib/Krazy/Utils.pm (since we don't call parseArgs)
+{
+  foreach my ($set) (split(",", $checksets)) {
+    if ($set =~ m/^kde/i) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+# must be a KDE non-C file
+unless (&_usingKDECheckSet() && !isCSource($f)) {
+  print "okay\n" if (!$quiet);
+  Exit 0;
+}
+
 #open file and slurp it in
-open(F, "$f") || die "Couldn't open $f";
-my (@data_lines) = <F>;
-close(F);
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
 # support excludeall and skip
-my ($line);
-foreach $line (@lines) {
+foreach my ($line) (@lines) {
   if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
     || $line =~ m+//.*[Kk]razy:skip+)
   {
-    print "okay\n" if (!&quietArg());
+    print "okay\n" if (!$quiet);
     Exit 0;
   }
 }
@@ -269,7 +285,7 @@ sub next_substr
   my $reg     = join "|", @subs;
   my ($match) = ($strn =~ /($reg)/s);
   if ($match) {
-    my $i = length($`);
+    my $i = length($`);    ## no critic
     $match = substr($str, $i, length($match));
     my $pre = substr($str, 0, $i);
     map {++$g_lineno} ($pre . $match) =~ /(\n)/sg;
@@ -327,8 +343,10 @@ sub uniqpl
   my ($str) = @_;
   $str =~ s/%%//sg;    # remove possible % escapes
   my %plh;
-  map         {++$plh{$_}} ($str =~ /%([1-9]\d*)/sg);
+  map {++$plh{$_}} ($str =~ /%([1-9]\d*)/sg);
+  ## no critic
   return sort {$a <=> $b} keys %plh;
+  ## use critic
 }
 
 # Unquote string literal and report success, or set empty and report failure.
@@ -1459,12 +1477,14 @@ sub check_in_file
   $g_fname    = $fname;    # Debug global variable, for other functions to use
   $g_nmsg     = 0;         # Number of checkable i18n messages in this file
   $g_nmsgkuit = 0;         # Number of certain KUIT messages in this file
-  if (not(open IF, "<$fname")) {
+                           # open file and slurp it in
+  my $fh;
+  if (!open $fh, '<:encoding(UTF-8)', $fname) {
     print "*** Cannot read: $fname\n";
     return;
   }
-  my @flines = <IF>;
-  close IF;
+  my (@flines) = <$fh>;
+  close($fh);
 
   #print "--------------------> $fname\n";
 
@@ -1511,9 +1531,9 @@ sub descend_tree
 {
   my ($path) = @_;
 
-  opendir(CDIR, $path) or error "Cannot open directory '$path'.";
-  my @entries = grep {not /^\./} readdir CDIR;
-  closedir CDIR;
+  opendir(my $dh, $path) or error "Cannot open directory '$path'.";
+  my @entries = grep {not /^\./} readdir $dh;
+  closedir $dh;
 
   my @files   = grep {-f} map {"$path/$_"} @entries;
   my @sources = sort(grep {

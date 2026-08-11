@@ -24,6 +24,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use File::Basename;
 use FindBin qw($Bin);

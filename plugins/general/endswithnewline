@@ -23,6 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -39,10 +40,11 @@ my ($Version) = "1.2";
 if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
-open(F, "$f") || die "Couldn't open $f";
 
-my (@lines) = <F>;
-close(F);
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@lines) = <$fh>;
+close($fh);
 
 my ($lstr) = "line\# " . ($#lines + 1);
 my ($line) = pop @lines;

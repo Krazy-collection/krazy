@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for minimum set of doxygen tags
+# Tests source for minimum set of doxygen tags
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -21,6 +21,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use Getopt::Long;
 use FindBin qw($Bin);
@@ -56,12 +57,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-if ( $f !~ m/\.cpp$/
-  && $f !~ m/\.cc$/
-  && $f !~ m/\.cxx$/
-  && $f !~ m/\.h$/
-  && $f !~ m/\.hxx$/)
-{
+if (&fileType($f) ne "c++") {
   print "okay\n" if (!$quiet);
   Exit 0;
 }
@@ -72,13 +68,14 @@ if ($verbose) {
   print `head -n 150 $f| sed 's/ / /g;s/\$/ /g;s#//##g' | tr -d -c ' A-Za-z.,/\@1-9()'` . "\n";
   print "--- end header ---\n";
 }
-open(F, "<$f") || die "Couldn't open $f";
-my (@c)        = <F>;
+
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@c)        = <$fh>;
 my ($htxt)     = join '', @c[0 .. ($#c > 149 ? 149 : $#c)];
 my ($atfile)   = &checkAtFile($htxt);
 my ($atauthor) = &checkAtAuthor($htxt);
 my ($atbrief)  = &checkAtBrief($htxt);
-close(F);
+close($fh);
 
 my ($tags) = "";
 my ($cnt)  = 0;
@@ -103,7 +100,7 @@ if (!$tags) {
   Exit $cnt;
 }
 
-sub checkAtFile($)
+sub checkAtFile()
 {
   my ($text) = @_;
   $text =~ s/^\#//g;
@@ -126,7 +123,7 @@ sub checkAtFile($)
   return "$atfile";
 }
 
-sub checkAtAuthor($)
+sub checkAtAuthor()
 {
   my ($text) = @_;
   $text =~ s/^\#//g;
@@ -149,7 +146,7 @@ sub checkAtAuthor($)
   return "$atauthor";
 }
 
-sub checkAtBrief($)
+sub checkAtBrief()
 {
   my ($text) = @_;
   $text =~ s/^\#//g;

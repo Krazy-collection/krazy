@@ -28,6 +28,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use Env qw (KRAZY_CMAKESTYLE_STYLE KRAZY_CMAKESTYLE_OFFSET KRAZY_CMAKESTYLE_LINEMAX);
 use Cwd 'abs_path';
@@ -52,13 +53,6 @@ tie my (%Issues), "Tie::IxHash";
 # Check Condition
 my ($f) = $ARGV[0];
 
-if ($f =~ m/CMakeLists\.txt/ || $f =~ m/\.cmake$/) {
-  open(F, "$f") || die "Couldn't open $f";
-} else {
-  print "okay\n" if (!&quietArg());
-  Exit 0;
-}
-
 $KRAZY_CMAKESTYLE_LINEMAX = 0 if (!$KRAZY_CMAKESTYLE_LINEMAX);
 if (!$KRAZY_CMAKESTYLE_STYLE) {
   $KRAZY_CMAKESTYLE_STYLE = "kde";
@@ -68,16 +62,21 @@ if (!$KRAZY_CMAKESTYLE_OFFSET) {
   $KRAZY_CMAKESTYLE_OFFSET = 4;
 }
 
-#open file and slurp it in
-open(F, "$f") || die "Couldn't open $f";
-my (@lines) = <F>;
-close(F);
+# CMake files only
+if ($f !~ m/CMakeLists\.txt/ && $f !~ m/\.cmake$/) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@lines) = <$fh>;
+close($fh);
 
 ###we will remove the comments as we go
 
 my ($cnt)     = 0;
 my ($linecnt) = 0;
-my ($line)    = '';    #current line (non-processed)
 my ($tline)   = '';    #current line (non-processed) with starting whitespace removed
 my ($lline)   = '';    #last line (non-processed)
 my ($pline)   = '';    #processed current line (i.e. comments and strings have been removed)
@@ -87,7 +86,7 @@ my ($lindent) = 0;     #indentation level for previous line
 
 #let's begin
 &initIssues();
-foreach $line (@lines) {
+foreach my ($line) (@lines) {
   chomp($line);
 
   if ( $line =~ m+\#.*[Kk]razy:excludeall=.*$Prog+
@@ -335,11 +334,10 @@ sub endBlock()
 
 sub printResults()
 {
-  my ($guy);
   my ($check_num) = 0;
   my ($tot)       = 0;
   my ($cline, $rline);
-  foreach $guy (keys %Issues) {
+  foreach my ($guy) (keys %Issues) {
     $cline = "$Issues{$guy}{'issue'}:";
 
     if ($Issues{$guy}{'count'}) {

@@ -23,6 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -41,27 +42,29 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # open file and slurp it in (KConfigXT only)
-if (&fileType($f) eq "kconfigxt") {
-  open(F, "$f") || die "Couldn't open $f";
-} else {
+if (&fileType($f) ne "kconfigxt") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my (@lines) = <F>;
-close(F);
+
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@lines) = <$fh>;
+close($fh);
 
 my ($tcnt)  = 0;
 my ($tlstr) = "";
 my ($wcnt)  = 0;
 my ($wlstr) = "";
 
-my ($line, $sline);
+my ($sline);
 my ($type, $name);
 my ($linecnt) = 0;
 my ($slinecnt);
 my ($hasToolTip, $hasWhatsThis);
-while ($linecnt < $#lines) {
-  $line = $lines[$linecnt++];
+
+foreach my ($line) (@lines) {
+  $linecnt++;
   if ( $line =~ m+[Kk]razy:excludeall=.*$Prog+
     || $line =~ m+[Kk]razy:skip+)
   {

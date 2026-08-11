@@ -11,6 +11,7 @@
 # Takes one command line argument: the fullpath to the top of the project.
 # Prints the list of files
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../lib";
@@ -23,8 +24,7 @@ if (!-d $dir) {
   exit 1;
 }
 
-my ($file);
-foreach $file (split('\s', &findFiles($dir))) {
+foreach my ($file) (split('\s', &findFiles($dir))) {
   $file =~ s+^$dir+\.+gm;
   $file =~ s+\\n+\'\\n\'+g;
   printf "$file\n";

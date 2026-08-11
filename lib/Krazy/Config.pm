@@ -9,6 +9,7 @@
 
 package Krazy::Config;
 
+use warnings;
 use strict;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 use Cwd;
@@ -65,10 +66,6 @@ sub ParseKrazyRC
 {
   my ($rcfile) = @_;
 
-  my (%directives);
-  open(F, "$rcfile") || return %directives;
-
-  my ($line, $linecnt, $directive, $arg);
   $CWD = getcwd;
 
   $rcExclude                    = "";
@@ -87,7 +84,15 @@ sub ParseKrazyRC
   @rcIgModsList                 = ();
   $ENV{KRAZY_CPP_INCLUDE_ORDER} = "false";
 
-  while ($line = <F>) {
+  my (%directives);
+  my ($linecnt, $directive, $arg);
+
+  # open file and slurp it in
+  open my $fh, '<:encoding(UTF-8)', $rcfile or return %directives;
+  my (@lines) = <$fh>;
+  close($fh);
+
+  foreach my ($line) (@lines) {
     $linecnt++;
     $line =~ s/#.*//;          #strip comment
     $line =~ s/^\s+//;         #strip leading whitespace

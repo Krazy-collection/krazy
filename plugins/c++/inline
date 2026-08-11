@@ -23,6 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -42,15 +43,16 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-# open file and slurp it in (headers only)
-if (&installedArg() && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
-  open(F, "$f") || die "Couldn't open $f";
-} else {
+# C++, installed headers only
+unless (&installedArg() && isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my (@data_lines) = <F>;
-close(F);
+
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));

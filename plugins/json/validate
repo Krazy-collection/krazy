@@ -23,6 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use JSON    qw(decode_json);
 use FindBin qw($Bin);
@@ -73,9 +74,10 @@ sub Explain
 
 sub processFile()
 {
-  my ($filename)  = @_;
+  my ($filename) = @_;
+
   my ($json_text) = do {
-    open(my $json_fh, "<:encoding(iso-8859-1)", $filename)
+    open(my $json_fh, "<:encoding(iso-8859-1)", $filename)    ## no critic
       or die("Can't open \"$filename\": $!\n");
     local $/;
     <$json_fh>;

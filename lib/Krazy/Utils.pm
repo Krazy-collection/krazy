@@ -6,8 +6,9 @@
 
 package Krazy::Utils;
 
+use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic
 use Cwd;
 use Cwd 'abs_path';
 use POSIX qw (setlocale strftime LC_TIME);
@@ -17,7 +18,7 @@ use File::Find;
 use Getopt::Long;
 
 use Exporter;
-$VERSION = 2.99999;        # this is the module version
+$VERSION = 2.99999;                                            # this is the module version
 @ISA     = qw(Exporter);
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
@@ -197,8 +198,8 @@ sub deDupe
 {
   my (@list) = @_;
   my (%seen) = ();
-  my (@unik, $item);
-  foreach $item (@list) {
+  my (@unik);
+  foreach my ($item) (@list) {
     push(@unik, $item) unless $seen{$item}++;
   }
   return @unik;
@@ -242,21 +243,18 @@ sub addCommaSeparated
 sub commaSeparatedToArray
 {
   my ($l) = @_;
-  my (@a) = ();
 
   $l =~ s/\s*//g;    # remove whitespace
   $l =~ s/^,+//;     # remove leading commas
   $l =~ s/,+$//;     # remove trailing commas
-  @a = split(",", $l);
-  return @a;
+  return split(",", $l);
 }
 
 sub arrayToCommaSeparated
 {
   my (@a) = @_;
   my ($l) = "";
-  my ($guy);
-  for $guy (@a) {
+  for my ($guy) (@a) {
     $l .= $guy . ",";
   }
   $l =~ s/,$//;
@@ -266,8 +264,7 @@ sub arrayToCommaSeparated
 # print a pretty list of supported file types with descriptions
 sub prettyPrintTypesList()
 {
-  my ($type);
-  foreach $type (&fileTypesList()) {
+  foreach my ($type) (&fileTypesList()) {
     printf("%12.12s: %s\n", $type, &fileTypeDesc($type));
   }
 }
@@ -499,13 +496,14 @@ sub findFiles
   @tmp = ();
   find(\&aok, @dirs);
 
+  ## no critic
   sub aok
   {
     -f && !-d && push(@tmp, $File::Find::name);
   }
-  my ($i, $l);
-  $l = "";
-  foreach $i (@tmp) {
+  ## use critic
+  my ($l) = "";
+  foreach my ($i) (@tmp) {
     $l = "$l" . "$i\n" if (&fileType($i) && ($i !~ m+\.(git|svn|hg)/+));
   }
   return $l;
@@ -570,8 +568,7 @@ sub parseArgs
     exit(1);
   }
 
-  my ($set);
-  foreach $set (split(",", $checksets)) {
+  foreach my ($set) (split(",", $checksets)) {
     if (!&validateCheckSet($set)) {
       my ($lst) = &checksetTypeStr();
       print "Bad checkset \"$set\" specified... exiting\nChoices for checksets are: $lst\n";
@@ -713,8 +710,7 @@ sub validateCppIncludeOrderType
 # print a pretty list of supported check-sets with descriptions
 sub prettyPrintCheckSetsList()
 {
-  my ($set);
-  foreach $set (&checkSetsList()) {
+  foreach my ($set) (&checkSetsList()) {
     printf("%12.12s: %s\n", $set, &checkSetDesc($set));
   }
 }
@@ -764,9 +760,9 @@ sub validateCheckSet
 
 sub usingCheckSet
 {
-  my ($s, $set);
-  foreach $s (@_) {
-    foreach $set (split(",", $checksets)) {
+  my (@sets) = @_;
+  foreach my ($s) (@sets) {
+    foreach my ($set) (split(",", $checksets)) {
       if ($s eq $set) {
         return 1;
       }
@@ -777,8 +773,7 @@ sub usingCheckSet
 
 sub usingQtCheckSet
 {
-  my ($set);
-  foreach $set (split(",", $checksets)) {
+  foreach my ($set) (split(",", $checksets)) {
     if ($set =~ m/^qt/i) {
       return 1;
     }
@@ -788,8 +783,7 @@ sub usingQtCheckSet
 
 sub usingKDECheckSet
 {
-  my ($set);
-  foreach $set (split(",", $checksets)) {
+  foreach my ($set) (split(",", $checksets)) {
     if ($set =~ m/^kde/i) {
       return 1;
     }
@@ -806,24 +800,19 @@ sub linesSearchInFile
 {
   my ($f, @lines) = @_;
 
-  my ($cnt) = -1;
-  if (!open(F, "$f")) {
-    &userMessage("Unable to open file \"" . $f . "\"");
-    return $cnt;
-  }
-  $cnt++;
-  while (<F>) {
+  open my $fh, '<:encoding(UTF-8)', $f or return -1;
+  my ($cnt) = 0;
+  while (<$fh>) {
     $cnt++;
     chomp($_);
-    my ($l);
-    for $l (@lines) {
+    for my ($l) (@lines) {
       if ($_ =~ m/$l/) {
-        close(F);
+        close($fh);
         return $cnt;
       }
     }
   }
-  close(F);
+  close($fh);
   return 0;
 }
 
@@ -837,24 +826,19 @@ sub linesCaseSearchInFile
 {
   my ($f, @lines) = @_;
 
-  my ($cnt) = -1;
-  if (!open(F, "$f")) {
-    &userMessage("Unable to open file \"" . $f . "\"");
-    return $cnt;
-  }
-  $cnt++;
-  while (<F>) {
+  open my $fh, '<:encoding(UTF-8)', $f or return -1;
+  my ($cnt) = 0;
+  while (<$fh>) {
     $cnt++;
     chomp($_);
-    my ($l);
-    for $l (@lines) {
+    for my ($l) (@lines) {
       if ($_ =~ m/$l/i) {
-        close(F);
+        close($fh);
         return $cnt;
       }
     }
   }
-  close(F);
+  close($fh);
   return 0;
 }
 
@@ -867,13 +851,13 @@ sub allLinesCaseSearchInFile
 {
   my ($f, @lines) = @_;
 
-  if (!open(F, "$f")) {
-    &userMessage("Unable to open file \"" . $f . "\"");
-    return -1;
-  }
+  open my $fh, '<:encoding(UTF-8)', $f or return -1;
+  my (@data_lines) = <$fh>;
+  close($fh);
 
+  my ($cnt)      = 0;
   my ($outLines) = "";
-  while (my $line = <F>) {
+  foreach my ($line) (@data_lines) {
     chomp($line);
 
     # squeeze the spaces from start of line
@@ -884,13 +868,12 @@ sub allLinesCaseSearchInFile
     }
     $outLines = $outLines . $line;
   }
-  close(F);
+  close($fh);
 
   for my $sqLine (split('\n', $outLines)) {
     chomp($sqLine);
-    my ($l);
     my ($offset) = -1;
-    for $l (@lines) {
+    for my ($l) (@lines) {
       $offset++;
       if ($sqLine =~ m/$l/i) {
         splice(@lines, $offset, 1);
@@ -965,9 +948,8 @@ sub guessCheckSet
     $checkset = "qt6";
   }
 
-  my ($p);
   my ($fcheckset) = '';
-  for $p (@fosspaths) {
+  for my ($p) (@fosspaths) {
     if (-e $p) {
       if (&allLinesCaseSearchInFile($p, ("GNU GENERAL PUBLIC LICENSE")) > 0) {
         $fcheckset = "foss";

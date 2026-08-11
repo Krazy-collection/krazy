@@ -11,6 +11,7 @@
 # Takes one command line argument: the fullpath to the top of the project.
 # Prints a supported Krazy checkset
 
+use warnings;
 use strict;
 use File::Basename;
 use File::Glob ':bsd_glob';

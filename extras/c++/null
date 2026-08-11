@@ -24,6 +24,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -42,22 +43,16 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-if ( $f =~ m/\.cpp$/
-  || $f =~ m/\.cc$/
-  || $f =~ m/\.cxx$/
-  || $f =~ m/\.h$/
-  || $f =~ m/\.hxx$/)
-{
-  open(F, "$f") || die "Couldn't open $f";
-} else {
+# C++ files only
+if (&fileType($f) ne "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
 
-#open file and slurp it in
-open(F, "$f") || die "Couldn't open $f";
-my (@data_lines) = <F>;
-close(F);
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
@@ -69,8 +64,7 @@ my ($cnt)     = 0;
 my ($linecnt) = 0;
 my ($lstr)    = "";
 
-my ($line);
-foreach $line (@lines) {
+foreach my ($line) (@lines) {
   if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
     || $line =~ m+//.*[Kk]razy:skip+)
   {
@@ -103,7 +97,6 @@ foreach $line (@lines) {
     print "=> $line\n" if (&verboseArg());
   }
 }
-close(F);
 
 if (!$cnt) {
   print "okay\n" if (!&quietArg());

@@ -23,6 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -49,14 +50,13 @@ if (!-x $valp) {
 }
 
 #look for krazy directives in the file
-open(F, "$f") || die "Couldn't open $f";
-my ($line);
-while ($line = <F>) {
+open my $fh, '<:encoding(UTF-8)', $f or die;
+while (my ($line) = <$fh>) {
   Exit 0
     if ($line =~ m+#.*[Kk]razy:excludeall=.*$Prog+
     || $line =~ m+#.*[Kk]razy:skip+);
 }
-close(F);
+close($fh);
 
 my ($dtd) = "$Bin/../../../../share";
 $dtd .= "/dtd/kxmlgui.xsd";
@@ -92,11 +92,11 @@ sub Explain
 sub processFile()
 {
   my ($in) = @_;
-  my ($line, $result);
+  my ($result);
   my ($cnt) = 0;
-  open(VAL, "$valp --noout --debugent --schema $dtd $in 2>&1 | ")
+  open(VAL, "$valp --noout --debugent --schema $dtd $in 2>&1 | ")    ## no critic
     || print STDERR "Cannot run: xmllint\n";
-  while ($line = <VAL>) {
+  while (my ($line) = <VAL>) {
     chomp($line);
     $result = &analyze($line);
     if ($result && $line) {

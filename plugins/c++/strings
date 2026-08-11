@@ -23,6 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -41,15 +42,16 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-# open file and slurp it in (C++, non-headers only)
-if ($f =~ m/\.cpp$/ || $f =~ m/\.cc$/ || $f =~ m/\.cxx$/) {
-  open(F, "$f") || die "Couldn't open $f";
-} else {
+# C++, non-headers only
+if (isCSource($f) || isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
-my (@data_lines) = <F>;
-close(F);
+
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
@@ -59,9 +61,8 @@ my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
 
 my ($dcnt)    = 0;
 my ($linecnt) = 0;
-my ($line, $pline);
-my ($dlstr) = "";
-foreach $line (@lines) {
+my ($dlstr)   = "";
+foreach my ($line) (@lines) {
   if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
     || $line =~ m+//.*[Kk]razy:skip+)
   {
@@ -76,7 +77,7 @@ foreach $line (@lines) {
   next if ($line =~ m+^\s*#+);
   next if ($line =~ m+^\s*extern+);
 
-  $pline = $line;
+  my ($pline) = $line;
   $pline =~ s/\'\"\'//g;
 
   if ($pline =~ m:\":) {

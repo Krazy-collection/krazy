@@ -26,6 +26,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
@@ -49,15 +50,13 @@ my ($absf) = abs_path($f);
 my ($filetype) = &fileType($f);
 
 # open file and slurp it in
-open(F, $f) || die "Couldn't open $f";
-my (@data_lines) = <F>;
-close(F);
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 my (@lines);
 if ($filetype eq "c++") {
-
-  # Remove Krazy conditional blocks
-  @lines = RemoveCondBlockC($Prog, @data_lines);
+  @lines = RemoveCondBlockC($Prog, @data_lines);    # Remove Krazy conditional blocks
 } else {
   @lines = @data_lines;
 }

@@ -37,6 +37,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use Env qw (KRAZY_CPP_INCLUDE_ORDER);
 use Tie::IxHash;
@@ -60,10 +61,10 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f)    = $ARGV[0];
 my ($absf) = basename(abs_path($f));
 
-#open file and slurp it in
-open(F, "$f") || die "Couldn't open $f";
-my (@data_lines) = <F>;
-close(F);
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
@@ -79,7 +80,6 @@ my ($total) = 0;    #total number of issues
 tie my (%Issues), "Tie::IxHash";
 
 my ($incpath, $qincpath);
-my ($inc);
 tie my (%Incs), "Tie::IxHash";
 
 my ($nth)    = 1;     #track the include in the file
@@ -190,7 +190,7 @@ while ($linecnt < $#lines) {
 ### Now let's check for problems based solely on the include path
 ### independent of the type of file (installed or not).
 
-foreach $inc (keys %Incs) {
+foreach my ($inc) (keys %Incs) {
   $Incs{$inc}{'lines'} =~ s/,$//;    # remove trailing comma
 
   # check for multiply included files
@@ -439,12 +439,11 @@ sub initIssues()
 
 sub printResults()
 {
-  my ($guy);
   my ($check_num) = 0;
   my ($tot)       = 0;
   my ($cline, $rline);
   my ($fred);
-  foreach $guy (keys %Issues) {
+  foreach my ($guy) (keys %Issues) {
     next if ($guy eq "ANGLE");    # controversial
     $cline = "$Issues{$guy}{'issue'}";
 

@@ -28,6 +28,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -48,17 +49,17 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-if (&fileType($f) eq "c++" || &fileType($f) eq "perl" || &fileType($f) eq "python") {
-  open(F, "$f") || die "Couldn't open $f";
-} else {
+# C++, Perl, Python.. any file type that might have some crud
+my ($filetype) = &fileType($f);
+if ($filetype ne "c++" && $filetype ne "perl" && $filetype ne "python") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
 
-#open file and slurp it in
-open(F, "$f") || die "Couldn't open $f";
-my (@data_lines) = <F>;
-close(F);
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 # Remove Krazy conditional blocks
 my (@lines);
@@ -68,8 +69,7 @@ my ($cnt)     = 0;
 my ($linecnt) = 0;
 my ($lstr)    = "";
 
-my ($line);
-foreach $line (@lines) {
+foreach my ($line) (@lines) {
   if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
     || $line =~ m+//.*[Kk]razy:skip+)
   {
@@ -91,9 +91,9 @@ foreach $line (@lines) {
     ($line =~ m/\ssccsid\[\s*\]\s*=/ || $line =~ m/char\s*\*\s*sccsid\s*=/) ||
 
     #Emacs
-       (&fileType($f) eq "c++" && $linecnt == 1 && $line =~ m/-\*-\s[Mm]ode:\s/)
-    || (&fileType($f) eq "perl"   && $linecnt == 2 && $line =~ m/-\*-\s[Mm]ode:\s/)
-    || (&fileType($f) eq "python" && $linecnt == 2 && $line =~ m/-\*-\s[Mm]ode:\s/)
+       ($filetype eq "c++" && $linecnt == 1 && $line =~ m/-\*-\s[Mm]ode:\s/)
+    || ($filetype eq "perl"   && $linecnt == 2 && $line =~ m/-\*-\s[Mm]ode:\s/)
+    || ($filetype eq "python" && $linecnt == 2 && $line =~ m/-\*-\s[Mm]ode:\s/)
     ||
 
     #Vi
@@ -109,7 +109,6 @@ foreach $line (@lines) {
     print "=> $line" if (&verboseArg());
   }
 }
-close(F);
 
 # Handle Check Results
 if (!$cnt) {

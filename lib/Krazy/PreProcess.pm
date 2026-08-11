@@ -6,8 +6,9 @@
 
 package Krazy::PreProcess;
 
+use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic
 
 use Exporter;
 $VERSION = 1.00;

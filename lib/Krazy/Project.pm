@@ -6,8 +6,9 @@
 
 package Krazy::Project;
 
+use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic
 use Cwd;
 use Cwd 'abs_path';
 use File::Basename;
@@ -40,24 +41,21 @@ sub projectType
 sub linesCaseSearchInFile
 {
   my ($f, @lines) = @_;
-
   my ($cnt) = -1;
-  if (!open(F, "$f")) {
-    return $cnt;
-  }
+
+  open my $fh, '<:encoding(UTF-8)', $f or return $cnt;
   $cnt++;
-  while (<F>) {
+  while (<$fh>) {
     $cnt++;
     chomp($_);
-    my ($l);
-    for $l (@lines) {
+    for my ($l) (@lines) {
       if ($_ =~ m/$l/i) {
-        close(F);
+        close($fh);
         return $cnt;
       }
     }
   }
-  close(F);
+  close($fh);
   return 0;
 }
 
@@ -167,7 +165,6 @@ sub topOfProject
   return "" if (!-e "$td");
 
   my (@scms) = (".git", ".hg", ".svn");
-  my ($s);
 
   my ($t) = "";
 
@@ -175,7 +172,7 @@ sub topOfProject
   setProjectType("");
 
   #look up for a CMakeLists.txt with a project line (stopping at SCM level)
-  for $s (@scms) {
+  for my ($s) (@scms) {
     if (!$t) {
       $t = findUpCMakeProject($td, $s);
       if ($t) {
@@ -186,7 +183,7 @@ sub topOfProject
   }
 
   # look up for a project.pro file in a dir called project (stopping at SCM level)
-  for $s (@scms) {
+  for my ($s) (@scms) {
     if (!$t) {
       $t = findUpProProject($td, $s);
       if ($t) {
@@ -197,7 +194,7 @@ sub topOfProject
   }
 
   # look up for any .pro file in the specified dir (stopping at SCM level)
-  for $s (@scms) {
+  for my ($s) (@scms) {
     if (!$t) {
       $t = findUpPro($td, $s);
       if ($t) {
@@ -208,7 +205,7 @@ sub topOfProject
   }
 
   # look up for a configure file (stopping at SCM level)
-  for $s (@scms) {
+  for my ($s) (@scms) {
     if (!$t) {
       $t = findUpConfigure($td, $s);
       if ($t) {
@@ -219,7 +216,7 @@ sub topOfProject
   }
 
   # look up for an SCM
-  for $s (@scms) {
+  for my ($s) (@scms) {
     if (!$t) {
       $t = findUp($td, $s);
       if ($t) {

@@ -91,6 +91,7 @@
 #   --quiet:        suppress all output messages
 #   --verbose:      print the offending content for each file processed
 #
+use warnings;
 use strict;
 use Getopt::Long;
 use Env qw (HOME KRAZY_PLUGIN_PATH KRAZY_EXTRA_PATH KRAZY_SET_PATH);
@@ -248,8 +249,7 @@ $KRAZY_SET_PATH = "$KRAZYPATH/lib64/krazy2/krazy-sets:" . "$KRAZYPATH/lib/krazy2
 my (@sanity_paths, @set_paths);
 
 # Generate an array of paths to search for plugins
-my ($sp);
-for $sp (split(/:/, $KRAZY_PLUGIN_PATH)) {
+for my ($sp) (split(/:/, $KRAZY_PLUGIN_PATH)) {
   push(@sanity_paths, abs_path $sp) if (-d $sp);
 }
 @sanity_paths = deDupe(@sanity_paths);
@@ -259,10 +259,10 @@ if ($#sanity_paths < 0) {
 }
 
 # Generate a hash of arrays containing the plugin names for each supported type
-my ($type, @tpaths, @tmp);
-foreach $type (keys %Checkers) {
+my (@tpaths, @tmp);
+foreach my ($type) (keys %Checkers) {
   splice @tpaths;
-  for $sp (@sanity_paths) {
+  for my ($sp) (@sanity_paths) {
     if (-d "$sp/$type") {
       push(@tpaths, "$sp/$type");
     }
@@ -280,8 +280,7 @@ foreach $type (keys %Checkers) {
 }
 
 # Generate an array of paths to search for check-sets
-my ($setp);
-for $setp (split(/:/, $KRAZY_SET_PATH)) {
+for my ($setp) (split(/:/, $KRAZY_SET_PATH)) {
   push(@set_paths, abs_path $setp) if (-d $setp);
 }
 @set_paths = deDupe(@set_paths);
@@ -292,10 +291,9 @@ if ($#set_paths < 0) {
 }
 
 # Generate a hash of arrays for the check-sets
-my ($set);
-foreach $set (keys %Sets) {
+foreach my ($set) (keys %Sets) {
   splice @tpaths;
-  for $setp (@set_paths) {
+  for my ($setp) (@set_paths) {
     if (-d "$setp/$set") {
       push(@tpaths, "$setp/$set");
     }
@@ -313,14 +311,14 @@ foreach $set (keys %Sets) {
 }
 
 # Generate a hash of arrays containing the extra plugins for each supported type
-my ($xp, @extra_paths);
-for $xp (split(/:/, $KRAZY_EXTRA_PATH)) {
+my (@extra_paths);
+for my ($xp) (split(/:/, $KRAZY_EXTRA_PATH)) {
   push(@extra_paths, abs_path $xp) if (-d $xp);
 }
 @extra_paths = deDupe(@extra_paths);
-foreach $type (keys %xCheckers) {
+foreach my ($type) (keys %xCheckers) {
   splice @tpaths;
-  for $xp (@extra_paths) {
+  for my ($xp) (@extra_paths) {
     if (-d "$xp/$type") {
       push(@tpaths, "$xp/$type");
     }
@@ -469,11 +467,11 @@ $brief     = 0               if ($nobrief);
 ###########################################################################
 
 # Generate a list of all the checker programs in the specified sets.
-my ($prog, @set_progs);
+my (@set_progs);
 my ($qtsets)  = '';
 my ($kdesets) = '';
 if ($checksets) {
-  foreach $set (split(",", $checksets)) {
+  foreach my ($set) (split(",", $checksets)) {
     if (!validateCheckSet($set)) {
       &userError(
 "No such check-set \"$set\".\nRun $Prog --list-sets to see the list of available check-sets."
@@ -493,7 +491,7 @@ if ($checksets) {
         $kdesets = $set;
       }
     }
-    foreach $prog (@{$Sets{lc($set)}}) {
+    foreach my ($prog) (@{$Sets{lc($set)}}) {
       push(@set_progs, &basename($prog));
     }
   }
@@ -503,11 +501,10 @@ if ($checksets) {
 
 # Now subtract away the checkers that aren't found in the check-sets.
 if ($checksets) {
-  my ($tprog, $sprog);
-  foreach $type (keys %Checkers) {
+  foreach my ($type) (keys %Checkers) {
     splice @tmp;
-    foreach $tprog (@{$Checkers{$type}}) {
-      foreach $sprog (@set_progs) {
+    foreach my ($tprog) (@{$Checkers{$type}}) {
+      foreach my ($sprog) (@set_progs) {
         my ($st, $sp) = split("-", $sprog);
         next unless ($st eq $type);
         if (&basename($tprog) eq $sp) {
@@ -520,18 +517,17 @@ if ($checksets) {
   }
 }
 
-my ($p);
 ## process extras
 if ($extra) {
   my (@extra_progs) = split(",", $extra);
   @extra_progs = deDupe(@extra_progs);
-  my ($i, $x);
-  for $x (@extra_progs) {
+  my ($i);
+  for my ($x) (@extra_progs) {
 
     # Make sure specified extra program is in the list
     my ($found) = 0;
-    foreach $type (keys %xCheckers) {
-      for $p (sort @{$xCheckers{$type}}) {
+    foreach my ($type) (keys %xCheckers) {
+      for my ($p) (sort @{$xCheckers{$type}}) {
         if (&basename($p) eq $x) {
           $found = 1;
           push(@{$Checkers{$type}}, $p);
@@ -551,17 +547,16 @@ if ($extra) {
 if ($inctypes) {
   my (@only_types) = split(",", $inctypes);
   @only_types = deDupe(@only_types);
-  my ($t, $o);
-  for $t (@only_types) {
+  for my ($t) (@only_types) {
     if (!defined($Checkers{$t})) {
       &userError(
 "The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types."
       );
     }
   }
-  foreach $type (keys %Checkers) {
+  foreach my ($type) (keys %Checkers) {
     my ($found) = 0;
-    foreach $o (@only_types) {
+    foreach my ($o) (@only_types) {
       if ($type eq $o) {
         $found = 1;
         last;
@@ -578,17 +573,16 @@ if ($inctypes) {
 if ($exctypes) {
   my (@exclude_types) = split(",", $exctypes);
   @exclude_types = deDupe(@exclude_types);
-  my ($t, $o);
-  for $t (@exclude_types) {
+  for my ($t) (@exclude_types) {
     if (!defined($Checkers{$t})) {
       &userError(
 "The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types."
       );
     }
   }
-  foreach $type (keys %Checkers) {
+  foreach my ($type) (keys %Checkers) {
     my ($found) = 0;
-    foreach $o (@exclude_types) {
+    foreach my ($o) (@exclude_types) {
       if ($type eq $o) {
         $found = 1;
         last;
@@ -606,12 +600,12 @@ if ($only) {
   my (@only_progs) = split(",", $only);
   @only_progs = deDupe(@only_progs);
   my ($i, $o);
-  for $o (@only_progs) {
+  for my ($o) (@only_progs) {
 
     # Make sure specified only program is in the list
     my ($found) = 0;
-    foreach $type (keys %Checkers) {
-      for $p (sort @{$Checkers{$type}}) {
+    foreach my ($type) (keys %Checkers) {
+      for my ($p) (sort @{$Checkers{$type}}) {
         if (&basename($p) eq $o) {
           $found = 1;
           push(@{$oCheckers{$type}}, $p);
@@ -622,8 +616,8 @@ if ($only) {
     if (!$found) {
 
       # ok, maybe an extra checker was specified
-      foreach $type (keys %xCheckers) {
-        for $p (sort @{$xCheckers{$type}}) {
+      foreach my ($type) (keys %xCheckers) {
+        for my ($p) (sort @{$xCheckers{$type}}) {
           if (&basename($p) eq $o) {
             $found = 1;
             push(@{$oCheckers{$type}}, $p);
@@ -645,8 +639,8 @@ if ($only) {
     }
   }
 } else {
-  foreach $type (keys %Checkers) {
-    for $p (sort @{$Checkers{$type}}) {
+  foreach my ($type) (keys %Checkers) {
+    for my ($p) (sort @{$Checkers{$type}}) {
       push(@{$oCheckers{$type}}, $p);
     }
   }
@@ -656,13 +650,13 @@ if ($only) {
 if ($exclude) {
   my (@exclude_progs) = split(",", $exclude);
   @exclude_progs = deDupe(@exclude_progs);
-  my ($i, $e);
-  foreach $e (@exclude_progs) {
+  my ($i);
+  foreach my ($e) (@exclude_progs) {
 
     # Make sure specified exclude program is in the list
     my ($found) = 0;
-    foreach $type (keys %Checkers) {
-      for $p (sort @{$Checkers{$type}}) {
+    foreach my ($type) (keys %Checkers) {
+      for my ($p) (sort @{$Checkers{$type}}) {
         if (&basename($p) eq $e) {
           $found = 1;
           push(@{$eCheckers{$type}}, $p);
@@ -685,11 +679,10 @@ if ($exclude) {
 
 # finally, remove the "excluded" checkers from the "only" checkers
 my ($nprogs) = 0;
-foreach $type (keys %Checkers) {
-  for $p (sort @{$oCheckers{$type}}) {
-    my ($q);
+foreach my ($type) (keys %Checkers) {
+  for my ($p) (sort @{$oCheckers{$type}}) {
     my ($found) = 0;
-    for $q (sort @{$eCheckers{$type}}) {
+    for my ($q) (sort @{$eCheckers{$type}}) {
       if (&basename($p) eq &basename($q)) {
         $found = 1;
         last;
@@ -730,7 +723,7 @@ my (@allfiles) = ();
 if ($ARGV[0] eq "-") {
 
   # read the file list from stdin
-  while (defined($_ = <STDIN>)) {
+  while (defined($_ = <>)) {
     chomp($_);
     push(@allfiles, $_) if ($_ && $_ !~ m/^#/);
   }
@@ -741,9 +734,9 @@ if ($ARGV[0] eq "-") {
 }
 
 # quick run through all the files, eliminating types we don't need
-my ($f, $absf, $absfh, $ftype);
+my ($absf, $absfh, $ftype);
 my (@types) = ();
-for $f (@allfiles) {
+for my ($f) (@allfiles) {
   $absf = abs_path($f);
   if (!-f $absf) {
     print STDERR "Cannot access file $f\n";
@@ -758,10 +751,9 @@ for $f (@allfiles) {
     print STDERR "Unsupported file type for $f... skipping\n";
     next;
   }
-  my ($t);
   my ($found) = 0;
   if ($#types >= 0) {
-    for $t (@types) {
+    for my ($t) (@types) {
       if ($t eq $ftype) {
         $found = 1;
         last;
@@ -781,9 +773,9 @@ my ($dirf);
 my ($nf) = 0;
 my (@processedFiles);
 
-for $ftype (@types) {
+for my ($ftype) (@types) {
   if (defined($pCheckers{$ftype})) {
-    for $p (sort @{$pCheckers{$ftype}}) {
+    for my ($p) (sort @{$pCheckers{$ftype}}) {
       my ($bp) = &basename($p);
       if (!$quiet) {
         if (!$brief) {
@@ -794,7 +786,7 @@ for $ftype (@types) {
       }
       $result{$p} = "";
       $num_checkers++;
-      for $f (@allfiles) {
+      for my ($f) (@allfiles) {
         $absf = abs_path($f);
         next if ($absf =~ m+$skip+);
         next unless (&fileType($f) eq $ftype);
@@ -804,10 +796,11 @@ for $ftype (@types) {
         next if ($f =~ m/la\.all_cpp\.cpp$/);
 
         # skip auto-generated files: test the first 8 lines for known signatures
-        open(F, "<$f") || die "Couldn't open $f";
-        my (@c)  = <F>;
+        # open file and slurp it in
+        open my $fh, '<:encoding(UTF-8)', $f or die "Couldn't open $f";
+        my (@c) = <$fh>;
+        close($fh);
         my ($tt) = join '', @c[0 .. ($#c > 8 ? 8 : $#c)];
-        close(F);
         next
           if ($tt =~
 /(All changes made in this file will be lost|All changes made to it will be lost|DO NOT EDIT|DO NOT MODIFY|DO NOT delete this file|[Gg]enerated by|uicgenerated)|Bison parser|define BISON_/
@@ -824,8 +817,8 @@ for $ftype (@types) {
         $absfh =~ s/\.C$/\.H/;
         $dirf = dirname($absf);
         $dirf =~ s/ /\\ /g;
-        open(INS, "$insp $dirf |") or print STDERR "Cannot run: $insp\n";
 
+        open(INS, "$insp $dirf |") or print STDERR "Cannot run: $insp\n";    ## no critic
         while (<INS>) {
           chomp($_);
           if ($absf eq $_ || $absfh eq $_) {
@@ -837,7 +830,7 @@ for $ftype (@types) {
 
         # run the checker, concatenating the output
         if (!$dryrun) {
-          $pid = open(SANE, "$p $opts $insopt \'$f\' 2>/dev/null |")
+          $pid = open(SANE, "$p $opts $insopt \'$f\' 2>/dev/null |")    ## no critic
             or print STDERR "Cannot run: &basename($p)\n";
           my ($issues) = -1;
           while (<SANE>) {
@@ -890,12 +883,12 @@ if (!$quiet) {
   my ($st,    $bp);
   my ($cline, $rline);
   my ($item) = 0;
-  for $ftype (@types) {
+  for my ($ftype) (@types) {
     next unless ($#{$pCheckers{$ftype}} >= 0);
     $st = 0;
     my ($pth) = ${$pCheckers{$ftype}}[0];
     &printFType($pth, $ftype) if (!$brief);
-    for $p (sort @{$pCheckers{$ftype}}) {
+    for my ($p) (sort @{$pCheckers{$ftype}}) {
       $st++;
       $use = `$p --help 2>/dev/null`;
       chomp($use);
@@ -1017,12 +1010,11 @@ sub Version
 # Initialize the Checkers hash
 sub initCheckers
 {
-  my ($type);
-  foreach $type (&fileTypesList()) {
+  foreach my ($type) (&fileTypesList()) {
     $Checkers{$type} = [];
   }
 
-  foreach $type (keys %Checkers) {
+  foreach my ($type) (keys %Checkers) {
 
     # add in these extra checkers
     @{$xCheckers{$type}} = ();
@@ -1041,11 +1033,10 @@ sub initCheckers
 # Initialize the Sets hash
 sub initSets
 {
-  my ($set);
-  foreach $set (&checkSetsList()) {
+  foreach my ($set) (&checkSetsList()) {
     $Sets{$set} = [];
   }
-  foreach $set (keys %Sets) {
+  foreach my ($set) (keys %Sets) {
     @{$Sets{$set}} = ();
   }
 }
@@ -1055,9 +1046,8 @@ sub printList
 {
   my ($isextra, @list) = @_;
 
-  my ($prog);
   my ($np) = 0;
-  for $prog (sort @list) {
+  for my ($prog) (sort @list) {
     $np++;
     $use = "";
     $use = "[EXTRA] " if ($isextra);
@@ -1081,11 +1071,11 @@ sub printList
 # List function: print a list of all checker programs available to run.
 sub List
 {
-  my ($prog, $use, $type);
+  my ($prog, $use);
 
   print "Available source code sanitizer checks:\n";
 
-  foreach $type (keys %Checkers) {
+  foreach my ($type) (keys %Checkers) {
     my ($pth) = ${$Checkers{$type}}[0];
     &printFType(dirname($pth), $type);
     if ($#{$Checkers{$type}} >= 0) {
@@ -1105,9 +1095,9 @@ sub List
 # List function: print a list of all checker programs that would be run.
 sub ListRuntime
 {
-  my ($prog, $use, $type);
+  my ($prog, $use);
 
-  foreach $type (keys %pCheckers) {
+  foreach my ($type) (keys %pCheckers) {
     my ($pth) = ${$pCheckers{$type}}[0];
     if ($#{$pCheckers{$type}} >= 0) {
       &printFType(dirname($pth), $type, "Runtime checks for ");
@@ -1122,8 +1112,6 @@ sub ListRuntime
 # ListTypes function: print a list of supported file types.
 sub ListTypes
 {
-  my ($prog, $use, $type);
-
   print "List of supported file types:\n";
   &prettyPrintTypesList();
 
@@ -1169,7 +1157,7 @@ sub ListSets
 sub ListSet
 {
   my ($set) = @_;
-  my ($prog, $prprog, $use, $type);
+  my ($prprog, $use, $type);
 
   if (!&validateCheckSet($set)) {
     print "No such check-set: $set\n\n";
@@ -1179,7 +1167,7 @@ sub ListSet
 
   print "List of available checkers for check-set $set:\n";
 
-  foreach $prog (sort @{$Sets{$set}}) {
+  foreach my ($prog) (sort @{$Sets{$set}}) {
     $use = "";
     $use .= `$prog --help 2>/dev/null`;
     chomp($use);
@@ -1259,12 +1247,12 @@ sub textDescription
   my ($pth) = @_;
   return "" if (!$pth);
   my ($f) = "$pth" . "/description.txt";
-  open(F, "$f") || return "";
+  open my $fh, '<:encoding(UTF-8)', $f or return "";
   my ($line) = "";
-  while ($line = <F>) {
+  while ($line = <$fh>) {
     last;
   }
-  close(F);
+  close($fh);
   chomp($line);
   return ($line);
 }
@@ -1272,9 +1260,9 @@ sub textDescription
 # printFType function: print the File Type line, according to export type.
 sub printFType
 {
-  return unless ($export eq "" || $export eq "text");
-
   my ($pth, $ftype, $title) = @_;
+
+  return unless ($export eq "" || $export eq "text");
 
   my ($desc) = &fileTypeDesc($ftype);
   if (!defined($title) || ($title eq "")) {
@@ -1290,7 +1278,7 @@ sub printFType
 }
 
 # printOOPS function: print the OOPS lines, according to export type.
-sub printOOPS
+sub printOOPS    ## no critic
 {
   my ($item) = @_;
   shift;
@@ -1338,11 +1326,10 @@ sub printOOPS
       $issue =~ s+\.*[[:space:]]*$++g;
       $f     =~ s+^[[:space:]]*++;
 
-      my ($l, $hint);
-      for $l (@ls) {
+      for my ($l) (@ls) {
         $l =~ s/[[:alpha:]]*$//g;
         $l =~ s/^[[:alpha:]]*//g;
-        $hint = $l;
+        my ($hint) = $l;
         $hint =~ s/\d+\s*://;
         $l    =~ s/:\[.*\]//g;
         $l    =~ s/\s*$//;
@@ -1387,13 +1374,13 @@ sub printOOPS
 # printExplain function: print the explanation lines, according to export type.
 sub printExplain
 {
-  return unless ($export eq "" || $export eq "text");
-
   my (
     $explanation,    #the explanation string
     $isextra,        #if this is an explanation for an "extra" checker
     $islisting       #if this is an explanation printed as part of the list function
   ) = @_;
+
+  return unless ($export eq "" || $export eq "text");
 
   print "\n" if ($islisting);
   print wrap("    ", "    ", $explanation) . "\n";

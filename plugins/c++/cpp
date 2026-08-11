@@ -24,6 +24,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -42,15 +43,16 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-#open file and slurp it in
-if (&installedArg()) {
+# skip installed headers
+if (&installedArg() || !isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
-} else {
-  open(F, "$f") || die "Couldn't open $f";
 }
-my (@data_lines) = <F>;
-close(F);
+
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 # Remove C-style comments and #if 0 blocks from the file input
 my (@lines) = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));
@@ -63,10 +65,9 @@ my ($cnt)     = 0;
 my ($hcnt)    = 0;
 my ($wcnt)    = 0;
 my ($linecnt) = 0;
-my ($line);
-my ($lstr) = "";
-my ($hstr) = "";
-my ($wstr) = "";
+my ($lstr)    = "";
+my ($hstr)    = "";
+my ($wstr)    = "";
 
 my (@OS)   = ();
 my (@COMP) = ();
@@ -452,7 +453,7 @@ my %have_map = map {($_) => 1} qw {
 };
 
 # Check Condition
-foreach $line (@lines) {
+foreach my ($line) (@lines) {
   if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
     || $line =~ m+//.*[Kk]razy:skip+)
   {
@@ -579,8 +580,7 @@ sub osMacros()
   @OS = ();
   my (@haves) = split(',', &haves($l));
   if ($#haves >= 0) {
-    my ($have);
-    foreach $have (@haves) {
+    foreach my ($have) (@haves) {
       if (
            $have =~ m/USE_SOLARIS/
         || $have =~ m/USE_NETBSD/
@@ -622,8 +622,7 @@ sub compilerMacros()
 
   my (@haves) = split(',', &haves($l));
   if ($#haves >= 0) {
-    my ($have);
-    foreach $have (@haves) {
+    foreach my ($have) (@haves) {
       $have =~ s/[<>=].*$//;
       push(@COMP, $have)
         if ($have =~ m/__BORLANDC__/
@@ -647,8 +646,7 @@ sub knownHaveMacro()
 
   my (@haves) = &havesArray($l);
   if ($#haves >= 0) {
-    my ($have);
-    foreach $have (@haves) {
+    foreach my ($have) (@haves) {
       if (!$have_map{$have}) {
         push(@res, $have);
       }
@@ -659,11 +657,10 @@ sub knownHaveMacro()
 
 sub haves()
 {
-  my ($l) = @_;
-  my (@a) = split(' ', $l);
-  my ($guy);
+  my ($l)   = @_;
+  my (@a)   = split(' ', $l);
   my ($res) = "";
-  foreach $guy (@a) {
+  foreach my ($guy) (@a) {
     next unless ($guy =~ m/_/);
     next if ($guy =~ m/HAVE_/);
     $guy =~ s/.*defined\(//;
@@ -673,7 +670,7 @@ sub haves()
   }
 
   #special cases without underscores
-  foreach $guy (@a) {
+  foreach my ($guy) (@a) {
     $guy =~ s/.*defined\(//;
     $guy =~ s/.*\(//;
     $guy =~ s/\).*//;
@@ -691,11 +688,10 @@ sub haves()
 
 sub havesArray()
 {
-  my ($l) = @_;
-  my (@a) = split(' ', $l);
-  my ($guy);
+  my ($l)   = @_;
+  my (@a)   = split(' ', $l);
   my (@res) = ();
-  foreach $guy (@a) {
+  foreach my ($guy) (@a) {
     next unless ($guy =~ m/^HAVE_/);
     next if ($guy =~ m/_H$/i);
     $guy =~ s/.*defined\(//;

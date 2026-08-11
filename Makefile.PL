@@ -7,6 +7,7 @@
 require 5.005;
 use ExtUtils::MakeMaker;
 
+## no critic
 WriteMakefile(
   'NAME'          => 'krazy2',
   'AUTHOR'        => 'Allen Winter <winter@kde.org>',

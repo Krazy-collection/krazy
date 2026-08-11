@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+use warnings;
+use strict;
+
+my ($inIfNull)  = 0;
+my ($inComment) = 0;
+
 # remove all comments
 $_ =~ s/\/\/.*$//;    # strip comments of a // stile comment.
 if ($inIfNull == 1) {

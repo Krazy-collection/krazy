@@ -10,6 +10,8 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 # Tests source for valid FOSS license according to REUSE compliance
 
+# KDE Licensing Policy at <https://community.kde.org/Policies/Licensing_Policy>
+
 # Program options:
 #   --help:          print one-line help message and exit
 #   --version:       print one-line version information and exit
@@ -23,6 +25,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -40,22 +43,9 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-#if ($f =~ m+/3rdparty/+ ||
-#    $f =~ m/CMakeLists\.txt$/ ||
-#    $f =~ m/ConfigureChecks\.cmake$/ ||
-#    $f =~ m/config-.*\.h\.cmake$/ ||
-#    $f =~ m/config\.h\.cmake$/ ||
-#    $f =~ m/CTest.*\.cmake$/) {
-#  print "okay\n" if (!&quietArg());
-#  Exit 0;
-#}
-
-open(F, "$f") || die "Couldn't open $f";
-my ($tags)  = "";
-my ($lcnt)  = 0;
-my ($found) = 0;
-my ($line);
-my ($cnt) = 0;
+my ($tags) = "";
+my ($lcnt) = 0;
+my ($cnt)  = 0;
 
 #max lines to search. filetype dependent
 my ($MAXLINES) = 30;
@@ -63,7 +53,13 @@ if (&fileType($f) eq "cmake") {
   $MAXLINES = 100;
 }
 
-while ($line = <F>) {
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
+
+my ($found) = 0;
+foreach my ($line) (@data_lines) {
   if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
     || $line =~ m+//.*[Kk]razy:skip+)
   {
@@ -110,7 +106,6 @@ while ($line = <F>) {
   #REUSE-IgnoreEnd
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 }
-close(F);
 
 $tags = "";
 

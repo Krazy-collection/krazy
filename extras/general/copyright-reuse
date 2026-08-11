@@ -23,6 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -42,25 +43,13 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-#if ($f =~ m+/3rdparty/+ ||
-#    $f =~ m/CMakeLists\.txt$/ ||
-#    $f =~ m/ConfigureChecks\.cmake$/ ||
-#    $f =~ m/config-.*\.h\.cmake$/ ||
-#    $f =~ m/config\.h\.cmake$/ ||
-#    $f =~ m/CTest.*\.cmake$/) {
-#  print "okay\n" if (!&quietArg());
-#  Exit 0;
-#}
-
-open(F, "$f") || die "Couldn't open $f";
 my ($tags)      = "";
 my ($ytag)      = "";
 my ($etag)      = "";
 my ($lcnt)      = 0;
-my ($found)     = 0;
-my ($spdxfound) = 0;
-my ($line);
-my ($cnt) = 0;
+my ($foundline) = "";
+my ($spdxline)  = "";
+my ($cnt)       = 0;
 
 #max lines to search. filetype dependent
 my ($MAXLINES) = 30;
@@ -68,11 +57,16 @@ if (&fileType($f) eq "cmake") {
   $MAXLINES = 100;
 }
 
-while ($line = <F>) {
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
+
+foreach my ($line) (@data_lines) {
   if ( $line =~ m+//.*[Kk]razy:excludeall=.*$Prog+
     || $line =~ m+//.*[Kk]razy:skip+)
   {
-    $found = 1;
+    $foundline = $line;
     last;
   }
   if ( $line =~ m/generated from/
@@ -84,7 +78,7 @@ while ($line = <F>) {
     || $line =~ m/created by dcopidl2cpp/
     || $line =~ m/;$/)
   {
-    $found = 1;
+    $foundline = $line;
     last;
   }
 
@@ -92,7 +86,7 @@ while ($line = <F>) {
   if ( $line =~ m/ Public Domain/i
     || $line =~ m/(disclaims|waives) copyright/i)
   {
-    $found = 1;
+    $foundline = $line;
     last;
   }
 
@@ -100,34 +94,33 @@ while ($line = <F>) {
   $lcnt++;
 
   if ($line =~ m/SPDX-FileCopyrightText:/) {
-    $spdxfound = 1;
+    $spdxline = $line;
     last;
   }
 
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 }
-close(F);
 
 # SPDX Specification (https://reuse.software/spec)
-if (!$found && $spdxfound) {
-  $found = 1;
+if (!$foundline && $spdxline) {
+  $foundline = $spdxline;
 
   #Businesses and legal entities are allowed to not have email addresses.
-  if (!&isBusinessEntity($line)) {
+  if (!&isBusinessEntity($foundline)) {
 
     #check email is specified in angle brackets
     #TODO: Note that we check the first SPDX line encountered only.  not good.
     my ($foo, $em);
-    ($foo, $em) = split("<", $line);
+    ($foo, $em) = split("<", $spdxline);
     if (!defined($em) || $em !~ m/(\@| at |\(at\)| \(at\) |#| # | \@ )[[:alnum:]]/i) {
       $tags .= "email address line\#$lcnt ";
-      $tags .= "($line) " if (&verboseArg());
+      $tags .= "($foundline) " if (&verboseArg());
       $cnt++;
     }
   }
 }
 
-if (!$found) {
+if (!$foundline) {
   $tags = "REUSE copyright not found" . $tags;
   $cnt++;
 }

@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
+use warnings;
 use strict;
 use File::Basename;
 use Getopt::Long;
@@ -185,6 +186,7 @@ if ($top eq $cwd) {
 }
 $files =~ s+\\n+\'\\n\'+g;
 
+## no critic
 # Pipe the file list to krazy2 for the actual processing work
 my ($cmd) = "krazy2 $opts -";
 if ($outf) {
@@ -194,6 +196,7 @@ if ($outf) {
 }
 print P "$files\n";
 close(P);
+## use critic
 
 if (($? >> 8) > 0) {
   exit 1;

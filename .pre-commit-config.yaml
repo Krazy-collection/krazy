@@ -19,6 +19,10 @@ repos:
   rev: "20260705.01"
   hooks:
   - id: perltidy
+- repo: https://github.com/scop/pre-commit-perlcritic
+  rev: v1.156-1
+  hooks:
+  - id: perlcritic
 - repo: https://github.com/codespell-project/codespell
   rev: v2.4.3
   hooks:

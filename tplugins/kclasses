@@ -21,52 +21,34 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
-use Getopt::Long;
-use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::PreProcess;
 use Krazy::Utils;
 
 my ($Prog)    = "kclasses";
 my ($Version) = "1.0";
 
-my ($help)      = '';
-my ($version)   = '';
-my ($explain)   = '';
-my ($installed) = '';
-my ($quiet)     = '';
-my ($verbose)   = '';
+&parseArgs();
 
-exit 1
-  if (
-  !GetOptions(
-    'help'      => \$help,
-    'version'   => \$version,
-    'explain'   => \$explain,
-    'installed' => \$installed,
-    'verbose'   => \$verbose,
-    'quiet'     => \$quiet
-  )
-  );
-
-&Help()    if $help;
-&Version() if $version;
-&Explain() if $explain;
+&Help()    if &helpArg();
+&Version() if &versionArg();
+&Explain() if &explainArg();
 if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my ($f)    = $ARGV[0];
-my ($absf) = abs_path($f);
+my ($f) = $ARGV[0];
 
-if ($installed && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/)) {
-  open(F, "$f") || die "Couldn't open $f";
-} else {
-  print "okay\n" if (!$quiet);
+unless (&installedArg() && isCInclude($f)) {
+  print "okay\n" if (!&quietArg());
   Exit 0;
 }
 
-my (@data_lines) = <F>;
-close(F);
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 #get all the c-style comments from the file
 my ($data)     = "@data_lines";
@@ -101,11 +83,11 @@ while ($linecnt < $#lines) {
 }
 
 if (!$cnt) {
-  print "okay\n" if (!$quiet);
+  print "okay\n" if (!&quietArg());
   Exit 0;
 } else {
   $lstr =~ s/,$//;
-  print "$lstr ($cnt)\n" if (!$quiet);
+  print "$lstr ($cnt)\n" if (!&quietArg());
   Exit $cnt;
 }
 
@@ -115,7 +97,7 @@ sub doIt()
   if ($f !~ m/$kname\.h/i && &kClass($line, $kname)) {
     $cnt++;
     $lstr .= $kname . "[$qname],";
-    print "=> $line\n" if ($verbose);
+    print "=> $line\n" if (&verboseArg());
   }
 }
 
@@ -125,7 +107,7 @@ sub kClass()
   if ( $l =~ m/^[[:space:]]*class[[:space:]]$kname[[:space:]]*;/
     || $l =~ m/$kname[[:space:]]*\*/)
   {
-    or include <KAction> or include <kaction.h> or QList <KAction> or QList <KAction*> return 1;
+# TODO: or include <KAction> or include <kaction.h> or QList <KAction> or QList <KAction*> return 1;
   } else {
     return 0;
   }
@@ -134,17 +116,17 @@ sub kClass()
 sub Help
 {
   print "Check for KDE classes that should not be used\n";
-  Exit 0 if $help;
+  Exit 0 if (&helpArg());
 }
 
 sub Version
 {
   print "$Prog, version $Version\n";
-  Exit 0 if $version;
+  Exit 0 if (&verboseArg());
 }
 
 sub Explain
 {
   print "Use Qt classes in the public API instead of the KDE counterparts.\n";
-  Exit 0 if $explain;
+  Exit 0 if (&explainArg());
 }

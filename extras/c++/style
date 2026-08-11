@@ -32,6 +32,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #TODO: prefer if !defined() to ifndef (except INCLUDEGUARD_H)
 # case FOO:{  should move the brace to next line, not indented
 
+use warnings;
 use strict;
 use Env qw (KRAZY_STYLE_CPPSTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
 use Cwd 'abs_path';
@@ -57,13 +58,6 @@ tie my (%Issues), "Tie::IxHash";
 # Check Condition
 my ($f) = $ARGV[0];
 
-if (&fileType($f) eq "c++") {
-  open(F, "$f") || die "Couldn't open $f";
-} else {
-  print "okay\n" if (!&quietArg());
-  Exit 0;
-}
-
 $KRAZY_STYLE_LINEMAX = 0 if (!$KRAZY_STYLE_LINEMAX);
 if (!$KRAZY_STYLE_CPPSTYLE) {
   $KRAZY_STYLE_CPPSTYLE = "kde";
@@ -77,10 +71,16 @@ if (!$KRAZY_STYLE_OFFSET) {
   $KRAZY_STYLE_OFFSET = 4;
 }
 
-#open file and slurp it in
-open(F, "$f") || die "Couldn't open $f";
-my (@data_lines) = <F>;
-close(F);
+# C++ files only
+if (&fileType($f) ne "c++") {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+
+# open file and slurp it in
+open my $fh, '<:encoding(UTF-8)', $f or die;
+my (@data_lines) = <$fh>;
+close($fh);
 
 # Remove C-style comments from the file input
 my (@lines) = RemoveCommentsC(@data_lines);
@@ -88,9 +88,8 @@ my (@lines) = RemoveCommentsC(@data_lines);
 # Remove Krazy conditional blocks
 @lines = RemoveCondBlockC($Prog, @lines);
 
-my ($cnt)     = 0;
-my ($linecnt) = 0;
-my ($line);
+my ($cnt)      = 0;
+my ($linecnt)  = 0;
 my ($tline)    = "";
 my ($rawlline) = "";
 my ($rawline)  = "";
@@ -101,7 +100,7 @@ my ($llline)   = "";    #two non-empty lines back
 my ($indent, $lindent) = (0, 0);
 &initIssues();
 
-foreach $line (@lines) {
+foreach my ($line) (@lines) {
   chomp($line);
 
   $rawlline = $rawline;
@@ -893,7 +892,7 @@ foreach $line (@lines) {
 $linecnt = 0;
 $lline   = '';
 $llline  = '';
-foreach $line (@data_lines) {
+foreach my ($line) (@data_lines) {
   $linecnt++;
   chomp($line);
   if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+) {
@@ -1167,12 +1166,11 @@ sub initIssues()
 
 sub printResults()
 {
-  my ($guy);
   my ($check_num) = 0;
   my ($tot)       = 0;
   my ($cline, $rline);
   my ($fred);
-  foreach $guy (keys %Issues) {
+  foreach my ($guy) (keys %Issues) {
     $cline = "$Issues{$guy}{'issue'}:";
 
     if ($Issues{$guy}{'count'}) {

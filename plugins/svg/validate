@@ -23,6 +23,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # Exits with status=0 if test condition is not present in the source;
 # else exits with the number of failures encountered.
 
+use warnings;
 use strict;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -83,7 +84,7 @@ sub processFile()
   my ($in) = @_;
   my ($line, $result);
   my ($cnt) = 0;
-  open(VAL, "$valp --noout \"$in\" 2>&1 | ") || print STDERR "Cannot run: xmllint\n";
+  open(VAL, "$valp --noout \"$in\" 2>&1 | ") || print STDERR "Cannot run: xmllint\n";    ## no critic
   while ($line = <VAL>) {
     chomp($line);
     $result = &analyze($line);

@@ -1,0 +1,9 @@
+#comment if you like colors
+color = 0
+severity = 5
+
+[TestingAndDebugging::RequireUseStrict]
+severity = 5
+
+[TestingAndDebugging::RequireUseWarnings]
+severity = 5
