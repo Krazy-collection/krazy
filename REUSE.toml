@@ -4,7 +4,7 @@ SPDX-PackageSupplier = "Allen Winter <winter@kde.org>"
 
 #developer tool configuration files
 [[annotations]]
-path = [".codespellrc", ".krazy", ".pre-commit-config.yaml", ".editorconfig", ".shellcheckrc", "REUSE.toml", ".markdownlint.json", ".perltidyrc", ".perlcriticrc"]
+path = [".codespellrc", ".krazy", ".pre-commit-config.yaml", ".editorconfig", ".shellcheckrc", "REUSE.toml", ".markdownlint.json", ".perltidyrc", ".perlcriticrc", ".gitignore"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "Allen Winter <winter@kde.org>"
 SPDX-License-Identifier = "BSD-3-Clause"
