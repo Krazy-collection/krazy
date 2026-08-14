@@ -16,7 +16,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # the kde-dev-scripts module.                                                 #
 ###############################################################################
 
-# Tests KDE source for spelling errors
+# Tests source for spelling errors
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -130,6 +130,12 @@ sub check_file
         || $original =~ m+^GenericName\[.*\]+)
       );
 
+    next
+      if (
+      $filetype eq "json"
+      && ( $original =~ m+^\s*\"Description\[.*\]\":+
+        || $original =~ m+^\s*\"Name\[.*\]\":+)
+      );
     next if ($filetype eq "c++"
       && ($original =~ m/^\s*#\s*include/));
 
