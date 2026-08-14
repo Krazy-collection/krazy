@@ -6,7 +6,6 @@
 
 # list of all plugins to install
 PLUGINS = \
-captruefalse \
 constref \
 cpp \
 crashy \
@@ -22,7 +21,6 @@ nullstrcompare \
 operators \
 postfixop \
 qmethods \
-qminmax \
 qobject \
 qbytearray \
 sigsandslots \

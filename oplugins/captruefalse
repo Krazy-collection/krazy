@@ -44,8 +44,8 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-# open file and slurp it in (skip C source files)
-if (isCSource($f)) {
+# C++ only
+unless (&usingKDECheckSet() && !isCSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }

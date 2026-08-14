@@ -42,7 +42,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # open file and slurp it in (Qt designer only)
-if (&fileType($f) ne "designer") {
+if (!&usingKDECheckSet() || &fileType($f) ne "designer") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }

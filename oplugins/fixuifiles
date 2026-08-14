@@ -48,6 +48,11 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
+unless (&usingKDECheckSet()) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+
 # open file and slurp it in
 open my $fh, '<:encoding(UTF-8)', $f or die;
 my (@data_lines) = <$fh>;

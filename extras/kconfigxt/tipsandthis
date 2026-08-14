@@ -42,7 +42,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # open file and slurp it in (KConfigXT only)
-if (&fileType($f) ne "kconfigxt") {
+if (!&usingKDECheckSet() || &fileType($f) ne "kconfigxt") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }

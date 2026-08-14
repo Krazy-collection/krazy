@@ -28,7 +28,6 @@ typedefs \
 UI_PLUGINS = \
 endswithnewline \
 filenames \
-fixuifiles \
 i18ncheckarg \
 insecurenet \
 qclasses \

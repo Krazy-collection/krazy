@@ -6,7 +6,6 @@
 
 # list of all plugins to install
 PLUGINS = \
-fixuifiles \
 
 # links to general purpose plugins
 PLUGINLNS = \

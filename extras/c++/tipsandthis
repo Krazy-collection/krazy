@@ -44,7 +44,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++ non-headers only
-if ((&fileType($f) ne "c++") || isCSource($f) || isCInclude($f)) {
+if (!&usingKDECheckSet() || (&fileType($f) ne "c++") || isCSource($f) || isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
