@@ -29,10 +29,10 @@ $VERSION = 2.99999;                                            # this is the mod
   explainArg quietArg verboseArg installedArg
   priorityTypeStr strictTypeStr exportTypeStr
   outputTypeStr checksetTypeStr
-  styleTypeStr cmakeStyleTypeStr pythonStyleTypeStr cppIncludeOrderTypeStr
+  cppIncludeOrderTypeStr
   validateExportType validatePriorityType validateStrictType
   validateOutputType validateCheckSet
-  validateStyleType validateCMakeStyleType validatePythonStyleType validateCppIncludeOrderType
+  validateCppIncludeOrderType
   usingCheckSet usingQtCheckSet usingKDECheckSet
   linesSearchInFile linesCaseSearchInFile
   allLinesCaseSearchInFile
@@ -68,19 +68,6 @@ my (@Outputs) = (
   "normal",       # standard stuff (default)
   "brief",        # only checks with issues
   "quiet"         # no output, even if verbosity turned-on
-);
-
-my (@Styles) = (
-  "qt",           # Qt style
-  "kde",          # KDE style (default)
-);
-
-my (@CMakeStyles) = (
-  "kde"           # KDE style (default)
-);
-
-my (@PythonStyles) = (
-  "kde"           # KDE style (default)
 );
 
 my (@CppIncludeOrderTypes) = ("true", "false", "yes", "no", "on", "off");
@@ -610,51 +597,6 @@ sub validateOutputType
   if ($output) {
     $output = lc($output);
     return grep {$_ eq $output} @Outputs;
-  }
-  return 0;
-}
-
-sub styleTypeStr
-{
-  return join ', ', @Styles;
-}
-
-sub validateStyleType
-{
-  my ($style) = @_;
-  if ($style) {
-    $style = lc($style);
-    return grep {$_ eq $style} @Styles;
-  }
-  return 0;
-}
-
-sub cmakeStyleTypeStr
-{
-  return join ', ', @CMakeStyles;
-}
-
-sub validateCMakeStyleType
-{
-  my ($style) = @_;
-  if ($style) {
-    $style = lc($style);
-    return grep {$_ eq $style} @CMakeStyles;
-  }
-  return 0;
-}
-
-sub pythonStyleTypeStr
-{
-  return join ', ', @PythonStyles;
-}
-
-sub validatePythonStyleType
-{
-  my ($style) = @_;
-  if ($style) {
-    $style = lc($style);
-    return grep {$_ eq $style} @PythonStyles;
   }
   return 0;
 }

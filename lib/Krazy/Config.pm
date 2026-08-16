@@ -14,7 +14,6 @@ use strict;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 use Cwd;
 use Krazy::Utils;
-use Env qw (KRAZY_STYLE_CPPSTYLE KRAZY_STYLE_OFFSET KRAZY_STYLE_LINEMAX);
 
 use Exporter;
 $VERSION = 1.60;
@@ -44,9 +43,6 @@ $VERSION = 1.60;
 # IGNORESUBS subdir1[,subdir2,...]
 # EXTRASUBS subdir1[,subdir2,...]
 # IGNOREMODS module1[,module2,...]
-# STYLE_CPPSTYLE <qt|kde|pim>
-# STYLE_OFFSET <integer > 0>
-# STYLE_LINEMAX <integer > 0>
 # CPP_INCLUDE_ORDER <true|false>
 #
 # Multiple directives may be specified per file; they will be combined in
@@ -131,21 +127,6 @@ sub ParseKrazyRC
       &types($arg, $linecnt, $rcfile);
     } elsif ($directive eq "EXCLUDETYPES") {
       &excludeTypes($arg, $linecnt, $rcfile);
-    } elsif ($directive eq "STYLE_CPPSTYLE"
-      || $directive eq "STYLE_OFFSET"
-      || $directive eq "STYLE_LINEMAX")
-    {
-      &styleSettings($directive, $arg, $linecnt, $rcfile);
-    } elsif ($directive eq "STYLE_CMAKESTYLE_STYLE"
-      || $directive eq "STYLE_CMAKESTYLE_OFFSET"
-      || $directive eq "STYLE_CMAKESTYLE_LINEMAX")
-    {
-      &cmakeStyleSettings($directive, $arg, $linecnt, $rcfile);
-    } elsif ($directive eq "STYLE_PYTHONSTYLE_STYLE"
-      || $directive eq "STYLE_PYTHONSTYLE_OFFSET"
-      || $directive eq "STYLE_PYTHONSTYLE_LINEMAX")
-    {
-      &pythonStyleSettings($directive, $arg, $linecnt, $rcfile);
     } elsif ($directive eq "CPP_INCLUDE_ORDER") {
       &cppIncludeSettings($directive, $arg, $linecnt, $rcfile);
     } else {
@@ -255,120 +236,6 @@ sub excludeTypes
     $rcExcTypes = $args;
   } else {
     $rcExcTypes .= "," . $args;
-  }
-}
-
-sub styleSettings
-{
-  my ($s, $args, $l, $f) = @_;
-  if (!defined($args)) {
-    print "missing $s arguments, line $l, $f\n";
-    exit 1;
-  }
-
-  if ($s eq "STYLE_CPPSTYLE") {
-    if (!&validateStyleType($args)) {
-      my ($lst) = &styleTypeStr();
-      print "invalid STYLE_CPPSTYLE argument \"$args\", line $l, $f\nChoices are: $lst\n";
-      exit 1;
-    } else {
-      $ENV{KRAZY_STYLE_CPPSTYLE} = $args;
-    }
-  } elsif ($s eq "STYLE_OFFSET") {
-    my ($offset) = sprintf("%d", $args);
-    if ($offset < 1) {
-      print "setting $s value less than 1, line $l, $f\n";
-      exit 1;
-    } else {
-      $ENV{KRAZY_STYLE_OFFSET} = $offset;
-    }
-  } elsif ($s eq "STYLE_LINEMAX") {
-    my ($max) = sprintf("%d", $args);
-    if ($max < 0) {
-      print "setting $s value less than 0, line $l, $f\n";
-      exit 1;
-    } else {
-      $ENV{KRAZY_STYLE_LINEMAX} = $max;
-    }
-  } else {
-    print "unknown style setting $s, line $l, $f\n";
-    exit 1;
-  }
-}
-
-sub cmakeStyleSettings
-{
-  my ($s, $args, $l, $f) = @_;
-  if (!defined($args)) {
-    print "missing $s arguments, line $l, $f\n";
-    exit 1;
-  }
-
-  if ($s eq "STYLE_CMAKESTYLE_STYLE") {
-    if (!&validateCMakeStyleType($args)) {
-      my ($lst) = &cmakeStyleTypeStr();
-      print "invalid STYLE_CMAKESTYLE_STYLE argument \"$args\", line $l, $f\nChoices are: $lst\n";
-      exit 1;
-    } else {
-      $ENV{KRAZY_CMAKESTYLE_STYLE} = $args;
-    }
-  } elsif ($s eq "STYLE_CMAKESTYLE_OFFSET") {
-    my ($offset) = sprintf("%d", $args);
-    if ($offset < 1) {
-      print "setting $s value less than 1, line $l, $f\n";
-      exit 1;
-    } else {
-      $ENV{KRAZY_CMAKESTYLE_OFFSET} = $offset;
-    }
-  } elsif ($s eq "STYLE_CMAKESTYLE_LINEMAX") {
-    my ($max) = sprintf("%d", $args);
-    if ($max < 0) {
-      print "setting $s value less than 0, line $l, $f\n";
-      exit 1;
-    } else {
-      $ENV{KRAZY_CMAKESTYLE_LINEMAX} = $max;
-    }
-  } else {
-    print "unknown style setting $s, line $l, $f\n";
-    exit 1;
-  }
-}
-
-sub pythonStyleSettings
-{
-  my ($s, $args, $l, $f) = @_;
-  if (!defined($args)) {
-    print "missing $s arguments, line $l, $f\n";
-    exit 1;
-  }
-
-  if ($s eq "STYLE_PYTHONSTYLE_STYLE") {
-    if (!&validatePythonStyleType($args)) {
-      my ($lst) = &pythonStyleTypeStr();
-      print "invalid STYLE_PYTHONSTYLE_STYLE argument \"$args\", line $l, $f\nChoices are: $lst\n";
-      exit 1;
-    } else {
-      $ENV{KRAZY_PYTHONSTYLE_STYLE} = $args;
-    }
-  } elsif ($s eq "STYLE_PYTHONSTYLE_OFFSET") {
-    my ($offset) = sprintf("%d", $args);
-    if ($offset < 1) {
-      print "setting $s value less than 1, line $l, $f\n";
-      exit 1;
-    } else {
-      $ENV{KRAZY_PYTHONSTYLE_OFFSET} = $offset;
-    }
-  } elsif ($s eq "STYLE_PYTHONSTYLE_LINEMAX") {
-    my ($max) = sprintf("%d", $args);
-    if ($max < 0) {
-      print "setting $s value less than 0, line $l, $f\n";
-      exit 1;
-    } else {
-      $ENV{KRAZY_PYTHONSTYLE_LINEMAX} = $max;
-    }
-  } else {
-    print "unknown style setting $s, line $l, $f\n";
-    exit 1;
   }
 }
 

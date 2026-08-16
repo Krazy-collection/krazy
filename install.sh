@@ -154,6 +154,8 @@ rm -f "$TOP"/lib/krazy2/krazy-plugins/*/iconnames "$TOP"/lib/krazy2/krazy-sets/*
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/passbyvalue "$TOP"/lib/krazy2/krazy-sets/*/*-passbyvalue
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qminmax "$TOP"/lib/krazy2/krazy-sets/*/*-qminmax
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax "$TOP"/lib/krazy2/krazy-sets/*/*-qmlsyntax
+#remove old extra checkers no longer in use
+rm -f "$TOP"/lib/krazy2/krazy-extras/*/style
 #remove filetypes no longer supported
 rm -rf "$TOP"/lib/krazy2/krazy-*/tips
 rm -rf "$TOP"/lib/krazy2/krazy-sets/*/tips-*
