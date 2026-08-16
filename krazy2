@@ -192,8 +192,7 @@ if (!$list && !$listtypes && !$listtype && !$listset && !$listsets && !$listrunt
 
 if ($priority && !&validatePriorityType($priority)) {
   my ($lst) = &priorityTypeStr();
-  &userError(
-    "Bad priority level \"$priority\" specified... exiting\nChoices for priority are: $lst");
+  &userError("Bad priority level \"$priority\" specified... exiting\nChoices for priority are: $lst");
 }
 
 if ($strict && !&validateStrictType($strict)) {
@@ -225,7 +224,10 @@ tie my (%Sets), "Tie::IxHash";
 #Compute the Project Path and guess the Project Checksets
 my ($ProjPath) = &topOfProject($CWD);
 if (!$ProjPath) {
-  $ProjPath = $CWD;
+  $ProjPath = &guessTopOfProject($CWD);    # use various heuristics to find the top-level path of the project
+  if (!$ProjPath) {
+    $ProjPath = $CWD;
+  }
 }
 
 my ($GuessCheckSets) = '';
@@ -237,8 +239,7 @@ $GuessCheckSets = $DEFAULT_CHECKSETS if (!$GuessCheckSets);
 ####################################################################
 # This section builds the list of checker programs and check-sets. #
 ####################################################################
-$KRAZY_PLUGIN_PATH =
-  "$KRAZYPATH/lib64/krazy2/krazy-plugins:" . "$KRAZYPATH/lib/krazy2/krazy-plugins:"
+$KRAZY_PLUGIN_PATH = "$KRAZYPATH/lib64/krazy2/krazy-plugins:" . "$KRAZYPATH/lib/krazy2/krazy-plugins:"
   if (!$KRAZY_PLUGIN_PATH);
 $KRAZY_EXTRA_PATH = "$KRAZYPATH/lib64/krazy2/krazy-extras:" . "$KRAZYPATH/lib/krazy2/krazy-extras:"
   if (!$KRAZY_EXTRA_PATH);
@@ -253,8 +254,7 @@ for my ($sp) (split(/:/, $KRAZY_PLUGIN_PATH)) {
 }
 @sanity_paths = deDupe(@sanity_paths);
 if ($#sanity_paths < 0) {
-  &userError(
-    "No plugin paths found.\nPlease check your KRAZY_PLUGIN_PATH environment variable... exiting");
+  &userError("No plugin paths found.\nPlease check your KRAZY_PLUGIN_PATH environment variable... exiting");
 }
 
 # Generate a hash of arrays containing the plugin names for each supported type
@@ -284,9 +284,7 @@ for my ($setp) (split(/:/, $KRAZY_SET_PATH)) {
 }
 @set_paths = deDupe(@set_paths);
 if ($#set_paths < 0) {
-  &userError(
-    "No checker set paths found.\nPlease check your KRAZY_SET_PATH environment variable... exiting"
-  );
+  &userError("No checker set paths found.\nPlease check your KRAZY_SET_PATH environment variable... exiting");
 }
 
 # Generate a hash of arrays for the check-sets
@@ -464,9 +462,7 @@ my ($kdesets) = '';
 if ($checksets) {
   foreach my ($set) (split(",", $checksets)) {
     if (!validateCheckSet($set)) {
-      &userError(
-"No such check-set \"$set\".\nRun $Prog --list-sets to see the list of available check-sets."
-      );
+      &userError("No such check-set \"$set\".\nRun $Prog --list-sets to see the list of available check-sets.");
     }
     if ($set =~ m/^qt/i) {
       if ($qtsets) {
@@ -527,9 +523,7 @@ if ($extra) {
       }
     }
     if (!$found) {
-      &userError(
-"Extra checker \"$x\" not found.\nRun $Prog --list to see the list of available checker programs."
-      );
+      &userError("Extra checker \"$x\" not found.\nRun $Prog --list to see the list of available checker programs.");
     }
   }
 }
@@ -541,8 +535,7 @@ if ($inctypes) {
   for my ($t) (@only_types) {
     if (!defined($Checkers{$t})) {
       &userError(
-"The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types."
-      );
+        "The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types.");
     }
   }
   foreach my ($type) (keys %Checkers) {
@@ -567,8 +560,7 @@ if ($exctypes) {
   for my ($t) (@exclude_types) {
     if (!defined($Checkers{$t})) {
       &userError(
-"The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types."
-      );
+        "The file type \"$t\" is not supported.\nRun $Prog --list-types to see the list of supported file types.");
     }
   }
   foreach my ($type) (keys %Checkers) {
@@ -620,8 +612,7 @@ if ($only) {
     if (!$found) {
       my ($emess);
       if (!$checksets) {
-        $emess =
-"No such checker \"$o\".\nRun $Prog --list to see the list of available checker programs.";
+        $emess = "No such checker \"$o\".\nRun $Prog --list to see the list of available checker programs.";
       } else {
         $emess =
 "No such checker \"$o\" in the check-sets \"$checksets\".\nRun $Prog --list-sets to see the list of available check-sets and programs.";
@@ -758,8 +749,8 @@ my ($insopt);
 my ($overall_status) = 0;
 my ($num_checkers)   = 0;
 my ($use, %result, $pid, %status);
-my ($insp) = $KRAZYPATH . "/lib64/krazy2/krazy-helpers/getInstalledHeaders.pl";
-$insp = $KRAZYPATH . "/lib/krazy2/krazy-helpers/getInstalledHeaders.pl" if (!-f $insp);
+my ($insp) = catfile($KRAZYPATH, "lib64", "krazy2", "krazy-helpers", "getInstalledHeaders.pl");
+$insp = catfile($KRAZYPATH, "lib", "krazy2", "krazy-helpers", "getInstalledHeaders.pl") if (!-f $insp);
 my ($dirf);
 my ($nf) = 0;
 my (@processedFiles);
@@ -1237,7 +1228,7 @@ sub textDescription
 {
   my ($pth) = @_;
   return "" if (!$pth);
-  my ($f) = "$pth" . "/description.txt";
+  my ($f) = catfile($pth, "description.txt");
   open my $fh, '<:encoding(UTF-8)', $f or return "";
   my ($line) = "";
   while ($line = <$fh>) {
@@ -1343,8 +1334,7 @@ sub printOOPS    ## no critic
           print "    \"description\": \"$subissue\",\n";
           print "    \"checkname\": \"$checker\",\n";
           print "    \"fingerprint\": \"$fingerprint\",\n";
-          print "    \"severity\": \"info\"\,\n"
-            ;    # can be one of info, minor, major, critical, or blocker
+          print "    \"severity\": \"info\"\,\n";    # can be one of info, minor, major, critical, or blocker
           print "    \"location\": {\n";
           print "      \"path\": \"$f\",\n";
           print "      \"lines\": {\n";
@@ -1385,8 +1375,8 @@ sub htmlify
   $s = encode_entities($s);
   $s =~ s+&lt;http:(.*?)&gt;+&lt;a href="http:$1"&gt;http:$1&lt;/a&gt;+gs;
   $s =~ s+&lt;https:(.*?)&gt;+&lt;a href="https:$1"&gt;https:$1&lt;/a&gt;+gs;
-  $s =~ s=\*(\S+)\*=&lt;strong&gt;$1&lt;/strong&gt;=g;    # *word* becomes boldified
-  $s =~ s=\b\_(\S+)\_\b=&lt;em&gt;$1&lt;/em&gt;=g;        # _word_ becomes italicized
+  $s =~ s=\*(\S+)\*=&lt;strong&gt;$1&lt;/strong&gt;=g;                          # *word* becomes boldified
+  $s =~ s=\b\_(\S+)\_\b=&lt;em&gt;$1&lt;/em&gt;=g;                              # _word_ becomes italicized
   return $s;
 }
 

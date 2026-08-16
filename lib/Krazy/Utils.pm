@@ -15,6 +15,7 @@ use POSIX qw (setlocale strftime LC_TIME);
 use File::Basename;
 use File::Glob ':bsd_glob';
 use File::Find;
+use File::Spec::Functions 'catfile';
 use Getopt::Long;
 
 use Exporter;
@@ -73,9 +74,8 @@ my (@Outputs) = (
 my (@CppIncludeOrderTypes) = ("true", "false", "yes", "no", "on", "off");
 
 my (@FileTypes) = (
-  'c++',      'cmake', 'desktop', 'designer', 'kconfigxt', 'messages',
-  'kpartgui', 'qml',   'qdoc',    'perl',     'python',    'json',
-  'svg'
+  'c++',  'cmake', 'desktop', 'designer', 'kconfigxt', 'messages', 'kpartgui', 'qml',
+  'qdoc', 'perl',  'python',  'json',     'svg'
 );
 
 my (@Sets) = (
@@ -89,7 +89,7 @@ my (@Sets) = (
 );
 
 #full path to the top of the project dir where the specified file resides
-sub topProject
+sub topOfProject
 {
   # TODO: only supports git
   my ($top) = `git rev-parse --show-toplevel`;
@@ -445,7 +445,13 @@ sub findFiles
 sub findFileByRegex
 {
   my ($regex, @dirs) = @_;
-  my ($top) = &topProject($dirs[0]);
+  my ($top) = &topOfProject($dirs[0]);
+  if (!$top) {
+    $top = &guessTopOfProject($dirs[0]);
+    if (!$top) {
+      return 0;
+    }
+  }
 
   @tmp = ();
   find(\&aok2, ($top));
@@ -815,32 +821,22 @@ sub guessCheckSet
   #look up 1 level if a bundled-app project
   $in = $modpath if ($module eq "calligra" || $module eq "krita" || $module eq "kexi");
 
-  my ($cmakepath) = $in . "/CMakeLists.txt";
-  my ($qmakepath) = $in . "/" . $project . ".pro";
-  my ($autopath)  = $in . "/autogen.py";
+  my ($cmakepath) = catfile($in, "CMakeLists.txt");
+  my ($qmakepath) = catfile($in, $project . ".pro");
+  my ($autopath)  = catfile($in, "autogen.py");
   my (@fosspaths) = (
-    $in . "/COPYING",
-    $in . "/COPYING.LIB",
-    $in . "/License.txt",
-    $in . "/LICENSE.GPL.txt",
-    $in . "/LICENSE"
+    catfile($in, "COPYING"),
+    catfile($in, "COPYING.LIB"),
+    catfile($in, "License.txt"),
+    catfile($in, "LICENSE.GPL.txt"),
+    catfile($in, "LICENSE"),
   );
 
   #CMake buildsystems
   if (-e $cmakepath) {
-    if (
-      &allLinesCaseSearchInFile(
-        $cmakepath, ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KF6")
-      ) > 0
-      )
-    {
+    if (&allLinesCaseSearchInFile($cmakepath, ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KF6")) > 0) {
       $checkset = "kde6";
-    } elsif (
-      &allLinesCaseSearchInFile(
-        $cmakepath, ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KF5")
-      ) > 0
-      )
-    {
+    } elsif (&allLinesCaseSearchInFile($cmakepath, ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KF5")) > 0) {
       $checkset = "kde5";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*Qt6")) > 0) {
       $checkset = "qt6";
@@ -851,7 +847,7 @@ sub guessCheckSet
     }
   } elsif (-e $qmakepath) {
     $checkset = "qt6";
-  } elsif (bsd_glob($in . "/*.pro")) {
+  } elsif (bsd_glob(catfile($in, "*.pro"))) {
     $checkset = "qt6";
   } elsif (-e $autopath) {
     $checkset = "qt6";

@@ -42,6 +42,7 @@ use strict;
 use Env qw (KRAZY_CPP_INCLUDE_ORDER);
 use Tie::IxHash;
 use File::Basename;
+use File::Spec::Functions 'catfile';
 use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
@@ -285,9 +286,9 @@ if ($KRAZY_CPP_INCLUDE_ORDER eq "true") {
       }
     }
 
-    $foo  = basename(dirname(abs_path($f))) . "/" . $foo;
-    $foop = basename(dirname(abs_path($f))) . "/" . $foop;
-    $fooi = basename(dirname(abs_path($f))) . "/" . $fooi;
+    $foo  = catfile(&basename(dirname(abs_path($f))), $foo);
+    $foop = catfile(&basename(dirname(abs_path($f))), $foop);
+    $fooi = catfile(&basename(dirname(abs_path($f))), $fooi);
     if (defined($Incs{$foo})) {
       if ($Incs{$foo}{'nth'} != 1) {
         $Issues{'OWN1'}{'count'}++;
@@ -364,11 +365,10 @@ sub Explain
 
 sub initIssues()
 {
-  $Issues{'GUARD'}{'issue'} = "missing or improper include guard in header";
-  $Issues{'GUARD'}{'explain'} =
-    "Use an include guard in headers to ensure the header is not included more than once";
-  $Issues{'GUARD'}{'count'} = 0;
-  $Issues{'GUARD'}{'lines'} = '';
+  $Issues{'GUARD'}{'issue'}   = "missing or improper include guard in header";
+  $Issues{'GUARD'}{'explain'} = "Use an include guard in headers to ensure the header is not included more than once";
+  $Issues{'GUARD'}{'count'}   = 0;
+  $Issues{'GUARD'}{'lines'}   = '';
 
   $Issues{'UGUARD'}{'issue'} = "using leading or trailing underscores on include guard in header";
   $Issues{'UGUARD'}{'explain'} =
@@ -376,11 +376,10 @@ sub initIssues()
   $Issues{'UGUARD'}{'count'} = 0;
   $Issues{'UGUARD'}{'lines'} = '';
 
-  $Issues{'ANGLE'}{'issue'} = "use angle brackets";
-  $Issues{'ANGLE'}{'explain'} =
-    "Use angle brackets to include installed headers or if the file is an installed header";
-  $Issues{'ANGLE'}{'count'} = 0;
-  $Issues{'ANGLE'}{'lines'} = '';
+  $Issues{'ANGLE'}{'issue'}   = "use angle brackets";
+  $Issues{'ANGLE'}{'explain'} = "Use angle brackets to include installed headers or if the file is an installed header";
+  $Issues{'ANGLE'}{'count'}   = 0;
+  $Issues{'ANGLE'}{'lines'}   = '';
 
   $Issues{'QINC'}{'issue'}   = "do not include QtModule/QtClass";
   $Issues{'QINC'}{'explain'} = "Use include <QtClass> instead of <QtModule/QtClass>";
@@ -410,19 +409,19 @@ sub initIssues()
 
   $Issues{'OWN1'}{'issue'} = "include own header first";
   $Issues{'OWN1'}{'explain'} =
-"foo.cpp should always include its own header foo.h first, helping to check that foo.h is usable as standalone";
+    "foo.cpp should always include its own header foo.h first, helping to check that foo.h is usable as standalone";
   $Issues{'OWN1'}{'count'} = 0;
   $Issues{'OWN1'}{'lines'} = '';
 
   $Issues{'PRIV2'}{'issue'} = "include own _p or impl header second";
   $Issues{'PRIV2'}{'explain'} =
-"foo.cpp should include its own header foo.h first, followed by its private header foo_p.h or fooimpl.h second";
+    "foo.cpp should include its own header foo.h first, followed by its private header foo_p.h or fooimpl.h second";
   $Issues{'PRIV2'}{'count'} = 0;
   $Issues{'PRIV2'}{'lines'} = '';
 
   $Issues{'PRIV1'}{'issue'} = "include own _p or impl header first";
   $Issues{'PRIV1'}{'explain'} =
-"foo.cpp should include its own private header foo_p.h or fooimplh first if there is no foo.h header";
+    "foo.cpp should include its own private header foo_p.h or fooimplh first if there is no foo.h header";
   $Issues{'PRIV1'}{'count'} = 0;
   $Issues{'PRIV1'}{'lines'} = '';
 

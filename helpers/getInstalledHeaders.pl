@@ -12,6 +12,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 use warnings;
 use strict;
 use File::Basename;
+use File::Spec::Functions 'catfile';
 use Cwd 'abs_path';
 
 # Donated by "Jos van den Oever" <jos@vandenoever.info>, March 2007
@@ -176,8 +177,8 @@ if ($#ARGV != 0) {
 # we look in the specified directory, and 1-level up
 my (@makefiles);
 my ($absf) = abs_path($ARGV[0]);
-push(@makefiles, $absf . "/CMakeLists.txt");
-push(@makefiles, dirname($absf) . "/CMakeLists.txt");
+push(@makefiles, catfile($absf,           "CMakeLists.txt"));
+push(@makefiles, catfile(&dirname($absf), "CMakeLists.txt"));
 
 foreach (@makefiles) {
   chomp;

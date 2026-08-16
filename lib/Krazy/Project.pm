@@ -12,12 +12,13 @@ use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic
 use Cwd;
 use Cwd 'abs_path';
 use File::Basename;
+use File::Spec::Functions 'catfile';
 
 use Exporter;
 $VERSION = 0.96;
 @ISA     = qw(Exporter);
 
-@EXPORT    = qw(topOfProject projectType);
+@EXPORT    = qw(guessTopOfProject projectType);
 @EXPORT_OK = qw();
 
 my ($PROJECT_TYPE) = "";
@@ -93,7 +94,7 @@ sub findUpCMakeProject
     }
   }
   return "" if (!-e $f);
-  return getcwd() . "/" . $f;
+  return catfile(getcwd(), $f);
 }
 
 # findUpProProject: from $1, searches up no farther than the dir named in $2 for a foo.pro file in dir foo
@@ -114,7 +115,7 @@ sub findUpProProject
   my ($f);
   $f = basename(getcwd()) . ".pro";
   return "" if (!-e $f);
-  return getcwd() . "/" . $f;
+  return catfile(getcwd(), $f);
 }
 
 # findUp: from $1, searches up for the dir named in $2 and see if a .pro file lives in there
@@ -132,7 +133,7 @@ sub findUpPro
     }
   }
   my (@matches) = glob("*.pro");
-  return getcwd() . "/.pro" if ($#matches >= 0);
+  return catfile(getcwd(), ".pro") if ($#matches >= 0);
   return "";
 }
 
@@ -154,11 +155,11 @@ sub findUpConfigure
     }
   }
   return "" if (!-x $f1 && !-x $f2);
-  return getcwd() . "/" . $f1;
+  return return (getcwd(), $f1);
 }
 
-# topOfProject: use various heuristics to find the top-level path of the project from $CWD
-sub topOfProject
+# guessTopOfProject: use various heuristics to find the top-level path of the project from $CWD
+sub guessTopOfProject
 {
   my ($td) = @_;
   return "" if (!defined($td));
@@ -220,7 +221,7 @@ sub topOfProject
     if (!$t) {
       $t = findUp($td, $s);
       if ($t) {
-        $t = $t . "/foo";    #append foo file due to running dirname before returning
+        $t = catfile($t, "foo");    #append foo file due to running dirname before returning
         &setProjectType("top of SCM");
         goto Done;
       }
