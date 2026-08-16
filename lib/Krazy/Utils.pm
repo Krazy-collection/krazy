@@ -826,23 +826,26 @@ sub guessCheckSet
   my ($autopath)  = catfile($in, "autogen.py");
   my (@fosspaths) = (
     catfile($in, "COPYING"),
+    catfile($in, "COPYING.GPL"),
+    catfile($in, "COPYING.LGPL"),
     catfile($in, "COPYING.LIB"),
-    catfile($in, "License.txt"),
     catfile($in, "LICENSE.GPL.txt"),
-    catfile($in, "LICENSE"),
+    catfile($in, "LICENSE.LGPL.txt"),
   );
 
   #CMake buildsystems
   if (-e $cmakepath) {
-    if (&allLinesCaseSearchInFile($cmakepath, ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KF6")) > 0) {
+    if (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*KF6")) > 0) {
       $checkset = "kde6";
-    } elsif (&allLinesCaseSearchInFile($cmakepath, ("include\\s*\\(\\s*KDE", "find_package\\s*\\(\\s*KF5")) > 0) {
+    } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*KF5")) > 0) {
       $checkset = "kde5";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*Qt6")) > 0) {
       $checkset = "qt6";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*Qt5")) > 0) {
       $checkset = "qt5";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("project\\s*\\(.*CXX")) > 0) {
+      $checkset = "c++";
+    } elsif (&allLinesCaseSearchInFile($cmakepath, ("enable_language\\s*\\((\\s*CXX")) > 0) {
       $checkset = "c++";
     }
   } elsif (-e $qmakepath) {
@@ -856,10 +859,8 @@ sub guessCheckSet
   my ($fcheckset) = '';
   for my ($p) (@fosspaths) {
     if (-e $p) {
-      if (&allLinesCaseSearchInFile($p, ("GNU GENERAL PUBLIC LICENSE")) > 0) {
-        $fcheckset = "foss";
-        last;
-      }
+      $fcheckset = "foss";
+      last;
     }
   }
 
