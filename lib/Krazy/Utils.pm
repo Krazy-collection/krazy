@@ -1,5 +1,5 @@
 ###############################################################################
-# Sanity checks for your KDE source code                                      #
+# Sanity checks for your source code                                          #
 # SPDX-FileCopyrightText: 2007 Allen Winter <winter@kde.org>                  #
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
@@ -21,7 +21,7 @@ use Exporter;
 $VERSION = 2.99999;                                            # this is the module version
 @ISA     = qw(Exporter);
 
-@EXPORT = qw(topComponent topModule topProject tweakPath
+@EXPORT = qw(topOfProject
   userMessage userError Exit
   fileType validateFileType fileTypeIs findFiles findFileByRegex asOf deDupe addRegEx
   addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
@@ -43,10 +43,6 @@ $VERSION = 2.99999;                                            # this is the mod
 @EXPORT_OK = qw();
 
 my (@tmp);
-my ($CompRegex) = "trunk/(KDE|extragear|kdereview|kdesupport|koffice)|branches/KDE";
-my ($ModRegex) =
-"(kde(libs|pimlibs|base|base-apps|base-runtime|base-workspace|accessibility|addons|admin|artwork|bindings|edu|games|graphics|multimedia|network|pim|plasma-addons|sdk|toys|utils|webdev|office|security|sysadmin|review|support|koffice))";
-
 my (@Exports) = (
   "text",        # text report, issues grouped by file
   "textlist",    # plain old text, 1 offending file-per-line
@@ -105,50 +101,6 @@ my (@Sets) = (
   "foss"          # Free and open source software (FOSS)
 );
 
-#the path might be regularly used symlinks, so undo that
-sub tweakPath
-{
-  my ($in) = @_;
-  if (defined($in)) {
-    $in =~ s+/kdebase/apps/+/kdebase-apps/+;
-    $in =~ s+/kdebase/runtime/+/kdebase-runtime/+;
-    $in =~ s+/kdebase/workspace/+/kdebase-workspace/+;
-    $in =~ s+/kdepim/runtime/+/kdepim-runtime/+;
-    return "$in";
-  } else {
-    return "";
-  }
-}
-
-#full path to the top of the component where the specified file resides
-sub topComponent
-{
-  my ($in)    = @_;
-  my ($apath) = tweakPath(abs_path($in));
-  my ($bot)   = $apath;
-  $bot =~ s+.*/$CompRegex/++;
-  return ""     if ($bot eq $apath);    #not a component path
-  return $apath if (!$bot);
-  $apath =~ s+$bot++;
-  return $apath;
-}
-
-#full path to the top of the module where the specified file resides
-sub topModule
-{
-  my ($in)    = @_;
-  my ($apath) = tweakPath(abs_path($in));
-  my ($cpath) = topComponent($in);
-  return "" if (!$cpath);
-
-  my ($mpath) = $apath;
-  $mpath =~ s+$cpath++;
-  $mpath =~ s+^/++;
-  $mpath =~ s+/.*++;
-  return "" if (!$mpath);
-  return "$cpath/$mpath";
-}
-
 #full path to the top of the project dir where the specified file resides
 sub topProject
 {
@@ -156,18 +108,6 @@ sub topProject
   my ($top) = `git rev-parse --show-toplevel`;
   chomp($top);
   return $top;
-
-  # my ($in)    = @_;
-  # my ($apath) = tweakPath(abs_path($in));
-  # my ($mpath) = topModule($in);
-  # return "" if (!$mpath);
-  #
-  # my ($ppath) = $apath;
-  # $ppath =~ s+$mpath++;
-  # $ppath =~ s+^/++;
-  # $ppath =~ s+/.*++;
-  # return "" if (!$ppath);
-  # return "$mpath/$ppath";
 }
 
 # Exit a checker with the number of issues

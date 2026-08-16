@@ -1,5 +1,5 @@
 ###############################################################################
-# Sanity checks for your KDE source code                                      #
+# Sanity checks for your source code                                          #
 # SPDX-FileCopyrightText: 2007 Allen Winter <winter@kde.org>                  #
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################

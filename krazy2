@@ -96,6 +96,7 @@ use strict;
 use Getopt::Long;
 use Env qw (HOME KRAZY_PLUGIN_PATH KRAZY_EXTRA_PATH KRAZY_SET_PATH);
 use File::Basename;
+use File::Spec::Functions 'catfile';
 use File::Find;
 use Text::Wrap;
 use HTML::Entities;
@@ -228,7 +229,11 @@ tie my (%Sets), "Tie::IxHash";
 &initSets();
 
 #Compute the Project Path and guess the Project Checksets
-my ($ProjPath)       = &topOfProject($CWD);
+my ($ProjPath) = &topOfProject($CWD);
+if (!$ProjPath) {
+  $ProjPath = $CWD;
+}
+
 my ($GuessCheckSets) = '';
 if ($ProjPath) {
   $GuessCheckSets = &guessCheckSet($ProjPath);
@@ -384,27 +389,19 @@ if (!$ignorerc) {
   } else {
 
     # read directives from the user' .krazy in their home dir.
-    $rcfile = "";
     if (defined($HOME) && $HOME) {    # just in case $HOME isn't set
-      $rcfile = $HOME . "/.krazy";
-    }
-    if ($rcfile && -f $rcfile) {
-      %ds = &ParseKrazyRC($rcfile);
+      $rcfile = catfile($HOME, ".krazy");
+      if (-f $rcfile) {
+        %ds = &ParseKrazyRC($rcfile);
+      }
     }
 
     # read directives from the project's .krazy
-    $rcfile = "";
     if ($ProjPath) {
-      $rcfile = $ProjPath . "/.krazy";
-    } else {
-      if (!&topModule($CWD)) {
-
-        #not in a project dir, so use the one in cwd
-        $rcfile = $CWD . "/.krazy";
+      $rcfile = catfile($ProjPath, ".krazy");
+      if (-f $rcfile) {
+        %pds = &ParseKrazyRC($rcfile);
       }
-    }
-    if ($rcfile && -f $rcfile) {
-      %pds = &ParseKrazyRC($rcfile);
     }
   }
 
@@ -797,7 +794,7 @@ for my ($ftype) (@types) {
 
         # skip auto-generated files: test the first 8 lines for known signatures
         # open file and slurp it in
-        open my $fh, '<:encoding(UTF-8)', $f or die "Couldn't open $f";
+        open my $fh, '<:encoding(iso-8859-1)', $f or die "Couldn't open $f";
         my (@c) = <$fh>;
         close($fh);
         my ($tt) = join '', @c[0 .. ($#c > 8 ? 8 : $#c)];

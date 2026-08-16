@@ -9,11 +9,13 @@
 use warnings;
 use strict;
 use File::Basename;
+use File::Spec::Functions 'catfile';
 use Getopt::Long;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Krazy::Utils;
+use Krazy::Project;
 
 my ($Prog)    = 'krazy2all';
 my ($VERSION) = '2.9992';
@@ -155,14 +157,16 @@ if (!-r $top) {
   &userError("You do not have read access to topdir \"$top\".");
 }
 $top =~ s:\+:\\\+:g;    #escape '+'
+my ($ProjPath) = &topOfProject($top);
+if (!$ProjPath) {
+  $ProjPath = $top;
+}
 
-# Set the default config file name, which might be found under the topdir
-if ($top ne $cwd) {
-  if (!$configf) {
-    my ($projConfig) = $top . "/.krazy";
-    if (-e $projConfig) {
-      $opts .= "--config=$projConfig ";
-    }
+# Set the default config file name, which might be found under the project top-level.
+if (!$configf) {
+  my ($projConfig) = catfile($ProjPath, ".krazy");
+  if (-e $projConfig) {
+    $opts .= "--config=$projConfig ";
   }
 }
 
