@@ -38,6 +38,7 @@ use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
+use File::Spec::Functions 'catfile';
 use Getopt::Long;    #for non-Krazy usage below
 
 my ($Prog)    = "license";
@@ -50,32 +51,9 @@ sub checkOneFile()
 {
   my ($f) = @_;
 
-  my ($absf) = abs_path($f);
-  my ($KDELib) =
-    (    $absf =~ m+/frameworks/+
-      || $absf =~ m+/kde.*libs/+
-      || $absf =~ m+/koffice/libs/+
-      || $absf =~ m+/kdesupport/+) ? 1 : 0;
-
-  #some stuff in libraries isn't library code, so we need to exempt them
-  #from the stricter license check
-  $KDELib = 0
-    if ($absf =~ m+/kdelibs/solid/kcm/+
-    || $absf =~ m+/kdelibs/cmake/automoc/+
-    || $absf =~ m+/kdelibs/phonon/kcm/+
-    || $absf =~ m+/kdelibs/knotify/daemon/+
-    || $absf =~ m+/kdelibs/kded/+
-    || $absf =~ m+/kdelibs/kioslave/+
-    || $absf =~ m+/kdelibs/nepomuk/rcgen/+
-    || $absf =~ m+/kdelibs/kio/misc/kwalletd/+
-    || $absf =~ m+/kdelibs/kio/misc/kssld/+
-    || $absf =~ m+/kdelibs/kio/misc/ksendbugmail/+
-    || $absf =~ m+/kdelibs/kinit/+
-    || $absf =~ m+/kdesupport/kdewin32/tools/+
-    || $absf =~ m+/kdesupport/polkit-qt/examples/+
-    || $absf =~ m+/kde.*libs/.*/(?:tests|examples)/+
-    || $absf =~ m+/kdelibs/kdecore/io/kgrantpty.c+
-    || $absf =~ m+/kdepimlibs/kioslave/+);
+  my ($absf)   = abs_path($f);
+  my ($KDELib) = (-f catfile($absf,  "metainfo.yaml") && &usingKDECheckSet());
+  my ($KDEApp) = (!-f catfile($absf, "metainfo.yaml") && &usingKDECheckSet());
 
   # open file and slurp it in
   open my $fh, '<:encoding(UTF-8)', $f or die;
@@ -104,8 +82,7 @@ sub checkOneFile()
 
   # See <https://community.kde.org/Policies/Licensing_Policy> for KDE policies
   if (
-       &usingKDECheckSet()
-    && $KDELib
+    $KDELib
     && ( $license !~ m/KDE-Accepted/
       && $license !~ m/^LGPL/
       && $license !~ m/^X11/
@@ -117,8 +94,7 @@ sub checkOneFile()
   {
     return (1, $license, "unacceptable license $license for KDE library code");
   }
-  if ( &usingKDECheckSet()
-    && !$KDELib
+  if ( $KDEApp
     && $license !~ m/GENERATED FILE/
     && $license !~ m/^Trivial/
     && $license !~ m/^GPL/
@@ -358,7 +334,7 @@ sub Version
 sub Explain
 {
   print
-"Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed. See the project licensing policy.\n";
+"Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed. See the project licensing policy. KDE: All library projects must have a metainfo.yaml file. KDE: All projects follow the licensing policay at <https://community.kde.org/Policies/Licensing_Policy>\n";
   exit 0 if &explainArg();
 }
 

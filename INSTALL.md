@@ -47,6 +47,7 @@ The modules are:
 
 * HTML::Parser
 * File::Find
+* File::Spec
 * Tie::IxHash
 * XML::LibXML
 * YAML

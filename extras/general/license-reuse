@@ -141,6 +141,6 @@ sub Version
 sub Explain
 {
   print
-"Source files must contain a REUSE license line of the form \"SPDX-License-Identifer: GPL-2.0-only\"\n";
+"All source files must contain a valid REUSE line containing a FOSS license. See <https://spdx.org/licenses>.\n";
   Exit 0 if &explainArg();
 }
