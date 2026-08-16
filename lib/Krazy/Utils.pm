@@ -23,7 +23,7 @@ $VERSION = 2.99999;                                            # this is the mod
 
 @EXPORT = qw(topComponent topModule topProject tweakPath
   userMessage userError Exit
-  fileType validateFileType fileTypeIs findFiles asOf deDupe addRegEx
+  fileType validateFileType fileTypeIs findFiles findFileByRegex asOf deDupe addRegEx
   addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
   parseArgs helpArg versionArg priorityArg strictArg
   explainArg quietArg verboseArg installedArg
@@ -152,17 +152,22 @@ sub topModule
 #full path to the top of the project dir where the specified file resides
 sub topProject
 {
-  my ($in)    = @_;
-  my ($apath) = tweakPath(abs_path($in));
-  my ($mpath) = topModule($in);
-  return "" if (!$mpath);
+  # TODO: only supports git
+  my ($top) = `git rev-parse --show-toplevel`;
+  chomp($top);
+  return $top;
 
-  my ($ppath) = $apath;
-  $ppath =~ s+$mpath++;
-  $ppath =~ s+^/++;
-  $ppath =~ s+/.*++;
-  return "" if (!$ppath);
-  return "$mpath/$ppath";
+  # my ($in)    = @_;
+  # my ($apath) = tweakPath(abs_path($in));
+  # my ($mpath) = topModule($in);
+  # return "" if (!$mpath);
+  #
+  # my ($ppath) = $apath;
+  # $ppath =~ s+$mpath++;
+  # $ppath =~ s+^/++;
+  # $ppath =~ s+/.*++;
+  # return "" if (!$ppath);
+  # return "$mpath/$ppath";
 }
 
 # Exit a checker with the number of issues
@@ -507,6 +512,28 @@ sub findFiles
     $l = "$l" . "$i\n" if (&fileType($i) && ($i !~ m+\.(git|svn|hg)/+));
   }
   return $l;
+}
+
+# find file by regex in the specified dir. return 1 if any hits found; 0 otherwise
+sub findFileByRegex
+{
+  my ($regex, @dirs) = @_;
+  my ($top) = &topProject($dirs[0]);
+
+  @tmp = ();
+  find(\&aok2, ($top));
+
+  ## no critic
+  sub aok2
+  {
+    -f && !-d && push(@tmp, $File::Find::name);
+  }
+  ## use critic
+  my ($l) = "";
+  foreach my ($i) (@tmp) {
+    return 1 if ($i =~ m/$regex/);
+  }
+  return 0;
 }
 
 # asOf function: return nicely formatted string containing the current time
