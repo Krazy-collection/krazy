@@ -34,11 +34,12 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 use warnings;
 use strict;
+use File::Basename;
+use File::Spec::Functions 'catfile';
 use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::Utils;
-use File::Spec::Functions 'catfile';
 use Getopt::Long;    #for non-Krazy usage below
 
 my ($Prog)    = "license";
@@ -52,8 +53,9 @@ sub checkOneFile()
   my ($f) = @_;
 
   my ($absf)   = abs_path($f);
-  my ($KDELib) = (-f catfile($absf,  "metainfo.yaml") && &usingKDECheckSet());
-  my ($KDEApp) = (!-f catfile($absf, "metainfo.yaml") && &usingKDECheckSet());
+  my ($KDELib) = (&usingKDECheckSet() && -f catfile($absf, "metainfo.yaml"));
+  my ($absd)   = &dirname($absf);
+  my ($KDEApp) = (&usingKDECheckSet() && &findFileByRegex("org.kde.*.appdata.xml", $absd));
 
   # open file and slurp it in
   open my $fh, '<:encoding(UTF-8)', $f or die;
@@ -334,7 +336,12 @@ sub Version
 sub Explain
 {
   print
-"Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed. See the project licensing policy. KDE: All library projects must have a metainfo.yaml file. KDE: All projects follow the licensing policay at <https://community.kde.org/Policies/Licensing_Policy>\n";
+"Each source file must contain a license or a reference to a license which states under which terms the software may be used, modified and redistributed. See the project licensing policy.\n";
+
+  if (&usingKDECheckSet()) {
+    print
+"KDE: All library projects must have a metainfo.yaml file. All application projects must have an org.kde appdata.xml file. All projects must follow the licensing policy at <https://community.kde.org/Policies/Licensing_Policy>.\n";
+  }
   exit 0 if &explainArg();
 }
 
