@@ -210,12 +210,6 @@ my ($KRAZYBINPATH) = dirname(abs_path($0));
 my ($KRAZYPATH)    = dirname($KRAZYBINPATH);
 my ($CWD)          = getcwd;
 
-# the following, just in case kdebase-foo are symlinks
-$CWD =~ s+/kdebase/apps/+/kdebase-apps/+;
-$CWD =~ s+/kdebase/runtime/+/kdebase-runtime/+;
-$CWD =~ s+/kdebase/workspace/+/kdebase-workspace/+;
-$CWD =~ s+/kdepim/runtime/+/kdepim-runtime/+;
-
 # Checkers hash has a list of all the plugins, by file type we support.
 tie my (%Checkers),  "Tie::IxHash";
 tie my (%oCheckers), "Tie::IxHash";    # the "only" list
@@ -1879,8 +1873,8 @@ project specific F<.krazy> file. If one is found, its settings are
 merged with (or override) those already found from F<$HOME/.krazy>.
 
 [For example, if the current working dir is
-F</my/kde/trunk/KDE/kdepimlibs/kcal/versit>, then krazy2 will look for
-F</my/kde/trunk/KDE/kdepimlibs/kcal/.krazy>, since kcal is the project
+F</my/kde/KDE/kdepimlibs/kcal/versit>, then krazy2 will look for
+F</my/kde/KDE/kdepimlibs/kcal/.krazy>, since kcal is the project
 within the kdepimlibs module.]
 
 If krazy2 determines that the current working directory is not located within
@@ -1889,7 +1883,7 @@ F<.krazy> file found in the current working directory, if such a file exists.
 
 If krazy2 determines that the current working directory is located
 within the KDE directory structure but above a project subdir
-(eg. F<trunk/KDE/kdepim>), then it assumes no project specific F</.krazy> file.
+(eg. F<KDE/kdepim>), then it assumes no project specific F</.krazy> file.
 
 =head1 SEE ALSO
 

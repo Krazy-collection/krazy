@@ -9,7 +9,6 @@
 use warnings;
 use strict;
 use File::Basename;
-use File::Spec::Functions 'catfile';
 use Getopt::Long;
 use Cwd 'abs_path';
 use FindBin qw($Bin);
@@ -157,17 +156,10 @@ if (!-r $top) {
   &userError("You do not have read access to topdir \"$top\".");
 }
 $top =~ s:\+:\\\+:g;    #escape '+'
-my ($ProjPath) = &topOfProject($top);
-if (!$ProjPath) {
-  $ProjPath = $top;
-}
 
-# Set the default config file name, which might be found under the project top-level.
-if (!$configf) {
-  my ($projConfig) = catfile($ProjPath, ".krazy");
-  if (-e $projConfig) {
-    $opts .= "--config=$projConfig ";
-  }
+# Set the config file, if requested
+if ($configf) {
+  $opts .= "--config=$configf ";
 }
 
 # Set the output file, stdout by default
@@ -495,17 +487,21 @@ or B<--list-types> options it will exit with status=0.
 
 F<.krazy> (see krazyrc(3))
 
-krazy2all looks up the current working directory tree for a F<.krazy> file
-in the project subdirectory.  Only F<.krazy> files found at the project
-subdirectory level are read.
+Unless specified by the F<--config> option or disabled by the F<--ignorerc> option,
+krazy2all will look up to the top of the current Git directory tree for the
+project's F<.krazy> file
 
 For example, if the current working dir is
-F</my/kde/trunk/KDE/kdepimlibs/kcal/versit>, then krazy2all will look for
-F</my/kde/trunk/KDE/kdepimlibs/kcal/.krazy>, since kcal is the project
-within the kdepimlibs module.
+F</my/kde/KDE/kdepimlibs/kcal/versit>, then krazy2all will look for
+F</my/kde/KDE/kdepimlibs/kcal/.krazy>, since kcal is the Git project
+top-level.
 
-If the current working dir is not within a KDE module, or if the current
-working dir is above a project subdir, then a F<.krazy> file will not be read.
+If the current working dir is not within a Git project, then the F<.krazy>
+found in the current working dir will be used.
+
+Also, in the default case,  a F<.krazy> found in the user's home directory is
+read first. Any configurations found in the project F<.krazy> will either override
+combined with those found in F<$HOME/.krazy>.
 
 =head1 SEE ALSO
 

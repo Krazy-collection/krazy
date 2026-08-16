@@ -39,15 +39,8 @@ my ($Version) = "1.20";
 &Explain() if &explainArg();
 if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my ($f) = $ARGV[0];
-
-my ($valp) = "$Bin/../../krazy-helpers/xmllint";
-if (!-x $valp) {
-  $valp = "/usr/local/bin/xmllint";
-  if (!-x $valp) {
-    $valp = "xmllint";
-  }
-}
+my ($f)    = $ARGV[0];
+my ($valp) = "xmllint";
 
 #look for krazy directives in the file
 open my $fh, '<:encoding(UTF-8)', $f or die;
@@ -84,8 +77,7 @@ sub Version
 
 sub Explain
 {
-  print
-"Please make sure your .rc files conform to the XSD schema found in kdelibs/kdeui/xmlgui/kxmlgui.xsd\n";
+  print "Please make sure your .rc files conform to the XSD schema found in kxmlgui.xsd\n";
   Exit 0 if &explainArg();
 }
 

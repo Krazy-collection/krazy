@@ -39,15 +39,8 @@ my ($Version) = "0.3";
 &Explain() if &explainArg();
 if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my ($f) = $ARGV[0];
-
-my ($valp) = "$Bin/../../krazy-helpers/xmllint";
-if (!-x $valp) {
-  $valp = "/usr/local/bin/xmllint";
-  if (!-x $valp) {
-    $valp = "xmllint";
-  }
-}
+my ($f)    = $ARGV[0];
+my ($valp) = "xmllint";
 
 #now process the file
 my ($cnt) = &processFile($f);

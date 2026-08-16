@@ -50,13 +50,6 @@ unless (&usingKDECheckSet() && ($filetype eq "c++" || $filetype eq "designer")) 
   Exit 0;
 }
 
-# skip KDE frameworks and kdesupport
-my ($absf) = abs_path($f);
-if ($absf =~ m+/frameworks/+ && $absf =~ m+/kdesupport/+ && $absf =~ m+/kdelibs/+) {
-  print "okay\n" if (!&quietArg());
-  Exit 0;
-}
-
 # open file and slurp it in
 open my $fh, '<:encoding(UTF-8)', $f or die;
 my (@data_lines) = <$fh>;

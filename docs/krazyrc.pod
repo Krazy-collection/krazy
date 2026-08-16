@@ -1,3 +1,4 @@
+
 =pod
 
 =head1 NAME
@@ -25,6 +26,8 @@ The following directives are understood by the Krazy Code Checking tools:
 
 Remove the specified plugins from the default set of checkers.
 
+This list is added to any EXCLUDE settings found in F<$HOME/.krazy>.
+
 =item CHECK plugin1[,plugin2,...]
 
 Run only the specified list of plugins from the default set of checkers.
@@ -35,6 +38,8 @@ I<Note>: the CHECK directive takes precedence over the EXCLUDE directive;
 i.e, plugins specified by the CHECK directive are always run, even if
 they are also specified in an EXCLUDE directive.
 
+This list is added to any CHECK settings found in F<$HOME/.krazy>.
+
 =item CHECKSETS set1[,set2,...]
 
 Run the checker programs belonging to the specified set(s) only.
@@ -43,21 +48,28 @@ command line option.
 
 =item EXTRA plugin1[,plugin2,...]
 
-Add the specified list of "extra" plugins to the default set of checkers.
+Add the specified list of "extra" plugins to the default set of checkers
+along with any found in F<$HOME/.krazy>.
 
 =item TYPES type1[,type2,...]
 
 Check the specified file type(s) only.
 
+This list is added to any TYPES settings found in F<$HOME/.krazy>.
+
 =item EXCLUDETYPES type1[,type2,...]
 
 Do NOT check the specified file type(s).
+
+This list is added to any EXCLUDETYPES settings found in F<$HOME/.krazy>.
 
 =item SKIP regexp
 
 Do not process any file that matches the specified perl regular expression.
 See the perlreref(1) man page for a description of how to write
 a perl regular expression.
+
+This settings is combined with any SKIP setting found in F<$HOME/.krazy>.
 
 =item PRIORITY priority
 

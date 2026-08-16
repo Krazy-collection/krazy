@@ -39,15 +39,8 @@ my ($Version) = "1.11";
 &Explain() if &explainArg();
 if ($#ARGV != 0) {&Help(); Exit 0;}
 
-my ($f) = $ARGV[0];
-
-my ($valp) = "$Bin/../../krazy-helpers/xmllint";
-if (!-x $valp) {
-  $valp = "/usr/local/bin/xmllint";
-  if (!-x $valp) {
-    $valp = "xmllint";
-  }
-}
+my ($f)    = $ARGV[0];
+my ($valp) = "xmllint";
 
 #look for krazy directives in the file
 open my $fh, '<:encoding(UTF-8)', $f or die;
