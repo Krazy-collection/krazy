@@ -8,7 +8,8 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests source for an acceptable copyright according to REUSE compliance
+# Tests source for an SPDX-FileCopyrightText line according to REUSE compliance
+# Note: the validity of the copyright is not checked; only that the line exists
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -135,7 +136,7 @@ if (!$tags) {
 
 sub Help
 {
-  print "Check for an acceptable copyright according to REUSE guidelines\n";
+  print "Check for an SPDX-FileCopyrightText line per REUSE guidelines\n";
   Exit 0 if &helpArg();
 }
 
@@ -147,7 +148,7 @@ sub Version
 
 sub Explain
 {
-  print "All source files must contain a reuse copyright line\n";
+  print "All source files must contain at least 1 SPDX-FileCopyrightText line. See <https://spdx.org>.\n";
   Exit 0 if &explainArg();
 }
 

@@ -8,9 +8,8 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests source for valid FOSS license according to REUSE compliance
-
-# KDE Licensing Policy at <https://community.kde.org/Policies/Licensing_Policy>
+# Tests source for a SPDX-License-Identifier line
+# Note: the validity of the license is not checked; only that the line exists
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -128,7 +127,7 @@ if (!$tags) {
 
 sub Help
 {
-  print "Check for FOSS license according to REUSE guidelines\n";
+  print "Check for a SPDX-License-Identifier line per REUSE guidelines\n";
   Exit 0 if &helpArg();
 }
 
@@ -141,6 +140,6 @@ sub Version
 sub Explain
 {
   print
-"All source files must contain a valid REUSE line containing a FOSS license. See <https://spdx.org/licenses>.\n";
+"All source files must contain a SPDX-License-Identifier line containing a FOSS license. See <https://spdx.org/licenses>.\n";
   Exit 0 if &explainArg();
 }
