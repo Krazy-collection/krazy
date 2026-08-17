@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for C++ constructors that should be declared explicit.
+# Tests source for C++ constructors that should be declared explicit.
 # Each constructor that may take only one argument should be marked explicit
 # unless the whole point of the constructor is to allow implicit casting.
 #
@@ -235,9 +235,8 @@ sub endClass
     if (
     &searchBackWithStop(
       '^[[:space:]]*struct[[:space:]]',
-      $lc - 1,
-      50,
-'^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'
+      $lc - 1, 50,
+      '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'
     )
     );
 
@@ -245,12 +244,7 @@ sub endClass
   # unless, of course, someone puts one at
   # the end of a doxygen line (why would they?)
   return 0
-    if (
-    &searchBackWithStop(
-      '^[[:space:]]*enum[[:space:]]',
-      $lc - 1, 50, ';[[:space:]]*$|^[[:space:]]*private:'
-    )
-    );
+    if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]', $lc - 1, 50, ';[[:space:]]*$|^[[:space:]]*private:'));
 
   #at end of class
   my ($cclass) = $classes[$#classes];
@@ -301,19 +295,17 @@ sub Ctor
     return 0 if ($l  =~ m+//.*[Kk]razy:exclude=.*$Prog+);
     return 0 if ($l  =~ m/$CNAME[[:space:]]*\([[:space:]]*\)/);    # no args
     return 0
-      if ($l =~
-      /\([[:space:]]*const[[:space:]]$CNAME[[:space:]]*&[[:space:]]*[[:print:]]*[[:space:]]*\)/)
+      if ($l =~ /\([[:space:]]*const[[:space:]]$CNAME[[:space:]]*&[[:space:]]*[[:print:]]*[[:space:]]*\)/)
       ;                                                            # copy constructor
     return 0
-      if (
-      $l =~ /\([[:space:]]*$CNAME[[:space:]]*&[[:space:]]*&[[:space:]]*[[:print:]]*[[:space:]]*\)/)
+      if ($l =~ /\([[:space:]]*$CNAME[[:space:]]*&[[:space:]]*&[[:space:]]*[[:print:]]*[[:space:]]*\)/)
       ;                                                            # copy constructor
     return 0 if ($l =~ m/[[:space:]]operator/);
     return 0 if ($l =~ m/[[:space:]]*inline[[:space:]]$CNAME/);
     return 0 if ($l =~ m/[[:space:]]*return[[:space:]]$CNAME/);
     return 0 if ($l =~ m/[[:space:]]*return[[:space:]]new[[:space:]]$CNAME/);
     return 0 if ($l =~ m/\([[:space:]]*void[[:space:]]*\)/);                    #skip ctor(void)
-    $l =~ s/{.*$//;    # remove brace to end-of-line
+    $l =~ s/{.*$//;                                                             # remove brace to end-of-line
 
     if ($l =~ m/,/) {
 
@@ -325,7 +317,7 @@ sub Ctor
         ($a2, $a3) = split(",", $l1);
       }
       return 0 if ($a2 && $a2 !~ m/=/);
-    } else {           # at most 1 arg
+    } else {                                                                    # at most 1 arg
       return 0 if ($l =~ m/\([[:space:]]*$CNAME[[:space:]]\&[[:space:]]*\&/);    #skip rvalue arg
       return 1;
     }
