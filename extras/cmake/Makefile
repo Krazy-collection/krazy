@@ -10,8 +10,7 @@ style \
 
 # links to general purpose extras
 EXTRALNS = \
-copyright-reuse \
-license-reuse \
+reuse \
 
 #default installation location
 PREFIX=/usr/local

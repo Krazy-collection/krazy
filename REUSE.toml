@@ -25,7 +25,7 @@ SPDX-License-Identifier = "GPL-2.0-or-later"
 
 #misc
 [[annotations]]
-path = ["extras/general/license-reuse", "plugins/TEMPLATE.pl"]
+path = ["plugins/TEMPLATE.pl"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "Allen Winter <winter@kde.org>"
 SPDX-License-Identifier = "GPL-2.0-or-later"

@@ -8,8 +8,7 @@
 EXTRAS = \
 contractions \
 crud \
-copyright-reuse \
-license-reuse \
+reuse \
 
 # links to general purpose extras
 EXTRALNS = \
