@@ -45,7 +45,7 @@ my ($f)    = $ARGV[0];
 my ($absf) = abs_path($f);
 
 # C++ files only
-if (&fileType($f) ne "c++") {
+unless (&usingKDECheckSet() && &fileType($f) eq "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
@@ -143,7 +143,6 @@ sub Version
 
 sub Explain
 {
-  print
-"For Qt color enums please use KColorScheme wherever possible; or at least use Oxygen color instead.\n";
+  print "For Qt color enums please use KColorScheme wherever possible.\n";
   Exit 0 if &explainArg();
 }
