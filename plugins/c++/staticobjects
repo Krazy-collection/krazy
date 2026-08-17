@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for improperly initialized global static objects.
+# Tests source for improperly initialized global static objects.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -68,8 +68,7 @@ while ($i <= $#lines) {
 #static char** s_qt_argv;
 
 # we don't know enums so that's a false positive we can't do anything about except to hardcode
-my ($enum) =
-"KdeLibraryPathsAdded|Qt::WindowFlags|QStyle::StyleHint|KFileShare::Authorization|KFileShare::ShareMode";
+my ($enum) = "KdeLibraryPathsAdded|Qt::WindowFlags|QStyle::StyleHint|KFileShare::Authorization|KFileShare::ShareMode";
 my ($bpod) = "bool|Bool";
 my ($cpod) = "unsigned char|char|QChar|wchar_t|xmlChar|TCHAR";
 my ($ipod) =
