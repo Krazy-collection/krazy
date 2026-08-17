@@ -42,6 +42,11 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 # Check Condition
 my ($f) = $ARGV[0];
 
+unless (&usingKDECheckSet()) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+
 my ($cnt)     = 0;
 my ($linecnt) = 0;
 my ($lstr)    = "";
