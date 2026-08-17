@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for adding a single char string to a QString, or other
+# Tests KDE/Qt source for adding a single char string to a QString, or other
 # cases where QString containing a single char is better as a QChar.
 # For example: QString str += "/"; should be QString += '/';
 
@@ -45,7 +45,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++, non-headers only
-if (isCSource($f) || isCInclude($f)) {
+unless ((&usingKDECheckSet() || &usingQtCheckSet()) && !isCSource($f) && !isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
