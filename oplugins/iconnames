@@ -46,7 +46,7 @@ my ($f) = $ARGV[0];
 
 # C++, desktop or QML
 my ($filetype) = &fileType($f);
-if ($filetype ne "c++" && $filetype ne "desktop" && $filetype ne "qml") {
+if (!&usingKDECheckSet || ($filetype ne "c++" && $filetype ne "desktop" && $filetype ne "qml")) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
