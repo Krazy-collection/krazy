@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for kDebug issues
+# Tests KDE source for kDebug or qCDebug issues
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -44,7 +44,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++ files only
-if (&fileType($f) ne "c++") {
+unless (&usingKDECheckSet() && &fileType($f) eq "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
@@ -79,7 +79,7 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;    #skip C++ comments
 
   #debug areas
-  if ($line =~ m+k(Debug|Warning|Error)\s*\(\s*[[:digit:]]\s*+) {
+  if ($line =~ m+(qC|k)(Debug|Warning|Error)\s*\(\s*[[:digit:]]\s*+) {
     $acnt++;
     if ($acnt == 1) {
       $alstr = "line\#" . $linecnt;
@@ -90,7 +90,7 @@ while ($linecnt < $#lines) {
   }
 
   #endl;
-  if ($line =~ m+k(Debug|Warning|Error).*endl\s*;\s*$+) {
+  if ($line =~ m+(qC|k)(Debug|Warning|Error).*endl\s*;\s*$+) {
     $ecnt++;
     if ($ecnt == 1) {
       $elstr = "line\#" . $linecnt;
@@ -111,8 +111,8 @@ while ($linecnt < $#lines) {
   $pline =~ s/KLocale.*:://g;
   $pline =~ s/KSystem.*:://g;
 
-  if ( $pline =~ m+k(Debug|Warning|Error).*::.*\(+
-    || $pline =~ m+k(Debug|Warning|Error).*k_funcinfo+)
+  if ( $pline =~ m+(qC|k)(Debug|Warning|Error).*::.*\(+
+    || $pline =~ m+(qC|k)(Debug|Warning|Error).*k_funcinfo+)
   {
     if ( $pline !~ m/<[\w:]+>\(/
       && $pline !~ m/\.[\w]+\(/
@@ -147,7 +147,7 @@ if (!$total_count) {
 
 sub Help
 {
-  print "Check for kDebug issues\n";
+  print "Check for kDebug and qCDebug issues\n";
   Exit 0 if &helpArg();
 }
 
@@ -160,6 +160,6 @@ sub Version
 sub Explain
 {
   print
-"No need to print the method name or a trailing endl with kDebug and friends -- all that is done for you as if by magic.\n";
+"No need to print the method name or a trailing endl with kDebug/qCDebug and friends -- all that is done for you as if by magic.\n";
   Exit 0 if &explainArg();
 }
