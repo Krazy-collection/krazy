@@ -10,7 +10,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for normalized signals and slots signatures.
+# Tests KDE/Qt source for normalized signals and slots signatures.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -45,7 +45,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++, non-headers only
-if (isCSource($f) || isCInclude($f)) {
+unless ((&usingKDECheckSet() || &usingQtCheckSet()) && !isCSource($f) && !isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
