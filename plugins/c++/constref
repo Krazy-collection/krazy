@@ -10,8 +10,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for methods in public, exported classes that return
-# const references.
+# Tests source for methods in public, exported classes that return const refs.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -91,8 +90,7 @@ while ($linecnt < $#lines) {
       last if (&endClass($line, $linecnt));
       next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
       if ( $line =~ m/^[[:space:]]*const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/
-        || $line =~
-        m/^[[:space:]]*static[[:space:]]const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/)
+        || $line =~ m/^[[:space:]]*static[[:space:]]const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/)
       {
         # we found a possible problem method
         $cref = $line;
