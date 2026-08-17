@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for C++ class operator issues.
+# Tests source for C++ class operator issues.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -215,9 +215,8 @@ sub endClass
     if (
     &searchBackWithStop(
       '^[[:space:]]*struct[[:space:]]',
-      $lc - 1,
-      50,
-'^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'
+      $lc - 1, 50,
+      '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'
     )
     );
 
@@ -225,12 +224,7 @@ sub endClass
   # unless, of course, someone puts one at
   # the end of a doxygen line (why would they?)
   return 0
-    if (
-    &searchBackWithStop(
-      '^[[:space:]]*enum[[:space:]]',
-      $lc - 1, 50, ';[[:space:]]*$|^[[:space:]]*private:'
-    )
-    );
+    if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]', $lc - 1, 50, ';[[:space:]]*$|^[[:space:]]*private:'));
 
   #at end of class
   my ($cclass) = $classes[$#classes];
