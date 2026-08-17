@@ -43,7 +43,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++ only
-if (isCSource($f)) {
+unless (&usingKDECheckSet() && !isCSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
