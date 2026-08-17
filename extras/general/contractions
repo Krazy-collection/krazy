@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for English contractions.
+# Tests source for English contractions.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -53,7 +53,7 @@ my ($filetype) = &fileType($f);
 if ($filetype eq "desktop") {
   @lines = RemoveCommentsFDO(@data_lines);
 } elsif ($filetype eq "c++") {
-  @lines = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines)); # remove #if 0 blocks from C/C++ source
+  @lines = RemoveIfZeroBlockC(RemoveCommentsC(@data_lines));    # remove #if 0 blocks from C/C++ source
 } else {
   @lines = @data_lines;
 }
@@ -172,6 +172,6 @@ sub Version
 sub Explain
 {
   print
-"The KDE Style Guide recommends not using contractions in strings. For example: \"don't\" should be changed to \"do not\".  Contractions used in comments are ok.\n";
+"Some style guides recommend not using contractions in strings. For example: \"don't\" should be changed to \"do not\".  Contractions used in comments are ok.\n";
   Exit 0 if &explainArg();
 }
