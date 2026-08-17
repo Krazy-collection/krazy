@@ -40,7 +40,8 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-unless (&installedArg() && isCInclude($f)) {
+# C++ files only
+unless (&installedArg() && &usingKDECheckSet() && &fileType($f) eq "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
@@ -107,7 +108,7 @@ sub kClass()
   if ( $l =~ m/^[[:space:]]*class[[:space:]]$kname[[:space:]]*;/
     || $l =~ m/$kname[[:space:]]*\*/)
   {
-# TODO: or include <KAction> or include <kaction.h> or QList <KAction> or QList <KAction*> return 1;
+    # TODO: or include <KAction> or include <kaction.h> or QList <KAction> or QList <KAction*> return 1;
   } else {
     return 0;
   }
