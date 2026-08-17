@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for NULL in C++ code.
+# Tests source for NULL in C++ code.
 
 # Program options:
 #   --help:          print one-line help message and exit
