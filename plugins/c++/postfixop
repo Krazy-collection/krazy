@@ -10,7 +10,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for postfix increment/decrement.
+# Tests source for postfix increment/decrement.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -93,10 +93,8 @@ while ($linecnt < $#lines) {
       next
         if (
         &searchBack(
-          '(int|uint|long|unsigned\sint|ulong|short|size_t|qint32|quint32|double|\*)\s?'
-            . $identifier,
-          $linecnt,
-          6
+          '(int|uint|long|unsigned\sint|ulong|short|size_t|qint32|quint32|double|\*)\s?' . $identifier,
+          $linecnt, 6
         )
         );
       next if ($line =~ m/(\+\+|\-\-)\s*;\s*$/);                 # no semis in a for loop
