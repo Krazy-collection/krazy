@@ -73,15 +73,12 @@ foreach my ($line) (@lines) {
 
   next
     if (
-    $filetype eq "c++" && (&searchBack('kDebug\(.*\)', $linecnt, 3)
-      || &searchBack('debug\(.*\)',     $linecnt, 3)
-      || &searchBack('kWarning\(.*\)',  $linecnt, 3)
-      || &searchBack('kError\(.*\)',    $linecnt, 3)
-      || &searchBack('kFatal\(.*\)',    $linecnt, 3)
-      || &searchBack('qDebug\(.*\)',    $linecnt, 3)
-      || &searchBack('qWarning\(.*\)',  $linecnt, 3)
-      || &searchBack('qCritical\(.*\)', $linecnt, 3)
-      || &searchBack('qFatal\(.*\)',    $linecnt, 3))
+    $filetype eq "c++" && (&searchBack('(qC|k)Debug\(.*\)', $linecnt, 3)
+      || &searchBack('debug\(.*\)',            $linecnt, 3)
+      || &searchBack('(q|qC|k)Warning\(.*\)',  $linecnt, 3)
+      || &searchBack('(q|qC|k)Error\(.*\)',    $linecnt, 3)
+      || &searchBack('(q|qC|k)Fatal\(.*\)',    $linecnt, 3)
+      || &searchBack('(q|qC|k)Critical\(.*\)', $linecnt, 3))
     || $line =~ m/^\s*#\s*warning/
     );
 
