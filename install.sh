@@ -159,6 +159,8 @@ rm -f "$TOP"/lib/krazy2/krazy-extras/*/style
 #remove filetypes no longer supported
 rm -rf "$TOP"/lib/krazy2/krazy-*/tips
 rm -rf "$TOP"/lib/krazy2/krazy-sets/*/tips-*
+rm -rf "$TOP"/lib/krazy2/krazy-*/messages
+rm -rf "$TOP"/lib/krazy2/krazy-sets/*/messages-*
 #remove old sets no longer in use
 rm -rf "$TOP"/lib/krazy2/krazy-sets/kde4
 rm -rf "$TOP"/lib/krazy2/krazy-sets/qt4

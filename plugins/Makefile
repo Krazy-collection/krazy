@@ -12,7 +12,6 @@ cmake \
 designer \
 desktop \
 kconfigxt \
-messages \
 kpartgui \
 qml \
 qdoc \

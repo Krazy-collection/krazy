@@ -4,4 +4,5 @@ old, obsolete plugins:
  - fixuifiles: specific to KDE4
  - foreach: too many false positives; use clazy instead
  - iconnames: too hard to maintain; not longer useful after KDE4
+ - rcappend: specific to KDE Messages.sh files; no longer useful
  - qminmax: specific to KDE4

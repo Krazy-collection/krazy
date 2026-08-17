@@ -73,10 +73,8 @@ my (@Outputs) = (
 
 my (@CppIncludeOrderTypes) = ("true", "false", "yes", "no", "on", "off");
 
-my (@FileTypes) = (
-  'c++',  'cmake', 'desktop', 'designer', 'kconfigxt', 'messages', 'kpartgui', 'qml',
-  'qdoc', 'perl',  'python',  'json',     'svg'
-);
+my (@FileTypes) =
+  ('c++', 'cmake', 'desktop', 'designer', 'kconfigxt', 'kpartgui', 'qml', 'qdoc', 'perl', 'python', 'json', 'svg');
 
 my (@Sets) = (
   "c++",          # Pure C/C++ source
@@ -238,8 +236,6 @@ sub fileType
     return "kconfigxt";
   } elsif ($f =~ m/\.po$/) {
     return "po";
-  } elsif ($f =~ m/Messages\.sh$/) {
-    return "messages";
   } elsif ($f =~ m/\.rc$/) {
     return "kpartgui";
   } elsif ($f =~ m/\.qml$/) {
@@ -287,8 +283,6 @@ sub fileTypeDesc
     return "KConfigXT XML files";
   } elsif ($t eq "po") {
     return "GNU gettext files";
-  } elsif ($t eq "messages") {
-    return "KDE Messages.sh files";
   } elsif ($t eq "kpartgui") {
     return "KPartGUI files";
   } elsif ($t eq "qml") {
@@ -379,7 +373,6 @@ sub fileTypeIs
   return 1 if (($t eq "designer")  && ($f =~ m/\.ui$/));
   return 1 if (($t eq "kconfigxt") && ($f =~ m/\.kcfg$/));
   return 1 if (($t eq "po")        && ($f =~ m/\.po$/));
-  return 1 if (($t eq "messages")  && ($f =~ m/Messages\.sh$/));
   return 1 if (($t eq "kpartgui")  && ($f =~ m/\.rc$/));
   return 1 if (($t eq "qml")       && ($f =~ m/\.qml$/));
   return 1 if (($t eq "qdoc")      && ($f =~ m/\.qdoc$/));

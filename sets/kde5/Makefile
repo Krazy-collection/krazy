@@ -74,10 +74,6 @@ insecurenet \
 spelling \
 validate \
 
-# links to Messages.sh plugins
-MSG_PLUGINS = \
-rcappend \
-
 # links to QML plugins
 QML_PLUGINS = \
 copyright \
@@ -157,10 +153,6 @@ install::
 	list="$(RC_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing ${SET} set kpartgui plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/kpartgui/$$plugin $(DESTDIR)$(INSTDIR)/kpartgui-$$plugin; \
-	done
-	list="$(MSG_PLUGINS)"; for plugin in $$list; do \
-		echo "Installing ${SET} set messages plugin link $$plugin"; \
-		ln -sf ../../krazy-plugins/messages/$$plugin $(DESTDIR)$(INSTDIR)/messages-$$plugin; \
 	done
 	list="$(QML_PLUGINS)"; for plugin in $$list; do \
 		echo "Installing ${SET} set qml plugin link $$plugin"; \
