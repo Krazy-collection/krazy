@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests source for not using Qt math functions
+# Tests KDE/Qt source for not using Qt math functions
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -45,7 +45,7 @@ my ($f)    = $ARGV[0];
 my ($absf) = abs_path($f);
 
 # C++ files only
-if (&fileType($f) ne "c++") {
+unless ((&usingKDECheckSet() || &usingQtCheckSet()) && &fileType($f) eq "c++" && !isCSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
@@ -181,7 +181,6 @@ sub Version
 
 sub Explain
 {
-  print
-"For Qt based C++ code use inline math functions like qAbs, qSqrt, qSin, qCos, qTan, etc from qmath.h.\n";
+  print "For Qt based C++ code use inline math functions like qAbs, qSqrt, qSin, qCos, qTan, etc from qmath.h.\n";
   Exit 0 if &explainArg();
 }

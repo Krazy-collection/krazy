@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests C++ source for includes that could be replaced by CamelCase headers.
+# Tests C/C++ source for includes that could be replaced by CamelCase headers.
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -43,7 +43,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-# C++ files only
+# C/C++ files only
 if (&fileType($f) ne "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;

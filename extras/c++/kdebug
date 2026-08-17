@@ -44,7 +44,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++ files only
-unless (&usingKDECheckSet() && &fileType($f) eq "c++") {
+unless (&usingKDECheckSet() && !isCSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }

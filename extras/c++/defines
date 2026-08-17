@@ -42,7 +42,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-# C++ files only
+# C/C++ files only
 if (&fileType($f) ne "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;
@@ -122,7 +122,6 @@ sub Version
 
 sub Explain
 {
-  print
-"Use static const variables instead of defining integers or floats. This provides type-safety.\n";
+  print "Use static const variables instead of defining integers or floats. This provides type-safety.\n";
   Exit 0 if &explainArg();
 }

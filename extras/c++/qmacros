@@ -45,7 +45,7 @@ my ($f)    = $ARGV[0];
 my ($absf) = abs_path($f);
 
 # C++ files only
-if (&fileType($f) ne "c++") {
+unless (&fileType($f) eq "c++" && !isCSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }

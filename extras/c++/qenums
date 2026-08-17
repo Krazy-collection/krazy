@@ -45,7 +45,7 @@ my ($f)    = $ARGV[0];
 my ($absf) = abs_path($f);
 
 # C++ files only
-unless (&usingKDECheckSet() && &fileType($f) eq "c++") {
+unless (&usingKDECheckSet() && &fileType($f) eq "c++" && !isCSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }

@@ -42,7 +42,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-# open file and slurp it in (C++, non-headers only)
+# C++, non-headers only
 if ((&fileType($f) ne "c++") || isCSource($f) || isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
