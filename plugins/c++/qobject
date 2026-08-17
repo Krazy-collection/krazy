@@ -10,7 +10,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests KDE source for classes that should use the Q_OBJECT macro if derived
+# Tests KDE/Qt source for classes that should use the Q_OBJECT macro if derived
 # from QObject
 
 # Program options:
@@ -46,7 +46,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++, headers only
-if (isCSource($f) || !isCInclude($f)) {
+unless ((&usingKDECheckSet() || &usingQtCheckSet()) && !isCSource($f) && isCInclude($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
@@ -78,10 +78,7 @@ while ($linecnt < $#lines) {
     last;
   }
 
-  if ($line =~
-m/[[:space:]]*class[[:space:]]+[[:alnum:]]+[[:space:]]*:[[:space:]]*[[:alnum:]]+[[:space:]]+QObject/
-    )
-  {
+  if ($line =~ m/[[:space:]]*class[[:space:]]+[[:alnum:]]+[[:space:]]*:[[:space:]]*[[:alnum:]]+[[:space:]]+QObject/) {
     next if ($lastl =~ m/template/ || $lastl =~ m/#define[[:space:]]/ || $lastl =~ m/#if/);
     next if ($line =~ m/QObjectPrivate/ || $line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
