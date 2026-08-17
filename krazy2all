@@ -272,6 +272,7 @@ sub Help
   print "  --no-brief:    print the result of all checks i.e, the opposite of brief (default)\n";
   print "  --quiet        suppress all output messages\n";
   print "  --verbose      print the offending content for each file processed\n";
+  print "  --error-exitcode <code>  If issue are found, integer <code> is returned instead of default 0\n";
   print "\n";
   exit 0 if !$keepgoing;
 }
@@ -459,6 +460,10 @@ Suppress all output messages.
 =item B<--verbose>
 
 Print the offending content for each file processed
+
+=item B<--error-exitcode> <code>
+
+If issue are found, the specified integer code is returned instead of default 0.
 
 =back
 
