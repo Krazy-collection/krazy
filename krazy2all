@@ -48,39 +48,41 @@ my ($export)    = '';
 my ($title)     = '';
 my ($topdir)    = '';
 my ($outfile)   = '';
+my ($exitcode)  = 0;
 
 exit 1
   if (
   !GetOptions(
-    'help'            => \$help,
-    'version'         => \$version,
-    'list'            => \$list,
-    'list-runtime'    => \$listrunt,
-    'list-types'      => \$listtypes,
-    'list-type=s'     => \$listtype,
-    'list-sets'       => \$listsets,
-    'list-set=s'      => \$listset,
-    'dry-run'         => \$dryrun,
-    'ignorerc'        => \$ignorerc,
-    'config=s'        => \$configf,
-    'verbose'         => \$verbose,
-    'brief'           => \$brief,
-    'no-brief'        => \$nobrief,
-    'quiet'           => \$quiet,
-    'priority=s'      => \$priority,
-    'explain'         => \$explain,
-    'strict=s'        => \$strict,
-    'check=s'         => \$check,
-    'check-sets=s'    => \$checksets,
-    'exclude=s'       => \$exclude,
-    'extra=s'         => \$extra,
-    'types=s'         => \$inctypes,
-    'exclude-types=s' => \$exctypes,
-    'skip=s'          => \$skip,
-    'export=s'        => \$export,
-    'title=s'         => \$title,
-    'topdir=s'        => \$topdir,
-    'outfile=s'       => \$outfile
+    'help'             => \$help,
+    'version'          => \$version,
+    'list'             => \$list,
+    'list-runtime'     => \$listrunt,
+    'list-types'       => \$listtypes,
+    'list-type=s'      => \$listtype,
+    'list-sets'        => \$listsets,
+    'list-set=s'       => \$listset,
+    'dry-run'          => \$dryrun,
+    'ignorerc'         => \$ignorerc,
+    'config=s'         => \$configf,
+    'verbose'          => \$verbose,
+    'brief'            => \$brief,
+    'no-brief'         => \$nobrief,
+    'quiet'            => \$quiet,
+    'priority=s'       => \$priority,
+    'explain'          => \$explain,
+    'strict=s'         => \$strict,
+    'check=s'          => \$check,
+    'check-sets=s'     => \$checksets,
+    'exclude=s'        => \$exclude,
+    'extra=s'          => \$extra,
+    'types=s'          => \$inctypes,
+    'exclude-types=s'  => \$exctypes,
+    'skip=s'           => \$skip,
+    'export=s'         => \$export,
+    'title=s'          => \$title,
+    'topdir=s'         => \$topdir,
+    'outfile=s'        => \$outfile,
+    'error-exitcode=i' => \$exitcode,
   )
   );
 
@@ -116,6 +118,10 @@ if ($listsets) {
 if ($listset) {
   system("krazy2 --list-set=$listset");
   exit 0;
+}
+
+if ($exitcode < 0 || $exitcode > 256) {
+  &userError("Specified error-exitcode ($exitcode) is out of range [0-256].\n");
 }
 
 # Options to pass to Krazy
@@ -195,7 +201,7 @@ close(P);
 ## use critic
 
 if (($? >> 8) > 0) {
-  exit 1;
+  exit $exitcode;
 } else {
   exit 0;
 }
@@ -474,11 +480,12 @@ where $TOP is the top-level installation directory (eg. F</usr/local>, F</usr/lo
 
 =head1 EXIT STATUS
 
-In normal operation, krazy2all exits with status=1 if at least 1 issue
-is encountered; else when no issues are found the exit status=0.
+In normal operation krazy2all exits with status=0, even if issues are found.
 
-If a command line option was incorrectly provided, krazy2all exits with
-status=1.
+Use the B<--error-exitcode> option to return another status code when at least
+1 issue is encountered.
+
+If a command line option was incorrectly provided, krazy2all exits with status=1.
 
 If krazy2all was invoked with the B<--help>, B<--version>  B<--list>
 or B<--list-types> options it will exit with status=0.
