@@ -5,7 +5,7 @@
 ###############################################################################
 
 #TODO:
-# handle second args in EXCLUDE, CHECK, EXTRA directives
+# handle regexp args in EXCLUDE, CHECK, EXTRA directives
 
 package Krazy::Config;
 
@@ -40,9 +40,6 @@ $VERSION = 1.60;
 # STRICT <normal|super|all>
 # OUTPUT <quiet|brief|normal>
 # EXPORT <text|textlist|textedit|gitlab>
-# IGNORESUBS subdir1[,subdir2,...]
-# EXTRASUBS subdir1[,subdir2,...]
-# IGNOREMODS module1[,module2,...]
 # CPP_INCLUDE_ORDER <true|false>
 #
 # Multiple directives may be specified per file; they will be combined in
@@ -107,12 +104,6 @@ sub ParseKrazyRC
       &checkSets($arg, $linecnt, $rcfile);
     } elsif ($directive eq "EXCLUDE") {
       &excludes($arg, $linecnt, $rcfile);
-    } elsif ($directive eq "IGNORESUBS") {
-      &ignoreSubs($arg, $linecnt, $rcfile);
-    } elsif ($directive eq "EXTRASUBS") {
-      &extraSubs($arg, $linecnt, $rcfile);
-    } elsif ($directive eq "IGNOREMODS") {
-      &ignoreMods($arg, $linecnt, $rcfile);
     } elsif ($directive eq "SKIP") {
       &skips($arg, $linecnt, $rcfile);
     } elsif ($directive eq "PRIORITY") {
@@ -261,36 +252,6 @@ sub cppIncludeSettings
       }
     }
   }
-}
-
-sub ignoreSubs
-{
-  my ($args, $l, $f) = @_;
-  if (!defined($args)) {
-    print "missing IGNORESUBS arguments, line $l, $f\n";
-    exit 1;
-  }
-  push(@rcIgSubsList, split(",", $args));
-}
-
-sub extraSubs
-{
-  my ($args, $l, $f) = @_;
-  if (!defined($args)) {
-    print "missing EXTRASUBS arguments, line $l, $f\n";
-    exit 1;
-  }
-  push(@rcExSubsList, split(",", $args));
-}
-
-sub ignoreMods
-{
-  my ($args, $l, $f) = @_;
-  if (!defined($args)) {
-    print "missing IGNOREMODS arguments, line $l, $f\n";
-    exit 1;
-  }
-  push(@rcIgModsList, split(",", $args));
 }
 
 sub skips
