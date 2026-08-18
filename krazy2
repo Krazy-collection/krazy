@@ -39,8 +39,8 @@
 #   --list:         print a list of all available checker programs
 #   --list-runtime: print a list of the checker programs that will be executed and exit.
 #   --list-types:   print a list of all the supported file types
-#   --list-type <type>:
-#                   print the list of available checkers for the specified file type.
+#   --list-type <type[,type1,type2,...,typeN]>:
+#                   print the list of available checkers for each of the specified file types.
 #   --list-sets:    print a list of all the check-sets
 #   --list-set <set[,set1,set2,...,setN]>:
 #                   print the list of available checkers for each of the specified sets.
@@ -927,8 +927,8 @@ sub Help
   print "  --list-runtime print a list of the checker programs that will be executed and exit.\n";
 
   print "  --list-types   print a list of all the supported file types\n";
-  print "  --list-type <type>\n";
-  print "                 print the list of available checkers for the specified file type.\n";
+  print "  --list-type <type[,type1,type2,...,typeN]>\n";
+  print "                 print the list of available checkers for each of the specified file types.\n";
   print "  --list-sets    print a list of all the check-sets\n";
   print "  --list-set <set[,set1,set2,...,setN]>\n";
   print "                 print the list of available checkers for each of the specified check-sets\n";
@@ -1102,24 +1102,31 @@ sub ListTypes
 # ListType function: list all the checkers for a specific file type.
 sub ListType
 {
-  my ($type) = @_;
+  my ($types) = @_;
   my ($prog, $prprog, $use);
 
-  if (!&validateFileType($type)) {
-    print "No such file type: $type\n\n";
-    $listtypes = 'yes';
-    &ListTypes();
+  my (@checktypes) = split(",", $types);
+
+  # allow specifying multiple file types
+  foreach my ($type) (@checktypes) {
+    if (!&validateFileType($type)) {
+      print "No such file type: $type\n\n";
+      $listtypes = 'yes';
+      &ListTypes();
+    }
   }
 
-  print "List of available checkers for file type $type:\n";
-
-  if ($#{$Checkers{$type}} >= 0) {
-    &printList(0, @{$Checkers{$type}});
-  } else {
-    printf("%18.18s\n", "(none)");
-  }
-  if ($#{$xCheckers{$type}} >= 0) {
-    &printList(1, @{$xCheckers{$type}});
+  foreach my ($type) (@checktypes) {
+    print "List of available checkers for file type $type:\n";
+    if ($#{$Checkers{$type}} >= 0) {
+      &printList(0, @{$Checkers{$type}});
+    } else {
+      printf("%18.18s\n", "(none)");
+    }
+    if ($#{$xCheckers{$type}} >= 0) {
+      &printList(1, @{$xCheckers{$type}});
+    }
+    print "\n";
   }
 
   exit 0 if $listtype;
@@ -1467,9 +1474,9 @@ Print a list of all the checker programs that will be executed and exit.
 
 Print a list of all the supported file types and exit.
 
-=item B<--list-type> <type>
+=item B<--list-type> <type[,type1,type2,...,typeN]>
 
-Print the list of available checkers for the specified file type and exit.
+Print the list of available checkers for each of the specified file types and exit.
 
 =item B<--list-sets>
 

@@ -218,8 +218,8 @@ sub Help
   print "  --list         print a list of all the checker programs\n";
   print "  --list-runtime print a list of the checker programs that will be execute and exit.\n";
   print "  --list-types   print a list of all the supported file types\n";
-  print "  --list-type <type>\n";
-  print "                 print the list of available checkers for the specified file typet\n";
+  print "  --list-type <type[,type1,type2,...,typeN]>\n";
+  print "                 print the list of available checkers for each of the specified file types\n";
   print "  --list-sets    print a list of all the check-sets\n";
   print "  --list-set <set[,set1,set2,...,setN]>\n";
   print "                 print the list of available checkers for each of the specified check-sets\n";
@@ -326,9 +326,9 @@ Print a list of all the checker programs that will be executed and exit.
 
 Print a list of the support file types and exit.
 
-=item B<--list-type> <type>
+=item B<--list-type> <type[,type1,type2,...,typeN]>
 
-Print the list of available checkers for the specified file type and exit.
+Print the list of available checkers for each of the specified file types and exit.
 
 =item B<--list-sets>
 
