@@ -11,6 +11,7 @@ CPP_PLUGINS = \
 copyright \
 insecurenet \
 license \
+reuse \
 spelling \
 
 # links to QML plugins
@@ -18,6 +19,7 @@ QML_PLUGINS = \
 copyright \
 insecurenet \
 license \
+reuse \
 spelling \
 
 # links to Perl plugins
@@ -27,6 +29,7 @@ endswithnewline \
 filenames \
 insecurenet \
 license \
+reuse \
 spelling \
 
 # links to Python plugins
@@ -36,6 +39,7 @@ endswithnewline \
 filenames \
 insecurenet \
 license \
+reuse \
 spelling \
 
 # links to JSON plugins
@@ -50,6 +54,15 @@ validate \
 SVG_PLUGINS = \
 filenames \
 validate \
+
+# links to CMake plugins
+CMAKE_PLUGINS = \
+copyright \
+endswithnewline \
+filenames \
+license \
+insecurenet \
+reuse \
 
 #default installation location
 INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}"
@@ -92,7 +105,10 @@ install::
 		echo "Installing ${SET} set SVG plugin link $$plugin"; \
 		ln -sf ../../krazy-plugins/svg/$$plugin $(DESTDIR)$(INSTDIR)/svg-$$plugin; \
 	done
-
+	list="$(CMAKE_PLUGINS)"; for plugin in $$list; do \
+		echo "Installing ${SET} set cmake plugin link $$plugin"; \
+		ln -sf ../../krazy-plugins/cmake/$$plugin $(DESTDIR)$(INSTDIR)/cmake-$$plugin; \
+	done
 clean:
 	@echo "Nothing to clean"
 

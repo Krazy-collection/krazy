@@ -11,7 +11,6 @@ EXTRAS =
 EXTRALNS = \
 contractions \
 crud \
-reuse \
 
 #default installation location
 PREFIX=/usr/local

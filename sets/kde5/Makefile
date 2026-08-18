@@ -32,6 +32,7 @@ qbytearray \
 qclasses \
 qmethods \
 qobject \
+reuse \
 sigsandslots \
 spelling \
 staticobjects \
@@ -81,6 +82,7 @@ endswithnewline \
 filenames \
 insecurenet \
 license \
+reuse \
 spelling \
 
 # links to Perl plugins
@@ -90,6 +92,7 @@ endswithnewline \
 filenames \
 license \
 insecurenet \
+reuse \
 spelling \
 
 # links to Python plugins
@@ -100,6 +103,7 @@ filenames \
 license \
 insecurenet \
 qtemits \
+reuse \
 spelling \
 
 # links to JSON plugins
@@ -117,9 +121,12 @@ validate \
 
 # links to CMake plugins
 CMAKE_PLUGINS = \
+copyright \
 endswithnewline \
 filenames \
 insecurenet \
+license \
+reuse \
 spelling \
 
 #default installation location

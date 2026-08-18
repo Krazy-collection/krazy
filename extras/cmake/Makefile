@@ -10,7 +10,6 @@ style \
 
 # links to general purpose extras
 EXTRALNS = \
-reuse \
 
 #default installation location
 PREFIX=/usr/local

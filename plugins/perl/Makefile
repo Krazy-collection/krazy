@@ -15,6 +15,7 @@ endswithnewline \
 filenames \
 license \
 insecurenet \
+reuse \
 spelling \
 
 #default installation location

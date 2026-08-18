@@ -21,6 +21,7 @@ postfixop \
 qbytearray \
 qclasses \
 qmethods \
+reuse \
 syscalls \
 typedefs \
 
@@ -62,6 +63,7 @@ endswithnewline \
 filenames \
 insecurenet \
 license \
+reuse \
 
 # links to Perl plugins
 PERL_PLUGINS = \
@@ -70,6 +72,7 @@ endswithnewline \
 filenames \
 license \
 insecurenet \
+reuse \
 
 # links to Python plugins
 PYTHON_PLUGINS = \
@@ -79,6 +82,7 @@ filenames \
 license \
 insecurenet \
 qtemits \
+reuse \
 
 # links to JSON plugins
 JSON_PLUGINS = \
@@ -99,6 +103,7 @@ endswithnewline \
 filenames \
 license \
 insecurenet \
+reuse \
 
 #default installation location
 INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}"

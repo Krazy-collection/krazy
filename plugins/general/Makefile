@@ -13,6 +13,7 @@ i18ncheckarg \
 license \
 insecurenet \
 qclasses \
+reuse \
 spelling \
 
 #default installation location

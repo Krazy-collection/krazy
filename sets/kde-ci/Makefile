@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-SET="kde-ci"
+SET=kde-ci
 
 # links to c++ checker plugins
 CPP_PLUGINS = \
@@ -17,6 +17,7 @@ insecurenet \
 license \
 qclasses \
 qmethods \
+reuse \
 syscalls \
 typedefs \
 
@@ -48,18 +49,21 @@ QML_PLUGINS = \
 copyright \
 insecurenet \
 license \
+reuse \
 
 # links to Perl checker plugins
 PERL_PLUGINS = \
 copyright \
 license \
 insecurenet \
+reuse \
 
 # links to Python checker plugins
 PYTHON_PLUGINS = \
 copyright \
 license \
 insecurenet \
+reuse \
 
 # links to JSON checker plugins
 JSON_PLUGINS = \
@@ -75,6 +79,7 @@ CMAKE_PLUGINS = \
 copyright \
 license \
 insecurenet \
+reuse \
 
 #default installation location
 INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/$(SET)"
