@@ -42,8 +42,8 @@
 #   --list-type <type>:
 #                   print the list of available checkers for the specified file type.
 #   --list-sets:    print a list of all the check-sets
-#   --list-set <set>:
-#                   print the list of available checkers for the specified set.
+#   --list-set <set[,set1,set2,...,setN]>:
+#                   print the list of available checkers for each of the specified sets.
 #   --explain:      if issues found, print an explanation along with
 #                   solving instructions at the end of each test
 #   --check <prog[,prog1,prog2,...,progN]>:
@@ -508,7 +508,6 @@ if ($checksets) {
 if ($extra) {
   my (@extra_progs) = split(",", $extra);
   @extra_progs = deDupe(@extra_progs);
-  my ($i);
   for my ($x) (@extra_progs) {
 
     # Make sure specified extra program is in the list
@@ -931,8 +930,8 @@ sub Help
   print "  --list-type <type>\n";
   print "                 print the list of available checkers for the specified file type.\n";
   print "  --list-sets    print a list of all the check-sets\n";
-  print "  --list-set <set>\n";
-  print "                 print the list of available checkers for the specified check-set\n";
+  print "  --list-set <set[,set1,set2,...,setN]>\n";
+  print "                 print the list of available checkers for each of the specified check-sets\n";
   print "  --priority <low|normal|high|important|all>\n";
   print "                 report only issues with the specified priorities:\n";
   print "                   low -> print low priority issues only\n";
@@ -1138,27 +1137,33 @@ sub ListSets
 # ListSet function: list all the checkers for a specific check-set.
 sub ListSet
 {
-  my ($set) = @_;
+  my ($sets) = @_;
   my ($prprog, $use, $type);
 
-  if (!&validateCheckSet($set)) {
-    print "No such check-set: $set\n\n";
-    $listsets = 'yes';
-    &ListSets();
+  my (@checksets) = split(",", $sets);
+
+  # allow specifying multiple sets
+  foreach my ($set) (@checksets) {
+    if (!&validateCheckSet($set)) {
+      print "No such check-set: $set\n\n";
+      $listsets = 'yes';
+      &ListSets();
+    }
   }
 
-  print "List of available checkers for check-set $set:\n";
+  foreach my ($set) (@checksets) {
+    print "List of available checkers for check-set $set:\n";
+    foreach my ($prog) (sort @{$Sets{$set}}) {
+      $use = "";
+      $use .= `$prog --help 2>/dev/null`;
+      chomp($use);
+      $use = "(no description available)" if (length($use) < 4);
 
-  foreach my ($prog) (sort @{$Sets{$set}}) {
-    $use = "";
-    $use .= `$prog --help 2>/dev/null`;
-    chomp($use);
-    $use = "(no description available)" if (length($use) < 4);
-
-    $prprog = &basename($prog);
-    printf("%20.20s: %s\n", $prprog, $use);
+      $prprog = &basename($prog);
+      printf("%20.20s: %s\n", $prprog, $use);
+    }
+    print "\n";
   }
-
   exit 0 if $listset;
 }
 
@@ -1470,9 +1475,9 @@ Print the list of available checkers for the specified file type and exit.
 
 Print a list of all the check-sets and exit.
 
-=item B<--list-set> <set>
+=item B<--list-set> <set[,set1,set2,...,setN]>
 
-Print the list of available checkers for the specified set and exit.
+Print the list of available checkers for each of the specified sets and exit.
 
 =item B<--priority> <low|normal|high|important|all>
 

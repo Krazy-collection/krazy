@@ -221,8 +221,8 @@ sub Help
   print "  --list-type <type>\n";
   print "                 print the list of available checkers for the specified file typet\n";
   print "  --list-sets    print a list of all the check-sets\n";
-  print "  --list-set <set>\n";
-  print "                 print the list of available checkers for the specified check-set\n";
+  print "  --list-set <set[,set1,set2,...,setN]>\n";
+  print "                 print the list of available checkers for each of the specified check-sets\n";
   print "  --priority <low|normal|high|important|all>\n";
   print "                 report only issues with the specified priorities:\n";
   print "                   low -> print low priority issues only\n";
@@ -334,9 +334,9 @@ Print the list of available checkers for the specified file type and exit.
 
 Print a list of all the check-sets and exit.
 
-=item B<--list-set> <set>
+=item B<--list-set> <set[,set1,set2,...,setN]>
 
-Print the list of available checkers for the specified set and exit.
+Print the list of available checkers for each of the specified sets and exit.
 
 =item B<--priority> <low|normal|high|important|all>
 
