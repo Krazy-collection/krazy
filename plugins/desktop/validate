@@ -73,7 +73,7 @@ if (!$cnt) {
 
 sub Help
 {
-  print "Validates desktop files using '$valp'\n";
+  print "Validates desktop files using 'desktop-file-validate'\n";
   Exit 0 if &helpArg();
 }
 
