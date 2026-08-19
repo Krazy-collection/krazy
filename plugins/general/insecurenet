@@ -107,23 +107,7 @@ sub whiteList
   return 1
     if ($l =~ m+http://\"+)
     || ($l =~ m+http://\<+)
-    ||
-
-    #time for people to change trolltech to qt-project
-    #($l =~ m+//www.trolltech.com/+) || # no longer exists and there is no https
-    #https doesn't exist for these
-       ($l =~ m+//xmlsoft.org+)
-    || ($l =~ m+//www.xmlsoft.org+)
-    || ($l =~ m+//www.icu-project.org+)
-    || ($l =~ m+//0pointer.de/+)
-    || ($l =~ m+//id3.org+)
-    || ($l =~ m+//docs.oasis-open.org+)
-    || ($l =~ m+//timestamp.globalsign.com+)
-    || ($l =~ m+//filmicworlds.com+)
-    || ($l =~ m+//www.open-std.org+)
-    ||
-
-       ($l =~ m+//www.example.com+)
+    || ($l =~ m+//www.example.com+)
     || ($l =~ m+//example.com+)
     || ($l =~ m+//127.0.0.1+)
     || ($l =~ m+//localhost+)
