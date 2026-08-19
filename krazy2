@@ -113,7 +113,7 @@ use Krazy::Project;
 my ($Prog)    = 'krazy2';
 my ($VERSION) = '2.9993';
 
-my ($DEFAULT_CHECKSETS) = "kde6";
+my ($DEFAULT_CHECKSETS) = "kde";
 
 my ($help)      = '';
 my ($version)   = '';

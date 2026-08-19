@@ -1,42 +1,27 @@
-# krazy kde5 sets Makefile
+# krazy kde sets Makefile
 #
-# SPDX-FileCopyrightText: 2013 Allen Winter <winter@kde.org>
+# SPDX-FileCopyrightText: 2025 Allen Winter <winter@kde.org>
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-SET=kde5
+SET=kde
 
 # links to c++ plugins
 CPP_PLUGINS = \
-constref \
 copyright \
 cpp \
 crashy \
-doublequote_chars \
-dpointer \
-emptystrcompare \
 endswithnewline \
-explicit \
 filenames \
 i18ncheckarg \
 includes \
-inline \
 insecurenet \
 license \
-normalize \
-nullstrassign \
-nullstrcompare \
-operators \
 postfixop \
 qbytearray \
 qclasses \
 qmethods \
-qobject \
 reuse \
-sigsandslots \
-spelling \
-staticobjects \
-strings \
 syscalls \
 typedefs \
 
@@ -47,14 +32,12 @@ filenames \
 i18ncheckarg \
 insecurenet \
 qclasses \
-spelling \
 
 # links to desktop plugins
 DESKTOP_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 validate \
 
 # lines to kconfigxt plugins
@@ -63,7 +46,6 @@ endswithnewline \
 filenames \
 i18ncheckarg \
 insecurenet \
-spelling \
 validate \
 
 # links to kpartgui plugins
@@ -72,7 +54,6 @@ endswithnewline \
 filenames \
 i18ncheckarg \
 insecurenet \
-spelling \
 validate \
 
 # links to QML plugins
@@ -83,7 +64,6 @@ filenames \
 insecurenet \
 license \
 reuse \
-spelling \
 
 # links to Perl plugins
 PERL_PLUGINS = \
@@ -93,7 +73,6 @@ filenames \
 license \
 insecurenet \
 reuse \
-spelling \
 
 # links to Python plugins
 PYTHON_PLUGINS = \
@@ -104,14 +83,12 @@ license \
 insecurenet \
 qtemits \
 reuse \
-spelling \
 
 # links to JSON plugins
 JSON_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
-spelling \
 validate \
 
 # links to SVG plugins
@@ -124,10 +101,9 @@ CMAKE_PLUGINS = \
 copyright \
 endswithnewline \
 filenames \
-insecurenet \
 license \
+insecurenet \
 reuse \
-spelling \
 
 #default installation location
 INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}"

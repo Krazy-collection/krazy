@@ -92,9 +92,6 @@ while ($linecnt < $#lines) {
   if (&strictArg() eq "super") {
     &doIt($line, "QComboBox", "KComboBox", '');
   }
-  if (&usingCheckSet("kde5")) {
-    &doIt($line, "QMessageBox", "KMessageBox", '');
-  }
   &doIt($line, "QTextEdit", "KTextEdit", '');
 }
 

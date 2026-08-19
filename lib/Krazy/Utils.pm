@@ -79,8 +79,7 @@ my (@FileTypes) =
 my (@Sets) = (
   "c++",          # Pure C/C++ source
   "qt",           # Qt source (C++, QML, Qt Designer, Qt Doc)
-  "kde5",         # KDE5 source (C++, Qt5, FDO desktop files, etc.)
-  "kde6",         # KDE6 source (C++, Qt6, FDO desktop files, etc.)
+  "kde",          # KDE source (C++, Qt, FDO desktop files, etc.)
   "kde-ci",       # KDE specific to the KDE CI (C++, Qt Designer, FDO desktop files, etc.)
   "foss"          # Free and open source software (FOSS)
 );
@@ -631,10 +630,8 @@ sub checkSetDesc()
     return "Pure C/C++ source";
   } elsif ($s eq "qt") {
     return "Qt source (C++, QML, Qt Designer, Qt Doc)";
-  } elsif ($s eq "kde5") {
-    return "KDE5 source (C++, Qt Designer, FDO desktop files, etc.)";
-  } elsif ($s eq "kde6") {
-    return "KDE6 source (C++, Qt Designer, FDO desktop files, etc.)";
+  } elsif ($s eq "kde") {
+    return "KDE/Qt source (C++, Qt Designer, FDO desktop files, etc.)";
   } elsif ($s eq "kde-ci") {
     return "KDE source - CI specific";
   } elsif ($s eq "foss") {
@@ -825,10 +822,8 @@ sub guessCheckSet
 
   #CMake buildsystems
   if (-e $cmakepath) {
-    if (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*KF6")) > 0) {
-      $checkset = "kde6";
-    } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*KF5")) > 0) {
-      $checkset = "kde5";
+    if (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*KF")) > 0) {
+      $checkset = "kde";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("find_package\\s*\\(\\s*Qt")) > 0) {
       $checkset = "qt";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("project\\s*\\(.*CXX")) > 0) {

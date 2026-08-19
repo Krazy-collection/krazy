@@ -166,6 +166,8 @@ rm -rf "$TOP"/lib/krazy2/krazy-*/messages
 rm -rf "$TOP"/lib/krazy2/krazy-sets/*/messages-*
 #remove sets renamed or no longer in use
 rm -rf "$TOP"/lib/krazy2/krazy-sets/kde4
+rm -rf "$TOP"/lib/krazy2/krazy-sets/kde5
+rm -rf "$TOP"/lib/krazy2/krazy-sets/kde6
 rm -rf "$TOP"/lib/krazy2/krazy-sets/qt4
 rm -rf "$TOP"/lib/krazy2/krazy-sets/qt5
 rm -rf "$TOP"/lib/krazy2/krazy-sets/qt6

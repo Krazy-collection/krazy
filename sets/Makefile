@@ -8,8 +8,7 @@
 SUBDIRS = \
 c++ \
 qt \
-kde5 \
-kde6 \
+kde \
 kde-ci \
 foss \
 
