@@ -29,7 +29,8 @@ COMMAND_EXISTS() {
 }
 
 #make sure some helper programs exist before continuing
-COMMAND_EXISTS desktop-file-validate "Please install the desktop-file-utils package or install it from source"
+COMMAND_EXISTS desktop-file-validate "desktop-file-validate not found. Please install the desktop-file-utils package or build it from source"
+COMMAND_EXISTS xmllint "xmllint not found. Please install the libxml2 package or build xmllint from source"
 
 #bootstrap by checking that the MakeMaker module is installed
 module="ExtUtils::MakeMaker"

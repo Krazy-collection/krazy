@@ -55,10 +55,14 @@ The modules are:
 * Digest::MD5
 * (possibly more.  see the top-level Makefile.PL)
 
-Also install the desktop-file-utils package or build it from source
-from <https://www.freedesktop.org/software/desktop-file-utils/releases>.
+Also, the programs desktop-file-validate and xmllint are required.
+Please install them and make sure they are in your execute PATH.
 
-Make sure the program `desktop-file-validate` is in your execute PATH.
+* desktop-file-validate: install the desktop-file-utils package or build it from
+source. See <https://www.freedesktop.org/software/desktop-file-utils/releases>.
+
+* xmllint: install the libxml2 package or build it from source.
+See <https://gitlab.gnome.org/GNOME/libxml2/-/wikis/home>.
 
 Otherwise, Krazy should work with all known UNIXish operating systems
 where Perl s available.
