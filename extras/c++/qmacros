@@ -8,7 +8,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # SPDX-License-Identifier: GPL-2.0-or-later                                   #
 ###############################################################################
 
-# Tests source for not using Qt Macros
+# Tests KDE/Qt source for not using Qt Macros
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -45,7 +45,7 @@ my ($f)    = $ARGV[0];
 my ($absf) = abs_path($f);
 
 # C++ files only
-unless (&fileType($f) eq "c++" && !isCSource($f)) {
+unless ((&usingKDECheckSet() || &usingQtCheckSet()) & &fileType($f) eq "c++" && !isCSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
