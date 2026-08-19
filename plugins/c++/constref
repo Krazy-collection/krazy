@@ -89,6 +89,8 @@ while ($linecnt < $#lines) {
       if (&Cname($line, $lines[$linecnt - 1])) {$linecnt--; last;}
       last if (&endClass($line, $linecnt));
       next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+      $line =~ s/\[\[nodiscard\]\]//g;
+
       if ( $line =~ m/^[[:space:]]*const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/
         || $line =~ m/^[[:space:]]*static[[:space:]]const[[:space:]].*\&[[:space:]]*[[:alnum:]]+[[:space:]]*\(/)
       {
