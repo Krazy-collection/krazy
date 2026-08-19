@@ -1,0 +1,1 @@
+Qt source (C++, QML, Qt Designer, Qt Doc)

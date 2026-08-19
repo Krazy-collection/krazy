@@ -1,10 +1,10 @@
-# krazy qt6 sets Makefile
+# krazy qt sets Makefile
 #
 # SPDX-FileCopyrightText: 2025 Allen Winter <winter@kde.org>
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-SET=qt6
+SET=qt
 
 # links to c++ plugins
 CPP_PLUGINS = \

@@ -144,7 +144,7 @@ if (test -d "$TOP/share/man/man3"); then
   )
 fi
 
-#remove old checkers no longer in use
+#remove checkers no longer in use
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/contractions #moved to extras
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qconnect
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/doxytags "$TOP"/lib/krazy2/krazy-sets/*/*-doxytags
@@ -157,16 +157,18 @@ rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qminmax "$TOP"/lib/krazy2/krazy-sets/*/*
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax "$TOP"/lib/krazy2/krazy-sets/*/*-qmlsyntax
 rm -rf "$TOP"/lib/krazy2/krazy-extras/*/copyright-reuse
 rm -rf "$TOP"/lib/krazy2/krazy-extras/*/license-reuse
-#remove old extra checkers no longer in use
+#remove extra checkers no longer in use
 rm -f "$TOP"/lib/krazy2/krazy-extras/*/style
 #remove filetypes no longer supported
 rm -rf "$TOP"/lib/krazy2/krazy-*/tips
 rm -rf "$TOP"/lib/krazy2/krazy-sets/*/tips-*
 rm -rf "$TOP"/lib/krazy2/krazy-*/messages
 rm -rf "$TOP"/lib/krazy2/krazy-sets/*/messages-*
-#remove old sets no longer in use
+#remove sets renamed or no longer in use
 rm -rf "$TOP"/lib/krazy2/krazy-sets/kde4
 rm -rf "$TOP"/lib/krazy2/krazy-sets/qt4
+rm -rf "$TOP"/lib/krazy2/krazy-sets/qt5
+rm -rf "$TOP"/lib/krazy2/krazy-sets/qt6
 
 #final cleaning
 cd "$savedir"

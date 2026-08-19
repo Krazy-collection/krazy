@@ -1,1 +1,0 @@
-Qt6 source (C++, QML, Qt Designer, Qt Doc)

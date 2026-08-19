@@ -7,8 +7,7 @@
 # list of all set subdirs to install
 SUBDIRS = \
 c++ \
-qt5 \
-qt6 \
+qt \
 kde5 \
 kde6 \
 kde-ci \

@@ -121,10 +121,6 @@ sub Version
 sub Explain
 {
   print
-"In C++, a null pointer is 0; not 0l, 0L or NULL. If this is C++11 code you might consider using nullptr instead of 0";
-  if (&usingCheckSet("qt5")) {
-    print ", or Q_NULLPTR in Qt5 code";
-  }
-  print ".\n";
+"In C++, a null pointer is 0; not 0l, 0L or NULL. If this is C++11 code you might consider using nullptr instead of 0.\n";
   Exit 0 if &explainArg();
 }
