@@ -32,7 +32,7 @@ $VERSION = 2.99999;                                            # this is the mod
   outputTypeStr checksetTypeStr
   cppIncludeOrderTypeStr
   validateExportType validatePriorityType validateStrictType
-  validateOutputType validateCheckSet
+  validateOutputType validateCheckSet validateCheckSets dedeprecateCheckSets dedeprecateCheckSetsStr
   validateCppIncludeOrderType
   usingCheckSet usingQtCheckSet usingKDECheckSet
   linesSearchInFile linesCaseSearchInFile
@@ -519,12 +519,11 @@ sub parseArgs
     exit(1);
   }
 
-  foreach my ($set) (split(",", $checksets)) {
-    if (!&validateCheckSet($set)) {
-      my ($lst) = &checksetTypeStr();
-      print "Bad checkset \"$set\" specified... exiting\nChoices for checksets are: $lst\n";
-      exit(1);
-    }
+  my ($badsets) = validateCheckSets($checksets);
+  if ($badsets) {
+    my ($lst) = &checksetTypeStr();
+    print "Bad checkset(s) \"$badsets\" specified... exiting\nChoices for checksets are: $lst\n";
+    exit(1);
   }
 
 }
@@ -658,6 +657,44 @@ sub validateCheckSet
     return grep {$_ eq $set} @Sets;
   }
   return 0;
+}
+
+sub dedeprecateCheckSet
+{
+  my ($set) = @_;
+  $set = "qt"  if ($set =~ m/^qt[[:digit:]]/);
+  $set = "kde" if ($set =~ m/^kde[[:digit:]]/);
+  return $set;
+}
+
+sub dedeprecateCheckSets
+{
+  my ($checksets) = @_;
+  my (@newsets)   = ();
+  foreach my ($set) (split(",", $checksets)) {
+    push(@newsets, &dedeprecateCheckSet($set));
+  }
+  return @newsets;
+}
+
+sub dedeprecateCheckSetsStr
+{
+  my (@checksets) = @_;
+  return join ', ', &dedeprecateCheckSets(@checksets);
+}
+
+sub validateCheckSets
+{
+  my ($checksets) = @_;
+  my (@badsets)   = ();
+  foreach my ($set) (split(",", $checksets)) {
+    my ($newset) = &dedeprecateCheckSet($set);
+    print STDERR "Deprecated check-set \"$set\". Please use \"$newset\" instead\n" if ($set ne $newset);
+    if (!&validateCheckSet($newset)) {
+      push(@badsets, $set);
+    }
+  }
+  return join ', ', @badsets;
 }
 
 sub usingCheckSet
