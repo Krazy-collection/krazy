@@ -44,7 +44,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++, installed headers only
-unless (&installedArg() && isCInclude($f)) {
+unless (isCInclude($f) && !isPrivateSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
@@ -98,7 +98,8 @@ while ($linecnt < $#lines) {
       if (&Cname($line, $lastl)) {$linecnt--; last;}
       next if (&endClass($line, $linecnt));
 
-      if ($line =~ m/^[[:space:]]*inline[[:space:]]/ || $line =~ m/{/) {
+      $line =~ s/\[\[nodiscard\]\]//g;
+      if ($line =~ m/^[[:space:]]*inline[[:space:]]/ || $line =~ m/{\s*[[:alnum:]]/) {
 
         # we found a possible problem inline method
         $inlm = $line;
@@ -184,9 +185,8 @@ sub endClass
     if (
     &searchBackWithStop(
       '^[[:space:]]*struct[[:space:]]',
-      $lc - 1,
-      75,
-'^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'
+      $lc - 1, 75,
+      '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'
     )
     );
 
@@ -194,12 +194,7 @@ sub endClass
   # unless, of course, someone puts one at
   # the end of a doxygen line (why would they?)
   return 0
-    if (
-    &searchBackWithStop(
-      '^[[:space:]]*enum[[:space:]]',
-      $lc - 1, 75, ';[[:space:]]*$|^[[:space:]]*private:'
-    )
-    );
+    if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]', $lc - 1, 75, ';[[:space:]]*$|^[[:space:]]*private:'));
 
   #at end of class
   my ($cclass) = $classes[$#classes];
@@ -256,14 +251,14 @@ sub Inline
   #check the line $l for conditions where inline is ok within a class
   return 0 if ($l =~ m+[[:space:]]*operator+);
   return 0 if ($l =~ m+[[:space:]]*KDE_DEPRECATED[[:space:]]*+);
-  return 0 if ($l =~ m+^\s*//+);                                # only a comment here
+  return 0 if ($l =~ m+^\s*//+);                                   # only a comment here
   return 0 if ($l =~ m+//.*[Kk]razy:exclude=.*$Prog+);
-  return 0 if ($l =~ m+//.*inline+);                            #if inline in a comment on the line
-  return 0 if ($l =~ m+//.*in-line+);                           #if in-line in a comment on the line
+  return 0 if ($l =~ m+//.*inline+);                               #if inline in a comment on the line
+  return 0 if ($l =~ m+//.*in-line+);                              #if in-line in a comment on the line
 
-  return 0 if ($l =~ m+virtual\s~+);                            #allow inline virtual destructors
+  return 0 if ($l =~ m+virtual\s~+);                               #allow inline virtual destructors
 
-  return 0 if ($l =~ m/=\s*{.*}/);                              #allow initializers
+  return 0 if ($l =~ m/=\s*{.*}/);                                 #allow initializers
 
   #  return 0 if ($l =~ m+{\s*}+);
   return 0                   if ($l =~ m+^\s*:+);
