@@ -8,20 +8,35 @@ SET=kde
 
 # links to c++ plugins
 CPP_PLUGINS = \
+constref \
 copyright \
 cpp \
 crashy \
+doublequote_chars \
+dpointer \
+emptystrcompare \
 endswithnewline \
+explicit \
 filenames \
 i18ncheckarg \
 includes \
+inline \
 insecurenet \
 license \
+normalize \
+nullstrassign \
+nullstrcompare \
+operators \
 postfixop \
 qbytearray \
 qclasses \
 qmethods \
+qobject \
 reuse \
+sigsandslots \
+spelling \
+staticobjects \
+strings \
 syscalls \
 typedefs \
 
@@ -32,12 +47,14 @@ filenames \
 i18ncheckarg \
 insecurenet \
 qclasses \
+spelling \
 
 # links to desktop plugins
 DESKTOP_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
+spelling \
 validate \
 
 # lines to kconfigxt plugins
@@ -46,6 +63,7 @@ endswithnewline \
 filenames \
 i18ncheckarg \
 insecurenet \
+spelling \
 validate \
 
 # links to kpartgui plugins
@@ -54,6 +72,7 @@ endswithnewline \
 filenames \
 i18ncheckarg \
 insecurenet \
+spelling \
 validate \
 
 # links to QML plugins
@@ -64,31 +83,35 @@ filenames \
 insecurenet \
 license \
 reuse \
+spelling \
 
 # links to Perl plugins
 PERL_PLUGINS = \
 copyright \
 endswithnewline \
 filenames \
-license \
 insecurenet \
+license \
 reuse \
+spelling \
 
 # links to Python plugins
 PYTHON_PLUGINS = \
 copyright \
 endswithnewline \
 filenames \
-license \
 insecurenet \
+license \
 qtemits \
 reuse \
+spelling \
 
 # links to JSON plugins
 JSON_PLUGINS = \
 endswithnewline \
 filenames \
 insecurenet \
+spelling \
 validate \
 
 # links to SVG plugins
@@ -103,6 +126,7 @@ endswithnewline \
 filenames \
 license \
 insecurenet \
+spelling \
 reuse \
 
 #default installation location
