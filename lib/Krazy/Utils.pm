@@ -848,14 +848,6 @@ sub guessCheckSet
   my ($cmakepath) = catfile($in, "CMakeLists.txt");
   my ($qmakepath) = catfile($in, $project . ".pro");
   my ($autopath)  = catfile($in, "autogen.py");
-  my (@fosspaths) = (
-    catfile($in, "COPYING"),
-    catfile($in, "COPYING.GPL"),
-    catfile($in, "COPYING.LGPL"),
-    catfile($in, "COPYING.LIB"),
-    catfile($in, "LICENSE.GPL.txt"),
-    catfile($in, "LICENSE.LGPL.txt"),
-  );
 
   #CMake buildsystems
   if (-e $cmakepath) {
@@ -877,10 +869,21 @@ sub guessCheckSet
   }
 
   my ($fcheckset) = '';
-  for my ($p) (@fosspaths) {
-    if (-e $p) {
-      $fcheckset = "foss";
-      last;
+  $fcheckset = "foss" if (-d catfile($in, "LICENSES"));    # spdx
+  if (!$fcheckset) {
+    my (@fosspaths) = (
+      catfile($in, "COPYING"),
+      catfile($in, "COPYING.GPL"),
+      catfile($in, "COPYING.LGPL"),
+      catfile($in, "COPYING.LIB"),
+      catfile($in, "LICENSE.GPL.txt"),
+      catfile($in, "LICENSE.LGPL.txt"),
+    );
+    for my ($p) (@fosspaths) {
+      if (-e $p) {
+        $fcheckset = "foss";
+        last;
+      }
     }
   }
 
