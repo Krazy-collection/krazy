@@ -2,6 +2,8 @@
 color = 0
 severity = 5
 
+[-Variables::RequireNegativeIndices]
+
 [TestingAndDebugging::RequireUseStrict]
 severity = 5
 
