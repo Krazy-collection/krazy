@@ -173,6 +173,7 @@ sub check_file
         && $word
         && $last
         && $lastlast ne "\\value"             # skip qdoc like "\value Create Create a thing"
+        && $lastlast ne "\\a"                 # skip doxygen like "\a date date to return holidays for"
         && $word eq $last
         && $word !~ m/([a-zA-Z0-9])\1{2,}/    #words with consecutive occurrences of the same char i.e "xxx" or "AAA"
         && $word ne "test"
