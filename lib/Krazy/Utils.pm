@@ -539,7 +539,7 @@ sub verboseArg   {return $verbose;}
 
 sub exportTypeStr
 {
-  return join ', ', @Exports;
+  return join ',', @Exports;
 }
 
 sub validateExportType
@@ -554,7 +554,7 @@ sub validateExportType
 
 sub priorityTypeStr
 {
-  return join ', ', @Priorities;
+  return join ',', @Priorities;
 }
 
 sub validatePriorityType
@@ -569,7 +569,7 @@ sub validatePriorityType
 
 sub strictTypeStr
 {
-  return join ', ', @Stricts;
+  return join ',', @Stricts;
 }
 
 sub validateStrictType
@@ -584,7 +584,7 @@ sub validateStrictType
 
 sub outputTypeStr
 {
-  return join ', ', @Outputs;
+  return join ',', @Outputs;
 }
 
 sub validateOutputType
@@ -599,7 +599,7 @@ sub validateOutputType
 
 sub cppIncludeOrderTypeStr
 {
-  return join ', ', @CppIncludeOrderTypes;
+  return join ',', @CppIncludeOrderTypes;
 }
 
 sub validateCppIncludeOrderType
@@ -641,7 +641,7 @@ sub checkSetDesc()
 
 sub checksetTypeStr
 {
-  return join ', ', @Sets;
+  return join ',', @Sets;
 }
 
 sub checkSetsList()
@@ -680,7 +680,7 @@ sub dedeprecateCheckSets
 sub dedeprecateCheckSetsStr
 {
   my (@checksets) = @_;
-  return join ', ', &dedeprecateCheckSets(@checksets);
+  return join ',', &dedeprecateCheckSets(@checksets);
 }
 
 sub validateCheckSets
@@ -694,7 +694,7 @@ sub validateCheckSets
       push(@badsets, $set);
     }
   }
-  return join ', ', @badsets;
+  return join ',', @badsets;
 }
 
 sub usingCheckSet
