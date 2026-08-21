@@ -40,7 +40,7 @@ $VERSION = 2.99999;                                            # this is the mod
   guessCheckSet checkSetDesc checkSetsList prettyPrintCheckSetsList
   fileTypeDesc fileTypesList prettyPrintTypesList
   printIssue printIssueTextEdit
-  isCInclude isCSource);
+  isCInclude isCSource isPrivateSource);
 @EXPORT_OK = qw();
 
 my (@tmp);
@@ -406,6 +406,12 @@ sub isCInclude
   return 1 if ($f =~ m/\.(?:h|hxx|hpp|H\+\+)\.cmake$/);
 
   return 0;
+}
+
+sub isPrivateSource
+{
+  my ($f) = @_;
+  return (&fileType($f) eq "c++" && $f =~ m/_p\./);
 }
 
 # return a string containing all the supported files found in specified dirs
