@@ -120,23 +120,11 @@ while ($linecnt < $#lines) {
           if (&endClass($line, $linecnt)) {last;}
 
           next if ($line =~ m/[[:space:]]*public[[:space:]]*:/);
-          last
-            if (
-            $line =~ m/[[:space:]]*private[[:space:]]*Q_SLOTS[[:space:]]*:
-/
-            );
+          last if ($line =~ m/[[:space:]]*private[[:space:]]*Q_SLOTS[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*private[[:space:]]*slots[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*protected[[:space:]]*:/);
-          last
-            if (
-            $line =~ m/[[:space:]]*protected[[:space:]]*Q_SLOTS[[:space:]]
-*:/
-            );
-          last
-            if (
-            $line =~ m/[[:space:]]*protected[[:space:]]*slots[[:space:]]*:
-/
-            );
+          last if ($line =~ m/[[:space:]]*protected[[:space:]]*Q_SLOTS[[:space:]]*:/);
+          last if ($line =~ m/[[:space:]]*protected[[:space:]]*slots[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*public[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*public[[:space:]]*Q_SLOTS[[:space:]]*:/);
           last if ($line =~ m/[[:space:]]*public[[:space:]]*slots[[:space:]]*:/);
