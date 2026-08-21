@@ -43,8 +43,8 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-# skip installed headers
-if (&installedArg() || !isCInclude($f)) {
+# C/C++ only
+unless (&fileType($f) eq "c++") {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }

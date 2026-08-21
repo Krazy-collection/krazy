@@ -47,7 +47,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++, installed headers only
-unless (&installedArg() && isCInclude($f)) {
+unless (isCInclude($f) && !isPrivateHeader($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
@@ -94,15 +94,14 @@ while ($linecnt <= $#lines) {
   if ($CNAME ne "") {
     print "($linecnt) Start Class $CNAME\n" if ($debug);
 
-    $stuff{$CNAME}{'dpointer'}      = 0;
-    $stuff{$CNAME}{'excluded'}      = 0;           #is this class krazy excluded?
-    $stuff{$CNAME}{'section'}       = "public";    #default visibility in classes
-    $stuff{$CNAME}{'privMembers'}   = 0;           #count private members
-    $stuff{$CNAME}{'privLinesList'} = "";          #list of lines with private members
-    $stuff{$CNAME}{'pureVirt'}      = 0;           #count pure virtuals
-    $stuff{$CNAME}{'qInterfaces'}   = 0;           #count Q_INTERFACES(..)
-    $stuff{$CNAME}{'declarePrivate'} =
-      0;    #count .*_DECLARE_PRIVATE(..) (eg: kdeui has its own KDEUI_DECLARE_PRIVATE)
+    $stuff{$CNAME}{'dpointer'}       = 0;
+    $stuff{$CNAME}{'excluded'}       = 0;           #is this class krazy excluded?
+    $stuff{$CNAME}{'section'}        = "public";    #default visibility in classes
+    $stuff{$CNAME}{'privMembers'}    = 0;           #count private members
+    $stuff{$CNAME}{'privLinesList'}  = "";          #list of lines with private members
+    $stuff{$CNAME}{'pureVirt'}       = 0;           #count pure virtuals
+    $stuff{$CNAME}{'qInterfaces'}    = 0;           #count Q_INTERFACES(..)
+    $stuff{$CNAME}{'declarePrivate'} = 0;    #count .*_DECLARE_PRIVATE(..) (eg: kdeui has its own KDEUI_DECLARE_PRIVATE)
 
     $stuff{$CNAME}{'excluded'} = 1 if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
@@ -139,7 +138,7 @@ while ($linecnt <= $#lines) {
           #Ignore inlined methods (including template methods)
           if ( $line =~ m/[[:alnum:]]+[[:space:]]*\(/
             && $line !~ m/\)[[:space:]]*(const)?[[:space:]]*;/)
-          { #Maybe inlined method start (it could also be a method declaration with arguments in several lines)
+          {    #Maybe inlined method start (it could also be a method declaration with arguments in several lines)
             my $bracketCount = 0;
             $bracketCount++ if ($line =~ m/{/);
 
@@ -147,8 +146,7 @@ while ($linecnt <= $#lines) {
               $line = $lines[$linecnt++];
 
               last
-                if ($bracketCount == 0 && $line =~ m/\)[[:space:]]*(const)?[[:space:]]*;/)
-                ;    #It was a method declaration
+                if ($bracketCount == 0 && $line =~ m/\)[[:space:]]*(const)?[[:space:]]*;/); #It was a method declaration
 
               $bracketCount++ if ($line =~ m/{/);
               $bracketCount-- if ($line =~ m/}/);
@@ -161,18 +159,18 @@ while ($linecnt <= $#lines) {
 
           &Section($line);
           if (&endClass($line, $linecnt)) {last;}
-          next if ($line =~ m/[[:space:]]*private[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*private[[:space:]]*Q_SLOTS[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*private[[:space:]]*slots[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*protected[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*protected[[:space:]]*Q_SLOTS[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*protected[[:space:]]*slots[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*public[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*public[[:space:]]*Q_SLOTS[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*public[[:space:]]*slots[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*signals[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*k_dcop_signals[[:space:]]*:/);
-          last if ($line =~ m/[[:space:]]*Q_SIGNALS[[:space:]]*:/);
+          next                               if ($line =~ m/[[:space:]]*private[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*private[[:space:]]*Q_SLOTS[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*private[[:space:]]*slots[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*protected[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*protected[[:space:]]*Q_SLOTS[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*protected[[:space:]]*slots[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*public[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*public[[:space:]]*Q_SLOTS[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*public[[:space:]]*slots[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*signals[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*k_dcop_signals[[:space:]]*:/);
+          last                               if ($line =~ m/[[:space:]]*Q_SIGNALS[[:space:]]*:/);
           $stuff{$CNAME}{'declarePrivate'}++ if (isDeclarePrivate($line));
 
           if (&Priv($line, $linecnt) && !$krazyexclude) {
@@ -189,11 +187,7 @@ while ($linecnt <= $#lines) {
           } else {
 
             # perhaps a non-const d-pointer
-            if (
-              (
-                   $line =~ m/Private/ && $line !~ m/\(.*Private.*\)/
-                || $line =~ m/Priv/ && $line !~ m/\(.*Priv.*\)/
-              )
+            if ( ($line =~ m/Private/ && $line !~ m/\(.*Private.*\)/ || $line =~ m/Priv/ && $line !~ m/\(.*Priv.*\)/)
               && $line !~ m/class/
               && $line !~ m/struct/
               && $line !~ m/friend/
@@ -204,8 +198,7 @@ while ($linecnt <= $#lines) {
               && $line !~ m/QSharedDataPointer/
               && $line !~ m/QExplicitlySharedDataPointer/
               && $line !~ m/KSharedPtr/
-              && $line !~ m/Q_DISABLE_COPY/
-              )
+              && $line !~ m/Q_DISABLE_COPY/)
             {
               if (
                    $line !~ m/Private[[:alpha:]]*[[:space:]]*\*[[:space:]]*const/
@@ -310,9 +303,8 @@ sub endClass
     if (
     &searchBackWithStop(
       '^[[:space:]]*struct[[:space:]]',
-      $lc - 1,
-      75,
-'^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'
+      $lc - 1, 75,
+      '^[[:space:]]*class[[:space:]]|^[[:space:]]*}[[:space:]]*;|^[[:space:]]*struct.*;|^[[:space:]]*private:'
     )
     );
 
@@ -320,12 +312,7 @@ sub endClass
   # unless, of course, someone puts one at
   # the end of a doxygen line (why would they?)
   return 0
-    if (
-    &searchBackWithStop(
-      '^[[:space:]]*enum[[:space:]]',
-      $lc - 1, 75, ';[[:space:]]*$|^[[:space:]]*private:'
-    )
-    );
+    if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]', $lc - 1, 75, ';[[:space:]]*$|^[[:space:]]*private:'));
 
   #at end of class
   my ($cclass) = $classes[$#classes];

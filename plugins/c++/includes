@@ -161,31 +161,30 @@ while ($linecnt < $#lines) {
     next;
   }
 
-  # look for problems in installed headers
-  if (&installedArg()
-    && ($f =~ m/\.h$/ || $f =~ m/\.hxx$/))
-  {
-    # this file is an installed header
-
-    # every file it includes must be in angle brackets
-    if ($sep ne "<") {
-      $Issues{'ANGLE'}{'count'}++;
-      $Issues{'ANGLE'}{'lines'} .= "$linecnt,";
-      print "=> $line\n" if (&verboseArg());
-    }
-
-    # do not include config.h or config-foo.h in an installed header
-    if (&configH($incpath)) {
-      $Issues{'CONFIG'}{'count'}++;
-      $Issues{'CONFIG'}{'lines'} .= "$linecnt,";
-      print "=> $line\n" if (&verboseArg());
-    }
-    next;
-  } else {
-
-    # look for problems in non-installed files
-    ### TODO
-  }
+  ## we currently have no way of detecting installed headers
+  # # look for problems in installed headers
+  # if (&installedArg() && isCInclude($f)) {
+  #   # this file is an installed header
+  #
+  #   # every file it includes must be in angle brackets
+  #   if ($sep ne "<") {
+  #     $Issues{'ANGLE'}{'count'}++;
+  #     $Issues{'ANGLE'}{'lines'} .= "$linecnt,";
+  #     print "=> $line\n" if (&verboseArg());
+  #   }
+  #
+  #   # do not include config.h or config-foo.h in an installed header
+  #   if (&configH($incpath)) {
+  #     $Issues{'CONFIG'}{'count'}++;
+  #     $Issues{'CONFIG'}{'lines'} .= "$linecnt,";
+  #     print "=> $line\n" if (&verboseArg());
+  #   }
+  #   next;
+  # } else {
+  #
+  #   # look for problems in non-installed files
+  #   ### TODO
+  # }
 }
 
 ### Now let's check for problems based solely on the include path
