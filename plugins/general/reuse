@@ -17,6 +17,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 # - generated filesfile
 # - files specifically in the public domain
 # - files owned by a business entity
+# - files owned by a project group
 
 # Program options:
 #   --help:          print one-line help message and exit
@@ -119,7 +120,7 @@ foreach my ($line) (@data_lines) {
 
   if ($line =~ m/SPDX-FileCopyrightText:/) {
     push(@cfoundlines, $line);
-    if (!&isBusinessEntity($line)) {
+    if (!&isBusinessEntity($line) && !&isGroupAuthorsEntity($line)) {
 
       #check email is specified in angle brackets
       my ($name, $em) = split("<", $line);
@@ -196,11 +197,20 @@ sub Explain
   Exit 0 if &explainArg();
 }
 
+sub isGroupAuthorsEntity()
+{
+  my ($line) = @_;
+
+  #Allow copyrights of the form "the Project authors"
+  return 1 if ($line =~ m/the[[:space:]]\w+[[:space:]]authors/i);
+  return 0;
+}
+
 sub isBusinessEntity()
 {
   my ($line) = @_;
 
-  return 1 if ($line =~ m/Datakonsult/i);
+  return 1 if ($line =~ m/Datakonsult/i || $line =~ m/KDAB/i);
   return 1 if ($line =~ m/Kitware, inc/i);
   return 1 if ($line =~ m/Apple Computer/i);
   return 1 if ($line =~ m/Apple\s*,?\s*Inc/i);

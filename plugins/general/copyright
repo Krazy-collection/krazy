@@ -112,8 +112,8 @@ foreach my ($line) (@data_lines) {
   next if ($line =~ m/Copyright\.txt/ || $line =~ m/Copyright\.html/i);
   $foundline = $line;
 
-  #Businesses and legal entities are allowed to not have email addresses.
-  next if (&isBusinessEntity($line));
+  #Businesses and legal entities are allowed to not have email addresses. So is a group of authors.
+  next if (&isBusinessEntity($line) || &isGroupAuthorsEntity($line));
 
   #Non-legal entities are not allowed to hold copyright. Don't use things like
   #'The KDE Developers' or 'The KDE Authors'
@@ -133,7 +133,6 @@ foreach my ($line) (@data_lines) {
     if ( $line !~ m/[[:print:]]+(\@| at |\(at\)| \(at\) |#| # | \@ )[[:alnum:]]/i
       || $line =~ m/copyright/i)
     {
-
       #This line didn't yield anything useful, so we need to check it again.
       seek(F, -(length($line)), 1);
       $lcnt--;
@@ -149,8 +148,8 @@ foreach my ($line) (@data_lines) {
 if (!$foundline && $spdxline) {
   $foundline = $spdxline;
 
-  #Businesses and legal entities are allowed to not have email addresses.
-  if (!&isBusinessEntity($foundline)) {
+  #Businesses and legal entities are allowed to not have email addresses. So is a group of authors.
+  if (!&isBusinessEntity($foundline) && !&isGroupAuthorsEntity($foundline)) {
 
     #check email is specified in angle brackets
     #TODO: Note that we check the first SPDX line encountered only.  not good.
@@ -206,11 +205,20 @@ sub Explain
   Exit 0 if &explainArg();
 }
 
+sub isGroupAuthorsEntity()
+{
+  my ($line) = @_;
+
+  #Allow copyrights of the form "the Project authors"
+  return 1 if ($line =~ m/the[[:space:]]\w+[[:space:]]authors/i);
+  return 0;
+}
+
 sub isBusinessEntity()
 {
   my ($line) = @_;
 
-  return 1 if ($line =~ m/Datakonsult/i);
+  return 1 if ($line =~ m/Datakonsult/i || $line =~ m/KDAB/i);
   return 1 if ($line =~ m/Kitware, inc/i);
   return 1 if ($line =~ m/Apple Computer/i);
   return 1 if ($line =~ m/Apple\s*,?\s*Inc/i);
