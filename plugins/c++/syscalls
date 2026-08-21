@@ -78,84 +78,53 @@ while ($linecnt < $#lines) {
   $line =~ s+//.*++;    #skip C++ comments
 
   if (&usingQtCheckSet() || &usingKDECheckSet()) {
-    &doIt($line, "chdir",     "QT_CHDIR");
-    &doIt($line, "mkdir",     "QT_MKDIR");
-    &doIt($line, "rmdir",     "QT_RMDIR");
+    &doIt($line, "chdir",     "QDir::cd");
+    &doIt($line, "mkdir",     "QDir::mkpath");
+    &doIt($line, "rmdir",     "QDir::rmpath");
     &doIt($line, "rename",    "QFile::rename");
-    &doIt($line, "stat",      "QT_STAT");
-    &doIt($line, "stat64",    "QT_STAT");
-    &doIt($line, "lstat",     "QT_LSTAT");
-    &doIt($line, "lstat64",   "QT_LSTAT");
-    &doIt($line, "fstat",     "QT_FSTAT");
-    &doIt($line, "fstat64",   "QT_FSTAT");
-    &doIt($line, "open",      "QT_OPEN");
-    &doIt($line, "open64",    "QT_OPEN");
-    &doIt($line, "lseek",     "QT_LSEEK");
-    &doIt($line, "lseek64",   "QT_LSEEK");
-    &doIt($line, "fseek",     "QT_FSEEK");
-    &doIt($line, "fseek64",   "QT_FSEEK");
-    &doIt($line, "ftell",     "QT_FTELL");
-    &doIt($line, "ftell64",   "QT_FTELL");
-    &doIt($line, "fgetpos",   "QT_FGETPOS");
-    &doIt($line, "fgetpos64", "QT_FGETPOS");
-    &doIt($line, "fsetpos",   "QT_FSETPOS");
-    &doIt($line, "fsetpos64", "QT_FSETPOS");
-    &doIt($line, "readdir",   "QT_READDIR");
-    &doIt($line, "readdir64", "QT_READDIR");
+    &doIt($line, "stat",      "QFile");
+    &doIt($line, "stat64",    "QFile");
+    &doIt($line, "lstat",     "QFile");
+    &doIt($line, "lstat64",   "QFile");
+    &doIt($line, "fstat",     "QFile");
+    &doIt($line, "fstat64",   "QFile");
+    &doIt($line, "open",      "QFile::open");
+    &doIt($line, "open64",    "QFile::open");
+    &doIt($line, "lseek",     "QFile::seek");
+    &doIt($line, "lseek64",   "QFile::seek");
+    &doIt($line, "fseek",     "QFile::seek");
+    &doIt($line, "fseek64",   "QFile::seek");
+    &doIt($line, "ftell",     "QFile::pos");
+    &doIt($line, "ftell64",   "QFile::pos");
+    &doIt($line, "fgetpos",   "QFile::pos");
+    &doIt($line, "fgetpos64", "QFile::pos");
+    &doIt($line, "fsetpos",   "QFile::pos");
+    &doIt($line, "fsetpos64", "QFile::pos");
+    &doIt($line, "readdir",   "QDir");
+    &doIt($line, "readdir64", "QDir");
 
-    #&doIt($line,"sendfile","??");
-    #&doIt($line,"sendfile64","??");
-    &doIt($line, "truncate",   "QT_TRUNCATE");
-    &doIt($line, "truncate64", "QT_TRUNCATE");
-    &doIt($line, "ftruncate",  "QT_FTRUNCATE");
-    &doIt($line, "truncate64", "QT_FTRUNCATE");
+    &doIt($line, "truncate",   "QFile::resize");
+    &doIt($line, "truncate64", "QFile::resize");
+    &doIt($line, "ftruncate",  "QFile::resize");
+    &doIt($line, "truncate64", "QFile::resize");
 
-    &doIt($line, "fopen",   "QT_FOPEN");
-    &doIt($line, "fopen64", "QT_FOPEN");
+    &doIt($line, "fopen",   "QFile");
+    &doIt($line, "fopen64", "QFile");
 
-    #&doIt($line,"freopen","??");
-    #&doIt($line,"freopen64","??");
-    #&doIt($line,"fdopen","??");
-    &doIt($line, "access", "QT_ACCESS");
-    &doIt($line, "getcwd", "QT_GETCWD");
+    &doIt($line, "access", "QFile::permissions");
+    &doIt($line, "getcwd", "QDir::path");
 
-    &doIt($line, "rand",  "qrand");
-    &doIt($line, "srand", "qsrand");
+    &doIt($line, "rand",  "QRandomGenerator");
+    &doIt($line, "srand", "QRandomGenerator");
 
     &doIt($line, "getenv",   "qgetenv");
     &doIt($line, "putenv",   "qputenv");
     &doIt($line, "::setenv", "qputenv");
 
-    &doIt2($line, 'struct\s*stat[\s\*]',     "struct stat",     "QT_STATBUF");
-    &doIt2($line, 'struct\s*stat64[\s\*]',   "struct stat64",   "QT_STATBUF");
-    &doIt2($line, 'struct\s*dirent[\s\*]',   "struct dirent",   "QT_DIRENT");
-    &doIt2($line, 'struct\s*dirent64[\s\*]', "struct dirent64", "QT_DIRENT");
-
-    if (&usingKDECheckSet()) {
-      &doIt($line, "KDE_mkdir",   "QT_MKDIR");
-      &doIt($line, "KDE_rename",  "QFile::rename");
-      &doIt($line, "KDE_stat",    "QT_STAT");
-      &doIt($line, "KDE_lstat",   "QT_LSTAT");
-      &doIt($line, "KDE_fstat",   "QT_FSTAT");
-      &doIt($line, "KDE_open",    "QT_OPEN");
-      &doIt($line, "KDE_lseek",   "QT_LSEEK");
-      &doIt($line, "KDE_fseek",   "QT_FSEEK");
-      &doIt($line, "KDE_ftell",   "QT_FTELL");
-      &doIt($line, "KDE_fgetpos", "QT_FGETPOS");
-      &doIt($line, "KDE_fsetpos", "QT_FSETPOS");
-      &doIt($line, "KDE_readdir", "QT_READDIR");
-
-      #&doIt($line,"KDE_sendfile","??");
-
-      &doIt($line, "KDE_fopen", "QT_FOPEN");
-
-      #&doIt($line,"KDE_freopen","??");
-      #&doIt($line,"KDE_fdopen","??");
-      &doIt($line, "KDE_signal", "::signal");
-
-      &doIt($line, "KDE_struct_stat",   "QT_STATBUF");
-      &doIt($line, "KDE_struct_dirent", "QT_DIRENT");
-    }
+    &doIt2($line, 'struct\s*stat[\s\*]',     "struct stat",     "QFile");
+    &doIt2($line, 'struct\s*stat64[\s\*]',   "struct stat64",   "QFile");
+    &doIt2($line, 'struct\s*dirent[\s\*]',   "struct dirent",   "QDir");
+    &doIt2($line, 'struct\s*dirent64[\s\*]', "struct dirent64", "QDir");
   }
 }
 
