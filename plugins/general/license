@@ -343,6 +343,7 @@ sub spdxToLicense()
   $license = $license . " LGPL (v2.0)"             if ($spdx =~ m/LGPL2.0only/);
   $license = $license . " LGPL (v2.1)"             if ($spdx =~ m/LGPL2.1only/);
   $license = $license . " LGPL (v3.0)"             if ($spdx =~ m/LGPL3.0only/);
+  $license = $license . " LGPL (v3.0+)"            if ($spdx =~ m/LGPL3.0orlater/);
   $license = $license . " LGPL (v3+KDEev)"         if ($spdx =~ m/LicenseRefKDEAcceptedLGPL/);
   $license = $license . " LGPL (v2.0+)"            if ($spdx =~ m/LGPL2.0orlater/);
   $license = $license . " LGPL (v2.1+)"            if ($spdx =~ m/LGPL2.1orlater/);
