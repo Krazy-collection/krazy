@@ -6,7 +6,6 @@
 
 # list of all helpers to install
 HELPERS = \
-getInstalledHeaders.pl \
 krazyfindfiles.pl \
 krazyprojecttype.pl \
 

@@ -16,7 +16,6 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #   --priority:      report issues of the specified priority only
 #   --strict:        report issues with the specified strictness level only
 #   --explain:       print an explanation with solving instructions
-#   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
 
@@ -94,8 +93,7 @@ sub processFile()
     if ($result && $line) {
       next if ($line =~ m/global declaration available for the validation root/);
       next
-        if ($line =~ m/1: parser error : Start tag expected, '\<' not found/)
-        ;    #probably not a kpartgui file
+        if ($line =~ m/1: parser error : Start tag expected, '\<' not found/);    #probably not a kpartgui file
       $cnt++;
       $line =~ s+^$f:\s*++;
       $line =~ s+^warning:\s*++;

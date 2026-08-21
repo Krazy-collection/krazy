@@ -17,7 +17,6 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #   --priority:      report issues of the specified priority only
 #   --strict:        report issues with the specified strictness level only
 #   --explain:       print an explanation with solving instructions
-#   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
 

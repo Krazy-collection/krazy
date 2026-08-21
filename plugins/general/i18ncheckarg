@@ -17,7 +17,6 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #   --version:       print one-line version information and exit
 #   --check-sets:    list of checksets
 #   --explain:       print an explanation with solving instructions, then exit
-#   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
 #   --allsources:    check all the sources given on the command line;
@@ -55,7 +54,6 @@ my ($help)       = '';
 my ($version)    = '';
 my ($checksets)  = '';
 my ($explain)    = '';
-my ($installed)  = '';
 my ($quiet)      = '';
 my ($verbose)    = '';
 my ($allsources) = '';
@@ -76,7 +74,6 @@ exit 1
     'strict=s'     => \$strict,
     'check-sets=s' => \$checksets,
     'explain'      => \$explain,
-    'installed'    => \$installed,
     'verbose'      => \$verbose,
     'quiet'        => \$quiet,
     'allsources'   => \$allsources,
@@ -143,12 +140,10 @@ my $OTH = "~OTH~";
 # Some global state variables:
 # those with g_ are global per file, reset on each new file;
 # those with gg_ are global over all files, initialized only here.
-my ($g_lineno, $g_fname);
-my ($g_nmsg,   $g_nmsgkuit);
-my (
-  $gg_nwgaps,   $gg_ncount,  $gg_nqnumber, $gg_nkfmtnum,
-  $gg_novermax, $gg_nlegplu, $gg_nkuit,    $gg_nambi
-) = (0, 0, 0, 0, 0, 0, 0, 0);
+my ($g_lineno,  $g_fname);
+my ($g_nmsg,    $g_nmsgkuit);
+my ($gg_nwgaps, $gg_ncount, $gg_nqnumber, $gg_nkfmtnum, $gg_novermax, $gg_nlegplu, $gg_nkuit, $gg_nambi) =
+  (0, 0, 0, 0, 0, 0, 0, 0);
 
 # Priorities for problem reporting.
 sub error;
@@ -484,9 +479,8 @@ my $F_TERM  = 'term';
 
 # DTD-like specification for markup.
 my @inlines = (
-  $T_FILENAME, $T_LINK,     $T_APPLICATION, $T_COMMAND,  $T_RESOURCE,
-  $T_ICODE,    $T_SHORTCUT, $T_INTERFACE,   $T_EMPHASIS, $T_PLACEHOLDER,
-  $T_EMAIL,    $T_NUMID,    $T_ENVAR,       $T_NL
+  $T_FILENAME,  $T_LINK,     $T_APPLICATION, $T_COMMAND, $T_RESOURCE, $T_ICODE, $T_SHORTCUT,
+  $T_INTERFACE, $T_EMPHASIS, $T_PLACEHOLDER, $T_EMAIL,   $T_NUMID,    $T_ENVAR, $T_NL
 );
 my %kuitspec = (
   $T_TOPLONG  => [[$A_CTX], [$T_TITLE, $T_SUBTITLE, $T_PARA,    $T_NOTEXT]],
@@ -520,13 +514,12 @@ my %kuitspec = (
 
 # Specification for role/subcue combinations.
 my %rolcuespec = (
-  $R_ACTION => [$C_BUTTON, $C_INMENU,  $C_INTOOLBAR],
-  $R_TITLE  => [$C_WINDOW, $C_MENU,    $C_TAB,     $C_GROUP,   $C_COLUMN],
-  $R_LABEL  => [$C_SLIDER, $C_SPINBOX, $C_LISTBOX, $C_TEXTBOX, $C_CHOOSER],
-  $R_OPTION => [$C_CHECK,  $C_RADIO],
-  $R_ITEM   => [$C_INMENU, $C_INLISTBOX, $C_INTABLE, $C_INRANGE, $C_INTEXT],
-  $R_INFO   =>
-    [$C_TOOLTIP, $C_WHATSTHIS, $C_STATUS, $C_PROGRESS, $C_TIPOFTHEDAY, $C_CREDIT, $C_SHELL],
+  $R_ACTION => [$C_BUTTON,  $C_INMENU,  $C_INTOOLBAR],
+  $R_TITLE  => [$C_WINDOW,  $C_MENU,    $C_TAB,     $C_GROUP,   $C_COLUMN],
+  $R_LABEL  => [$C_SLIDER,  $C_SPINBOX, $C_LISTBOX, $C_TEXTBOX, $C_CHOOSER],
+  $R_OPTION => [$C_CHECK,   $C_RADIO],
+  $R_ITEM   => [$C_INMENU,  $C_INLISTBOX, $C_INTABLE, $C_INRANGE,  $C_INTEXT],
+  $R_INFO   => [$C_TOOLTIP, $C_WHATSTHIS, $C_STATUS,  $C_PROGRESS, $C_TIPOFTHEDAY, $C_CREDIT, $C_SHELL],
 );
 
 # All formats.
@@ -815,9 +808,7 @@ sub kuit_check
 
   # Specific check: <br>
   if ($msg =~ /<\s*br\s*>/) {
-    push @errs,
-      "unclosed <br>, close in place: <br/>; "
-      . "better yet, use proper paragraphs <p>...</p> instead"
+    push @errs, "unclosed <br>, close in place: <br/>; " . "better yet, use proper paragraphs <p>...</p> instead"
       if $pri_no;
     return ([@errs], [@warns]);
   }
@@ -1129,7 +1120,7 @@ sub check_in_string
     #print "<<<<<<<<<<<<<<<<<<<<|$ostrn|\n";
     #error "Internal: Normalized string has different length!";
     print
-"Internal issue: unable to deal with unmatched single or double-quote. Consider using an exclude directive.\n";
+      "Internal issue: unable to deal with unmatched single or double-quote. Consider using an exclude directive.\n";
     Exit 1;
   }
   my $nstr;
@@ -1317,8 +1308,7 @@ sub check_in_string
             $badcount = 1 if $nneedargs != $nhaveargs;
           }
           if ($badcount and $pri_hi) {
-            report $g_fname, $g_lineno, "error",
-              "wrong argument count, have $nhaveargs " . "need $nneedargs";
+            report $g_fname, $g_lineno, "error", "wrong argument count, have $nhaveargs " . "need $nneedargs";
             $gg_ncount++;
           }
         }
@@ -1331,8 +1321,7 @@ sub check_in_string
         if ($call !~ /ki18n/ and $nhaveargs > $maxnarg) {
           $toomany = 1;
           if ($pri_hi) {
-            report $g_fname, $g_lineno, "error",
-              "too many arguments, have $nhaveargs " . "max $maxnarg";
+            report $g_fname, $g_lineno, "error", "too many arguments, have $nhaveargs " . "max $maxnarg";
             $gg_novermax++;
           }
         }
@@ -1350,9 +1339,7 @@ sub check_in_string
       for my $arg (@arglist) {
         if ($arg =~ /formatNumber/ and $pri_no) {
           report $g_fname, $g_lineno, "warning",
-              "use of KLocale::formatNumber() on an argument "
-            . "(use only for numbers outside of i18n "
-            . "messages)";
+            "use of KLocale::formatNumber() on an argument " . "(use only for numbers outside of i18n " . "messages)";
           $gg_nkfmtnum++;
         }
       }
@@ -1603,15 +1590,7 @@ for my $path (@paths) {
   else            {check_in_file($path)}
 }
 
-my $cnt =
-  $gg_nwgaps +
-  $gg_ncount +
-  $gg_nqnumber +
-  $gg_nkfmtnum +
-  $gg_novermax +
-  $gg_nlegplu +
-  $gg_nkuit +
-  $gg_nambi;
+my $cnt = $gg_nwgaps + $gg_ncount + $gg_nqnumber + $gg_nkfmtnum + $gg_novermax + $gg_nlegplu + $gg_nkuit + $gg_nambi;
 if ($cnt == 0) {
   print "okay\n" if (!$quiet);
   Exit 0;

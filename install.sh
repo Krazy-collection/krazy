@@ -155,8 +155,8 @@ rm -f "$TOP"/lib/krazy2/krazy-plugins/*/iconnames "$TOP"/lib/krazy2/krazy-sets/*
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/passbyvalue "$TOP"/lib/krazy2/krazy-sets/*/*-passbyvalue
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qminmax "$TOP"/lib/krazy2/krazy-sets/*/*-qminmax
 rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax "$TOP"/lib/krazy2/krazy-sets/*/*-qmlsyntax
-rm -rf "$TOP"/lib/krazy2/krazy-extras/*/copyright-reuse
-rm -rf "$TOP"/lib/krazy2/krazy-extras/*/license-reuse
+rm -f "$TOP"/lib/krazy2/krazy-extras/*/copyright-reuse
+rm -f "$TOP"/lib/krazy2/krazy-extras/*/license-reuse
 #remove extra checkers no longer in use
 rm -f "$TOP"/lib/krazy2/krazy-extras/*/style
 #remove filetypes no longer supported
@@ -171,6 +171,8 @@ rm -rf "$TOP"/lib/krazy2/krazy-sets/kde6
 rm -rf "$TOP"/lib/krazy2/krazy-sets/qt4
 rm -rf "$TOP"/lib/krazy2/krazy-sets/qt5
 rm -rf "$TOP"/lib/krazy2/krazy-sets/qt6
+#remove helpers no longer in use
+rm -f "$TOP"/lib/krazy2/krazy-helpers/getInstalledHeaders.pl
 
 #final cleaning
 cd "$savedir"

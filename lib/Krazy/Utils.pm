@@ -27,7 +27,7 @@ $VERSION = 2.99999;                                            # this is the mod
   fileType validateFileType fileTypeIs findFiles findFileByRegex asOf deDupe addRegEx
   addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
   parseArgs helpArg versionArg priorityArg strictArg
-  explainArg quietArg verboseArg installedArg
+  explainArg quietArg verboseArg
   priorityTypeStr strictTypeStr exportTypeStr
   outputTypeStr checksetTypeStr
   cppIncludeOrderTypeStr
@@ -483,7 +483,6 @@ my ($priority)  = 'all';
 my ($strict)    = 'all';
 my ($checksets) = '';
 my ($explain)   = '';
-my ($installed) = '';
 my ($quiet)     = '';
 my ($verbose)   = '';
 
@@ -500,7 +499,6 @@ sub parseArgs
       'strict=s'     => \$strict,
       'check-sets=s' => \$checksets,
       'explain'      => \$explain,
-      'installed'    => \$installed,
       'verbose'      => \$verbose,
       'quiet'        => \$quiet
     )
@@ -534,14 +532,13 @@ sub parseArgs
 
 }
 
-sub helpArg      {return $help;}
-sub versionArg   {return $version;}
-sub priorityArg  {return $priority;}
-sub strictArg    {return $strict;}
-sub explainArg   {return $explain;}
-sub installedArg {return $installed;}
-sub quietArg     {return $quiet;}
-sub verboseArg   {return $verbose;}
+sub helpArg     {return $help;}
+sub versionArg  {return $version;}
+sub priorityArg {return $priority;}
+sub strictArg   {return $strict;}
+sub explainArg  {return $explain;}
+sub quietArg    {return $quiet;}
+sub verboseArg  {return $verbose;}
 
 sub exportTypeStr
 {

@@ -25,7 +25,6 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #   --priority:      report issues of the specified priority only
 #   --strict:        report issues with the specified strictness level only
 #   --explain:       print an explanation with solving instructions
-#   --installed      file is to be installed
 #   --quiet:         suppress all output messages
 #   --verbose:       print the offending content
 
@@ -221,11 +220,9 @@ sub checkLicense()
 
   # LGPL or GPL
   $license = "LGPL$gl$wrong$wrongurl $license"
-    if (
-    $text =~ /under (the (terms|conditions) of )?the GNU (Library|Lesser) General Public License/i);
+    if ($text =~ /under (the (terms|conditions) of )?the GNU (Library|Lesser) General Public License/i);
   $license = "LGPL$gl$wrong$wrongurl $license"
-    if (
-    $text =~ /under (the (terms|conditions) of )?the (Library|Lesser) GNU General Public License/i);
+    if ($text =~ /under (the (terms|conditions) of )?the (Library|Lesser) GNU General Public License/i);
   $license = "LGPL$gl$wrong$wrongurl $license"
     if ($text =~ /under (the (terms|conditions) of )?the (GNU )?LGPL/i);
   $license = "LGPL$gl$wrong$wrongurl $license"
@@ -235,15 +232,12 @@ sub checkLicense()
   $license = "LGPL$gl$wrong$wrongurl $license"
     if ($text =~ /LGPL with the following explicit clarification/i);
   $license = "GPL$gl$qte$wrong$wrongurl $license"
-    if ($text =~
-    /under (the terms of )?(version 2 of )?the GNU (General Public License|GENERAL PUBLIC LICENSE)/i
-    );
+    if ($text =~ /under (the terms of )?(version 2 of )?the GNU (General Public License|GENERAL PUBLIC LICENSE)/i);
   if ($license && !$verbose) {return "$license";}
 
   # QPL
   $license = "QPL $license"
-    if ($text =~
-    /may be distributed under the terms of the Q Public License as defined by Trolltech AS/i);
+    if ($text =~ /may be distributed under the terms of the Q Public License as defined by Trolltech AS/i);
   if ($license && !$verbose) {return "$license";}
 
   # X11, BSD-like
@@ -256,8 +250,7 @@ sub checkLicense()
   # MIT license
   $license = "MIT $license"
     if ($text =~
-/Permission to use copy modify (and )?distribute(and sell)? this software and its documentation for any purpose/i
-    );
+    /Permission to use copy modify (and )?distribute(and sell)? this software and its documentation for any purpose/i);
   if ($license && !$verbose) {return "$license";}
 
   # BSD
