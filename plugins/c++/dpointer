@@ -47,7 +47,7 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 my ($f) = $ARGV[0];
 
 # C++, installed headers only
-unless (isCInclude($f) && !isPrivateHeader($f)) {
+unless (isCInclude($f) && !isPrivateSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
