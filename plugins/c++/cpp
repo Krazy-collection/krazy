@@ -42,8 +42,8 @@ if ($#ARGV != 0) {&Help(); Exit 0;}
 
 my ($f) = $ARGV[0];
 
-# C/C++ only
-unless (&fileType($f) eq "c++") {
+# C/C++ only, installed headers only
+unless (&fileType($f) eq "c++" && !isPrivateSource($f)) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
