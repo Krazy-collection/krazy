@@ -411,7 +411,7 @@ sub isCInclude
 sub isPrivateSource
 {
   my ($f) = @_;
-  return (&fileType($f) eq "c++" && $f =~ m/_p\./);
+  return (&fileType($f) eq "c++" && ($f =~ m/_p\./ || $f =~ m/_export\.h$/));
 }
 
 # return a string containing all the supported files found in specified dirs
@@ -842,11 +842,6 @@ sub guessCheckSet
   my ($checkset) = '';
 
   my ($project) = &basename($in);
-  my ($modpath) = &dirname($in);
-  my ($module)  = &basename($modpath);
-
-  #look up 1 level if a bundled-app project
-  $in = $modpath if ($module eq "calligra" || $module eq "krita" || $module eq "kexi");
 
   my ($cmakepath) = catfile($in, "CMakeLists.txt");
   my ($qmakepath) = catfile($in, $project . ".pro");
