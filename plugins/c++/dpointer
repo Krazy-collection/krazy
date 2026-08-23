@@ -27,6 +27,8 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 
 use warnings;
 use strict;
+use Cwd 'abs_path';
+use File::Spec::Functions 'catfile';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
 use Krazy::PreProcess;
@@ -47,6 +49,12 @@ my ($f) = $ARGV[0];
 
 # C++, installed headers only
 unless (isCInclude($f) && !isPrivateSource($f)) {
+  print "okay\n" if (!&quietArg());
+  Exit 0;
+}
+
+# If KDE checkset, then return unless a KDE library project
+if (&usingKDECheckSet() && !-f catfile(abs_path($f), "metainfo.yaml")) {
   print "okay\n" if (!&quietArg());
   Exit 0;
 }
