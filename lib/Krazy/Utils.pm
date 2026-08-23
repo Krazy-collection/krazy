@@ -618,8 +618,8 @@ sub validateCppIncludeOrderType
 # print a pretty list of supported check-sets with descriptions
 sub prettyPrintCheckSetsList()
 {
-  foreach my ($set) (&checkSetsList()) {
-    printf("%12.12s: %s\n", $set, &checkSetDesc($set));
+  foreach my ($cset) (&checkSetsList()) {
+    printf("%12.12s: %s\n", $cset, &checkSetDesc($cset));
   }
 }
 
@@ -654,20 +654,20 @@ sub checkSetsList()
 
 sub validateCheckSet
 {
-  my ($set) = @_;
-  if ($set) {
-    $set = lc($set);
-    return grep {$_ eq $set} @Sets;
+  my ($cset) = @_;
+  if ($cset) {
+    $cset = lc($cset);
+    return grep {$_ eq $cset} @Sets;
   }
   return 0;
 }
 
 sub dedeprecateCheckSet
 {
-  my ($set) = @_;
-  $set = "qt"  if ($set =~ m/^qt[[:digit:]]/);
-  $set = "kde" if ($set =~ m/^kde[[:digit:]]/);
-  return $set;
+  my ($cset) = @_;
+  $cset = "qt"  if ($cset =~ m/^qt[[:digit:]]/);
+  $cset = "kde" if ($cset =~ m/^kde[[:digit:]]/);
+  return $cset;
 }
 
 sub dedeprecateCheckSets
@@ -690,11 +690,11 @@ sub validateCheckSets
 {
   my ($checksets) = @_;
   my (@badsets)   = ();
-  foreach my ($set) (split(",", $checksets)) {
-    my ($newset) = &dedeprecateCheckSet($set);
-    print STDERR "Deprecated check-set \"$set\". Please use \"$newset\" instead\n" if ($set ne $newset);
+  foreach my ($cset) (split(",", $checksets)) {
+    my ($newset) = &dedeprecateCheckSet($cset);
+    print STDERR "Deprecated check-set \"$cset\". Please use \"$newset\" instead\n" if ($cset ne $newset);
     if (!&validateCheckSet($newset)) {
-      push(@badsets, $set);
+      push(@badsets, $cset);
     }
   }
   return join ',', @badsets;

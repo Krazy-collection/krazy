@@ -160,8 +160,8 @@ sub check_file
     }
 
     #check for consecutive words
-    my ($last)     = "";
-    my ($lastlast) = "";
+    my ($lastw)     = "";
+    my ($lastlastw) = "";
     for my $word (split /[\s]/) {
 
       #words must be at least 2 chars long so that we skip over "ASCII graphics".
@@ -169,10 +169,10 @@ sub check_file
       if (
            $word =~ m/^[A-Za-z]{2,}$/
         && $word
-        && $last
-        && $lastlast ne "\\value"             # skip qdoc like "\value Create Create a thing"
-        && $lastlast ne "\\a"                 # skip doxygen like "\a date date to return holidays for"
-        && $word eq $last
+        && $lastw
+        && $lastlastw ne "\\value"            # skip qdoc like "\value Create Create a thing"
+        && $lastlastw ne "\\a"                # skip doxygen like "\a date date to return holidays for"
+        && $word eq $lastw
         && $word !~ m/([a-zA-Z0-9])\1{2,}/    #words with consecutive occurrences of the same char i.e "xxx" or "AAA"
         && $word ne "test"
         && $word ne "long"
@@ -181,14 +181,14 @@ sub check_file
       {
         $cnt++;
         if ($cnt == 1) {
-          $lstr = "line\#" . $linecnt . "[$last $word]";
+          $lstr = "line\#" . $linecnt . "[$lastw $word]";
         } else {
-          $lstr = $lstr . "," . $linecnt . "[$last $word]";
+          $lstr = $lstr . "," . $linecnt . "[$lastw $word]";
         }
-        info "$filename ($linecnt): $last $word => $last\n";
+        info "$filename ($linecnt): $lastw $word => $lastw\n";
       }
-      $lastlast = $last;
-      $last     = $word;
+      $lastlastw = $lastw;
+      $lastw     = $word;
     }
   }
 
