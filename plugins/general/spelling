@@ -171,7 +171,8 @@ sub check_file
         && $word
         && $lastw
         && $lastlastw ne "\\value"            # skip qdoc like "\value Create Create a thing"
-        && $lastlastw ne "\\a"                # skip doxygen like "\a date date to return holidays for"
+        && $lastlastw ne "\\a"                # skip qdoc like "\a date date to return holidays for"
+        && $lastlastw ne "\@param"            # skip doxygen like "@param parent parent widget"
         && $word eq $lastw
         && $word !~ m/([a-zA-Z0-9])\1{2,}/    #words with consecutive occurrences of the same char i.e "xxx" or "AAA"
         && $word ne "test"
