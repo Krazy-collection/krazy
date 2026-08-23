@@ -94,7 +94,9 @@ sub processFile()
   my ($in) = @_;
   my ($result);
   my ($cnt) = 0;
-  open(VAL, "$valp --warn-kde $in | ") || print STDERR "Cannot run: $valp\n";    ## no critic
+  ## no critic(InputOutput::)
+  open(VAL, "$valp --warn-kde $in | ") || print STDERR "Cannot run: $valp\n";
+  ## use critic
   while (my ($line) = <VAL>) {
     chomp($line);
     $result = &analyze($line);

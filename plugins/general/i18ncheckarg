@@ -280,7 +280,7 @@ sub next_substr
   my $reg     = join "|", @subs;
   my ($match) = ($strn =~ /($reg)/s);
   if ($match) {
-    my $i = length($`);    ## no critic
+    my $i = length($`);    ## no critic(Variables::ProhibitMatchVars)
     $match = substr($str, $i, length($match));
     my $pre = substr($str, 0, $i);
     map {++$g_lineno} ($pre . $match) =~ /(\n)/sg;
@@ -338,10 +338,8 @@ sub uniqpl
   my ($str) = @_;
   $str =~ s/%%//sg;    # remove possible % escapes
   my %plh;
-  map {++$plh{$_}} ($str =~ /%([1-9]\d*)/sg);
-  ## no critic
-  return sort {$a <=> $b} keys %plh;
-  ## use critic
+  map         {++$plh{$_}} ($str =~ /%([1-9]\d*)/sg);
+  return sort {$a <=> $b} keys %plh;                    ## no critic(Subroutines::ProhibitReturnSort)
 }
 
 # Unquote string literal and report success, or set empty and report failure.

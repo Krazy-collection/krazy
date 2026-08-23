@@ -8,7 +8,7 @@ package Krazy::Utils;
 
 use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic(Modules::ProhibitAutomaticExportation)
 use Cwd;
 use Cwd 'abs_path';
 use POSIX qw (setlocale strftime LC_TIME);
@@ -20,7 +20,7 @@ use Getopt::Long;
 
 use Exporter;
 $VERSION = 2.99999;                                            # this is the module version
-@ISA     = qw(Exporter);
+@ISA     = qw(Exporter);                                       ## no critic(ClassHierarchies::ProhibitExplicitISA)
 
 @EXPORT = qw(topOfProject
   userMessage userError Exit
@@ -425,8 +425,7 @@ sub findFiles
   @tmp = ();
   find(\&aok, @dirs);
 
-  ## no critic
-  sub aok
+  sub aok                    ## no critic (Subroutines::ProhibitNestedSubs)
   {
     -f && !-d && push(@tmp, $File::Find::name);
   }
@@ -453,8 +452,7 @@ sub findFileByRegex
   @tmp = ();
   find(\&aok2, ($top));
 
-  ## no critic
-  sub aok2
+  sub aok2    ## no critic (Subroutines::ProhibitNestedSubs)
   {
     -f && !-d && push(@tmp, $File::Find::name);
   }

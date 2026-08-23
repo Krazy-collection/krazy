@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+use strict;
 require 5.005;
 use ExtUtils::MakeMaker;
 
-## no critic
 WriteMakefile(
   'NAME'          => 'krazy2',
   'AUTHOR'        => 'Allen Winter <winter@kde.org>',
@@ -16,7 +16,7 @@ WriteMakefile(
   'EXE_FILES'     => ['krazy2', 'krazy2all'],
   'MAN3PODS'      => {'docs/krazyrc.pod' => 'blib/man3/krazyrc.3'},
   'NORECURS'      => 1,
-  'PREREQ_FATAL'  => true,
+  'PREREQ_FATAL'  => 1,
   'PREREQ_PM'     => {
     "HTML::Parser" => 2.20,
     "File::Find"   => 1.01,

@@ -188,7 +188,7 @@ if ($top eq $cwd) {
 }
 $files =~ s+\\n+\'\\n\'+g;
 
-## no critic
+## no critic(InputOutput::)
 # Pipe the file list to krazy2 for the actual processing work
 my ($cmd) = "krazy2 $opts -";
 if ($outf) {

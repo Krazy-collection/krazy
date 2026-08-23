@@ -772,7 +772,7 @@ for my ($ftype) (@types) {
 
         # run the checker, concatenating the output
         if (!$dryrun) {
-          $pid = open(SANE, "$p $opts \'$f\' 2>/dev/null |")    ## no critic
+          $pid = open(SANE, "$p $opts \'$f\' 2>/dev/null |")    ## no critic(InputOutput::)
             or print STDERR "Cannot run: &basename($p)\n";
           my ($issues) = -1;
           while (<SANE>) {
@@ -1233,7 +1233,7 @@ sub printFType
 }
 
 # printOOPS function: print the OOPS lines, according to export type.
-sub printOOPS    ## no critic
+sub printOOPS    ## no critic(Subroutines::RequireArgUnpacking)
 {
   my ($item) = @_;
   shift;

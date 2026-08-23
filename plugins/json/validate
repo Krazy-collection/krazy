@@ -75,12 +75,14 @@ sub processFile()
 {
   my ($filename) = @_;
 
+  ## InputOutput::RequireBriefOpen
   my ($json_text) = do {
-    open(my $json_fh, "<:encoding(iso-8859-1)", $filename)    ## no critic
+    open(my $json_fh, "<:encoding(iso-8859-1)", $filename)    ## no critic (InputOutput::n)
       or die("Can't open \"$filename\": $!\n");
-    local $/;
+    local $/;                                                 ## no critic (Variables::RequireInitializationForLocalVars)
     <$json_fh>;
   };
+  ## use critic
 
   my ($data) = eval {decode_json($json_text)};
 

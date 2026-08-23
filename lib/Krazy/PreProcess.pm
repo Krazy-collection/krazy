@@ -8,11 +8,12 @@ package Krazy::PreProcess;
 
 use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic(Modules::ProhibitAutomaticExportation)
+use Cwd;
 
 use Exporter;
 $VERSION = 1.00;
-@ISA     = qw(Exporter);
+@ISA     = qw(Exporter);                                       ## no critic(ClassHierarchies::ProhibitExplicitISA)
 
 @EXPORT    = qw(RemoveCommentsC RemoveIfZeroBlockC RemoveCondBlockC RemoveCommentsFDO);
 @EXPORT_OK = qw();

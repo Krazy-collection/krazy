@@ -87,7 +87,7 @@ sub processFile()
   my ($in) = @_;
   my ($line, $result);
   my ($cnt) = 0;
-  open(VAL, "$valp --noout --debugent --schema $dtd $in 2>&1 | ")    ## no critic
+  open(VAL, "$valp --noout --debugent --schema $dtd $in 2>&1 | ")    ## no critic(InputOutput::)
     || print STDERR "Cannot run: xmllint\n";
   while ($line = <VAL>) {
     chomp($line);

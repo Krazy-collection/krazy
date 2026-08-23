@@ -8,7 +8,8 @@ package Krazy::Project;
 
 use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic(Modules::ProhibitAutomaticExportation)
+use Cwd;
 use Cwd;
 use Cwd 'abs_path';
 use File::Basename;

@@ -70,7 +70,7 @@ sub Explain
   Exit 0 if &explainArg();
 }
 
-sub info    ## no critic
+sub info    ## no critic(Subroutines::RequireArgUnpacking)
 {
   print @_ if (&verboseArg());
 }
