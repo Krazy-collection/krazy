@@ -438,11 +438,10 @@ sub printResults()
 {
   my ($check_num) = 0;
   my ($tot)       = 0;
-  my ($cline, $rline);
   my ($fred);
   foreach my ($guy) (keys %Issues) {
     next if ($guy eq "ANGLE");    # controversial
-    $cline = "$Issues{$guy}{'issue'}";
+    my ($cline) = "$Issues{$guy}{'issue'}";
 
     $Issues{$guy}{'lines'} =~ s/,[[:space:]]*$//;
     $Issues{$guy}{'lines'} =~ s/;[[:space:]]*$//;

@@ -94,14 +94,12 @@ sub check_file
     @contents = &RemoveCondBlockC($Prog, @contents);
   }
 
-  my $original;
   my $cnt     = 0;
   my $linecnt = 0;
-  my $line;
-  my $lstr = "";
+  my $lstr    = "";
   for (@contents) {
     $linecnt++;
-    $original = $_;
+    my ($original) = $_;
 
     if ( $original =~ m+//.*[Kk]razy:excludeall=.*$Prog+
       || $original =~ m+//.*[Kk]razy:skip+)

@@ -383,7 +383,6 @@ sub chkPrivMembers
 sub Priv
 {
   my ($l, $lc) = @_;
-  my ($args, $a1, $a2);
 
   return 0 if ($l =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
