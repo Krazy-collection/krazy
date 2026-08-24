@@ -326,47 +326,47 @@ if (!$total_count) {
 sub widgetName
 {
   my ($l) = @_;
-  my ($name);
+  my ($wname);
 
   return "" if ($l =~ m/^\s*=/ || $l =~ m/^\s*new/);
   chomp($l);
-  $name = $l;
-  $name =~ s/^\s*[:\w]+\s//;
-  $name =~ s/\s*=.*$//;
-  $name =~ s/^\s*//;
-  $name =~ s/^.*\*\s*//;
-  $name =~ s/^\s*\w+\s*\(\s*//;
+  $wname = $l;
+  $wname =~ s/^\s*[:\w]+\s//;
+  $wname =~ s/\s*=.*$//;
+  $wname =~ s/^\s*//;
+  $wname =~ s/^.*\*\s*//;
+  $wname =~ s/^\s*\w+\s*\(\s*//;
 
-  if ($name eq "") {
-    $name = $l;
-    $name =~ s/\s*=.*//;
-    $name =~ s/^\s*//;
-    $name =~ s/^\*//;
+  if ($wname eq "") {
+    $wname = $l;
+    $wname =~ s/\s*=.*//;
+    $wname =~ s/^\s*//;
+    $wname =~ s/^\*//;
   }
-  if ($name =~ m/->/ || $name =~ m/^\s*[{}\(\)]/) {
-    $name = "";
+  if ($wname =~ m/->/ || $wname =~ m/^\s*[{}\(\)]/) {
+    $wname = "";
   }
-  $name =~ s/\[[%\-\+\(\)\w\s]+\]/ARRAY/;
-  return $name;
+  $wname =~ s/\[[%\-\+\(\)\w\s]+\]/ARRAY/;
+  return $wname;
 }
 
 sub widgetType
 {
   my ($l) = @_;
-  my ($type);
+  my ($wtype);
 
   chomp($l);
-  $type = $l;
-  $type =~ s/^.*=\s*new\s//;
-  $type =~ s/\(.*$//;
-  $type =~ s/\s$//;
-  $type =~ s/;$//;
-  if ($type =~ m/\s*new\s/) {
-    $type = $l;
-    $type =~ s/^.*new\s//;
-    $type =~ s/\(.*$//;
+  $wtype = $l;
+  $wtype =~ s/^.*=\s*new\s//;
+  $wtype =~ s/\(.*$//;
+  $wtype =~ s/\s$//;
+  $wtype =~ s/;$//;
+  if ($wtype =~ m/\s*new\s/) {
+    $wtype = $l;
+    $wtype =~ s/^.*new\s//;
+    $wtype =~ s/\(.*$//;
   }
-  return $type;
+  return $wtype;
 }
 
 sub Help

@@ -560,10 +560,10 @@ sub priorityTypeStr
 
 sub validatePriorityType
 {
-  my ($priority) = @_;
-  if ($priority) {
-    $priority = lc($priority);
-    return grep {$_ eq $priority} @Priorities;
+  my ($priorityType) = @_;
+  if ($priorityType) {
+    $priorityType = lc($priorityType);
+    return grep {$_ eq $priorityType} @Priorities;
   }
   return 0;
 }
@@ -575,10 +575,10 @@ sub strictTypeStr
 
 sub validateStrictType
 {
-  my ($strict) = @_;
-  if ($strict) {
-    $strict = lc($strict);
-    return grep {$_ eq $strict} @Stricts;
+  my ($strictType) = @_;
+  if ($strictType) {
+    $strictType = lc($strictType);
+    return grep {$_ eq $strictType} @Stricts;
   }
   return 0;
 }
@@ -670,9 +670,9 @@ sub dedeprecateCheckSet
 
 sub dedeprecateCheckSets
 {
-  my ($checksets) = @_;
-  my (@newsets)   = ();
-  foreach my ($set) (split(",", $checksets)) {
+  my ($checksetList) = @_;
+  my (@newsets)      = ();
+  foreach my ($set) (split(",", $checksetList)) {
     push(@newsets, &dedeprecateCheckSet($set));
   }
   return @newsets;
@@ -680,15 +680,15 @@ sub dedeprecateCheckSets
 
 sub dedeprecateCheckSetsStr
 {
-  my (@checksets) = @_;
-  return join ',', &dedeprecateCheckSets(@checksets);
+  my (@checksetList) = @_;
+  return join ',', &dedeprecateCheckSets(@checksetList);
 }
 
 sub validateCheckSets
 {
-  my ($checksets) = @_;
-  my (@badsets)   = ();
-  foreach my ($cset) (split(",", $checksets)) {
+  my ($checksetList) = @_;
+  my (@badsets)      = ();
+  foreach my ($cset) (split(",", $checksetList)) {
     my ($newset) = &dedeprecateCheckSet($cset);
     print STDERR "Deprecated check-set \"$cset\". Please use \"$newset\" instead\n" if ($cset ne $newset);
     if (!&validateCheckSet($newset)) {

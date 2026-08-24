@@ -117,27 +117,27 @@ if ($cnt <= 1) {
 sub Cname
 {
   my ($l, $l1) = @_;
-  my ($cname) = "";
+  my ($cnameStr) = "";
   $l =~ s+//.*++;    #strip trailing C++ comment
   if ($l =~ m+^[[:space:]]*class[[:space:]].*+ && $l !~ m/;\s*$/ && $l !~ m/\\\s*$/) {
     if ($l1 !~ m/template/ && $l1 !~ m/#define[[:space:]]/) {
-      $cname = $l;
-      $cname =~ s/:.*$//;
-      $cname =~ s/{.*$//;
-      $cname =~ s/[[:space:]]*class[[:space:]].*EXPORT[[:space:]]//;
-      $cname =~ s/[[:space:]]*class[[:space:]]//;
-      $cname =~ s/\s+$//;
+      $cnameStr = $l;
+      $cnameStr =~ s/:.*$//;
+      $cnameStr =~ s/{.*$//;
+      $cnameStr =~ s/[[:space:]]*class[[:space:]].*EXPORT[[:space:]]//;
+      $cnameStr =~ s/[[:space:]]*class[[:space:]]//;
+      $cnameStr =~ s/\s+$//;
     }
   }
 
   #looks like we found a class $cname on line $l1.
   #but is it public?
-  $cname = "" if ($l !~ m/_EXPORT/);
+  $cnameStr = "" if ($l !~ m/_EXPORT/);
 
   #but have we found an exclude directive?
-  $cname = "" if ($l =~ m+//.*[Kk]razy:exclude=.*$Prog+);
+  $cnameStr = "" if ($l =~ m+//.*[Kk]razy:exclude=.*$Prog+);
 
-  return $cname;
+  return $cnameStr;
 }
 
 # search the previous $n lines for a pattern $p

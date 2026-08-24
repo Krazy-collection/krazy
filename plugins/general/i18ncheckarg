@@ -1141,9 +1141,9 @@ sub check_in_string
       my $call = $match;
       $call =~ s/\s*\(\s*$//s;
       my $start_lineno = $g_lineno;
-      my ($narg, $args, $rest, $restn, @arglist) = all_arguments($ostr, $ostrn);
-      $ostr  = $rest;
-      $ostrn = $restn;
+      my ($narg, $args, $rest1, $restn1, @arglist) = all_arguments($ostr, $ostrn);
+      $ostr  = $rest1;
+      $ostrn = $restn1;
       my $end_lineno = $g_lineno;
       $g_lineno = $start_lineno;
 
@@ -1151,7 +1151,7 @@ sub check_in_string
       # recurse through arguments, and go to next loop iteration.
       if ($call !~ /$i18n_rx/) {
         for my $i (0 .. $#arglist) {
-          my $xctxt =
+          my $xctxt1 =
               ($call =~ $adcons_rx and $i == 2)  ? '@title'
             : ($call =~ $adcons_rx and $i == 4)  ? '@title'
             : ($call =~ $adcons_rx and $i == 6)  ? '@info:credit'
@@ -1160,7 +1160,7 @@ sub check_in_string
             : ($call =~ $clainit_rx and $i == 4) ? '@title'
             : ($call =~ $clainit_rx and $i == 6) ? '@title'
             :                                      "";
-          check_in_string($arglist[$i], $xctxt);
+          check_in_string($arglist[$i], $xctxt1);
         }
         $g_lineno = $end_lineno;
         next;

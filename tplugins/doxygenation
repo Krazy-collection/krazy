@@ -67,24 +67,24 @@ if ($verbose) {
 }
 
 open my $fh, '<:encoding(UTF-8)', $f or die;
-my (@c)        = <$fh>;
-my ($htxt)     = join '', @c[0 .. ($#c > 149 ? 149 : $#c)];
-my ($atfile)   = &checkAtFile($htxt);
-my ($atauthor) = &checkAtAuthor($htxt);
-my ($atbrief)  = &checkAtBrief($htxt);
+my (@c)         = <$fh>;
+my ($htxt)      = join '', @c[0 .. ($#c > 149 ? 149 : $#c)];
+my ($fileTag)   = &checkAtFile($htxt);
+my ($authorTag) = &checkAtAuthor($htxt);
+my ($briefTag)  = &checkAtBrief($htxt);
 close($fh);
 
 my ($tags) = "";
 my ($cnt)  = 0;
-if ($atfile eq "UNKNOWN") {
+if ($fileTag eq "UNKNOWN") {
   $tags .= "\@file ";
   $cnt++;
 }
-if ($atauthor eq "UNKNOWN") {
+if ($authorTag eq "UNKNOWN") {
   $tags .= "\@authors ";
   $cnt++;
 }
-if ($atbrief eq "UNKNOWN") {
+if ($briefTag eq "UNKNOWN") {
   $tags .= "\@brief ";
   $cnt++;
 }

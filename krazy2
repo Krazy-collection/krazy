@@ -828,8 +828,8 @@ if (!$quiet) {
   for my ($ftype) (@types) {
     next unless ($#{$pCheckers{$ftype}} >= 0);
     $st = 0;
-    my ($pth) = ${$pCheckers{$ftype}}[0];
-    &printFType($pth, $ftype) if (!$brief);
+    my ($pluginPath) = ${$pCheckers{$ftype}}[0];
+    &printFType($pluginPath, $ftype) if (!$brief);
     for my ($p) (sort @{$pCheckers{$ftype}}) {
       $st++;
       $use = `$p --help 2>/dev/null`;
@@ -855,10 +855,10 @@ if (!$quiet) {
           my ($eopts) = "--explain ";
           $eopts .= "--check-sets $checksets "         if ($checksets);
           $eopts .= "--check-sets $DEFAULT_CHECKSETS " if (!$checksets);
-          my ($use) = `$p $eopts 2>/dev/null`;
-          chomp($use);
-          $use = "(no explanation available)" if (length($use) < 4);
-          &printExplain($use, 0, 0);
+          my ($runExplainStr) = `$p $eopts 2>/dev/null`;
+          chomp($runExplainStr);
+          $runExplainStr = "(no explanation available)" if (length($runExplainStr) < 4);
+          &printExplain($runExplainStr, 0, 0);
         }
       }
       print "\n"
@@ -1001,10 +1001,10 @@ sub printList
       printf("%18.18s: %s\n", &basename($prog), $use);
     } else {
       printf("%s: %s\n", &basename($prog), $use);
-      my ($explain) = `$prog --explain 2>/dev/null`;
-      chomp($explain);
-      $explain = "(no explanation available)" if (length($explain) < 4);
-      printExplain($explain, $isextra, 1);
+      my ($listExplainStr) = `$prog --explain 2>/dev/null`;
+      chomp($listExplainStr);
+      $listExplainStr = "(no explanation available)" if (length($listExplainStr) < 4);
+      printExplain($listExplainStr, $isextra, 1);
     }
   }
   return $np;
@@ -1013,13 +1013,11 @@ sub printList
 # List function: print a list of all checker programs available to run.
 sub List
 {
-  my ($prog, $use);
-
   print "Available source code sanitizer checks:\n";
 
   foreach my ($type) (keys %Checkers) {
-    my ($pth) = ${$Checkers{$type}}[0];
-    &printFType(dirname($pth), $type);
+    my ($basePluginPath) = &dirname(${$Checkers{$type}}[0]);
+    &printFType($basePluginPath, $type);
     if ($#{$Checkers{$type}} >= 0) {
       &printList(0, @{$Checkers{$type}});
     } else {
@@ -1037,8 +1035,6 @@ sub List
 # List function: print a list of all checker programs that would be run.
 sub ListRuntime
 {
-  my ($prog, $use);
-
   foreach my ($type) (keys %pCheckers) {
     my ($pth) = ${$pCheckers{$type}}[0];
     if ($#{$pCheckers{$type}} >= 0) {
@@ -1063,9 +1059,7 @@ sub ListTypes
 # ListType function: list all the checkers for a specific file type.
 sub ListType
 {
-  my ($types) = @_;
-  my ($prog, $prprog, $use);
-
+  my ($types)      = @_;
   my (@checktypes) = split(",", $types);
 
   # allow specifying multiple file types
@@ -1105,9 +1099,7 @@ sub ListSets
 # ListSet function: list all the checkers for a specific check-set.
 sub ListSet
 {
-  my ($sets) = @_;
-  my ($prprog, $use, $type);
-
+  my ($sets)      = @_;
   my (@checksets) = split(",", $sets);
 
   # allow specifying multiple sets
@@ -1122,13 +1114,12 @@ sub ListSet
   foreach my ($set) (@checksets) {
     print "List of available checkers for check-set $set:\n";
     foreach my ($prog) (sort @{$Sets{$set}}) {
-      $use = "";
-      $use .= `$prog --help 2>/dev/null`;
-      chomp($use);
-      $use = "(no description available)" if (length($use) < 4);
+      my ($listSetHelpStr) = "";
+      $listSetHelpStr .= `$prog --help 2>/dev/null`;
+      chomp($listSetHelpStr);
+      $listSetHelpStr = "(no description available)" if (length($listSetHelpStr) < 4);
 
-      $prprog = &basename($prog);
-      printf("%20.20s: %s\n", $prprog, $use);
+      printf("%20.20s: %s\n", &basename($prog), $listSetHelpStr);
     }
     print "\n";
   }
@@ -1215,21 +1206,21 @@ sub textDescription
 # printFType function: print the File Type line, according to export type.
 sub printFType
 {
-  my ($pth, $ftype, $title) = @_;
+  my ($pth, $fileType, $fileTypeTitle) = @_;
 
   return unless ($export eq "" || $export eq "text");
 
-  my ($desc) = &fileTypeDesc($ftype);
-  if (!defined($title) || ($title eq "")) {
+  my ($fileTypeDesc) = &fileTypeDesc($fileType);
+  if (!defined($fileTypeTitle) || ($fileTypeTitle eq "")) {
     if ($pth =~ m+extras+) {
-      $desc = "Extra checks for " . $desc;
+      $fileTypeDesc = "Extra checks for " . $fileTypeDesc;
     } else {
-      $desc = "Checks for " . $desc;
+      $fileTypeDesc = "Checks for " . $fileTypeDesc;
     }
   } else {
-    $desc = $title . $desc;
+    $fileTypeDesc = $fileTypeTitle . $fileTypeDesc;
   }
-  print "== $ftype: $desc ==\n";
+  print "== $fileType: $fileTypeDesc ==\n";
 }
 
 # printOOPS function: print the OOPS lines, according to export type.

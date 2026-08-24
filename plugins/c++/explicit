@@ -151,9 +151,9 @@ while ($linecnt < $#lines) {
 }
 
 #if last real line in file is the end of class, we need to do 1 more final check
-my ($cclass) = $classes[$#classes];
+my ($finalclass) = $classes[$#classes];
 if ($#classes >= 0) {
-  &chkNonExplicitCtors($cclass);
+  &chkNonExplicitCtors($finalclass);
 }
 
 if (!$cnt) {
@@ -234,11 +234,11 @@ sub endClass
     if (&searchBackWithStop('^[[:space:]]*enum[[:space:]]', $lc - 1, 50, ';[[:space:]]*$|^[[:space:]]*private:'));
 
   #at end of class
-  my ($cclass) = $classes[$#classes];
+  my ($lastclass) = $classes[$#classes];
   if ($#classes >= 0) {
-    &chkNonExplicitCtors($cclass);
+    &chkNonExplicitCtors($lastclass);
   }
-  print "($lc) End Class $cclass ($l)\n" if ($debug);
+  print "($lc) End Class $lastclass ($l)\n" if ($debug);
   pop(@classes);
 
   if ($#classes >= 0) {
