@@ -62,7 +62,7 @@ if (&fileType($f) ne "c++") {
 # look for @file near the top
 if ($verbose) {
   print "----- header -----\n";
-  print `head -n 150 $f| sed 's/ / /g;s/\$/ /g;s#//##g' | tr -d -c ' A-Za-z.,/\@1-9()'` . "\n";
+  print `head -n 150 $f| sed 's/ / /g;s/\$/ /g;s#//##g' | tr -d -c ' A-Za-z.,/\@1-9()'` . "\n";    ##no critic(InputOutput::ProhibitBacktickOperators)
   print "--- end header ---\n";
 }
 
@@ -151,7 +151,7 @@ sub checkAtBrief()
 
   my ($atauthor);
 
-  $atbrief = "";
+  my ($atbrief) = "";
   $atbrief = "GENERATED FILE"
     if ($text =~ /(changes made in this file will be lost|DO NOT EDIT|DO NOT delete this file|[Gg]enerated by)/);
   if (!$atbrief) {
