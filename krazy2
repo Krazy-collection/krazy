@@ -731,7 +731,7 @@ for my ($f) (@allfiles) {
 
 my ($overall_status) = 0;
 my ($num_checkers)   = 0;
-my ($use, %result, $pid, %status);
+my (%result, $pid, %status);
 my ($nf) = 0;
 my (@processedFiles);
 
@@ -832,13 +832,13 @@ if (!$quiet) {
     &printFType($pluginPath, $ftype) if (!$brief);
     for my ($p) (sort @{$pCheckers{$ftype}}) {
       $st++;
-      $use = `$p --help 2>/dev/null`;
-      chomp($use);
-      $use   = "no description available" if (length($use) < 4);
-      $cline = '';
+      my ($runHelpStr) = &runInlineCommand("$p --help");
+      chomp($runHelpStr);
+      $runHelpStr = "no description available" if (length($runHelpStr) < 4);
+      $cline      = '';
       $cline .= "$st. " if ($export eq "text");
       $bp = &basename($p);
-      $cline .= "$use [$bp]...";
+      $cline .= "$runHelpStr [$bp]...";
 
       if (defined($status{$p}) && $status{$p} > 0) {
         my ($si) = ($status{$p} > 1 ? "issues" : "issue");
@@ -855,7 +855,7 @@ if (!$quiet) {
           my ($eopts) = "--explain ";
           $eopts .= "--check-sets $checksets "         if ($checksets);
           $eopts .= "--check-sets $DEFAULT_CHECKSETS " if (!$checksets);
-          my ($runExplainStr) = `$p $eopts 2>/dev/null`;
+          my ($runExplainStr) = &runInlineCommand("$p $eopts");
           chomp($runExplainStr);
           $runExplainStr = "(no explanation available)" if (length($runExplainStr) < 4);
           &printExplain($runExplainStr, 0, 0);
@@ -991,17 +991,17 @@ sub printList
   my ($np) = 0;
   for my ($prog) (sort @list) {
     $np++;
-    $use = "";
-    $use = "[EXTRA] " if ($isextra);
-    $use .= `$prog --help 2>/dev/null`;
-    chomp($use);
-    $use = "(no description available)" if (length($use) < 4);
+    my ($listHelpStr) = "";
+    $listHelpStr = "[EXTRA] " if ($isextra);
+    $listHelpStr .= &runInlineCommand("$prog --help");
+    chomp($listHelpStr);
+    $listHelpStr = "(no description available)" if (length($listHelpStr) < 4);
 
     if (!$explain) {
-      printf("%18.18s: %s\n", &basename($prog), $use);
+      printf("%18.18s: %s\n", &basename($prog), $listHelpStr);
     } else {
-      printf("%s: %s\n", &basename($prog), $use);
-      my ($listExplainStr) = `$prog --explain 2>/dev/null`;
+      printf("%s: %s\n", &basename($prog), $listHelpStr);
+      my ($listExplainStr) = &runInlineCommand("$prog --explain");
       chomp($listExplainStr);
       $listExplainStr = "(no explanation available)" if (length($listExplainStr) < 4);
       printExplain($listExplainStr, $isextra, 1);
@@ -1114,8 +1114,7 @@ sub ListSet
   foreach my ($set) (@checksets) {
     print "List of available checkers for check-set $set:\n";
     foreach my ($prog) (sort @{$Sets{$set}}) {
-      my ($listSetHelpStr) = "";
-      $listSetHelpStr .= `$prog --help 2>/dev/null`;
+      my ($listSetHelpStr) = &runInlineCommand("$prog --help");
       chomp($listSetHelpStr);
       $listSetHelpStr = "(no description available)" if (length($listSetHelpStr) < 4);
 

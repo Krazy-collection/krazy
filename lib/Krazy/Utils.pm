@@ -17,12 +17,14 @@ use File::Glob ':bsd_glob';
 use File::Find;
 use File::Spec::Functions 'catfile';
 use Getopt::Long;
+use IPC::Open3 'open3';
+local $SIG{CHLD} = 'IGNORE';
 
 use Exporter;
-$VERSION = 2.99999;                                            # this is the module version
-@ISA     = qw(Exporter);                                       ## no critic(ClassHierarchies::ProhibitExplicitISA)
+$VERSION = 2.99999;         # this is the module version
+@ISA     = qw(Exporter);    ## no critic(ClassHierarchies::ProhibitExplicitISA)
 
-@EXPORT = qw(topOfProject
+@EXPORT = qw(runInlineCommand topOfProject
   userMessage userError Exit
   fileType validateFileType fileTypeIs findFiles findFileByRegex asOf deDupe addRegEx
   addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
@@ -39,7 +41,7 @@ $VERSION = 2.99999;                                            # this is the mod
   allLinesCaseSearchInFile
   guessCheckSet checkSetDesc checkSetsList prettyPrintCheckSetsList
   fileTypeDesc fileTypesList prettyPrintTypesList
-  printIssue printIssueTextEdit
+  printIssue printIssueText printIssueTextList printIssueTextEdit
   isCInclude isCSource isPrivateSource);
 @EXPORT_OK = qw();
 
@@ -84,11 +86,21 @@ my (@Sets) = (
   "foss"          # Free and open source software (FOSS)
 );
 
+#i.e backtick commands
+sub runInlineCommand
+{
+  my ($command) = @_;
+  my ($writer, $reader, $err);
+  open3($writer, $reader, $err, $command);
+  return <$reader>;
+}
+
 #full path to the top of the project dir where the specified file resides
 sub topOfProject
 {
-  # TODO: only supports git
-  my ($top) = `git rev-parse --show-toplevel`;
+  # TODO: support more than just git
+
+  my ($top) = runInlineCommand('git rev-parse --show-toplevel');
   chomp($top);
   return $top;
 }
@@ -892,14 +904,28 @@ sub guessCheckSet
 }
 
 #print the Issue, text export
-sub printIssueTextEdit()
+sub printIssueText
+{
+  my ($fullpath, $line, $desc, $checker, $hint, $offendingcode) = @_;
+  print $fullpath . "TODO" . " [" . $checker . "]\n";
+}
+
+#print the Issue, textedit export
+sub printIssueTextEdit
 {
   my ($fullpath, $line, $desc, $checker, $hint, $offendingcode) = @_;
   print $fullpath . ":" . $line . ":" . $desc . " [" . $checker . "]\n";
 }
 
+#print the Issue, textlist export
+sub printIssueTextList
+{
+  my ($fullpath, $line, $desc, $checker, $hint, $offendingcode) = @_;
+  print "$fullpath\n";
+}
+
 #print the Issue, figures out the export mode and does the right thing
-sub printIssue()
+sub printIssue
 {
   my ($export, $fullpath, $line, $desc, $checker, $hint, $offendingcode) = @_;
   if ($export eq "text") {
