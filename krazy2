@@ -703,11 +703,11 @@ if ($ARGV[0] eq "-") {
 my ($absf, $ftype);
 my (@types) = ();
 for my ($f) (@allfiles) {
-  $absf = abs_path($f);
-  if (!-f $absf) {
+  if (!-f $f) {
     print STDERR "Cannot access file $f\n";
     next;
   }
+  $absf = abs_path($f);
   if ($absf =~ m+$skip+) {
     print STDERR "skipping $f\n" if ($verbose);
     next;
@@ -727,6 +727,9 @@ for my ($f) (@allfiles) {
     }
   }
   push(@types, $ftype) if (!$found);
+}
+if ($#types < 0) {
+  &userError("No supported files to process... exiting");
 }
 
 my ($overall_status) = 0;
