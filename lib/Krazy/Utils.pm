@@ -8,7 +8,6 @@ package Krazy::Utils;
 
 use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic(Modules::ProhibitAutomaticExportation)
 use Cwd;
 use Cwd 'abs_path';
 use POSIX qw (setlocale strftime LC_TIME);
@@ -20,11 +19,12 @@ use Getopt::Long;
 use IPC::Open3 'open3';
 local $SIG{CHLD} = 'IGNORE';
 
-use Exporter;
-$VERSION = 2.99999;         # this is the module version
-@ISA     = qw(Exporter);    ## no critic(ClassHierarchies::ProhibitExplicitISA)
+our $VERSION = '2.99999';    # this is the module version
 
-@EXPORT = qw(runInlineCommand topOfProject
+use Exporter;
+use parent 'Exporter';
+our @EXPORT =                ## no critic(Modules::ProhibitAutomaticExportation)
+  qw(runInlineCommand topOfProject
   userMessage userError Exit
   fileType validateFileType fileTypeIs findFiles findFileByRegex asOf deDupe addRegEx
   addCommaSeparated commaSeparatedToArray arrayToCommaSeparated
@@ -43,7 +43,6 @@ $VERSION = 2.99999;         # this is the module version
   fileTypeDesc fileTypesList prettyPrintTypesList
   printIssue printIssueText printIssueTextList printIssueTextEdit
   isCInclude isCSource isPrivateSource);
-@EXPORT_OK = qw();
 
 my (@tmp);
 my (@Exports) = (

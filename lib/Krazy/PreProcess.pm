@@ -8,15 +8,14 @@ package Krazy::PreProcess;
 
 use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic(Modules::ProhibitAutomaticExportation)
 use Cwd;
 
-use Exporter;
-$VERSION = 1.00;
-@ISA     = qw(Exporter);                                       ## no critic(ClassHierarchies::ProhibitExplicitISA)
+our $VERSION = '1.00';
 
-@EXPORT    = qw(RemoveCommentsC RemoveIfZeroBlockC RemoveCondBlockC RemoveCommentsFDO);
-@EXPORT_OK = qw();
+use Exporter;
+use parent 'Exporter';
+our @EXPORT =    ## no critic(Modules::ProhibitAutomaticExportation)
+  qw(RemoveCommentsC RemoveIfZeroBlockC RemoveCondBlockC RemoveCommentsFDO);
 
 # Replace C-style comments with whitespace in C/C++ source.
 sub RemoveCommentsC

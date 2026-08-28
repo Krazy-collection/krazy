@@ -31,6 +31,7 @@ use Cwd 'abs_path';
 use File::Spec::Functions 'catfile';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::Config;
 use Krazy::PreProcess;
 use Krazy::Utils;
 

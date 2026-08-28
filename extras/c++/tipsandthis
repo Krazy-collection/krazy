@@ -27,6 +27,7 @@ use strict;
 use Tie::IxHash;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::Config;
 use Krazy::PreProcess;
 use Krazy::Utils;
 

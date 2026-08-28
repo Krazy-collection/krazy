@@ -43,6 +43,7 @@ use XML::LibXML;
 use POSIX   qw{floor ceil};
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::Config;
 use Krazy::PreProcess;
 use Krazy::Utils;
 
@@ -280,13 +281,13 @@ sub next_substr
   my $reg     = join "|", @subs;
   my ($match) = ($strn =~ /($reg)/s);
   if ($match) {
-    my $i = length($`);    ## no critic(Variables::ProhibitMatchVars)
+    my $i = length($`);                               ## no critic(Variables::ProhibitMatchVars)
     $match = substr($str, $i, length($match));
     my $pre = substr($str, 0, $i);
-    map {++$g_lineno} ($pre . $match) =~ /(\n)/sg;
+    map {++$g_lineno} ($pre . $match) =~ /(\n)/sg;    ## no critic(BuiltinFunctions::ProhibitVoidMap)
     return ($pre, $match, substr($str, $i + length($match)), substr($strn, $i + length($match)));
   } else {
-    map {++$g_lineno} $str =~ /(\n)/sg;
+    map {++$g_lineno} $str =~ /(\n)/sg;               ## no critic(BuiltinFunctions::ProhibitVoidMap)
     return ($str, "", "", "");
   }
 }
@@ -338,8 +339,8 @@ sub uniqpl
   my ($str) = @_;
   $str =~ s/%%//sg;    # remove possible % escapes
   my %plh;
-  map         {++$plh{$_}} ($str =~ /%([1-9]\d*)/sg);
-  return sort {$a <=> $b} keys %plh;                    ## no critic(Subroutines::ProhibitReturnSort)
+  map         {++$plh{$_}} ($str =~ /%([1-9]\d*)/sg);    ## no critic(BuiltinFunctions::ProhibitVoidMap)
+  return sort {$a <=> $b} keys %plh;                     ## no critic(Subroutines::ProhibitReturnSort)
 }
 
 # Unquote string literal and report success, or set empty and report failure.
@@ -813,7 +814,7 @@ sub kuit_check
 
   # Parse XML.
   my $xml;
-  eval {$xml = $parser->parse_string($msg);};
+  eval {$xml = $parser->parse_string($msg);};    ## no critic(ErrorHandling::RequireCheckingReturnValueOfEval)
   if ($@) {
 
     #my ($shorterr) = split "\n", $@;
@@ -1364,7 +1365,7 @@ sub check_in_string_xml
 
   # Parse XML.
   my $xml;
-  eval {$xml = $parser->parse_string($str);};
+  eval {$xml = $parser->parse_string($str);};    ## no critic(ErrorHandling::RequireCheckingReturnValueOfEval)
   if ($@) {
     warning "Problem parsing XML file '$fname': $@";
     return;

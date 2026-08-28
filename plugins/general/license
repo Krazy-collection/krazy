@@ -38,6 +38,7 @@ use File::Spec::Functions 'catfile';
 use Cwd 'abs_path';
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::Config;
 use Krazy::Utils;
 use Getopt::Long;    #for non-Krazy usage below
 
@@ -297,8 +298,8 @@ sub checkLicense()
   # SPDX License Format
   my ($spdxtext) = $text;
   $spdxtext =~ s/(SPDXLicenseIdentifier[[:space:]]+[[:alnum:]\-\.]+)//;
-  $spdxtext = $1;
-  $license  = &spdxToLicense($spdxtext) . $license if ($spdxtext =~ m/SPDXLicenseIdentifier/);
+  if (defined($1)) {$spdxtext = $1;}
+  $license = &spdxToLicense($spdxtext) . $license if ($spdxtext =~ m/SPDXLicenseIdentifier/);
   if ($license && !$verbose) {return "$license";}
 
   if (!$license) {

@@ -11,16 +11,17 @@ package Krazy::Config;
 
 use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 use Cwd;
+use Env qw(KRAZY_CPP_INCLUDE_ORDER);
+$KRAZY_CPP_INCLUDE_ORDER = "false";
+
 use Krazy::Utils;
 
-use Exporter;
-$VERSION = 1.60;
-@ISA     = qw(Exporter);
+our $VERSION = '1.60';
 
-@EXPORT    = qw(ParseKrazyRC);
-@EXPORT_OK = qw();
+use Exporter;
+use parent 'Exporter';
+our @EXPORT = qw(ParseKrazyRC);    ## no critic(Modules::ProhibitAutomaticExportation)
 
 #==============================================================================
 # .krazy file parsing
@@ -61,21 +62,20 @@ sub ParseKrazyRC
 
   $CWD = getcwd;
 
-  $rcExclude                    = "";
-  $rcOnly                       = "";
-  $rcCheckSets                  = "";
-  $rcExtra                      = "";
-  $rcIncTypes                   = "";
-  $rcExcTypes                   = "";
-  $rcSkipRegex                  = "";
-  $rcPriority                   = "";
-  $rcStrict                     = "";
-  $rcOutput                     = "";
-  $rcExport                     = "";
-  @rcIgSubsList                 = ();
-  @rcExSubsList                 = ();
-  @rcIgModsList                 = ();
-  $ENV{KRAZY_CPP_INCLUDE_ORDER} = "false";
+  $rcExclude    = "";
+  $rcOnly       = "";
+  $rcCheckSets  = "";
+  $rcExtra      = "";
+  $rcIncTypes   = "";
+  $rcExcTypes   = "";
+  $rcSkipRegex  = "";
+  $rcPriority   = "";
+  $rcStrict     = "";
+  $rcOutput     = "";
+  $rcExport     = "";
+  @rcIgSubsList = ();
+  @rcExSubsList = ();
+  @rcIgModsList = ();
 
   my (%directives);
   my ($linecnt, $directive, $arg);
@@ -246,9 +246,9 @@ sub cppIncludeSettings
     } else {
       $args = lc($args);
       if ($args eq "yes" || $args eq "on" || $args eq "true") {
-        $ENV{KRAZY_CPP_INCLUDE_ORDER} = "true";
+        $KRAZY_CPP_INCLUDE_ORDER = "true";
       } else {
-        $ENV{KRAZY_CPP_INCLUDE_ORDER} = "false";
+        $KRAZY_CPP_INCLUDE_ORDER = "false";
       }
     }
   }

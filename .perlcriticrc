@@ -1,7 +1,21 @@
 #comment if you like colors
 color = 0
-severity = 5
+severity = 3
 
+[ControlStructures::ProhibitCascadingIfElse]
+max_elsif = 20
+[ControlStructures::ProhibitDeepNests]
+max_nests = 10
+[-ControlStructures::ProhibitNegativeExpressionsInUnlessAndUntilConditions]
+[-ErrorHandling::RequireCarping]
+[Subroutines::ProhibitExcessComplexity]
+max_mccabe = 100
+[Subroutines::ProhibitManyArgs]
+max_arguments = 10
+[Modules::ProhibitExcessMainComplexity]
+max_mccabe = 250
+[Variables::ProhibitReusedNames]
+allow = $self $class $i $line $cnt
 [-Variables::RequireNegativeIndices]
 
 [TestingAndDebugging::RequireUseStrict]
@@ -9,3 +23,9 @@ severity = 5
 
 [TestingAndDebugging::RequireUseWarnings]
 severity = 5
+
+# for Krazy and severity<4
+[-RegularExpressions::RequireExtendedFormatting]
+[-RegularExpressions::ProhibitComplexRegexes]
+[-RegularExpressions::ProhibitUnusedCapture]
+[-Subroutines::RequireFinalReturn]

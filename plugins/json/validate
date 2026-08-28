@@ -27,6 +27,7 @@ use strict;
 use JSON    qw(decode_json);
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::Config;
 use Krazy::Utils;
 
 my ($Prog)    = "validate";
@@ -75,11 +76,11 @@ sub processFile()
 {
   my ($filename) = @_;
 
-  ## InputOutput::RequireBriefOpen
+  ##  no critic(InputOutput::RequireBriefOpen)
   my ($json_text) = do {
-    open(my $json_fh, "<:encoding(iso-8859-1)", $filename)    ## no critic (InputOutput::n)
+    open(my $json_fh, "<:encoding(iso-8859-1)", $filename)
       or die("Can't open \"$filename\": $!\n");
-    local $/;                                                 ## no critic (Variables::RequireInitializationForLocalVars)
+    local $/;    ## no critic(Variables::RequireInitializationForLocalVars)
     <$json_fh>;
   };
   ## use critic

@@ -25,6 +25,7 @@ use strict;
 use Getopt::Long;
 use FindBin qw($Bin);
 use lib "$Bin/../../../../lib";
+use Krazy::Config;
 use Krazy::Utils;
 
 my ($Prog)    = "doxygenation";

@@ -8,21 +8,18 @@ package Krazy::Project;
 
 use warnings;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);    ## no critic(Modules::ProhibitAutomaticExportation)
-use Cwd;
 use Cwd;
 use Cwd 'abs_path';
 use File::Basename;
 use File::Spec::Functions 'catfile';
 
+our $VERSION = '0.96';
+
 use Exporter;
-$VERSION = 0.96;
-@ISA     = qw(Exporter);
+use parent 'Exporter';
+our @EXPORT = qw(guessTopOfProject projectType);    ## no critic(Modules::ProhibitAutomaticExportation)
 
-@EXPORT    = qw(guessTopOfProject projectType);
-@EXPORT_OK = qw();
-
-my ($PROJECT_TYPE) = "";
+our $PROJECT_TYPE = "";
 
 sub setProjectType
 {
