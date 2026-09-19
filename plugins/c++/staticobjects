@@ -110,7 +110,10 @@ while ($linecnt < $#lines) {
     next if (&searchBack('^\s*[\w:]+\s\w+::\w+\s*\(', $linecnt, 200));
 
     #skip function declarations
-    next if ($line =~ m/static\sinline/);
+    next if ($line =~ m/static\sinline\s/);
+
+    # skip static constexpr
+    next if ($line =~ m/static\sconstexpr\s/);
 
     my ($pline) = $line;
     $pline =~ s/".*"/\"\"/g;
