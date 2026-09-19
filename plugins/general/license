@@ -96,14 +96,16 @@ sub checkOneFile()
   {
     return (1, $license, "unacceptable license $license for KDE library code");
   }
-  if ( $KDEApp
-    && $license !~ m/GENERATED FILE/
-    && $license !~ m/^Trivial/
-    && $license !~ m/^GPL/
-    && $license !~ m/KDE-Accepted/)
-  {
-    return (1, $license, "unacceptable license $license for KDE non-library code");
-  }
+
+  # do not check this because there can be library code in applications
+  #if ( $KDEApp
+  #  && $license !~ m/GENERATED FILE/
+  #  && $license !~ m/^Trivial/
+  #  && $license !~ m/^GPL/
+  #  && $license !~ m/KDE-Accepted/)
+  #{
+  #  return (1, $license, "unacceptable license $license for KDE non-library code");
+  #}
 
   # we're good
   return (0, $license, $license);
