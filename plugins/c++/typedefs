@@ -75,17 +75,17 @@ while ($linecnt < $#lines) {
   next if ($line =~ m+//.*[Kk]razy:exclude=.*$Prog+);
   $line =~ s+//.*++;    #skip C++ comments
 
-  &doIt($line, 'int8_t',   'qint8');
-  &doIt($line, 'u_int8_t', 'quint8');
-
-  &doIt($line, 'int16_t',   'qint16');
-  &doIt($line, 'u_int16_t', 'quint16');
-
-  &doIt($line, 'int32_t',   'qint32');
-  &doIt($line, 'u_int32_t', 'quint32');
-
-  &doIt($line, 'int64_t',   'qint64');
-  &doIt($line, 'u_int64_t', 'quint64');
+  # &doIt($line, 'int8_t',   'qint8');
+  # &doIt($line, 'u_int8_t', 'quint8');
+  #
+  # &doIt($line, 'int16_t',   'qint16');
+  # &doIt($line, 'u_int16_t', 'quint16');
+  #
+  # &doIt($line, 'int32_t',   'qint32');
+  # &doIt($line, 'u_int32_t', 'quint32');
+  #
+  # &doIt($line, 'int64_t',   'qint64');
+  # &doIt($line, 'u_int64_t', 'quint64');
 
   &doIt($line, 'u_char',  'uchar');
   &doIt($line, 'u_short', 'ushort');
