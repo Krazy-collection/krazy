@@ -293,6 +293,7 @@ sub Ctor
     return 0 if ($l =~ m/[[:space:]]*return[[:space:]]$CNAME/);
     return 0 if ($l =~ m/[[:space:]]*return[[:space:]]new[[:space:]]$CNAME/);
     return 0 if ($l =~ m/\([[:space:]]*void[[:space:]]*\)/);                    #skip ctor(void)
+    return 0 if ($l =~ m/=[[:space:]]*delete[[:space:]]*;[[:space:]]*$/);
     $l =~ s/{.*$//;                                                             # remove brace to end-of-line
 
     if ($l =~ m/,/) {
