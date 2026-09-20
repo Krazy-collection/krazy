@@ -3,17 +3,17 @@
 eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
   if 0;    # not running under some shell
 ###############################################################################
-# Sanity check plugin for the Krazy project.                                  #
-# SPDX-FileCopyrightText: 2006 Allen Winter <winter@kde.org>                  #
-# SPDX-FileCopyrightText: 2003 Dirk Mueller <mueller@kde.org>                 #
-# SPDX-FileCopyrightText: 2004 Richard Evans <rich@ridas.com>                 #
-#                                                                             #
-# SPDX-License-Identifier: GPL-2.0-or-later                                   #
-#                                                                             #
-# All the real work in this program uses code derived from kde-spellcheck.pl  #
-# written by Dirk Mueller <mueller@kde.org> and later modified by             #
-# Richard Evans <rich@ridas.com>.  You may find kde-spellcheck.pl in          #
-# the kde-dev-scripts module.                                                 #
+# Sanity check plugin for the Krazy project.                              #
+# SPDX-FileCopyrightText: 2006 Allen Winter <winter@kde.org>              #
+# SPDX-FileCopyrightText: 2003 Dirk Mueller <mueller@kde.org>             #
+# SPDX-FileCopyrightText: 2004 Richard Evans <rich@ridas.com>             #
+#                                                                         #
+# SPDX-License-Identifier: GPL-2.0-or-later                               #
+#                                                                         #
+# All the real work in this program uses code derived from kde-spellcheck.pl #
+# written by Dirk Mueller <mueller@kde.org> and later modified by         #
+# Richard Evans <rich@ridas.com>.  You may find kde-spellcheck.pl in      #
+# the kde-dev-scripts module.                                             #
 ###############################################################################
 
 # Tests source for spelling errors
@@ -137,7 +137,7 @@ sub check_file
     next if ($filetype eq "c++"
       && ($original =~ m/^\s*#\s*include/));
 
-    next if ($filetype eq "cmake"
+    next if ((($filetype eq "cmake") || ($filetype eq "c++"))
       && ($original =~ m+uniq+));
 
     next if ($original =~ m+//.*[Kk]razy:exclude=.*$Prog+);
