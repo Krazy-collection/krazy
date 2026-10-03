@@ -864,7 +864,7 @@ sub guessCheckSet
       $checkset = "qt";
     } elsif (&allLinesCaseSearchInFile($cmakepath, ("project\\s*\\(.*CXX")) > 0) {
       $checkset = "c++";
-    } elsif (&allLinesCaseSearchInFile($cmakepath, ("enable_language\\s*\\((\\s*CXX")) > 0) {
+    } elsif (&allLinesCaseSearchInFile($cmakepath, ("enable_language\\s*\\(\\s*CXX")) > 0) {
       $checkset = "c++";
     }
   } elsif (-e $qmakepath) {
