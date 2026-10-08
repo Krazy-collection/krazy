@@ -1329,9 +1329,9 @@ sub printExplain
 
   return unless ($export eq "" || $export eq "text");
 
-  print "\n" if ($islisting);
+  print "\n"                                      if ($islisting);
   print wrap("    ", "    ", $explanation) . "\n";
-  print "\n" if ($islisting);
+  print "\n"                                      if ($islisting);
 }
 
 # htmlify function: turn plain text into html
