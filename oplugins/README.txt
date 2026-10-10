@@ -1,8 +1,17 @@
 old, obsolete plugins:
  - captruefalse: specific to KDE4
- - doxytags:  specific to "@since 4.x" doxygen tags
+ - doxytags: specific to "@since 4.x" doxygen tags
+ - doublequote_chars: limited; too many false positives; use clazy instead
+ - emptystrcompare: use clazy instead
+ - explicit: use cppcheck instead (noExplicitConstructor)
  - fixuifiles: specific to KDE4
  - foreach: too many false positives; use clazy instead
  - iconnames: too hard to maintain; not longer useful after KDE4
- - rcappend: specific to KDE Messages.sh files; no longer useful
+ - normalize: no longer useful for Qt6; use clazy for Qt5
+ - nullstrassign: use clazy instead
+ - nullstrcompare: use clazy instead
  - qminmax: specific to KDE4
+ - rcappend: specific to KDE Messages.sh files; no longer useful
+ - sigsandslots: use clazy instead (qt-keywords check)
+ - staticobjects: clazy, cppcheck and clang-tidy are better alternatives
+ - strings: use clazy instead

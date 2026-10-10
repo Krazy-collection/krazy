@@ -9,23 +9,14 @@ PLUGINS = \
 constref \
 cpp \
 crashy \
-doublequote_chars \
 dpointer \
-emptystrcompare \
-explicit \
 includes \
 inline \
-normalize \
-nullstrassign \
-nullstrcompare \
 operators \
 postfixop \
 qmethods \
 qobject \
 qbytearray \
-sigsandslots \
-staticobjects \
-strings \
 syscalls \
 typedefs \
 

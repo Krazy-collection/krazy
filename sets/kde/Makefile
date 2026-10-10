@@ -12,20 +12,14 @@ constref \
 copyright \
 cpp \
 crashy \
-doublequote_chars \
 dpointer \
-emptystrcompare \
 endswithnewline \
-explicit \
 filenames \
 i18ncheckarg \
 includes \
 inline \
 insecurenet \
 license \
-normalize \
-nullstrassign \
-nullstrcompare \
 operators \
 postfixop \
 qbytearray \
@@ -33,10 +27,7 @@ qclasses \
 qmethods \
 qobject \
 reuse \
-sigsandslots \
 spelling \
-staticobjects \
-strings \
 syscalls \
 typedefs \
 

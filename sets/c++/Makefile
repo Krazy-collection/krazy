@@ -12,7 +12,6 @@ constref \
 cpp \
 dpointer \
 endswithnewline \
-explicit \
 filenames \
 includes \
 inline \
@@ -20,7 +19,6 @@ insecurenet \
 operators \
 postfixop \
 spelling \
-staticobjects \
 
 #default installation location
 INSTDIR="$(PREFIX)/lib$(LIBSUFFIX)/krazy2/krazy-sets/${SET}"

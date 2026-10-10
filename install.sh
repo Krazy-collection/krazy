@@ -145,20 +145,39 @@ if (test -d "$TOP/share/man/man3"); then
 fi
 
 #remove checkers no longer in use
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/contractions #moved to extras
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qconnect
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/doxytags "$TOP"/lib/krazy2/krazy-sets/*/*-doxytags
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/captruefalse "$TOP"/lib/krazy2/krazy-sets/*/*-captruefalse
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/fixuifiles "$TOP"/lib/krazy2/krazy-sets/*/*-fixuifiles
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/foreach "$TOP"/lib/krazy2/krazy-sets/*/*-foreach
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/iconnames "$TOP"/lib/krazy2/krazy-sets/*/*-iconnames
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/passbyvalue "$TOP"/lib/krazy2/krazy-sets/*/*-passbyvalue
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qminmax "$TOP"/lib/krazy2/krazy-sets/*/*-qminmax
-rm -f "$TOP"/lib/krazy2/krazy-plugins/*/qmlsyntax "$TOP"/lib/krazy2/krazy-sets/*/*-qmlsyntax
-rm -f "$TOP"/lib/krazy2/krazy-extras/*/copyright-reuse
-rm -f "$TOP"/lib/krazy2/krazy-extras/*/license-reuse
+oplugins="\
+contractions \
+doxytags \
+captruefalse \
+doublequote_chars \
+emptystrcompare \
+explicit \
+fixuifiles \
+foreach \
+iconnames \
+normalize \
+nullstrassign \
+nullstrcompare \
+passbyvalue \
+qconnect \
+qminmax \
+qmlsyntax \
+sigsandslots \
+staticobjects \
+strings \
+"
+for p in $oplugins; do
+  #shellcheck disable=SC2086
+  rm -f "$TOP"/lib/krazy2/krazy-plugins/*/$p "$TOP"/lib/krazy2/krazy-sets/*/*-$p
+done
 #remove extra checkers no longer in use
-rm -f "$TOP"/lib/krazy2/krazy-extras/*/style
+eplugins="\
+copyright-reuse \
+license-reuse \
+style"
+for p in $eplugins; do
+  rm -f "$TOP/lib/krazy2/krazy-extras/*/$p"
+done
 #remove filetypes no longer supported
 rm -rf "$TOP"/lib/krazy2/krazy-*/tips
 rm -rf "$TOP"/lib/krazy2/krazy-sets/*/tips-*

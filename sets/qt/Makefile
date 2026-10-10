@@ -10,7 +10,6 @@ SET=qt
 CPP_PLUGINS = \
 cpp \
 dpointer \
-emptystrcompare \
 endswithnewline \
 filenames \
 includes \
