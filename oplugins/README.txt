@@ -5,9 +5,9 @@ old, obsolete plugins:
  - emptystrcompare: use clazy instead
  - explicit: use cppcheck instead (noExplicitConstructor)
  - fixuifiles: specific to KDE4
- - foreach: too many false positives; use clazy instead
+ - foreach: too many false positives; use clazy instead (foreach)
  - iconnames: too hard to maintain; not longer useful after KDE4
- - normalize: no longer useful for Qt6; use clazy for Qt5
+ - normalize: use clazy instead (connect-not-normalized)
  - nullstrassign: use clazy instead
  - nullstrcompare: use clazy instead
  - qminmax: specific to KDE4
