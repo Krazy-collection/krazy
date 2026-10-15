@@ -195,9 +195,10 @@ sub osMacros()
         || $have =~ m/USE_FREEBSD/
         || $have =~ m/_WIN32/
         || $have =~ m/_WIN64/
-        || $have =~ m/Q_OS_WINDOWS/
-        ||    #common mistake, should be Q_OS_WIN (requested by Sergio, 9/2/15)
-           $have =~ m/__APPLE__/
+
+        # || $have =~ m/Q_OS_WINDOWS/  #Q_OS_WINDOWS is supported with modern Qt6
+        || ($have =~ m/Q_OS_MAC/ && $have !~ m/Q_OS_MACOS/)    #deprecated. use Q_OS_MACOS
+        || $have =~ m/__APPLE__/
         || $have =~ m/__svr4__/
         || $have =~ m/__SVR4/
         || $have =~ m/__linux__/
